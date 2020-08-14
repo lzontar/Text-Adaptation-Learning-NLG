@@ -1,0 +1,1201 @@
+{
+    "paper_id": "1b26f83797682143f79212db4272b40cf9a7f444",
+    "metadata": {
+        "title": "Cyclic Shift on Multi-component Grammars",
+        "authors": [
+            {
+                "first": "Alexander",
+                "middle": [],
+                "last": "Okhotin",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "St. Petersburg State University",
+                    "location": {
+                        "settlement": "Saint Petersburg",
+                        "country": "Russia"
+                    }
+                },
+                "email": "alexander.okhotin@spbu.ru"
+            },
+            {
+                "first": "(",
+                "middle": [
+                    "B"
+                ],
+                "last": "",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Alexey",
+                "middle": [],
+                "last": "Sorokin",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Moscow State University",
+                    "location": {
+                        "settlement": "Moscow",
+                        "country": "Russia"
+                    }
+                },
+                "email": "alexey.sorokin@list.ru"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Multi-component grammars, known in the literature as \"multiple context-free grammars\" and \"linear context-free rewriting systems\", describe the structure of a string by defining the properties of k-tuples of its substrings, in the same way as ordinary formal grammars (Chomsky's \"context-free\") define properties of substrings. It is shown that, for every fixed k, the family of languages described by k-component grammars is closed under the cyclic shift operation. On the other hand, the subfamily defined by well-nested k-component grammars is not closed under the cyclic shift, yet their cyclic shifts are always defined by wellnested (k + 1)-component grammars.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The cyclic shift operation on formal languages, defined as shift(L) = {vu | uv \u2208 L} for a language L, is notable for several interesting properties. The closure of the class of regular languages under this operation is likely folklore, and proving it is a standard exercise in automata theory [2, Exercise 3.4(c) ]. An interesting detail is that the cyclic shift incurs a huge blow-up in the number of states in a DFA, which is of the order 2 n 2 +n log n\u2212O(n) . [3, 9] An analogous (quite an unobvious one) result for context-free grammars was first discovered by Maslov [10] and by Oshiba [12] , and a direct construction of a grammar was later presented in the textbook by Hopcroft and Ullman [2, Exercise 6.4(c) ]. In their proof, a grammar describing a language L is transformed to a grammar for the cyclic shift of L, and the transformation turns the grammar inside out, so that each parse tree in the new grammar simulates a parse tree in the original grammar, while reversing the order of nodes on one of its paths.",
+            "cite_spans": [
+                {
+                    "start": 293,
+                    "end": 296,
+                    "text": "[2,",
+                    "ref_id": null
+                },
+                {
+                    "start": 297,
+                    "end": 312,
+                    "text": "Exercise 3.4(c)",
+                    "ref_id": null
+                },
+                {
+                    "start": 463,
+                    "end": 466,
+                    "text": "[3,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 467,
+                    "end": 469,
+                    "text": "9]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 572,
+                    "end": 576,
+                    "text": "[10]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 591,
+                    "end": 595,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 696,
+                    "end": 699,
+                    "text": "[2,",
+                    "ref_id": null
+                },
+                {
+                    "start": 700,
+                    "end": 715,
+                    "text": "Exercise 6.4(c)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In contrast to this remarkable closure result, all noteworthy subfamilies of the ordinary grammars-that is, unambiguous, LR, LL, linear, input-driven, etc.-are not closed under the cyclic shift. A non-closure result for the linear conjunctive languages [11] was established by Terrier [17] . For conjunctive grammars [11] , whether they are closed under the cyclic shift, remains an open problem. A summary of these results can be found in a fairly recent survey [11, Sect. 8.2] .",
+            "cite_spans": [
+                {
+                    "start": 253,
+                    "end": 257,
+                    "text": "[11]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 285,
+                    "end": 289,
+                    "text": "[17]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 317,
+                    "end": 321,
+                    "text": "[11]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 463,
+                    "end": 467,
+                    "text": "[11,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 468,
+                    "end": 478,
+                    "text": "Sect. 8.2]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "This paper investigates the cyclic shift operation on one of the most wellknown families of formal grammars, the multi-component grammars. These grammars describe the syntax of a string by defining the properties of k-tuples of its substrings, in the same way as ordinary formal grammars and their basic variants, such as conjunctive grammars, define properties of individual substrings. In their modern form, multi-component grammars were independently introduced by Seki, Matsumura, Fujii and Kasami [14] (as \"multiple context-free grammars\", MCFG), and by Vijay-Shankar, Weir and Joshi [18] (as \"linear contextfree rewriting systems\", LCFRS). These grammars are subject to much ongoing research [1, 7, 8, 19] . Also much attention is given to their special case: the wellnested multi-component grammars, in which all components of any intermediate k-tuple are listed in the order, in which they occur in the final string, and the grammar rules combine these k-tuples. This family is believed to correspond to the natural language syntax better than other grammar formalisms.",
+            "cite_spans": [
+                {
+                    "start": 502,
+                    "end": 506,
+                    "text": "[14]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 589,
+                    "end": 593,
+                    "text": "[18]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 698,
+                    "end": 701,
+                    "text": "[1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 702,
+                    "end": 704,
+                    "text": "7,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 705,
+                    "end": 707,
+                    "text": "8,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 708,
+                    "end": 711,
+                    "text": "19]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The first result of this paper is the closure of the language family defined by k-component grammars under the cyclic shift operation. The proof, presented in Sect. 3, proceeds by transforming an arbitrary k-component grammar to another k-component grammar describing the cyclic shift of the original language.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "However, this construction does not preserve well-nestedness. A new construction adapted for well-nested grammars is presented in Sect. 4, and it incurs the increase of the number of components by one. In the final Sect. 5, it is shown that, whereas the language {a m",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "is defined by a well-nested k-component grammar, its cyclic shift is defined by no grammar from this class, and accordingly requires k + 1 components. This points out a peculiar difference between the general and the well-nested cases of multi-component grammars.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Definition 1. (Vijay-Shankar et al. [18] ; Seki et al. [14] ). A multicomponent grammar is a quintuple G = (\u03a3, N, dim, R, S), where -\u03a3 is the alphabet of the language being described; -N is the set of syntactic categories defined in the grammar, usually called \"nonterminal symbols\"; -dim : N \u2192 N is a function that defines the number of components in each nonterminal symbol, so that if dim A = k, then A describes k-tuples of substrings; -R is a set of grammar rules, each of the form",
+            "cite_spans": [
+                {
+                    "start": 36,
+                    "end": 40,
+                    "text": "[18]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 55,
+                    "end": 59,
+                    "text": "[14]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "where 0, the variables x i,j are pairwise distinct, \u03b1 1 , . . . , \u03b1 dim A are strings over symbols from \u03a3 and variables x i,j , and each variable x i,j occurs in \u03b1 1 . . . \u03b1 dim A exactly once; -a nonterminal symbol S \u2208 N of dimension 1 is the \"initial symbol\", that is, the category of all well-formed sentences defined by the grammar.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "A grammar is a logical system for proving elementary propositions of the form A(w 1 , . . . , w k ), with k = dim A and w 1 , . . . , w k \u2208 \u03a3 * , meaning that the given k-tuple of strings has the property A. A proof proceeds using the rules in R, with each rule (*) treated as a schema for derivation rules, for any strings substituted for all variables x i,j .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "The language generated by the grammar, denoted by L(G), is the set of all such strings w that the proposition S(w) can be derived in one or more such steps.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "Whenever a string w is generated by G, the derivation of a proposition S(w) forms a parse tree. Each node in the tree is labelled with a proposition A(w 1 , . . . , w k ), where k = dim A and w 1 , . . . , w k are substrings of w. Every node has a corresponding rule (*), by which the proposition is derived, and the direct successors of this node are labelled with B 1 (x 1,1 , . . . , x 1,dim B1 ), . . . , B (x ,1 , . . . , x ,dim B ), as in the definition of a derivation step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "The dimension of a grammar, dim G, is the largest dimension of a nonterminal symbol. A multi-component grammar of dimension k shall be called a k-component grammar.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "A special case of these grammars are well-nested multi-component grammars, in which, whenever multiple constituents are joined in a single rule, their components cannot be intertwined, unless one's components are completely embedded within another's components. Thus, patterns such as A(x 1 y 1 , x 2 y 2 ) \u2190 B(x 1 , x 2 )C(y 1 , y 2 ) are prohibited. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "A well-nested 2-component grammar for the same language is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "A well-nested multi-component grammar can be transformed to the following form resembling the Chomsky normal form.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multi-component Grammars"
+        },
+        {
+            "text": "Rules of the first kind generalize the concatenation. The operation implemented in the rules of the second kind, defined for i \u2208 {1, . . . , m \u2212 1}, is known as displacement or discontinuous product.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1. ([15], Thm. 1). Each well-nested k-component grammar is equivalent to a well-nested k-component grammar, in which all rules are of the following form."
+        },
+        {
+            "text": "A multi-component grammar of dimension 1 is an ordinary grammar, or \"context-free\" in Chomsky's terminology. A well-nested multi-component grammar of dimension 2 is known in the literature as a \"head grammar\" [13] ; these grammars are equivalent in power to tree-adjoining grammars [4] .",
+            "cite_spans": [
+                {
+                    "start": 209,
+                    "end": 213,
+                    "text": "[13]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 282,
+                    "end": 285,
+                    "text": "[4]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Proposition 1. ([15], Thm. 1). Each well-nested k-component grammar is equivalent to a well-nested k-component grammar, in which all rules are of the following form."
+        },
+        {
+            "text": "Let G be a non-permuting k-component grammar, the goal is to construct a new k-component grammar G that describes the language shift(L(G)).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "Whenever G generates a string w, G should generate vu for every partition w = uv. Consider a parse tree of uv according to G, that is, a proof tree of the proposition S(uv). Each node in the tree is labelled with a proposition A(w 1 , . . . , w k ), where k = dim A and w 1 , . . . , w k are substrings of w. We call a node split, if one of its components w s spans over the boundary between u and v, that is, contains both the last symbol of u and the first symbol of v.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "In the proposed construction of a grammar for the cyclic shift, each split node A(w 1 , . . . , w k ) is represented by another node of dimension k, which, however, specifies an entirely different k-tuple of strings. Consider that, whenever the original split node A(w 1 , . . . , w k ) is used in a parse tree of a string uv, this string contains w 1 , . . . , w k as substrings, in any order. The corresponding node in the parse tree of vu according to the grammar for the cyclic shift shall contain all symbols of uv except the symbols in w 1 , . . . , w k . For the moment, assume that w 1 , . . . , w k occur in uv in the order listed, and that some w s spans over the boundary between u and v. Then, uv = y 0 w 1 y 1 w 2 y 2 . . . y k\u22121 w k y k , and the symbols not in w 1 , . . . , w k are arranged into k +1 substrings y 0 , . . . , y k . However, note that in the string vu generated by the new grammar, y k and y 0 come concatenated as a single substring y k y 0 , and there is no need to represent them as separate components. Therefore, the new grammar can represent this split node A(w 1 , . . . , w k ) by another node A(y k y 0 , y 1 , . . . , y k\u22121 ) of the same dimension k, where A is a new nonterminal symbol representing the whole string with a gap for a k-tuple generated by A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "To see how this transformation can be done, the structure of split nodes in the original parse tree ought to be examined, As long as u = \u03b5 and v = \u03b5, the root S(uv) is split. Each split node has at most one split node among its immediate successors, because the last symbol of u and the first symbol of v cannot be in two successors at once. If a node is not split, then none of its successors are split. Thus, split nodes form a path in a parse tree, beginning in the root and ending somewhere inside the tree. This path shall be called the main path, and the new grammar G retraces this path using the nonterminal symbols of the form A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "In the original grammar, whenever a rule A(. . .) \u2190 B(. . .), C(. . .) is used in one of the nodes on the main path, where B is the next node along the path, shorter substrings described by B are concatenated to something taken from C to form longer substrings described by A. In the new grammar, a nonterminal symbol A generates all symbols of the string except those generated by A, whereas B generates all symbols except the symbols generated by B. Therefore, B can be defined by a rule that partially fills the gap for A in A, replacing it with a smaller gap for B in B. This is achieved by a rule B(. . .) \u2190 A(. . .), C(. . .) . The node B is accordingly higher up than A in the parse tree of vu, and the main path of the original parse tree is retraced in the reverse direction. Each rule along the path is inverted, and the parse tree is effectively turned inside out. A p1,...,p k , where A \u2208 N is a symbol of dimension k, and (p 1 , . . . , p k ) is a permutation of (1, . . . , k); the dimension of this new symbol is also k.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 592,
+                    "end": 631,
+                    "text": "by a rule B(. . .) \u2190 A(. . .), C(. . .)",
+                    "ref_id": null
+                },
+                {
+                    "start": 876,
+                    "end": 955,
+                    "text": "A p1,...,p k , where A \u2208 N is a symbol of dimension k, and (p 1 , . . . , p k )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "Each symbol from N is defined in G by the same rules as in G, and hence L G (A) = L G (A) for all A \u2208 N . For each new symbol A p1,...,p k in N , with k = dim A, the intention is that it generates all such k-tuples (w 0 , . . . , w k\u22121 ) that, for some partition w 0 = v 0 u 0 , a proposition S(u 0 x p1 w 1 x p2 w 2 . . . w k\u22121 x p k v 0 ) can be derived using an assumption A(x 1 , . . . , x k ) . In other words, a k-tuple generated by A p1,...,p k is a string from L(G) with k gaps, which should be filled by a ktuple generated by A, Note that the components of A p1,...,p k (w 0 , w 1 , . . . , w k\u22121 ) occur in the final string generated by the grammar G exactly in the given order, though w 0 is split into a suffix and a prefix. On the other hand, the components of A(x 1 , . . . , x k ) may occur in the final string in L(G) in any order, and this order is specified in the permutation p 1 , . . . , p k .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 376,
+                    "end": 397,
+                    "text": "A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "The grammar G has three kinds of rules for the new symbols. The first rule creates an empty string with one gap for a string generated by S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "Indeed, using an assumption S(x), one can derive S(x) in zero steps. For the second type of rules in G , consider any rule in G, which defines a symbol A of dimension k, and fix any nonterminal symbol B on its right-hand side. Let y 1 , . . . , y be the variables of B. Denote the remaining nonterminal symbols referenced in this rule by C 1 , . . . , C q .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on k-component Grammars"
+        },
+        {
+            "text": "For every i-th argument of A, consider all occurrences of variables y 1 , . . . , y in \u03b1 i , and accordingly let \u03b1 i = \u03b2 i,0 y ri,1 \u03b2 i,1 . . . \u03b2 i,mi\u22121 y ri,m i \u03b2 i,mi , where m i 0 is the number of these occurrences, \u03b2 i,j are strings over the alphabet \u03a3 and over the variables of C 1 , . . . , C q , and r i,j \u2208 {1, . . . , }, for each i. Since each variable is referenced exactly once, m 1 +. . .+m k = and (r 1,1 , . . . , r 1,m1 , . . . , r 1,j , . . . , r k,m k ) is a permutation of (1, . . . , ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ".)"
+        },
+        {
+            "text": "To see how to transform this rule, consider any proposition A p1,...,p k (w 0 , w 1 , . . . , w w\u22121 ), where (p 1 , . . . , p k ) is a permutation of (1, . . . , k). This symbol represents a full string generated by G, with a gap for A. If A is derived from B and C 1 , . . . C q using the above rule for A, then the substrings obtained from C 1 , . . . , C q partially fill the gaps for A, leaving smaller gaps for B. The resulting symbol B p 1 ,...,p has gaps for B, and the permutation (p 1 , . . . , p ) of (1, . . . , ) is defined by listing the numbers of the variables of B in the order they occur as gaps: the sequence y rp 1 ,1 , . . . , y rp 1 ,mp 1 , . . . , y rp k ,1 , . . . , y rp k ,mp k is the same as p 1 , . . . , p .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ".)"
+        },
+        {
+            "text": "The corresponding transformed rule in the new grammar has to fill the gaps in the right order. Let z 0 , z 1 , . . . , z w\u22121 be the variables of A p1,...,p k . Then the circular sequence z 0 \u03b1 p1 z 1 . . . z k\u22121 \u03b1 p k containing variables of A p1,...,p k , B and C 1 , . . . , C j represents the entire string, and every occurrence of a variable of B becomes a gap in the new rule. Accordingly, the sequence between any two subsequent variables of B forms an argument of B p 1 ,...,p . The first argument is the one containing z 0 . The variables of B become gaps between the variables of B p 1 ,...,p , and the resulting rule is defined as follows. ...,p (\u03b2 p k ,mp k z 0 \u03b2 p1,0 , \u03b2 p1,1 , . . . , \u03b2 p1,mp 1 \u22121 , \u03b2 p1,mp 1 z 1 \u03b2 p2,0 , \u03b2 p2,1 , . . . , ...,p k (z 0 , . . . , z k\u22121 ), C 1 (. . .) , . . . , C q (. . .) (2) Rules of the third and the last type are defined for the initial symbol of the new grammar. They correspond to the bottom split node on the main path of the parse tree in G, where the last symbol of u and the first symbol of v are finally assigned to different substrings. Denote the bottom split node by  A(x 1 , . . . , x k ) , and let u 0 x p1 w 1 x p2 w 2 . . . w k\u22121 x p k v 0 be the entire string generated by the original grammar. In the new grammar, the node A(x 1 , . . . , x k ) is represented by a proposition A p1,...,p k (v 0 u 0 , w 1 , . . . , w k\u22121 ) . Let x ps , with s \u2208 {1, . . . , k}, be the split component of A(x 1 , . . . , x k ) . The plan is to fill the gaps in A p1,...,p k (v 0 u 0 , w 1 , . . . , w k\u22121 ) with the symbols in the subtree of A(x 1 , . . . , x k ) . However, it is not possible to do this directly in a rule of the form S (. . .) \u2190 A p1,...,p k (. . .), A(x 1 , . . . , x k ) , because the component x ps is split.",
+            "cite_spans": [
+                {
+                    "start": 820,
+                    "end": 823,
+                    "text": "(2)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 650,
+                    "end": 747,
+                    "text": "...,p (\u03b2 p k ,mp k z 0 \u03b2 p1,0 , \u03b2 p1,1 , . . . , \u03b2 p1,mp 1 \u22121 , \u03b2 p1,mp 1 z 1 \u03b2 p2,0 , \u03b2 p2,1 , .",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 754,
+                    "end": 797,
+                    "text": "...,p k (z 0 , . . . , z k\u22121 ), C 1 (. . .)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1126,
+                    "end": 1151,
+                    "text": "by  A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1328,
+                    "end": 1390,
+                    "text": "by a proposition A p1,...,p k (v 0 u 0 , w 1 , . . . , w k\u22121 )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1455,
+                    "end": 1476,
+                    "text": "A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1508,
+                    "end": 1542,
+                    "text": "in A p1,...,p k (v 0 u 0 , w 1 , .",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1592,
+                    "end": 1613,
+                    "text": "A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1688,
+                    "end": 1741,
+                    "text": "(. . .) \u2190 A p1,...,p k (. . .), A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": ".)"
+        },
+        {
+            "text": "Consider the rule used to derive A(x 1 , . . . , x k ) in the new grammar, and let C 1 , . . . , C be all nonterminal symbols on its right-hand side.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 26,
+                    "end": 54,
+                    "text": "derive A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": ".)"
+        },
+        {
+            "text": "The split component \u03b1 ps generates a substring x ps = x 1 x 2 , where the first part x 1 is a suffix of u and the second part x 2 is a prefix of v. Let \u03b1 ps = \u03b7\u03b8 be a partition of \u03b1 ps into the symbols generating x 1 and the symbols generating x 2 . Then the new grammar has the following rule, where the components of A are inserted into the gaps in A p1,...,p k , and the resulting string is cyclically shifted to begin in the middle of the component \u03b1 ps .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ".)"
+        },
+        {
+            "text": "Overall, for every two strings u and v, the string uv is in L(G) if and only if vu belongs to L(G ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ".)"
+        },
+        {
+            "text": "It can be easily observed that our construction does not preserve wellnestedness. Consider the well-nested rule A(x 1 , ax 2 b) \u2190 A(x 1 , x 2 ), by our construction it produces the rule S (ax 2 by 2 x 1 y 1 ) \u2190 A(x 1 , x 2 ), A (12) (y 1 , y 2 ), which is not well-nested.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ".)"
+        },
+        {
+            "text": "The construction for the cyclic shift in the case of well-nested grammars is generally easier, since it does not involve turning parse trees inside out. All paths in the transformed trees continue in the same direction, at the expense of using one extra component. On the other hand, special care has to be taken to preserve the order of components and their well-nestedness.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cyclic Shift on Well-Nested k-component Grammars"
+        },
+        {
+            "text": "Proof. Assume that all rules in the original grammar G are as in Proposition 1. If G defines a string w = uv, the new grammar G should generate vu. In the parse tree of uv according to G, a node A(w 1 , . . . , w k ) is split, if one of its components w s spans over the boundary between u and v. Let w s = w s w s , where u ends with w s , and v begins with w s . Then, the new grammar shall have a new nonterminal symbol A s , which defines a (k + 1)-tuple A s (w s , w s+1 , . . . , w k , w 1 , . . . , w s\u22121 , w s ) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 190,
+                    "end": 216,
+                    "text": "node A(w 1 , . . . , w k )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 461,
+                    "end": 519,
+                    "text": "s (w s , w s+1 , . . . , w k , w 1 , . . . , w s\u22121 , w s )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Theorem 2. If a language is defined by a well-nested k-component grammar, then its cyclic shift can be defined by a well-nested (k + 1)-component grammar."
+        },
+        {
+            "text": "For a non-split node, let w 1 , . . . , w s be in u and let w s+1 , . . . w k be in v. Then the new grammar has a new nonterminal symbol A s with defines a shifted ktuple A s (w s+1 , . . . , w k , w 1 , . . . , w s ). In particular, the nonterminal S 1 , where S is the initial symbol of G, generates the language L G ( S 1 ) = {(v, u) | uv \u2208 L, u, v = \u03b5}. Adding a new initial nonterminal S and the rules S (xy) \u2190 S 1 (x, y) and S (w) \u2190 S 1 (w) then yields the grammar for the language shift(L(G)). What remains is to equip the newly introduced nonterminals with the rules that match their definitions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 2. If a language is defined by a well-nested k-component grammar, then its cyclic shift can be defined by a well-nested (k + 1)-component grammar."
+        },
+        {
+            "text": "For each concatenation rule A(x 1 , . . . , x m\u22121 , x m y 1 , y 2 , . . . , y n ) \u2190 B(x 1 , . . . , x m ), C(y 1 , . . . , y n ) in the original grammar, first, there are m + n \u2212 1 non-split shifts, which simply rotate the order of the components. They are using the rules below corresponding to different shifts; note that in each case one of B, C remains unshifted, and the other is shifted and wrapped around it.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 2. If a language is defined by a well-nested k-component grammar, then its cyclic shift can be defined by a well-nested (k + 1)-component grammar."
+        },
+        {
+            "text": "Secondly, the cyclic shift may split one of the components of this (m + n \u2212 1)tuple. This is implemented in A i : then, one of B, C is unshifted, and the other is split. There are the following cases. . . . , y n , x j+1 , . . . , x m , x 1 , . . . , x i , y 1 , y 2 If one of the components is split, the corresponding rule for A i is one of the following. , y i+1 , . . . , y n x j+1 , . . . , x m , x 1 , . . . , x j y 1 , . . . , y n\u22121 , y i ) \u2190",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 201,
+                    "end": 266,
+                    "text": ". . . , y n , x j+1 , . . . , x m , x 1 , . . . , x i , y 1 , y 2",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 358,
+                    "end": 427,
+                    "text": ", y i+1 , . . . , y n x j+1 , . . . , x m , x 1 , . . . , x j y 1 , .",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Theorem 2. If a language is defined by a well-nested k-component grammar, then its cyclic shift can be defined by a well-nested (k + 1)-component grammar."
+        },
+        {
+            "text": "A correctness proof for the construction proceeds by induction on the size of derivations in the respective grammars, formalizing the above explanations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 2. If a language is defined by a well-nested k-component grammar, then its cyclic shift can be defined by a well-nested (k + 1)-component grammar."
+        },
+        {
+            "text": "Theorem 2 shows how to represent the cyclic shift of a well-nested k-component grammar by a well-nested (k +1)-component grammar. On the other hand, without the well-nestedness restriction, a k-component grammar can be constructed by Theorem 1. The growth in the number of components is caused by keeping a split substring as two components. The question is, whether this weakness is an artefact of the construction, or is determined by the fundamental properties of well-nested grammars. In this section we prove, that for any k 2, there exists a well-nested k-component grammar, whose cyclic shift lies outside this class; thus the result of the previous section cannot be strengthened.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Number of Components in Well-Nested Grammars 1"
+        },
+        {
+            "text": "As such a counterexample, we take a very simple language EmbBal(2, k), containing all the strings of the form a m 1 b n 1 c n 1 d m 1 . . . a m k b n k c n k d m k , with m, n 0, which is defined by a well-nested k-component grammar (see Example 2) . It is claimed that the cyclic shift of this language cannot be represented by a well-nested k-component grammar. Since this language family is closed under rational transductions, it suffices to demonstrate that the language NonEmbBal(2, k) = {a m 1 b m 1 c n 1 d n 1 . . . a m k b m k c n k d n k | m, n > 0} cannot be generated by a well-nested k-component grammar, because this language is obtained from CyclicShift(EmbBal(2, k)) by intersection with a regular language b + 1 \u03a3 * a + 1 , and with a circular letter renaming 1 d 1 , . . . , a k x k d k ) \u2190 A(x 1 , . . . , x k ) A(x 1 , . . . , x k ) \u2190 B(x 1 , . . . , x k ) B (b 1 x 1 c 1 , . . . , b k x k c k ) \u2190 B(x 1 , . . . , x k ) B(\u03b5, . . . , \u03b5) \u2190 difference between these two grammar families. This contributes to the general knowledge on multi-component grammars. This result has an interesting consequence: since the identity language of any group is closed under cyclic shift, and rational transformations preserve this closure property, no group identity language can be a rational generator of wellnested k-component grammars, for any k 2. This is not the case for k = 1, where the Chomsky-Sch\u00fctzenberger theorem states that any such language can be obtained from the language D 2 , that includes the words equal to 1 in a free group with two generators, by a composition of intersection with regular language and a homomorphism.",
+            "cite_spans": [
+                {
+                    "start": 238,
+                    "end": 248,
+                    "text": "Example 2)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 778,
+                    "end": 831,
+                    "text": "1 d 1 , . . . , a k x k d k ) \u2190 A(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 880,
+                    "end": 940,
+                    "text": "(b 1 x 1 c 1 , . . . , b k x k c k ) \u2190 B(x 1 , . . . , x k )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Number of Components in Well-Nested Grammars 1"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "= \u03b5, then \u03c4 L (u j ) = \u03c4 L (v j ) and \u03c4 R (u j ) = \u03c4 R",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "If there exists a well-nested k-component grammar for NonEmbBal D (2, k) in Chomsky normal form without useless nonterminals",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "An algebraic approach to multiple context-free grammars",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Clark",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Yoshinaka",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "LACL 2014",
+            "volume": "8535",
+            "issn": "",
+            "pages": "57--69",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-662-43742-1_5"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Introduction to Automata Theory, Languages and Computation",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hopcroft",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Ullman",
+                    "suffix": ""
+                }
+            ],
+            "year": 1979,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "State complexity of cyclic shift",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Jir\u00e1skov\u00e1",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Okhotin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Inform. Appl",
+            "volume": "42",
+            "issn": "2",
+            "pages": "335--360",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Tree adjunct grammars",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Joshi",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Levy",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Takahashi",
+                    "suffix": ""
+                }
+            ],
+            "year": 1975,
+            "venue": "J. Comput. Syst. Sci",
+            "volume": "10",
+            "issn": "1",
+            "pages": "136--163",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The pumping lemma for well-nested multiple context-free languages",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kanazawa",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "DLT 2009",
+            "volume": "5583",
+            "issn": "",
+            "pages": "312--325",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-02737-6_25"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Ogden's lemma, multiple context-free grammars, and the control language hierarchy",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kanazawa",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Inf. Comput",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "The failure of the strong pumping lemma for multiple context-free languages",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kanazawa",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Kobele",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Michaelis",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Salvati",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Yoshinaka",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Theory Comput. Syst",
+            "volume": "55",
+            "issn": "1",
+            "pages": "250--278",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Mix is not a tree-adjoining language",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kanazawa",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Salvati",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Proceedings of the 50th Annual Meeting of the Association for Computational Linguistics",
+            "volume": "1",
+            "issn": "",
+            "pages": "666--674",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Estimates of the number of states of finite automata",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Maslov",
+                    "suffix": ""
+                }
+            ],
+            "year": 1970,
+            "venue": "Dokl. Akad. Nauk",
+            "volume": "194",
+            "issn": "6",
+            "pages": "1266--1268",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Cyclic shift operation for languages",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Maslov",
+                    "suffix": ""
+                }
+            ],
+            "year": 1973,
+            "venue": "Problemy Peredachi Informatsii",
+            "volume": "9",
+            "issn": "4",
+            "pages": "81--87",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Conjunctive and Boolean grammars: the true general case of the context-free grammars",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Okhotin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Comput. Sci. Rev",
+            "volume": "9",
+            "issn": "",
+            "pages": "27--59",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Closure property of family of context-free languages under cyclic shift operation",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Oshiba",
+                    "suffix": ""
+                }
+            ],
+            "year": 1972,
+            "venue": "Electron. Commun. Jpn",
+            "volume": "55",
+            "issn": "4",
+            "pages": "119--122",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Generalized phrase structure grammars, head grammars, and natural language",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Pollard",
+                    "suffix": ""
+                }
+            ],
+            "year": 1984,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "On multiple context-free grammars",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seki",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Matsumura",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Fujii",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kasami",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Theoret. Comput. Sci",
+            "volume": "88",
+            "issn": "2",
+            "pages": "191--229",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Normal forms for multiple context-free languages and displacement Lambek grammars",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Sorokin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "LFCS 2013",
+            "volume": "7734",
+            "issn": "",
+            "pages": "319--334",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-35722-0_23"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Ogden property for linear displacement context-free grammars",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Sorokin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "LFCS 2016",
+            "volume": "9537",
+            "issn": "",
+            "pages": "376--391",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-27683-0_26"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Closure properties of cellular automata",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Terrier",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Theoret. Comput. Sci",
+            "volume": "352",
+            "issn": "1-3",
+            "pages": "97--107",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Characterizing structural descriptions produced by various grammatical formalisms",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Vijay-Shanker",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Weir",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Joshi",
+                    "suffix": ""
+                }
+            ],
+            "year": 1987,
+            "venue": "Proceedings of the 25th Annual Meeting on Association for Computational Linguistics",
+            "volume": "",
+            "issn": "",
+            "pages": "104--111",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Chomsky-Sch\u00fctzenberger-type characterization of multiple context-free languages",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Yoshinaka",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Kaji",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seki",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "LATA 2010",
+            "volume": "6031",
+            "issn": "",
+            "pages": "596--607",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-13089-2_50"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "For every k-component grammar G with n nonterminal symbols, there exists another k-component grammar with at most (k! + 1)n nonterminal symbols that describes the language shift(L(G)). Proof. Let G = (\u03a3, N, dim, R, S), The new grammar is defined as G = (\u03a3, N \u222a N \u222a {S }, dim, R \u222a R , S ), where every new nonterminal symbol in N is of the form",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "i (x i , x i+1 , . . . , x m\u22121 , x m y 1 , y 2 , . . . , y n , x 1 , . . . ,x i\u22121 , x i ) \u2190 B i (x i , x i+1 , . . . , x m , x 1 , . . . , x i\u22121 , x i ), C(y 1 , . . . , y n ) (i < m) A m+i (y i , y i+1 , . . . , y n , x 1 , . . . , x m\u22121 , x m y 1 , y 2 , . . . , y i\u22121 , y i ) \u2190 B(x 1 , . . . , x m ), C i (y i , y i+1 ,. . . , y n , y 1 , . . . , y i\u22121 , y i ) (1 i n) Consider a displacement rule A(x 1 , . . . , x j\u22121 , x j y 1 , . . . y n x j+1 , . . . , x m ) \u2190 B(x 1 , . . . , x m ), C(y 1 , . . . , y n ) in G, with j \u2208 {1, . . . , m \u2212 1}. Again, there are non-split and split shifts. Non-split shifts fall into the following three cases.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": ", . . . , y i ) \u2190B(x 1 , . . . , x m ), C i (y i+1 , . . . , y n , y 1 , . . . , y i ) (1 i n) A m\u22121+i (x i+1 ,. . . , x m , x 1 , . . . , x j y 1 , y 2 , . . . y n x j+1 , . . . , xi\u22121 ) \u2190 B i (x i+1 , .. . , x m , x 1 , . . . , x i ), C(y 1 , . . . , y n ) (i > j)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The language EmbBal(2, k), containing all the strings of the forma m 1 b n 1 c n 1 d m 1 . . . a m k b n k c n k d m k ,with m, n 0, is defined by the following well-nested k-component grammar.S(x 1 . . . x k ) \u2190 A(x 1 , . . . , x k ) A(a 1 x",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Definition 2. A multi-component grammar is called well-nested, if every rule (*), satisfies the following conditions. 1. (non-permuting condition) For every i, the variables x i,1 , . . . , x i,dimBi occur inside \u03b1 1 . . . \u03b1 dimA in this particular order. 2. For all i, i the concatenation \u03b1 1 . . . \u03b1 dimA satisfies one of the following patterns:",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The definitions below are taken from Kanazawa [5] .",
+            "cite_spans": [
+                {
+                    "start": 46,
+                    "end": 49,
+                    "text": "[5]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "annex"
+        },
+        {
+            "text": "A(x 1 , . . . , x r ) A(y 1 , . . . , y r ).Note that in case of a well-nested grammar in Chomsky normal form, x 1 . . . x r is a proper subsequence of y 1 . . . y r . For each pump D, we define the sequence of its pumping strings: 2 ) produces the pumping sequence [a, bc, \u03b5, a, b, \u03b5]. Informally, the pumping strings are maximal contiguous strings that the pump subtree injects into the derived string. It is easy to prove that the pumping sequence of an r-pump consists of exactly 2r strings.",
+            "cite_spans": [
+                {
+                    "start": 232,
+                    "end": 233,
+                    "text": "2",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 3. An r-pump D is a nonempty derivation of the form D :"
+        },
+        {
+            "text": "Obviously, for an even pump D the pumping strings are strings(D) = [u 1 , v 1 , . . . , u n , v n ].We use the term \"pump\" not only for derivations, but also for derivation trees. Given a derivation tree, we call a letter occurrence covered if it occurs in the yield of some pump, and evenly covered if this pump is even.In what follows we consider only grammars in the Chomsky normal form, as in Proposition 1. The following lemma is a mathematical folklore for context-free grammars, the proof for well-nested multicomponent grammars is the same.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4. An even r-pump is a nonempty derivation of the form"
+        },
+        {
+            "text": "For every language L defined by a well-nested grammar, there exists a number p, such that for every w \u2208 L at most p \u2212 1 letters are not covered.In the case of ordinary grammars (well-nested 1-component grammars), this lemma implies a weak version of the Ogden property [6, 16] However, as shown by Kanazawa and Salvati [8] , that is not the case for well-nested grammars of higher dimensions. Namely, the existence of an uneven pump does not imply the k-pumping lemma. However, in our case we may get rid of uneven pumps. ",
+            "cite_spans": [
+                {
+                    "start": 269,
+                    "end": 272,
+                    "text": "[6,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 273,
+                    "end": 276,
+                    "text": "16]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 319,
+                    "end": 322,
+                    "text": "[8]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Lemma 1."
+        },
+        {
+            "text": "We call decorations of bounded languages decorated bounded and decorations of strictly bounded languages decorated strictly bounded. Obviously, Dec(L) is rationally equivalent to L. Therefore, in what follows we consider the decorated strictly bounded language NonEmbBal D (2, k) = Dec (NonEmbBal(2, k) ). A G (u 1 , . . . , u r ) and A G (v 1 , . . . , v r ) . Then, for every j, it holds that The next result follows from the definition of well-nestedness by simple geometrical considerations. G A(u 1 , . . . , u r ) G S(w 0 u 0 w 1 . . . u r w r ) and G B(u 1 , . . . , u s ) G S(w 0 u 0 w 1 . . . u s w s ) be two derivations corresponding to the same derivation tree of the string w = w 0 u 0 w 1 . . . u r w r = w 0 u 0 w 1 . . . u s w s . Then one of the following is the case:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 286,
+                    "end": 302,
+                    "text": "(NonEmbBal(2, k)",
+                    "ref_id": null
+                },
+                {
+                    "start": 306,
+                    "end": 359,
+                    "text": "A G (u 1 , . . . , u r ) and A G (v 1 , . . . , v r )",
+                    "ref_id": null
+                },
+                {
+                    "start": 496,
+                    "end": 567,
+                    "text": "G A(u 1 , . . . , u r ) G S(w 0 u 0 w 1 . . . u r w r ) and G B(u 1 , .",
+                    "ref_id": null
+                }
+            ],
+            "section": "Definition 5. A language is called bounded if it is a subset of the language"
+        },
+        {
+            "text": "Informally speaking, the \"continuous spans\" of two constituents either are embedded or do not intersect. Now we are ready to prove our main theorem. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4. Let"
+        },
+        {
+            "text": "This paper has settled the closure under the cyclic shift for both general and well-nested multi-component grammars, as well as pointed out an interesting",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ]
+}

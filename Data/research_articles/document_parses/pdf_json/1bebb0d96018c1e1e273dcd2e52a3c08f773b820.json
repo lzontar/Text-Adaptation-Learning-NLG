@@ -1,0 +1,1810 @@
+{
+    "paper_id": "1bebb0d96018c1e1e273dcd2e52a3c08f773b820",
+    "metadata": {
+        "title": "Advanced Radial Basis Functions Mesh Morphing for High Fidelity Fluid-Structure Interaction with Known Movement of the Walls: Simulation of an Aortic Valve High Fidelity RBF Mesh Morphing Approach for FSI Analysis",
+        "authors": [
+            {
+                "first": "Leonardo",
+                "middle": [],
+                "last": "Geronzi",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "BioCardioLab",
+                    "institution": "Fondazione Toscana \"G. Monasterio\", Heart Hospital",
+                    "location": {
+                        "addrLine": "Bioengineering Unit",
+                        "settlement": "Massa",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Emanuele",
+                "middle": [],
+                "last": "Gasparotti",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "BioCardioLab",
+                    "institution": "Fondazione Toscana \"G. Monasterio\", Heart Hospital",
+                    "location": {
+                        "addrLine": "Bioengineering Unit",
+                        "settlement": "Massa",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Katia",
+                "middle": [],
+                "last": "Capellini",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "BioCardioLab",
+                    "institution": "Fondazione Toscana \"G. Monasterio\", Heart Hospital",
+                    "location": {
+                        "addrLine": "Bioengineering Unit",
+                        "settlement": "Massa",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Ubaldo",
+                "middle": [],
+                "last": "Cella",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Rome Tor Vergata",
+                    "location": {
+                        "settlement": "Rome",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Corrado",
+                "middle": [],
+                "last": "Groth",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Rome Tor Vergata",
+                    "location": {
+                        "settlement": "Rome",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Stefano",
+                "middle": [],
+                "last": "Porziani",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Rome Tor Vergata",
+                    "location": {
+                        "settlement": "Rome",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Andrea",
+                "middle": [],
+                "last": "Chiappa",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Rome Tor Vergata",
+                    "location": {
+                        "settlement": "Rome",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Simona",
+                "middle": [],
+                "last": "Celi",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "BioCardioLab",
+                    "institution": "Fondazione Toscana \"G. Monasterio\", Heart Hospital",
+                    "location": {
+                        "addrLine": "Bioengineering Unit",
+                        "settlement": "Massa",
+                        "country": "Italy"
+                    }
+                },
+                "email": "s.celi@ftgm.it"
+            },
+            {
+                "first": "Marco",
+                "middle": [
+                    "Evangelos"
+                ],
+                "last": "Biancolini",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Rome Tor Vergata",
+                    "location": {
+                        "settlement": "Rome",
+                        "country": "Italy"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "High fidelity Fluid-Structure Interaction (FSI) can be tackled by means of non-linear Finite Element Models (FEM) suitable to capture large deflections of structural parts interacting with fluids and by means of detailed Computational Fluid Dynamics (CFD). High fidelity is gained thanks to the spatial resolution of the computational grids and a key enabler to have a proper exchange of information between the structural solver and the fluid one is the management of the interfaces. A class of applications consists in problems where the complex movement of the walls is known in advance or can be computed by FEM and has to be transferred to the CFD solver. The aforementioned approach, known also as one-way FSI, requires effective methods for the time marching adaption of the computation grid of the CFD model. A versatile and well established approach consists in a continuum update of the mesh that is regenerated so to fit the evolution of the moving walls. In this study, an innovative method based on Radial Basis Functions (RBF) mesh morphing is proposed, allowing to keep the same mesh topology suitable for a continuum update of the shape. A set of key configurations are exactly guaranteed whilst time interpolation is adopted between frames. The new framework is detailed and then demonstrated, adopting as a reference the established approach based on remeshing, for the study of a Polymeric-Prosthetic Heart Valve (P-PHV).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In all the engineering areas of development, multiphysics analysis appears highly difficult to be carried out because of the interactions between more than one physics involved. During the achievement and the analysis of coupled systems, the way in which the shape of the object influences its performances is required to be carefully taken into account. In the biomedical engineering field for example, the design and the evaluation of the behaviour of prosthetic valves, stent-grafts and ventricular assist devices are related to both the structural and fluid mechanics physics [1] [2] [3] . Generally speaking, numerical meshes need to be created for the specific kind of analysis and, in a multi-physics context, two or more meshes have to be realised. In this environment, each geometric change is applied to all the numerical models involved in the analysis: such update has to be performed in a rapid way and as easy as possible. This task, usually carried out through remeshing methods, may be also obtained faster with the use of mesh morphing techniques. This approach allows the changing of the shape of a meshed surface so that the topology is preserved while nodal positions are updated [4, 5] : modifications are applied on a baseline grid by moving the surface nodes and propagating displacements inside the surrounding volume mesh nodes. Concerning biomedical applications, morphing methods have been applied in both bone and cardiovascular fields. Recently, in [6] , an interactive sculpting and RBF mesh morphing approach has been proposed to address geometry modifications using a force-feedback device, while in [7] RBF have been applied to improve cranioplasty applications. In the cardiovascular field, morphing approaches were employed in [8] for the registration procedures of the cardiac muscle and to model an aorta aneurysm carrying a one-way FSI [9] [10] [11] . In literature RBF have been extensively employed to tackle FSI problems [12] , using the modal method for both static [13, 14] and transient simulations [15] [16] [17] , as well as the two-way approach [18, 19] with RBF-based mapping methods [20] . In this work the state of the art regarding biomedical one-way FSI applications, as shown in [11] , is furtherly improved for a transient simulation by taking into account the non-linear deformations of the wetted surfaces during motion. An ad-hoc workflow was developed to transfer and to update, using an RBF-based morphing technique, the CFD mesh, incrementally adjusting the geometry according to the non-linear evolution predicted by the FEM solver. To demonstrate the effectiveness of the proposed approach, it was applied to a tailor-made Polymeric-Prosthetic Heart Valve; these devices [21] proved to significantly reduce blood coagulation problems, maintaining excellent properties in term of strength, efficient function and long-term durability [22, 23] . This work is arranged as follows: at first, an introduction on FSI coupling is given, comparing remeshing and morphing workflows. The proposed procedure is implemented in the following paragraph, in which the incremental approach is shown on the P-PHV case. Results are finally discussed and compared to those obtained by remeshing.",
+            "cite_spans": [
+                {
+                    "start": 580,
+                    "end": 583,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 584,
+                    "end": 587,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 588,
+                    "end": 591,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1200,
+                    "end": 1203,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1204,
+                    "end": 1206,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1478,
+                    "end": 1481,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1632,
+                    "end": 1635,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1762,
+                    "end": 1765,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1874,
+                    "end": 1877,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1878,
+                    "end": 1882,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1883,
+                    "end": 1887,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1962,
+                    "end": 1966,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 2008,
+                    "end": 2012,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 2013,
+                    "end": 2016,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 2043,
+                    "end": 2047,
+                    "text": "[15]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 2048,
+                    "end": 2052,
+                    "text": "[16]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 2053,
+                    "end": 2057,
+                    "text": "[17]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 2092,
+                    "end": 2096,
+                    "text": "[18,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 2097,
+                    "end": 2100,
+                    "text": "19]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 2132,
+                    "end": 2136,
+                    "text": "[20]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 2232,
+                    "end": 2236,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 2733,
+                    "end": 2737,
+                    "text": "[21]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 2895,
+                    "end": 2899,
+                    "text": "[22,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 2900,
+                    "end": 2903,
+                    "text": "23]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "One of the most delicate processes in a Fluid-Structure Interaction analysis concerns the management of the fluid-solid interfaces; at the boundary surfaces between these two domains, solution data is shared between the fluid solver and the structural one. A useful and employed kind of FSI analysis concerns all the simulations in which a moving body interacts with an internal or external surrounding fluid in a unidirectional way. This one-way coupling does not guarantee energy conservation at the fluid-solid interface but holds the benefit of lower computational time in comparison to the bidirectional one, in which a continuous data exchange between Computational Structural Mechanics (CSM) and CFD solvers is required. In this work two Arbitrary Lagrangian Eulerian (ALE) methods [24] [25] [26] for moving meshes are employed: the first based on remeshing algorithms, called in this paper \"standard\" approach and the novel one using RBF mesh morphing procedures. In this first kind of analysis, as shown in Fig. 1 , a specific component is responsible to transfer the deformation of the CSM mesh to the grid of the CFD solver. In fact, one of the most applied strategies to manage body meshes in FSI applications is simply to move the grid for as long as possible and, when the quality of the mesh becomes critical, to enable the remeshing tools updating the lowquality cells generated by high displacements in the fluid domain [27] . Larger are the displacements of the grid, wider are the distortions of the cells; remeshing method agglomerates cells that violate the initially defined Skewness [28] or size criteria and remeshes them. If the new cells or faces satisfy the Skewness criterion, the mesh is locally updated with the new cells, interpolating the solution from the old cells. Otherwise, the new cells are discarded and another remeshing step is required. Obviously, when small displacements are involved and just few remeshing steps are necessary, this approach may be considered efficient. However, for larger displacements, the number of remeshing steps increases to avoid the presence of negative and invalid elements; as a result, the simulation is slowed down because a new mesh with different numbers and positions of nodes and cells has to be generated more frequently.",
+            "cite_spans": [
+                {
+                    "start": 789,
+                    "end": 793,
+                    "text": "[24]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 794,
+                    "end": 798,
+                    "text": "[25]",
+                    "ref_id": null
+                },
+                {
+                    "start": 799,
+                    "end": 803,
+                    "text": "[26]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 1437,
+                    "end": 1441,
+                    "text": "[27]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 1606,
+                    "end": 1610,
+                    "text": "[28]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1016,
+                    "end": 1022,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "FSI Coupling: Known-Imposed Motion of the Walls"
+        },
+        {
+            "text": "To overcome the problems related to remeshing, a procedure based on mesh morphing to adapt the shape according to a target one [29] is here described. Among the morphing methods available in literature, RBF are well known for their interpolation quality also on very large meshes [4, 30] . RBF allow to interpolate everywhere in the space a scalar functions known at discrete points, called Source points (Sp). By interpolating three scalar values it is possible, solving a linear system of order equal to the number of Sp employed [4] , to describe a displacement of the Sp in the three directions in space. The interpolation function is defined as follows:",
+            "cite_spans": [
+                {
+                    "start": 127,
+                    "end": 131,
+                    "text": "[29]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 280,
+                    "end": 283,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 284,
+                    "end": 287,
+                    "text": "30]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 532,
+                    "end": 535,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A Novel FSI Workflow Using RBF Mesh Morphing"
+        },
+        {
+            "text": "where x is a generic position in the space, x si the Sp position, s(\u00b7) the scalar function which represents a transformation R n \u2192 R, \u03d5 (\u00b7) the radial function of order m, \u03b3 i the weight and h(x) a polynomial term with degree m \u2212 1 added to improve the fit assuring uniqueness of the problem and polynomial precision. The unknowns of the system, namely the polynomial coefficients and the weights \u03b3 i of the radial functions, are retrieved by imposing the passage of the function on the given values and an orthogonality condition on the polinomials. If the RBF is conditionally positive definite, it can be demonstrated that a unique interpolant exists and in 3D, if the order is equal or less than 2, a linear polynomial in the form h(x) = \u03b2 1 + \u03b2 2 x + \u03b2 3 y + \u03b2 4 z can be used. The linear problem can be also written in matrix form:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Novel FSI Workflow Using RBF Mesh Morphing"
+        },
+        {
+            "text": "in which M is the interpolation matrix containing all the distances between RBF centres M ij = \u03d5 ( x i \u2212 x j ), P the matrix containing the polynomial terms that has for each row j the form P j = [1 x 1j x 2j ... x nj ] and g the known values at Sp. The new nodal positions, if interpolating the displacements, can be retrieved for each node as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Novel FSI Workflow Using RBF Mesh Morphing"
+        },
+        {
+            "text": "Being the problem solved pointwise, the approach is meshless and able to manage every kind element (tetrahedral, hexahedral, polyhedral and others), both for surface and volume mesh smoothing ensuring the preservation of their topology.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Novel FSI Workflow Using RBF Mesh Morphing"
+        },
+        {
+            "text": "In general, a morphing operation can introduce a reduction of the mesh quality but a good morpher has to minimize this effect and to maximize the possible shape modifications. If mesh quality is well preserved, morphing has a clear benefit over remeshing because it avoids introducing noise [4] . This procedure ",
+            "cite_spans": [
+                {
+                    "start": 291,
+                    "end": 294,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A Novel FSI Workflow Using RBF Mesh Morphing"
+        },
+        {
+            "text": "To apply the shape deformation without remeshing, the morpher RBF Morph is in this study employed [31] . To delimit the morphing action, an encapsulation technique has to be implemented, defining in this way sub-domains or parts of the fluid domain within which the morpher action is applied [32] . According to [33], S p effectively used are a random subgroup which includes a percentage close to 2% of the total extracted surface nodes of the structural model. A Radial Basis Function is selected and, when the settings of the procedure are completed, morphing solutions are calculated, each per morphing transitions, from the starting configuration to the final position of the model. Every transition, a new deformed mesh is generated and the solution files are stored.",
+            "cite_spans": [
+                {
+                    "start": 98,
+                    "end": 102,
+                    "text": "[31]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 292,
+                    "end": 296,
+                    "text": "[32]",
+                    "ref_id": "BIBREF32"
+                }
+            ],
+            "ref_spans": [],
+            "section": "RBF Morph Application."
+        },
+        {
+            "text": "CFD Set-Up. Once all the morphed meshes are obtained, the CFD analysis is carried out every time step on a new deformed mesh, by using a specific script in Scheme Programming Language. This script is recalled before the starting of the CFD simulation and it allows the automatization of the MultiSol tool of RBF Morph software in order to guarantee the synchronous implementation of the deformed shape in fluid environment. The nodal displacement inside two subsequent morphed positions is simply handled inside the Scheme script by means of a parameter called amplification A(t) which varies over time from 0 to A 0 (usually equal to +1 or \u22121). Because of the samplings available at different times, an accurate and effective solution can be obviously achieved, handling all the morphing deformations separately and linearly modulating the amplification within each of the sampled grids: calling i the index that concerns all the mesh conformations P 0 ...P n , the amplification A i (t) inside each time step can be evaluated as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RBF Morph Application."
+        },
+        {
+            "text": "In this way, the fluid grid is able to follow the displacements of the CSM mesh and solution can be quickly calculated every time on a new deformed grid.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RBF Morph Application."
+        },
+        {
+            "text": "In this paper, both the presented FSI solution approaches are applied to study the opening phase of a P-PHV. This kind of analysis is conducted on a prosthetic valve to study its haemodynamic behaviour during the opening phase in which the leaflets or cusps [34, 35] are pushed open to allow the ejection of the blood flow and to investigate the effects of the solid domain (P-PHV) towards the fluid domain (blood flow). The design of a prosthetic aortic valve is realised using the software Space-Claim, following the geometry proposed in [36] , and then imported inside ANSYS Workbench (v193). ",
+            "cite_spans": [
+                {
+                    "start": 258,
+                    "end": 262,
+                    "text": "[34,",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 263,
+                    "end": 266,
+                    "text": "35]",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 540,
+                    "end": 544,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementation of the Workflows to Study the Opening Phase of a Polymeric Aortic Valve"
+        },
+        {
+            "text": "The workflow of the first approach based on remeshing and implemented inside ANSYS Workbench is proposed in Fig. 4 . In this case, the displacements of a Concerning the loads, a physiological time-varying pressure is uniformly applied to the ventricular portion of the valve to simulate the opening pressure.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 108,
+                    "end": 114,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Study of the Valve Using the Remeshing Workflow"
+        },
+        {
+            "text": "Fluent was used as CFD solver, activating the Dynamic Mesh to deform and regenerate the computational grid [38]: the Spring-Laplace based Smoothing Method and the Remeshing Method, two tools to solve the analysis of deformed domains due to boundary movement over time [39] , are applied.",
+            "cite_spans": [
+                {
+                    "start": 268,
+                    "end": 272,
+                    "text": "[39]",
+                    "ref_id": "BIBREF37"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Study of the Valve Using the Remeshing Workflow"
+        },
+        {
+            "text": "Inside the System Coupling component, all the surfaces of the valve in contact with the blood are set as fluid-solid interfaces and a time step of 1e-5 s is selected. The novel workflow, based on a RBF mesh morphing, also in this case developed into the ANSYS Workbench environment is shown in Fig. 5 which depicts the overall incremental procedure; in particular, the System Coupling component, fundamental in the previously shown approach, here is not employed.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 294,
+                    "end": 300,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Study of the Valve Using the Remeshing Workflow"
+        },
+        {
+            "text": "Results obtained with the use of RBF Morph software are compared to those achieved using Fluent remeshing tools. They are reported in terms of pressure map, velocity streamlines and computational time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Study of the Valve Using the Morphing Approach"
+        },
+        {
+            "text": "Structural Simulations. The same CSM analysis implemented in the remeshing approach is conducted. A specific Application Customization Toolkit (ACT) Extension, i.e. a method to achieve custom applications inside ANSYS Mechanical, is developed to collect Sp and Tp according to a sampling time chosen by the user: in this case, ten different surface nodal positions (P 0 ...P 9 ) are collected.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Study of the Valve Using the Morphing Approach"
+        },
+        {
+            "text": "The RBF Morph Fluent (v193) Add-On is adopted: the RBF are used to step by step project the S p to the T p and interpolate the displacements of the volume nodes inside the blood domain over time. RBF Morph tools may impose a blood domain adaptation in the CFD analysis following the deformed shapes of the valvular domain, extracted from the previous CSM simulation. In the case of the valve, to control the morphing action in the space, no encapsulation volumes [32] are generated but a fixed Surf Set (with null displacement during the movement of the leaflets) on the wall of the Sinotubular Junction (STJ) [40] is preferred (Fig. 6) . In this way, since the distortion of the mesh is extremely high, such deformations can be distributed also in the other zones of the fluid domain and not only in proximity to the valve.",
+            "cite_spans": [
+                {
+                    "start": 463,
+                    "end": 467,
+                    "text": "[32]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 610,
+                    "end": 614,
+                    "text": "[40]",
+                    "ref_id": "BIBREF38"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 628,
+                    "end": 636,
+                    "text": "(Fig. 6)",
+                    "ref_id": "FIGREF6"
+                }
+            ],
+            "section": "RBF Morph Set-Up."
+        },
+        {
+            "text": "To prevent mesh quality reduction, in this work the bi-harmonic kernel \u03d5(r) = r is used: it is the RBF that guarantees to keep the mesh quality degradation at minimum [41] . The nine solutions are calculated using the Solve Panel of the software, each per morphing action. Two different strategies are evaluated: -Forwards: from P 0 (initial position) directly to P 9 (totally open position).",
+            "cite_spans": [
+                {
+                    "start": 167,
+                    "end": 171,
+                    "text": "[41]",
+                    "ref_id": "BIBREF39"
+                }
+            ],
+            "ref_spans": [],
+            "section": "RBF Morph Set-Up."
+        },
+        {
+            "text": "-Backwards/Forwards (Fig. 7) : extracting a new already deformed valve in position P 2 of which a new mesh is achieved, from P 2 going back to P 0 (backwards -step 1) and then from P 0 moving on to P 9 (forwards -step 2).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 20,
+                    "end": 28,
+                    "text": "(Fig. 7)",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "RBF Morph Set-Up."
+        },
+        {
+            "text": "The first strategy produced an excessive mesh distortion with negative cells volume in particular at the centre of the leaflets. No mesh problems are detected with the adopted second approach. Fluent Setting. The same time step of the standard approach (1e-5 s) is selected. The flow is initialized with the valve in position P 0 and the Scheme file with the amplification of each of the nine different transitions is recalled inside Fluent. Thanks to this workflow, the FSI simulation can be conducted only by means of this CFD analysis in which the mesh is updated every time step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RBF Morph Set-Up."
+        },
+        {
+            "text": "The first important parameter to check in the implementation of both the approaches is the Skewness: no negative cells are detected and maximum Sk values are 0.858 and 0.961 respectively for the procedure implemented through remeshing and morphing. No convergence issues due to mesh degradation are recorded.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Results and Discussions"
+        },
+        {
+            "text": "In this work, only pressure and velocity results of the 3D-model at a specific and significant time step are shown using the CFD-Post software. Pressure Map -A 3D-pressure rendering at the time in which the valve is for the first time open (7 ms) is represented in Fig. 8 ; as it can be observed, no significant differences in terms of pressure values are recorded between the two approaches: the mean pressure are 69.64 mmHg and 70.31 mmHg respectively for the simulation based on remeshing and the analysis using mesh morphing (difference of less than 1%).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 265,
+                    "end": 271,
+                    "text": "Fig. 8",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "Results and Discussions"
+        },
+        {
+            "text": "Velocity Streamlines -Streamlines of both the solution methods are reported in Fig. 9 . It is possible to observe how in this 3D-representation the local maximum values are placed in the same zones. Maximum local fluid velocities are reached right at t = 7 ms because the fast movement of the leaflets pushes away the blood: maximum value for the FSI implemented with the novel approach is 3.011 m/s, about 5.58% less than the value detected in the analysis based on remeshing, that is 3.189 m/s. Computational Time -The time required to calculate the solution is the most interesting difference between these two solution methods: with the same number of elements and to parity of time step (1e-5 s), the standard workflow requires 6283 min to solve the problem while the CFD analysis with the morphing application only 396 min, approximately 16 times faster. Furthermore, if time step is increased, Fluent solver using remeshing starts having troubles and the obvious consequence is the no-convergence of the model. This phenomenon does not happen with morphing by which time step can be highly increased without problems and solution time can be reduced up to 60 times compared to that of remeshing.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 79,
+                    "end": 85,
+                    "text": "Fig. 9",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "Results and Discussions"
+        },
+        {
+            "text": "In this work, a fast high fidelity workflow for a multi-physic Fluid-Structure Interaction analysis exploiting ANSYS Workbench and RBF Morph is presented. In particular, this powerful system has proved to be useful and accurate in all those applications in which the movement of the fluid domain is strongly controlled by the deformation of the solid domain. The possibility to replicate the non-linear analysis in which the motion of a solid model is transferred to a fluid domain carefully handling the interfaces is demonstrated. In a specific application case, the attempt to transfer aortic valve opening kinematics to the CFD analysis through a mesh morphing technique results to be successful and the effectiveness of the FSI simulation implemented through mesh morphing to reproduce the fluid dynamic field of the aortic valve is here shown and validated. Morphing has turned out to be very consistent in comparison to remeshing. Further research is needed to asses in more detail the differences between these two distinct approaches. Testing the novel workflow on a FSI analysis about the study of the opening of a polymeric aortic valve, it has allowed to reduce the simulation time up to 16 times in comparison to that required by remeshing methods using the same time step. Until now, numerical FSI simulations have been used in a restricted manner precisely because of the long time required to solve them, as in the case of heart valve computational analyses. Dealing with clinical trials, this approach could ensure a considerable time saving with a decrease of the final mesh quality which results acceptable for the numerical solver here adopted. This new workflow has definitely broken down this limit, granting in this case the possibility to test several models of P-PHV in a lot of flow conditions. In addition, a parametric design of P-PHV combined with this method could finally make a strong contribution to the patient-specific aortic valve replacement.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Numerical methods for fluid-structure interaction models of aortic valves",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Marom",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Arch. Comput. Methods Eng",
+            "volume": "22",
+            "issn": "4",
+            "pages": "595--620",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "A literature review of the numerical analysis of abdominal aortic aneurysms treated with endovascular stent grafts",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Roy",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kauffmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Delorme",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lerouge",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Cloutier",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Soulez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Comput. Math. Methods Med",
+            "volume": "16",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1155/2012/820389"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Numerical model of flow in a sac-type ventricular assist device",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Avrahami",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rosenfeld",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Raz",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Einav",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Artif. Organs",
+            "volume": "30",
+            "issn": "7",
+            "pages": "529--538",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Fast Radial Basis Functions for Engineering Applications",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-75011-8"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "A comparison of mesh morphing methods for 3D shape optimization",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Staten",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Owen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Shontz",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Salinger",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Coffey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Proceedings of the 20th International Meshing Roundtable",
+            "volume": "",
+            "issn": "",
+            "pages": "293--311",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-24734-7_16"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Virtual human bone modelling by interactive sculpting, mesh morphing and force-feedback",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Valentini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Int. J. Interact. Des. Manuf. (IJI-DeM)",
+            "volume": "12",
+            "issn": "4",
+            "pages": "1223--1234",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s12008-018-0487-3"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Improvement of radial basis function interpolation performance on cranial implant design",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Atasoy",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Sen",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Nar",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Bozkurt",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Int. J. Adv. Comput. Sci. Appl",
+            "volume": "8",
+            "issn": "8",
+            "pages": "83--88",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "One mesh to rule them all: registration-based personalized cardiac flow simulations",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "This",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "FIMH 2017",
+            "volume": "10263",
+            "issn": "",
+            "pages": "441--449",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-59448-4_42"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "An image-based and RBF mesh morphing CFD simulation for parametric aTAA hemodynamics",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Capellini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings VII Meeting Italian Chapter of the European Society of Biomechanics",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Computational fluid dynamic study for aTAA hemodynamics: an integrated image-based and radial basis functions mesh morphing approach",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Capellini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "J. Biomech. Eng",
+            "volume": "140",
+            "issn": "11",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "A coupled CFD and RBF mesh morphing technique as surrogate for one-way FSI study",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Capellini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings VIII Meeting Italian Chapter",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Fast high fidelity CFD/CSM fluid structure interaction using RBF mesh morphing and modal superposition method",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Groth",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Cella",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Costa",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Aircr. Eng. Aerosp. Technol",
+            "volume": "91",
+            "issn": "",
+            "pages": "893--904",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Static aeroelastic analysis of an aircraft wind-tunnel model by means of modal RBF mesh updating",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Cella",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Groth",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Genta",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "J. Aerosp. Eng",
+            "volume": "29",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Validation of high fidelity computational methods for aeronautical FSI analyses",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Groth",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Costa",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Cella",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "92",
+            "issn": "",
+            "pages": "29--48",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Higher-order time integration through smooth mesh deformation for 3D fluid-structure interaction simulations",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Van Zuijlen",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "De Aukje",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bijl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "J. Comput. Phys",
+            "volume": "224",
+            "issn": "1",
+            "pages": "414--430",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Fluid structure interaction analysis: vortex shedding induced vibrations",
+            "authors": [
+                {
+                    "first": "Di",
+                    "middle": [],
+                    "last": "Domenico",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Procedia Struct. Integrity",
+            "volume": "8",
+            "issn": "",
+            "pages": "422--432",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Unsteady FSI analysis of a square array of tubes in water crossflow",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Costa",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Groth",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Lavedrine",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Caridi",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Dupain",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Flexible Engineering Toward Green Aircraft. LNACM",
+            "volume": "92",
+            "issn": "",
+            "pages": "129--152",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-36514-1_8"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Aeroelastic analysis of aircraft wind-tunnel model coupling structural and fluid dynamic codes",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Cella",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Marco",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "J. Aircr",
+            "volume": "49",
+            "issn": "2",
+            "pages": "407--414",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Fluid-structure coupled analysis of a transport aircraft and flight-test validation",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Keye",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "J. Aircr",
+            "volume": "48",
+            "issn": "2",
+            "pages": "381--390",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "A balanced load mapping method based on radial basis functions and fuzzy sets",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Chiappa",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Giorgetti",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Groth",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Cella",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Salvini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Int. J. Numer. Meth. Eng",
+            "volume": "115",
+            "issn": "12",
+            "pages": "1411--1429",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Comparative fluid-structure interaction analysis of polymeric transcatheter and surgical aortic valves' hemodynamics and structural mechanics",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Ghosh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "J. Biomech. Eng",
+            "volume": "140",
+            "issn": "12",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Polymeric heart valves for surgical implantation, catheter-based technologies and heart assist devices",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Bezuidenhout",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Williams",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Zilla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Biomaterials",
+            "volume": "36",
+            "issn": "",
+            "pages": "6--25",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Polymeric heart valves: new materials, emerging hopes",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ghanbari",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Viatge",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Kidane",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Burriesci",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tavakoli",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Seifalian",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Trends Biotechnol",
+            "volume": "27",
+            "issn": "6",
+            "pages": "359--367",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "An arbitrary Lagrangian-Eulerian computing method for all flow speeds",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Hirt",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Amsden",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Cook",
+                    "suffix": ""
+                }
+            ],
+            "year": 1974,
+            "venue": "J. Comput. Phys",
+            "volume": "14",
+            "issn": "3",
+            "pages": "227--253",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Analysis of fluid-structure interaction problems with structural buckling and large domain changes by ALE finite element method",
+            "authors": [
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Hisada",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Comput. Methods Appl. Mech. Eng",
+            "volume": "190",
+            "issn": "48",
+            "pages": "6341--6357",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "A new ALE adaptive unstructured methodology for the simulation of moving bodies",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Baum",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Luo",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Loehner",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "32nd Aerospace Sciences Meeting and Exhibit",
+            "volume": "",
+            "issn": "",
+            "pages": "1--14",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "A study of recirculating flow computation using body-fitted coordinates: consistency aspects and mesh skewness",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Braaten",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Shyy",
+                    "suffix": ""
+                }
+            ],
+            "year": 1986,
+            "venue": "Numer. Heat Trans. Part A: Appl",
+            "volume": "9",
+            "issn": "5",
+            "pages": "559--574",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Mesh morphing techniques in CFD",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Profir",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "International Student Conference on Pure and Applied Mathematics",
+            "volume": "",
+            "issn": "",
+            "pages": "195--208",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Advantages of radial basis function networks for dynamic system design",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Paszczy\u00f1ski",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wilamowski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "IEEE Trans. Industr. Electron",
+            "volume": "58",
+            "issn": "12",
+            "pages": "5438--5450",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Mesh morphing and smoothing by means of radial basis functions (RBF): a practical example using fluent and RBF morph",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Biancolini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Handbook of Research on Computational Science and Engineering: Theory and Practice",
+            "volume": "",
+            "issn": "",
+            "pages": "347--380",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "RBF Morph for FLUENT: User's Guide. Release V1",
+            "authors": [],
+            "year": 2019,
+            "venue": "RBF Morph: Modelling Guidelines and Best Practices Guide. Release V1.93. Accessed",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Clinical anatomy of the aortic root",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Heart",
+            "volume": "84",
+            "issn": "6",
+            "pages": "670--673",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Handbook of Cardiac Anatomy, Physiology, and Devices",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Iaizzo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-1-60327-372-5"
+                ]
+            }
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Design and manufacture of a polyvinyl alcohol (PVA) cryogel tri-leaflet heart valve prosthesis",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Jiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Campbell",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Boughner",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Wan",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Quantz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Med. Eng. Phys",
+            "volume": "26",
+            "issn": "4",
+            "pages": "269--277",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "The anatomy of the sinus of Valsalva",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Reid",
+                    "suffix": ""
+                }
+            ],
+            "year": 1970,
+            "venue": "Thorax",
+            "volume": "25",
+            "issn": "1",
+            "pages": "79--85",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Numerical simulation of 3D unsteady flow in centrifugal pump by dynamic mesh technique",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Si",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Fuxiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Jing",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Procedia Eng",
+            "volume": "61",
+            "issn": "",
+            "pages": "270--275",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "Sinotubular junction size affects aortic root geometry and aortic valve function in the aortic valve reimplantation procedure: an in vitro study using the Valsalva graft",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Maselli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Ann. Thorac. Surg",
+            "volume": "84",
+            "issn": "4",
+            "pages": "1214--1218",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Mesh deformation using the biharmonic operator",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Helenbrook",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Int. J. Numer. Meth. Eng",
+            "volume": "56",
+            "issn": "7",
+            "pages": "1007--1021",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Fluid-Structure Interaction analysis flowchart using remeshing tools.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Novel FSI workflow based on morphing techniques. provides for the sampling of the displacements of the structural model. In this way, the surface nodes of the FE model are used as Sp to apply RBF mesh morphing in the space. The detailed workflow shown in Fig. 2, in addition to the realization of the geometric model, provides for three main steps: -CSM settings -RBF Morph application -CFD set-up CSM Settings. Given that in this kind of FSI analysis the deformations of the fluid grid are imposed by the motion of the walls of the CSM domain, a structural simulation has to be conducted to obtain the deformed positions in the space during time. During the structural simulation, Source points (S p ) and Target points (T p ), that are the surface nodal positions of the grid in this case, are recursively extracted and stored in files. These files are structured as a list of nodes and the related displacements to obtain the nodes in the following sampled configuration.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "depicts the CAD model of the polymeric valve here investigated and the fluid domain of the blood in which also the Valsalva sinuses are represented[37]. This fluid domain is obtained by a boolean intersection between the solid domain of the valve and a vessel made up of an inlet and outlet tube.The computational grid of this structural model is made up of 301256 tetrahedral elements and it is obtained inside ANSYS Meshing. The material chosen to model the valve is isotropic linear elastic with a Young's modulus of 3 MPa, and a Poisson's ratio of 0.4. The mesh of the fluid domain is obtained inside Ansa (v20.0.1) and made up of 1564792 tetra-hexaedral elements with a maximum starting Skewness (Sk) of 0.694. A velocity inlet and a systolic aortic pressure outlet varying over time boundary conditions have been provided. The flow model selected is Viscous-Laminar and the fluid is considered as incompressible and Newtonian with a viscosity of 4 cP.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "CAD model of the Polymeric-Prosthetic Heart Valve. Indications of aortic side (a) and ventricular side (b). Blood domain with the hollow volume of the valve (c).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Flowchart of the FSI analysis implemented inside ANSYS Workbench to study the behaviour of a P-PHV using Remeshing Method. transient CSM in ANSYS Mechanical (v193) are transferred to the fluid domain inside ANSYS Fluent (v193) by means of System Coupling. The body of the prosthetic device is fixed in its bottom surface, i.e. the circular ring in the ground.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Flowchart with the application of morphing.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "First morphing step of the opening: Sp on the surface of the valve and fixed Surf Set on the wall of the Valsalva sinuses (a), Tp on the surface of the prosthetic device to obtain a first movement keeping stationary the points on the STJ surface (b).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Backwards/Forwards strategy: step 1 represents a backwards morphing procedure from P2 (partially open position) to P0 (initial position) while step 2 allows to reach position P9 (completely open) starting from position P0. This strategy allows to prevent excessive mesh quality degradation.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Volume rendering of the pressure at t = 7 ms, when the valve is for the first time open: remeshing approach (a), morphing approach (b).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Streamlines at t = 7 ms: FSI using remeshing (a), FSI using morphing (b).",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgment. The research has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Sk lodowska-Curie grant agreement No. 859836 and has been partially supported by RBF Morph R .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

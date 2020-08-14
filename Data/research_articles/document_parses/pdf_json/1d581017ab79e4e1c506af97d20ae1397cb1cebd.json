@@ -1,0 +1,1411 @@
+{
+    "paper_id": "1d581017ab79e4e1c506af97d20ae1397cb1cebd",
+    "metadata": {
+        "title": "Adaptive and Dynamic Knowledge Transfer in Multi-task Learning with Attention Networks",
+        "authors": [
+            {
+                "first": "Tao",
+                "middle": [],
+                "last": "Ma",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Key Laboratory of Machine Perception (MOE)",
+                    "institution": "Peking University",
+                    "location": {
+                        "postCode": "100871",
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Ying",
+                "middle": [],
+                "last": "Tan",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Key Laboratory of Machine Perception (MOE)",
+                    "institution": "Peking University",
+                    "location": {
+                        "postCode": "100871",
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": "ytan@pku.edu.cn"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Multi-task learning has shown promising results in many applications of machine learning: given several related tasks, it aims to generalize better on the original tasks, by leveraging the knowledge among tasks. The knowledge transfer mainly depends on task relationships. Most of existing multi-task learning methods guide learning processes based on predefined task relationships. However, the associated relationships have not been fully exploited in these methods. Replacing predefined task relationships with the adaptively learned ones may lead to superior performance as it can avoid the misguiding of improper predefinition. Therefore, in this paper, we propose Task Relation Attention Networks to adaptively model the task relationships and dynamically control the positive and negative knowledge transfer for different samples in multi-task learning. To evaluate the effectiveness of the proposed method, experiments on various datasets are conducted. The experimental results demonstrate that the proposed method outperforms both classical and state-of-the-art multi-task learning baselines.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Multi-task learning (MTL) aims to generalize better on the original tasks, by leveraging the shared knowledge among tasks [15] . In MTL, positive knowledge transfer leads to improved performance, because: 1) more related information is incorporated into the target tasks, which benefits the feature learning process to obtain better feature representations; 2) the incorporated information of positively related tasks acts as regularizer to avoid the risks of over-fitting. The knowledge transformer mainly depends on the task relationships. Therefore, how to appropriately model task relationships and how to control the knowledge transfer among tasks are crucial in MTL. With the recent advances in deep learning, MTL with deep neural networks has been used widely and successfully across many applications of machine learning, from natural language processing [7] to computer vision [11] . In most of these existing methods, the task relationships guiding the learning process are generally predefined, and the knowledge transfer among tasks relies on the sharing of hidden layers. Despite they have achieved promising results, but there are still several challenges for further improving the performance of MTL methods.",
+            "cite_spans": [
+                {
+                    "start": 122,
+                    "end": 126,
+                    "text": "[15]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 863,
+                    "end": 866,
+                    "text": "[7]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 886,
+                    "end": 890,
+                    "text": "[11]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The first challenge is adaptively learning the task relationships instead of relying on predefined relationships. For some multi-task learning problems with complex task associations, the pre-definition based on limited human knowledge requires costly human efforts. Besides, if there are not adequate efforts for sophisticated pre-definitions, there is likely to be negative knowledge transfer because of the misguiding of improperly predefined task relationships [8, 16] . Since an improper pre-definition of task relationships may result in negative knowledge transfer, it is essential for MTL methods to adaptively and appropriately model the task relationships with learning-based modules.",
+            "cite_spans": [
+                {
+                    "start": 465,
+                    "end": 468,
+                    "text": "[8,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 469,
+                    "end": 472,
+                    "text": "16]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The second challenge is controlling the knowledge transfer with the dynamically learned task relationships instead of the fixed ones. The relationships among tasks are not constantly fixed, but vary slightly from different samples. However, in most of the methods relying on pre-definition, the task relationships are fixed [9] , even in some MTL methods equipped with adaptively learning modules [14] . A concrete example is, in the works of [21] , the task relationships are determined by the inputs X and outputs Y of training data. In the testing phase, the model directly performs predictions on the learned relationships and the inputs X test , i.e., the relationships are fixed for the testing data. However, the task relationships in different samples may not be necessarily consistent. Therefore, dynamically modeling these relationships based on different inputs may lead to superior performance.",
+            "cite_spans": [
+                {
+                    "start": 324,
+                    "end": 327,
+                    "text": "[9]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 397,
+                    "end": 401,
+                    "text": "[14]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 443,
+                    "end": 447,
+                    "text": "[21]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To address these challenges, in this paper, we propose Task Relation Attention Networks (TRAN) to adaptively capture the task relationships and dynamically control the knowledge transfer in MTL. Specifically, TRAN is an attentionbased model to adaptively capture the task relationships via task correlation matrix according to their inputs and specify the shared feature representations for different tasks. Since the task relationships are adaptively learned by TRAN during the learning process, it is replacing the predefined relationships. And TRAN relies on the inputs, therefore, it can dynamically model the correlations for different samples.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To evaluate the effectiveness of the proposed method, the experiments on various datasets are conducted. The experimental results demonstrate the proposed method can outperform both classical and state-of-the-art MTL baselines. The contributions of this paper can be summarized as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "-This paper proposes Task Relation Attention Networks (TRAN) to adaptively learn the task relationships to replace the predefined ones. -The proposed method can dynamically control the knowledge transfer in multi-task learning based on the adaptively learned task relationships.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "-This paper provides an explicable learning-based framework for multi-task learning to learn the shared feature representations for different tasks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Multi-task Learning (MTL) provides an efficient framework for leveraging task relationships to achieve knowledge transfer and leads to improved performance. The typical MTL architectures were sharing the bottom layers for all tasks and split top layers for different tasks, proposed by [3] . Afterwards, there have been some attempts to design partly shared architectures between tasks, instead of only sharing the bottom hidden layers. For leveraging the task relationships in MTL, there are some recent examples. The cross-stitch networks [14] learned an optimal combination of task-specific representations for each task using linear units. The tensor factorization model [20] generated the hidden layer parameters for each task. The multi-gate mixture-of-experts model [13] using gating mechanism to capture the task differences and implicitly model the task relationships.",
+            "cite_spans": [
+                {
+                    "start": 286,
+                    "end": 289,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 541,
+                    "end": 545,
+                    "text": "[14]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 675,
+                    "end": 679,
+                    "text": "[20]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 773,
+                    "end": 777,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multi-task Learning"
+        },
+        {
+            "text": "In the works of [21] , they applied attention networks to statically capture the task relationships.",
+            "cite_spans": [
+                {
+                    "start": 16,
+                    "end": 20,
+                    "text": "[21]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multi-task Learning"
+        },
+        {
+            "text": "Compared to the typical MTL methods, these works performed better feature learning for shared and task-specific representations and achieved better performance. However, there are still some limitations: the method of [14] can hardly expand to a large number of tasks; the method of [20] relies on a specific application scenario; the method of [13] applies linear gates to implicitly model the task relationships and performs poor efficiency as the number of experts increases; the method of [21] captures the task relationships statically.",
+            "cite_spans": [
+                {
+                    "start": 218,
+                    "end": 222,
+                    "text": "[14]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 283,
+                    "end": 287,
+                    "text": "[20]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 345,
+                    "end": 349,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 493,
+                    "end": 497,
+                    "text": "[21]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multi-task Learning"
+        },
+        {
+            "text": "The key idea of attention mechanism is mainly based on the human visual attention, which has been successfully applied in various applications, such as natural machine translation [12] and text summarization [1] .",
+            "cite_spans": [
+                {
+                    "start": 180,
+                    "end": 184,
+                    "text": "[12]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 208,
+                    "end": 211,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Attention-Based Neural Networks"
+        },
+        {
+            "text": "Graph attention networks [18] was proposed for feature learning of graphstructured data, based on the self-attention mechanism. [10] applied the selfattention networks for time series warping. [17] performed self-attention on sentence encoding models, called Transformer, dispensing with recurrence and convolutions entirely [17] . Based on the Transformer, a language representation model called BERT was proposed [5] . In this paper, we attempt to adaptively model the task relationships in MTL with self-attention networks. Based on the learned relationships, the knowledge transfer among tasks can be dynamically controlled and each task can obtain a better shared feature representation, leading the MTL method to better performance.",
+            "cite_spans": [
+                {
+                    "start": 25,
+                    "end": 29,
+                    "text": "[18]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 128,
+                    "end": 132,
+                    "text": "[10]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 193,
+                    "end": 197,
+                    "text": "[17]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 325,
+                    "end": 329,
+                    "text": "[17]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 415,
+                    "end": 418,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Attention-Based Neural Networks"
+        },
+        {
+            "text": "Given a single task, which can be regression or classification, the formal definition is as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Problem Statement for Multi-task Learning"
+        },
+        {
+            "text": "where X represents the inputs, Y represents the ground truth values,\u0176 is the predicted values, E(\u00b7) is the mathematical expectation and M(\u00b7) is the model. In MTL, assuming that there are K tasks, the problem can be described as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Problem Statement for Multi-task Learning"
+        },
+        {
+            "text": "where MTL(\u00b7) is the multi-task learning method, X i , Y i ,\u0176 i are respectively the inputs, labels and predictions of each task. In some real-world scenarios, the inputs of different tasks can be the same, i.e., X 1 , X 2 , ..., X K = X s .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Problem Statement for Multi-task Learning"
+        },
+        {
+            "text": "We apply attention networks to model the task relationships to help shared feature learning, called Task Relation Attention Networks (TRAN). Given K tasks, the inputs are a set of task features,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "is the dimensionality of features. Given task i and j, there is a shared attention network a t measuring the attention correlations e ij between two tasks, processed as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "where W i \u2208 R n\u00d7d and W j \u2208 R n\u00d7d represent the encoding networks, modeling the original inputs into high-level latent representations with the dimensionality of d, and || is the concatenation operation. The attention weights for task i are normalized by softmax function to obtain the associated relationships between other tasks and task i, (\u03b1 i1 , \u03b1 i2 , ..., \u03b1 iK ), processed as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "The attention networks a t are implemented with fully-connected neural networks with the activation function of LeakyReLU. And the learning process of attention networks can be described as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "The learned attention weights for target task i reflect the correlations between other tasks and task i. And all attention weights compose the task correlation matrix A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "The task-specific representations for task i is s i , the combination of all task latent representations with their attention weights for task i, as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "We perform multi-head attention mechanism on TRAN, which allows H independent attention networks to learn the attention weights in parallel and applies linear transformation W H = (w 1 , . . . , w H ) to combine them. The final task-specific representation for task i is processed as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "The illustration of feature learning is presented in Fig. 1 . ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 53,
+                    "end": 59,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Task Relation Attention Networks"
+        },
+        {
+            "text": "For multi-task prediction, each task is equipped with a feed-forward sub-layer to convert the final task-specific representations to the predicted values. Each feedforward sub-layer consists of two layers: the first one W e i is a fully-connected neural network with ReLU activation and skip-connection for embedding the final representations; the second one W p i is a linear transformation for prediction. The formal equation is described as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Prediction Layer"
+        },
+        {
+            "text": "-For classification tasks,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Prediction Layer"
+        },
+        {
+            "text": "For multi-task learning, all tasks are jointly trained by optimizing a joint loss function L joint . Given the inputs X = {X 1 , X 2 , . . . , X K } and labels Y = {Y 1 , Y 2 , . . . , Y K }, the joint loss function is defined as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Objective Function"
+        },
+        {
+            "text": "where the first item is the combination of the task-specific losses L j with their loss weights \u03bb j ; the second item is the regularization for all the trainable parameters W ; the third item is the regularization for the learned attention correlation matrix A to ensure the auto-correlations of tasks. For each task, the task-specific loss is defined as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Objective Function"
+        },
+        {
+            "text": "-Mean squared error (MSE) for regression tasks,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Objective Function"
+        },
+        {
+            "text": "-Cross entropy for classification tasks,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Objective Function"
+        },
+        {
+            "text": "The performance of the proposed method is evaluated on three datasets: Censusincome dataset, FashionMnist dataset and Sarcos dataset.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Dataset"
+        },
+        {
+            "text": "-Census-income dataset: The Census-income dataset is from UCI Machine Learning Repository [2] . It is extracted from the 1994 Census database, which contains 299,285 instances of demographic information for American adults. We construct two multi-task learning problems based on 40 features.",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 93,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Dataset"
+        },
+        {
+            "text": "\u2022 Task 1: predict whether the income exceeds $50K; Task 2: predict whether this person is never married. \u2022 Task 1: predict whether the education level of this person is at least college; Task 2: predict whether this person is never married.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Dataset"
+        },
+        {
+            "text": "-FashionMnist dataset: The samples in FashionMnist are 28 \u00d7 28 grayscale images with 10-class labels [19] , similar to Mnist. We construct a multi-task learning problem: Task 1 is the original 10-class classification task; Task 2 is predict if the objects are shoes, or female products, or another type. All task shares the same inputs. -Sarcos dataset: This is a regression dataset [4] where the goal is to predict the torque measured at each joint of a 7 degrees-of-freedom robotic arm, given the current state, velocity, and acceleration measured at each joint (7 torques for 21-dimensional inputs). Following the procedure of [4] , we have 7 regression tasks, where each task is to predict one torque.",
+            "cite_spans": [
+                {
+                    "start": 101,
+                    "end": 105,
+                    "text": "[19]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 383,
+                    "end": 386,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 630,
+                    "end": 633,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Dataset"
+        },
+        {
+            "text": "The baseline methods to be compared with are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Baselines"
+        },
+        {
+            "text": "-LASSO: This is the classic linear method, learning each task independently with L1-norm regularization. share the bottom hidden layers and have top sub-layers for prediction. In this method, the task relationships are predefined and fixed. -L2-Constrained MTL: This is a classical MTL method [6] , where the parameters of different tasks are shared softly by an L2-constraint. Given two tasks, the prediction of each task can be described as:",
+            "cite_spans": [
+                {
+                    "start": 293,
+                    "end": 296,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Baselines"
+        },
+        {
+            "text": "where \u03b8 1 , \u03b8 2 are the parameters of each task. And the objective function of multi-task learning is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Baselines"
+        },
+        {
+            "text": "where \u03b1 is a hyper-parameter. This method models the task relationships with the magnitude of \u03b1. -Cross-stitch Networks (CSN): This is a deep learning based MTL method [14] . The knowledge is shared between tasks by a linear units, call cross-stitch. Given two tasks, h 1 and h 2 are the outputs of previous hidden layers of each task, and the outputs of cross-stitch are described as:",
+            "cite_spans": [
+                {
+                    "start": 168,
+                    "end": 172,
+                    "text": "[14]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Baselines"
+        },
+        {
+            "text": "where \u03b1 ij , i, j = 1, 2 are trainable linear parameters representing the knowledge transfer.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Baselines"
+        },
+        {
+            "text": "-Multi-gate Mixture-of-Experts (MMoE): It adopts the multi-gate mixture-of-experts structure to MTL [13] . In this method, there is a group of expert networks as the bottom layers, and the top task-specific layers can utilize the experts differently with gating mechanism. -Multiple Relational Attention Networks (MRAN): It was recently proposed [21] , applying attention networks to model multiple types of relationships in MTL. However, the task relationships in this method are statically modeled. The relationships are determined in the training phase, and in the testing phase, the relationships are fixed. Our method is able to dynamically capture the task relationships, and we will discuss about the differences between this method and ours.",
+            "cite_spans": [
+                {
+                    "start": 100,
+                    "end": 104,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 346,
+                    "end": 350,
+                    "text": "[21]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Baselines"
+        },
+        {
+            "text": "The proposed method is Task Relation Attention Networks (TRAN), and MH-TRAN means it is equipped with multi-head mechanism. Note that, because the code and some datasets of baseline MRAN are not released yet, we only compare its performance in the available Sarcos dataset, which is reported in their paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Performance Comparison"
+        },
+        {
+            "text": "Overall Comparison. The performance comparison on Census-income, Fash-ionMnist and Sarcos datasets are presented in Table 1 ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 116,
+                    "end": 123,
+                    "text": "Table 1",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "Performance Comparison"
+        },
+        {
+            "text": "Task Relationships and Knowledge Transfer. We illustrate the task correlations learned by TRAN in Fig. 2 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 98,
+                    "end": 104,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Analysis for Key Components"
+        },
+        {
+            "text": "In overall, all tasks are strongly correlated to themselves. And for different target tasks, the contributions of the other tasks vary a lot, e.g., the relationships in Sarcos dataset in Fig. 2(c) . We can observe the differences between traditional methods and TRAN. In traditional methods, the task correlations are predefined and equal for each task, however, TRAN captures their differences. In Sarcos dataset, for task 7, the contribution of task 1 is apparently less than the others. If the method relies on the pre-definition of equal task correlations, there may exist negative knowledge transfer hurting the performance. From the performance comparison, we can observe that TRAN outperforms the traditional methods with pre-definition, which demonstrates the effectiveness of adaptively capturing the task correlations. For Census-income dataset, we have two multi-task learning problems, and marital task appears in both group I and II accompanied with different tasks. As the performance comparison in Table 1 , marital task of TRAN in group II performs better than the one in group I. And from the illustration, we can observe that the task correlations in group II are stronger than the correlations in group I. This indicates there are more positive knowledge transfer in group II, which contributes to the improved performance.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 187,
+                    "end": 196,
+                    "text": "Fig. 2(c)",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 1013,
+                    "end": 1020,
+                    "text": "Table 1",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "Analysis for Key Components"
+        },
+        {
+            "text": "In order to verify our observation, we assess the practical strengths of task relationships in group I and II, because in general, stronger task correlations imply that there are more positive knowledge transfer. According to the works of [13] , the Pearson correlations of the labels of different tasks can be used as the quantitative indicator of task relationships, because the Pearson correlations of labels are positively correlated to the strength of task relationships. The Pearson correlation in group I is 0.1784, and the one in group II is 0.2396. This indicates that there is supposed to be more positive knowledge transfer in group II, corresponding to our observation. This demonstrates that TRAN does capture the practical task correlations and control the positive knowledge transfer to help improve the performance.",
+            "cite_spans": [
+                {
+                    "start": 239,
+                    "end": 243,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Analysis for Key Components"
+        },
+        {
+            "text": "Dynamically Control the Knowledge Transfer. The task relationships are not fixed, but vary slightly from different samples. We aim to dynamically capture the task relationships from different samples using TRAN.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Analysis for Key Components"
+        },
+        {
+            "text": "We randomly select 8 samples from the testing samples of Sacros dataset, and provide an illustration of their dynamically learned task correlations in Fig. 3 . From the correlations, we can observe that there is a slight variety in the task relationships in different samples. This demonstrate that TRAN does capture the dynamic task relationships, and the performance comparison in Table 1, 2 and  3 indicates TRAN controls the knowledge transfer to improve the performance using the dynamically learned relationships. . 3 . Illustration of the dynamic task relationships on the Sarcos dataset. We randomly select 8 samples from the testing dataset and visualize their attention correlation matrices.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 151,
+                    "end": 157,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 383,
+                    "end": 400,
+                    "text": "Table 1, 2 and  3",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 520,
+                    "end": 523,
+                    "text": ". 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Analysis for Key Components"
+        },
+        {
+            "text": "In this paper, we propose Task Relation Attention Networks to adaptively capture the task relationships, replacing the pre-defined ones in traditional MTL methods. Based on the learned relationships, the positive and negative knowledge transfer can be dynamically balanced in different samples. As a result, a better task-specific representation is obtained and leads to improved performance. In addition, the learned correlation matrix presents the dynamic transfer pattern, making the MTL method more explicable. To evaluate its performance, we conduct experiments on various datasets, including regression and classification tasks. Both classical and state-of-the-art MTL methods are employed to provide benchmarks. The experimental results and analyses demonstrate the effectiveness of our method, and its advantages over other methods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "A convolutional attention network for extreme summarization of source code",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Allamanis",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Peng",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Sutton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "International Conference on Machine Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "2091--2100",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "UCI machine learning repository",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Asuncion",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Newman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Multitask learning",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Caruana",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "Mach. Learn",
+            "volume": "28",
+            "issn": "1",
+            "pages": "41--75",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Consistent multitask learning with nonlinear output relations",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ciliberto",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rudi",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Rosasco",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Pontil",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "1986--1996",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Bert: pre-training of deep bidirectional transformers for language understanding",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Devlin",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Chang",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Toutanova",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1810.04805"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Low resource dependency parsing: crosslingual parameter sharing in a neural network parser",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Duong",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Cohn",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Bird",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Cook",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Proceedings of the 53rd",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Annual Meeting of the Association for Computational Linguistics and the 7th International Joint Conference on Natural Language Processing",
+            "authors": [],
+            "year": 2015,
+            "venue": "",
+            "volume": "2",
+            "issn": "",
+            "pages": "845--850",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "A joint many-task model: growing a neural network for multiple NLP tasks",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Hashimoto",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Xiong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Tsuruoka",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Socher",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1611.01587"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "One model to learn them all",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kaiser",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1706.05137"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Multi-task representation learning for travel time estimation",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Fu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Shahabi",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ye",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "1695--1704",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Temporal transformer networks: joint learning of invariant and discriminative time warping",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lohit",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Turaga",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "12426--12435",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Fully-adaptive feature sharing in multi-task networks with applications in person attribute classification",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kumar",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zhai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Javidi",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Feris",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "5334--5343",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Effective approaches to attention-based neural machine translation",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Luong",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Pham",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Manning",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1508.04025"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Modeling task relationships in multi-task learning with multi-gate mixture-of-experts",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yi",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Hong",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Chi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "1930--1939",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Cross-stitch networks for multitask learning",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Misra",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Shrivastava",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Gupta",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hebert",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "3994--4003",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "An overview of multi-task learning in deep neural networks",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ruder",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1706.05098"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Transfer learning",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Torrey",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Shavlik",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Handbook of Research on Machine Learning Applications and Trends: Algorithms, Methods, and Techniques",
+            "volume": "",
+            "issn": "",
+            "pages": "242--264",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Attention is all you need",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Vaswani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "5998--6008",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Graph attention networks",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Velickovic",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Cucurull",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Casanova",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Romero",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Lio",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Bengio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "1",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1710.10903"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Fashion-mnist: a novel image dataset for benchmarking machine learning algorithms",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Xiao",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Rasul",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Vollgraf",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1708.07747"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Deep multi-task representation learning: a tensor factorisation approach",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Hospedales",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1605.06391"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Multiple relational attention network for multi-task learning",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Du",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Zhuang",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Lv",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Xiong",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Teredesai",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kumar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rosales",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Terzi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining, KDD 2019",
+            "volume": "",
+            "issn": "",
+            "pages": "1123--1131",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/3292500.3330861"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Springer Nature Singapore Pte Ltd. 2020 Y. Tan et al. (Eds.): DMBD 2020, CCIS 1234, pp. 1-13, 2020. https://doi.org/10.1007/978-981-15-7205-0_1",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Illustration of the feature learning with Task Relation Attention Networks.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Bayesian: Another linear method, learning each task independently with Bayesian inference. -Neural Networks (NN): For regression tasks and general classification tasks, we apply fully-connected neural networks with one hidden layer. For image classification, we apply single-layer convolutional neural networks. -Shared-bottom MTL: This is a typical MTL method, where all tasks",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": ", 2 and 3 respectively. From all the tables, we can observe that both TRAN and MH-TRAN outperform other methods on all tasks, and MH-TRAN outperforms TRAN on most tasks. The average relative improvements of MH-TRAN in all tasks are 4.68% (L2-Norm), 5.78% (CSN) and 2.45% (MMoE) for Census-income dataset, 2.94% (L2-Norm), 1.68% (CSN) and 2.85% (MMoE) for FashionMnist dataset and 67.95% (L2-Norm), 55.09% (CSN), 40.50% (MMoE) and 25.29% (MRAN) for Sarcos dataset.Comparison Between Different MTL Methods. Compare with TRAN, both CSN and MMoE are based on linear models, and MMoE model task relationships implicitly, while our method is based on attention networks to explicitly model task relationships. The fact that TRAN outperforms CSN and MMoE, indicating the advantages of our method. Besides, compared with statically modeling task relationships (MRAN), TRAN is able to dynamically control the knowledge transfer, and the fact that TRAN outperforms MRAN demonstrates the effectiveness of this key component. Although MRAN includes different types of relationships, our method still outperforms it with the relative improvements of 25.29%.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Illustration of the task correlations learned by TRAN.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Fig. 3. Illustration of the dynamic task relationships on the Sarcos dataset. We randomly select 8 samples from the testing dataset and visualize their attention correlation matrices.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Performance comparison on the Census-income dataset in terms of AUC.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Performance comparison on the Sarcos dataset in terms of RMSE.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

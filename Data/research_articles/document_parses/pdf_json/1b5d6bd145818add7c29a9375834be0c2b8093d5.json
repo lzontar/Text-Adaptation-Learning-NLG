@@ -1,0 +1,1622 @@
+{
+    "paper_id": "1b5d6bd145818add7c29a9375834be0c2b8093d5",
+    "metadata": {
+        "title": "Pebble-Intervals Automata and FO 2 with Two Orders",
+        "authors": [
+            {
+                "first": "Nadia",
+                "middle": [],
+                "last": "Labai",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Wien",
+                    "location": {
+                        "settlement": "Vienna",
+                        "country": "Austria"
+                    }
+                },
+                "email": "labai@dbai.tuwien.ac.at"
+            },
+            {
+                "first": "Tomer",
+                "middle": [],
+                "last": "Kotek",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Wien",
+                    "location": {
+                        "settlement": "Vienna",
+                        "country": "Austria"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Magdalena",
+                "middle": [],
+                "last": "Ortiz",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Wien",
+                    "location": {
+                        "settlement": "Vienna",
+                        "country": "Austria"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Helmut",
+                "middle": [],
+                "last": "Veith",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Wien",
+                    "location": {
+                        "settlement": "Vienna",
+                        "country": "Austria"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "We introduce a novel automata model, which we call pebbleintervals automata (PIA), and study its power and closure properties. PIAs are tailored for a decidable fragment of FO that is important for reasoning about structures that use data values from infinite domains: the two-variable fragment with one total preorder and its induced successor relation, one linear order, and an arbitrary number of unary relations. We prove that the string projection of every language of data words definable in the logic is accepted by a pebble-intervals automaton A, and obtain as a corollary an automata-theoretic proof of the ExpSpace upper bound for finite satisfiability due to Schwentick and Zeume.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Finding decidable fragments of First Order Logic (FO) that are expressive enough for reasoning in different applications is a major line of research. A prominent such fragment is the two-variable fragment FO 2 of FO, which has a decidable finite satisfiability problem [13, 21] and is well-suited for handling graph-like structures. It captures many description logics, which are prominent formalisms for knowledge representation, and several authors have recently applied fragments based on FO 2 to verification of programs [1, 7, 8, 16, 26] . Unfortunately, FO 2 has severe limitations, e.g., it cannot express transitivity, and in the applications to verification above, it cannot reason about programs whose variables range over data values from infinite domains. This has motivated the exploration of decidable extensions of FO 2 with special relations which are not axiomatizable in FO 2 . For example, finite satisfiability of FO 2 with a linear order was shown to be NExpTime-complete in [24] , even in the presence of the induced successor relation [12] , and equivalence relations have been used to model data values which can be tested for equality [3, 4, 10, 23] . However, related extensions of FO 2 with preorders easily become undecidable [3, 19] . Recently the logic FO 2 (\u2264 1 , 2 , S 2 ), that is FO 2 with a linear order \u2264 1 , a total preorder 2 and its induced successor S 2 , and any number of unary relations from a finite alphabet, was shown to have an ExpSpace-complete satisfiability problem [27] . This logic can compare data values in terms of which is smaller than which and whether they are consecutive in 2 , making it suitable to model linearly ordered data domains, and a good candidate for extending existing verification methods which use two-variable logics. We continue the study of FO 2 (\u2264 1 , 2 , S 2 ), and in particular, focus on a suitable automata model for it. Establishing a connection to suitable automata for fragments of FO that can talk about values from infinite domains is an active area of research. Automata are also important in automated verification, where they are used, for example, to reason about temporal properties of program traces [9, 30] . We make the following contributions:",
+            "cite_spans": [
+                {
+                    "start": 269,
+                    "end": 273,
+                    "text": "[13,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 274,
+                    "end": 277,
+                    "text": "21]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 525,
+                    "end": 528,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 529,
+                    "end": 531,
+                    "text": "7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 532,
+                    "end": 534,
+                    "text": "8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 535,
+                    "end": 538,
+                    "text": "16,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 539,
+                    "end": 542,
+                    "text": "26]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 996,
+                    "end": 1000,
+                    "text": "[24]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1058,
+                    "end": 1062,
+                    "text": "[12]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1160,
+                    "end": 1163,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1164,
+                    "end": 1166,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1167,
+                    "end": 1170,
+                    "text": "10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1171,
+                    "end": 1174,
+                    "text": "23]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1254,
+                    "end": 1257,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1258,
+                    "end": 1261,
+                    "text": "19]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1516,
+                    "end": 1520,
+                    "text": "[27]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 2193,
+                    "end": 2196,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 2197,
+                    "end": 2200,
+                    "text": "30]",
+                    "ref_id": "BIBREF30"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "-As an automata model for FO 2 (\u2264 1 , 2 , S 2 ) we propose pebble-intervals automata (PIAs). Similarly to classical finite-state automata, PIAs are readonce automata for strings. However, they read the input in varying order. Using a fixed set of pebbles [m] = {1, . . . , m}, a PIA reads a position p by choosing three pebbles i, j, k \u2208 [m] and non-deterministically moving k to position p between the positions of i and j. -We study the computational power and closure properties of PIAs. We describe a restricted class of PIAs that accept exactly the regular languages, and show that some context-free languages, and even languages which are not context-free, are accepted by PIAs. We prove that PIAs are effectively closed under union, concatenation, Kleene star, shuffle, and iterated shuffle, but not effectively closed under intersection, even with regular languages, nor under complement. -We show that the emptiness problem for PIA is NL-complete if the number of pebbles is logarithmic in the size of the automaton, and is PSpace in general. -We show that PIAs contain FO 2 (\u2264 1 , 2 , S 2 ) in the following sense: for each sentence \u03c8, there is a PIA whose language coincides with the projection language of \u03c8, obtained by omitting 2 and S 2 from the structures satisfying \u03c8. -As a corollary, we get an automata-theoretic proof for ExpSpace membership of finite satisfiability for FO 2 (\u2264 1 , 2 , S 2 ) that was established in [27] .",
+            "cite_spans": [
+                {
+                    "start": 1437,
+                    "end": 1441,
+                    "text": "[27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Due to space limitations, we have omitted the proofs from the body of the paper. They can be found in the extended version.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this section, we introduce pebble-intervals automata (PIA). We study their emptiness problem, their expressive power, and closure properties of the languages they accept.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pebble-Intervals Automata"
+        },
+        {
+            "text": "Let [n] = {1, . . . , n}. A string of length n \u2265 0 over alphabet \u03a3 is a mapping w : [n] \u2192 \u03a3, written also w = w(1) \u00b7 \u00b7 \u00b7 w(n). Note that [0] = \u2205 and w : [0] \u2192 \u03a3 is the empty string \u03b5. We often use s, u, v, and w for strings, and |w| for the length of w.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pebble-Intervals Automata"
+        },
+        {
+            "text": "A PIA is equipped with a finite number m of pebbles. It begins its computation with no pebbles on the input w, and uses move transitions to place and replace pebbles. In a k-move i,j transition, the pebble k (which may or may not have been previously placed on w) is non-deterministically placed on a previously unread position in the interval between pebbles i and j. The input boundaries can be used as interval boundaries, e.g., a k-move i, transition places pebble k to the right of pebble i. For convenience we allow silent transitions that go to a new state without moving any pebbles. As pebbles can only be placed on unread positions, each position of w is read at most once. In an accepting run all positions must be read, and the run must end at an accepting state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pebble-Intervals Automata"
+        },
+        {
+            "text": "A PIA A is a tuple",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1 (Pebble-intervals automata)."
+        },
+        {
+            "text": "The positions of m pebbles on a string of length n during a run of a PIA are described by an (m, n)-pebble assignment, which is a function \u03c4 : [m] \u2192 [n]\u222a{\u22a5} with either \u03c4 (i) = \u03c4 (j) or \u03c4 (i) = \u03c4 (j) = \u22a5 for each 1 \u2264 i < j \u2264 m; the pebbles j with \u03c4 (j) = \u22a5 are unassigned. We define \u03c1 \u22a5 as \u03c1 \u22a5 (i) = \u22a5 for every i \u2208 Lett = (t 1 , . . . , t r ) and\u03c0 = (\u03c0 0 , . . . , \u03c0 r ) be sequences of transitions and configurations. We call (t,\u03c0) a computation of A on u if \u03c0 0 = \u03c0 init and \u03c0 i\u22121 ti \u03c0 i for every i \u2208 [r], and write \u03c0 0t \u03c0 r . We call (t,\u03c0) accepting if \u03c0 r is accepting.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1 (Pebble-intervals automata)."
+        },
+        {
+            "text": "We write \u03c0 \u03c0 if \u03c0t \u03c0 for somet. The automaton A accepts u if there is an accepting computation of A on u. The set of all u accepted by A is denoted L(A), and called a PI language.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1 (Pebble-intervals automata)."
+        },
+        {
+            "text": "Computational Power of Pebble-Intervals Automata. PIAs generalize standard non-deterministic finite-state automata. A PIA A = (\u03a3, 1, Q, q init , F, \u03b4)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1 (Pebble-intervals automata)."
+        },
+        {
+            "text": "with one pebble is unidirectional if q init has no incoming transitions, and the move transitions from other states use 1-move 1, only. PI languages also contain non-regular languages, and even some non-context-free ones. 3 . {a n $b n #c n | n \u2265 0}, which is not context-free, is accepted by a PIA with 3 pebbles. Pebbles 1 and 2 read the $ and the #, and then the PIA keeps doing the following: pebble 3 reads an a to the left of pebble 1, a b between pebbles 1, 2, and a c to the right of pebble 2.",
+            "cite_spans": [
+                {
+                    "start": 222,
+                    "end": 223,
+                    "text": "3",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 1 (Pebble-intervals automata)."
+        },
+        {
+            "text": "pebbles. Pebble 1 reads the $, pebble 2 reads a letter \u03c3 to the left of pebble 1, and pebble 3 also reads \u03c3 to the right of pebble 1. Then the PIA repeats: (i) a letter \u03c3 is non-deterministically chosen, (ii) pebble 2 reads \u03c3 between its current position and pebble 1, and (iii) pebble 3 reads \u03c3 to the right of its current position. Similar languages are PI languages, e.g.,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "{w$w | w \u2208 {0, 1} + } is not context-free, and is accepted by a PIA with 3"
+        },
+        {
+            "text": "We conjecture that not all context-free language are PI languages; e.g, the Dyck language of two types of well-nested parentheses seems not to be PI.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "{w$w | w \u2208 {0, 1} + } is not context-free, and is accepted by a PIA with 3"
+        },
+        {
+            "text": "We provide a construction of suitable PIAs in the appendix to show the following.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Closure Properties."
+        },
+        {
+            "text": "From the construction used in the proof of the above theorem, we also obtain: Corollary 1. The universality and inclusion problems for PIAs are undecidable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1. The class of PI languages is effectively closed under union, concatenation, Kleene-, shuffle, and iterated shuffle. It is not effectively closed under intersection, even with regular languages, nor under complement."
+        },
+        {
+            "text": "Emptiness. For deciding whether L(A) = \u2205 for a given PIA, we use feasible sequences of transitions, which are those that correspond to an actual computation of a PIA. One can show that for a given PIA with m pebbles, L(A) = \u2205 iff there is a feasible sequence of transitionst of length at most |A| \u00b7 2 O(m log m) , and that the existence of the latter can be guessed and verified using a bounded amount of information (roughly a counter, two transitions, and two pebble assignments). This gives us the upper bounds below, which hold also if A is not given explicitly, as long as \u03b4 can be computed non-deterministically in log(|A|) space. For the case where A has O(log |A|) pebbles, NL-hardness follows from the same result for standard finite state automata and Proposition 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1. The class of PI languages is effectively closed under union, concatenation, Kleene-, shuffle, and iterated shuffle. It is not effectively closed under intersection, even with regular languages, nor under complement."
+        },
+        {
+            "text": "complete. In general, the emptiness problem for PIA is in PSpace.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 2. If a PIA A has O(log |A|) pebbles, its emptiness problem is NL-"
+        },
+        {
+            "text": "Jumping finite automata [20] are probably the closest to PIAs: they are essentially PIAs with one pebble, which is placed on an arbitrary unvisited position without specifying an interval. In the context of languages with infinite alphabets, various automata models have been proposed that run on data words: string words where values from an infinite domain are attached to each position. Register automata are finite-state machines on data words which use registers to compare whether data values are equal [6, 17, 22] ; their string projection languages are regular. Pebble automata [22] use pebbles in a stack discipline to test for equality of data values. Data automata [3] [4] [5] are an extension of register automata introduced to prove the decidability of satisfiability of FO 2 on words with a linear order, a successor relation, and an equivalence relation. Their projection languages are accepted by multicounter automata, which are finite automata on strings extended with counters, that are equivalent to Vector Addition Systems or Petri Nets [11] . Class Memory Automata [2] have the same expressive power as data automata. Variable Finite Automata [15] extend finite state automata with variables from an infinite alphabet. Many works have studied these automata models and their variations, see [28] and [18, Chapter 4] for surveys.",
+            "cite_spans": [
+                {
+                    "start": 24,
+                    "end": 28,
+                    "text": "[20]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 509,
+                    "end": 512,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 513,
+                    "end": 516,
+                    "text": "17,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 517,
+                    "end": 520,
+                    "text": "22]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 586,
+                    "end": 590,
+                    "text": "[22]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 676,
+                    "end": 679,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 680,
+                    "end": 683,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 684,
+                    "end": 687,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1058,
+                    "end": 1062,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1087,
+                    "end": 1090,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1165,
+                    "end": 1169,
+                    "text": "[15]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1313,
+                    "end": 1317,
+                    "text": "[28]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 1322,
+                    "end": 1326,
+                    "text": "[18,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1327,
+                    "end": 1337,
+                    "text": "Chapter 4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Automata Models."
+        },
+        {
+            "text": "To establish the relation between FO 2 (\u2264 1 , 2 , S 2 ) and PIAs, we need some preliminaries. Recall that a total preorder is a transitive total relation which can be seen as an equivalence relation whose equivalence classes are linearly ordered. We use x \u223c 2 y as shorthand for (x 2 y) \u2227 (y 2 x). The induced successor relation S of a total preorder is such that S(x, y) if x y and there is no z such that x z y.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "Two-variable logic (FO 2 ) is the restriction of FO to formulas that only use two variables x and y, and FO 2 (\u2264 1 , 2 , S 2 ) is FO 2 with a linear order \u2264 1 , a total preorder 2 and its induced successor S 2 , and any number of unary relations from a finite alphabet.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "All structures and strings in this paper are finite. For a structure A, we denote its universe by A and its size by |A|. The empty structure has A = \u2205 and is denoted \u2205 voc . Data Words. Let \u03a3 a finite alphabet. Its extension for data words is voc DW (\u03a3) = \u2264 1 , 2 , S 2 , \u03c3 : \u03c3 \u2208 \u03a3 . A data word over \u03a3 is a finite voc DW (\u03a3)structure D with universe D where \u03c3 : \u03c3 \u2208 \u03a3 are interpreted as unary relations that partition D. We use D, D , etc. to denote data words. The empty word is denoted by \u2205 DW(\u03a3) , and the class of all data words over \u03a3 by DW(\u03a3). A set of data words is called a data language.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "Let",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "The projection of the empty structure \u2205 vocDW(\u03a3) , and only of \u2205 vocDW(\u03a3) , is \u03b5. The projection language of a data language \u0394 is the string language L(\u0394) = {w | w = string(D) for some D \u2208 \u0394}. If a formula \u03c8 defines \u0394, we write L(\u03c8) for L(\u0394). The goal of this section is to prove the following theorem.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "To prove this, we rely on the normal form defined next. A 1-type \u03bd(x) over a vocabulary voc DW (\u03a3) is a maximal consistent conjunction of atomic and negated atomic formulas with the free variable x. A 2-type \u03b8(x, y) is defined similarly. Given a FO 2 (voc DW (\u03a3)) formula \u03c8, we obtain a \u03d5 in normal form by taking the Scott Normal Form [14, Theorem 2.1] of \u03c8, and expanding the quantifier-free formulas to Disjunctive Normal Form, and in fact to disjunctions of 2-types \u03b8.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "The Scott Normal Form of \u03c8 introduces linearly many new symbols, resulting in an extended \u03a3 . We let \u039e = {\u03be a | a \u2208 [A]} be an alphabet containing a symbol for every 1-type over \u03a3 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PIAs and FO"
+        },
+        {
+            "text": "Let \u03c8 \u2208 FO 2 (voc DW (\u03a3)). Then there exist",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "\u2203y c\u2208 [C] \u03b8 abc (x, y)",
+            "cite_spans": [
+                {
+                    "start": 6,
+                    "end": 9,
+                    "text": "[C]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "with \u03b8 and \u03b8 abc 2-types over voc DW (\u039e), and",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "Moreover, \u03d5 is computable in ExpSpace and is of length exponential in |\u03c8|.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": ", a witness type set for a is a choice of 2-types satisfying the right-hand side of the implication for \u03be a . That is, a set of 2-types \u03c9 \u2286 \u0398 \u2203 that contains one \u03b8 abc for every b \u2208 [B], representing a choice of the existential constraints an element needs to fulfill. Denote by \u03a9 a the set of witness type sets for a and let \u03a9 = a\u2208[A] \u03a9 a . For a witness type set \u03c9 \u2208 \u03a9, let \u03c9(x) = \u03b8\u2208\u03c9 \u2203y \u03b8(x, y) be its existential constraints. Note that \u03c9(x) is always satisfiable and that there is a unique letter \u03be \u03c9 \u2208 \u039e such that \u03c9(x) |= DW(\u039e) \u03be \u03c9 (x).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "Example 2. Consider the following formula \u03d5 given in normal form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "where \u03c7(x, y) is the disjunction of 2-types equivalent to (\u03be 2 (x)\u2227\u03be 2 (y)) \u2192 x \u223c 2 y, and the \u03b8 i are given as the following 2-types (omitted clauses are negated):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "A data word satisfies \u03d5 iff it is the empty structure, or (a) the largest element of \u2264 1 has letter \u03be 2 , (b) the smallest element of \u2264 1 has letter \u03be 1 , (c) all elements with \u03be 2 have maximal value, and (d) no element with \u03be 1 has maximal value. Note that D |= \u03d5. The projection language L(\u03d5) is the regular language with regular expression \u03be 1 (\u03be 1 +\u03be 2 ) \u03be 2 +\u03b5. We have \u0398 \u2203 = {\u03b8 1 , \u03b8 2 , \u03b8 3 , \u03b8 4 }. We construct a PIA A \u03d5 that accepts a string w iff it can be extended into a data word D that satisfies the normal form \u03d5 of a given sentence \u03c8. Note that \u03c8 and \u03d5 have different alphabets, but since there is a letter-to-letter substitution h such that L(\u03c8) = h(L(A \u03d5 )), and PIAs are closed under letter-to-letter substitutions, this proves Theorem 3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "For constructing our PIA, we first focus on the existential part, i.e., whether w can be extended into a D that satisfies \u03d5 \u2203 . This is achieved in two steps: (S1) We reduce the existence of D to the existence of a sequence of consecutive task words, data words that store additional information of already satisfied vs. 'promised' subformulas; the sequence should lead to a completed task word where all promises are fulfilled. (S2) We do not have a bound on the length of task words and their data values, so we use extremal strings to decide the existence of the desired sequence with the limited memory of PIAs. After these two steps, we introduce perfect extremal strings to guarantee the satisfaction of \u03d5 \u2200 . Our PIA will then decide if a sequence of perfect extremal strings exists.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "Task Words for \u03d5 \u2203 . We start by defining task words, which are like data words but do more book-keeping. Additionally to data values, elements in task words are assigned tasks, which are witness type sets where each 2-type may be marked as completed if its satisfaction has already been established, or as promised otherwise. We reduce the satisfaction of \u03d5 \u2203 to the existence of a sequence of T 1 , . . . , T n of consecutive task words, where we keep assigning new data values and updating promised into completed tasks, until we reached a completed task word T n .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4 (Normal Form)."
+        },
+        {
+            "text": "For \u03b8 \u2208 \u0398 \u2203 , we call C \u03b8 a completed task and P \u03b8 a promised task. Let Tasks ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 72,
+                    "end": 77,
+                    "text": "Tasks",
+                    "ref_id": null
+                }
+            ],
+            "section": "Definition 3 (Tasks)."
+        },
+        {
+            "text": "For each task set ts \u2286 Tasks, there is at most one witness type set \u03c9 \u2208 \u03a9 that ts realizes, which means that for every \u03b8 \u2208 \u0398 \u2203 , (1) |{P \u03b8 , C \u03b8 } \u2229 ts| \u2264 1, and (2) |{P \u03b8 , C \u03b8 } \u2229 ts| = 1 if and only if \u03b8 \u2208 \u03c9. If there is such an \u03c9, we denote it \u03c9(ts), and call ts an \u03a9-realization. The set of all \u03a9-realizations is 2 Tasks D-task words are data words that assign tasks to the elements of D. More precisely, each d \u2208 D is assigned, instead of a letter \u03be a , a task set ts that realizes a witness type set \u03c9 which contains C \u03b8 for each \u03b8 \u2208 \u03c9 that d satisfies, and P \u03b8 for the remaining \u03b8 \u2208 \u03c9.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 320,
+                    "end": 325,
+                    "text": "Tasks",
+                    "ref_id": null
+                }
+            ],
+            "section": "Definition 3 (Tasks)."
+        },
+        {
+            "text": "\u03a9 that has the same universe and order relations as D, and for every d \u2208 D with T |= ts(d), (1) D |= \u03be \u03c9(ts) (d), and (2) for every \u03b8 \u2208 \u03c9(ts), C \u03b8 \u2208 ts iff D |= \u2203y \u03b8(d, y) . A task word T is a D-task word for some D, and it is completed if T |= \u03d5 \u03b5 \u2227 \u2200x ts\u22082 Tasks C \u03a9 ts(x). Example 4. We define a D-task word T ; its vocabulary is 2 Tasks \u03a9 , its universe is {a, b, c, d, e, f}, and \u2264 1 , 2 , and S 2 are the same as in D. The interpretation of the letter ts C 1 is {c}, that of ts C 2 is {d}, that of ts C 3 is {a, b, e}, and that of ts C 4 is {f }; the other letters are empty. As D |= \u03d5, all existential constraints are satisfied and T is completed.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 161,
+                    "end": 171,
+                    "text": "\u2203y \u03b8(d, y)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Definition 4 (Task word). Let D be a data word over \u039e. A D-task word is a data word T over 2 Tasks"
+        },
+        {
+            "text": "The satisfaction of \u03d5 \u2203 coincides with the existence of a completed task word.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4 (Task word). Let D be a data word over \u039e. A D-task word is a data word T over 2 Tasks"
+        },
+        {
+            "text": "We now characterize the notion of consecutive task words using trimmings. Trimming, consecutiveness) . The trimming of a data word D, denoted D \\1 , is the substructure of D induced by removing the elements with the maximal data value. For task words, trimmings are obtained by removing the elements with the largest data value and updating the tasks of the remaining elements correctly. That is, a trimming of a D-task word T is a D \\1 -task word T 1 such that \u03c9(ts) = \u03c9(ts 1 ) for every d and every ts, ts 1 \u2208 2 Tasks \u03a9 with T |= ts(d) and T 1 |= ts 1 (d). We say that T 1 , T are consecutive if T 1 is a trimming of T . The trimming of a task word is unique, and we denote it T \\ \\1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 74,
+                    "end": 100,
+                    "text": "Trimming, consecutiveness)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Lemma 1. Let D \u2208 DW(\u039e). There exists a completed D-task word iff D |= \u03d5 \u2203 ."
+        },
+        {
+            "text": "Example 5. D \\1 is obtained from D by removing d and f . The D \\1 -task word T \\ \\1 has universe {a, b, c, e} and order relations as in D \\1 . Note that d and f contributed in D to the satisfaction of \u03d5 \u2203 , so T \\ \\1 has promised tasks and is no longer completed, with interpretations ts P 1 = {c}, ts P 3 = {a, b, e}, and the remaining letters empty. Note that the tasks for the shared elements of T and T \\ \\1 realize the same witness type sets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 5 ("
+        },
+        {
+            "text": "We have achieved (S1): reducing satisfaction of \u03d5 \u2203 to finding a sequence of task words.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 5 ("
+        },
+        {
+            "text": "There exists a data word D |= \u03d5 \u2203 if and only if there is a sequence T 1 . . . , T n of consecutive task words, where T n is a completed D-task word. Now to (S2): as the limited memory of PIAs hinders the manipulation of task words with unbounded length and data values, we operate on their extremal strings instead.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 2."
+        },
+        {
+            "text": "First, in data abstractions of task words, we do not distinguish all data values, but only the top layer elements with maximal value, the second to top layer, and the rest. We let Layers = {1top, 2top, rest}, and define the alphabet \u0393 = Layers \u00d7 2 Tasks \u03a9 . We also define its restrictions to completed and promised tasks as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 2."
+        },
+        {
+            "text": "is the restriction of \u0393 to some specific h \u2208 Layers. For a symbol \u03b3 = (h, ts) in \u0393 , we denote ts(\u03b3) = ts and \u03c9(\u03b3) = \u03c9(ts). Extremal strings are obtained from data abstractions by keeping only the maximal and minimal positions in each layer with respect to the tasks. We extend to them the notions of consecutive and completed.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 2."
+        },
+        {
+            "text": "For w \u2208 \u0393 , define its extremal positions extPos(w):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": "If \u03b8 |= y <1 x, extPos \u03b8 (w) = | = min(pos rest,P \u03b8 (w))",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": "If extPos(w) = { 1 , . . . , r } and 1 < \u00b7 \u00b7 \u00b7 < r , then the extremal string of w is ext(w) = w( 1 ) \u00b7 \u00b7 \u00b7 w( r ). EXT(\u0393 ) = {ext(w) | w \u2208 \u0393 } denotes the set of extremal strings. Note that s = ext(w) implies ext(s) = s and ext(\u03b5) = \u03b5. An extremal string s is completed if s \u2208 \u0393 + C , or if s = \u03b5 and \u2205 DW(\u03a3) |= DW(\u03a3) \u03c8. We occasionally write ext(T ) to mean ext(abst(T )).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": "A pair s , s of extremal strings is consecutive if s = ext(T \\ \\1 ) and s = ext(T ) for some task word T .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": "For an extremal string s and \u2208 [|s|], the set of letters that can augment s at position without being extremal is \u0393 not ext (s, ) = {\u03b3 \u2208 \u0393 | ext(s) = ext(s(1) \u00b7 \u00b7 \u00b7 s( \u22121)\u03b3s( ) \u00b7 \u00b7 \u00b7 s(|s|))}, and we define \u0393 not ext h (s, ) = \u0393 h \u2229\u0393 not ext (s, ) for h \u2208 Layers. Example 6. Let w be the following 6-letter string over \u0393 = Layers \u00d7 2 Tasks",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": ". Then extPos(w) = {1, 3, 4, 5, 6}, since the letter at position 2 appears both to the left, at position 1, and to the right, at position 5, and s = ext(w) is the substring obtained from w by removing the non-extremal position 2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": "The concludes (S2), reducing the existence of D to a sequence of extremal strings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (extremal strings)."
+        },
+        {
+            "text": "Perfect Extremal Strings for \u03d5 \u2200 . We define in the appendix a formula which intuitively 'extracts' the 2-type of elements in a data word. Let \u03b1 = (h \u03b1 , ts \u03b1 ) and \u03b2 = (h \u03b2 , ts \u03b2 ) in \u0393 with at least one of them in \u0393 1top . The formula perf \u03b1,\u03b2 (x, y) implies for every atomic formula either itself or its negation. For example, if h \u03b1 = h \u03b2 = 1top, then perf \u03b1,\u03b2, 2 (x, y) implies x 2 y, y 2 x, \u00acS 2 (x, y), and \u00acS 2 (y, x). Hence for all \u03b1, \u03b2 \u2208 \u0393 with at least one of them in \u0393 1top , there exists a 2-type \u03b8(x, y) such that perf \u03b1,\u03b2 (x, y) \u2261 DW(\u039e) \u03b8(x, y). This allows us to describe the 2-type of elements in task words via perf \u03b1,\u03b2 formulas. For any two elements of the data word, there is a (possibly iterated) trimming in which both appear and one of them has the maximal data value, and their perfect formula, which is equivalent to their 2-type, determines whether they satisfy the universal constraint \u03c7. Thus we can ensure satisfaction of \u03c7 using perf \u03b1,\u03b2 (x, y) formulas from all the trimmings. Definition 8 (Perfect string, perfect task word). Let w \u2208 \u0393 . We say w is a perfect string if for every two positions 1 (y, x) . Note that the empty string \u03b5 is perfect. A task word T is perfect if it is empty, or if ext(T ) and ext(T \\ \\1 ) are perfect. Example 7. Let \u03b1 = (2top, ts C 1 ) and \u03b2 = (1top, ts C 2 ). Then perf \u03b1,\u03b2 (x, y) is given by y) . The 2-type \u03b8 to which perf \u03b1,\u03b2 (x, y) is equivalent over DW(\u039e) is given by the conjunction of perf \u03b1,\u03b2 (x, y) with \u00ac\u03be 2 (x)\u2227\u00ac\u03be 1 (y)\u2227(y < 1 x)\u2227(y 2 x)\u2227\u00acS 2 (y, x). We have that w is a perfect string, and perf \u03b1,\u03b2 (x, y) |= DW(\u039e) \u03c7(x, y) \u2227 \u03c7(y, x).",
+            "cite_spans": [
+                {
+                    "start": 1127,
+                    "end": 1128,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1129,
+                    "end": 1135,
+                    "text": "(y, x)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1357,
+                    "end": 1359,
+                    "text": "y)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Corollary 2. There is a data word D |= \u03d5 \u2203 if and only if there is a sequence of consecutive extremal strings where the last one is completed."
+        },
+        {
+            "text": "We characterize satisfiability in terms of perfect completed task words.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2. There is a data word D |= \u03d5 \u2203 if and only if there is a sequence of consecutive extremal strings where the last one is completed."
+        },
+        {
+            "text": "As a corollary of Lemma 2 and Lemma 1, we get: We are almost ready to define A \u03d5 . Intuitively, it will guess a sequence of extremal strings as in Proposition 3, placing pebbles from an extremal string to a consecutive one. This requires the automaton to verify consecutiveness, and to know which positions in consecutive extremal strings correspond to the same position in the input. This is easy if we have the underlying task word; indeed, given a task word T and an extremal string s = ext(T ), there is a bijective mapping from the extremal elements of T that s stores, to their positions in s . The same holds for T \\ \\1 and s = ext(T \\ \\1 ). By composing these mappings after inverting the latter, and restricting its domain to positions that remain extremal after updating the abstracted data values (that is, shifting the top layer to second top, and the second top into the remaining layer), we obtain a partial embedding from s to s via T that keeps track of the matching positions; the precise definition is in the appendix. But one major hurdle remains: these notions are defined in terms of a task word T , and our PIA cannot store task words, only their extremal strings. We overcome this through a merely syntactic characterization of consecutiveness, which can be verified without a concrete task word. This rather technical step relies on the fact that if s, s are consecutive, then s can be obtained by guessing a substring r that will get new data values, interleaving it into the proper positions g of s, which can also be guessed, and updating the abstracted data values. Also the partial embedding that keeps track of matching the positions can be obtained without a concrete T , using r and g. Lemma 3. We can decide whether two given extremal strings s, s are consecutive in ExpSpace. If they are, then we can also obtain in ExpSpace a partial embedding PEmb s \u2192s from positions in s to positions in s that coincides with the partial embedding from s to s via T for every task word T such that s = ext(T ) and s = ext(T \\ \\1 ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "The Automaton. We give a high-level description of A \u03d5 = (\u039e, m + 1, Q, q init , F, \u03b4), and refer to the extended version for a full definition. We have m = 7 \u00b7 |\u0398 \u2203 |: there is one pebble for each existential constraint in \u0398 \u2203 and each layer in \u0393 , plus an additional pebble per constraint, and one designated pebble m + 1 to read non-extremal positions. Q = Q e \u222a Q p has two types of states:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "-Q e contains states (s, \u03c4 ) with s a perfect extremal string and \u03c4 an (m+1, |s|)pebble assignment, which intuitively describes the assignment after reading s. -Q p contains states of the forms (s,s, \u03c4, 0) and (s,s, \u03c4, 1) for every perfect extremal string s, non-empty prefixs of s, and (m + 1, |s|)-pebble assignment \u03c4 that satisfies certain conditions that hold when only the prefixs has been read.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "The initial state is q init = (\u03b5, \u03c1 \u22a5 ) \u2208 Q e and the final states are F = {(s, \u03c4 ) \u2208 Q e | s is completed}. The transition \u03b4 is roughly as follows. A \u03d5 should transition from (s, \u03c4 ) \u2208 Q e to (s , \u03c4 ) \u2208 Q e for consecutive s, s , but since it can only move one pebble at a time, we have intermediate states in Q p which allow it to read s from left to right by iterating over all its prefixes. We start reading s by moving to (s , s (1), \u03c4 q , 0) \u2208 Q p , where \u03c4 q stores the pebble assignment induced by PEmb s \u2192s . Once the whole extremal string s has been read, we move to the next extremal state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "This finishes the construction of the automaton A \u03d5 with L(A \u03d5 ) = L(\u03d5), and thus the proof of Theorem 3. Concerning the upper bound on finite satisfiability, by Theorem 4 and EXT(\u0393 ) \u2286 \u0393 7|\u0398 \u2203 | , we get that A \u03d5 has size at most double exponential in |\u03c8|. For the ExpSpace upper bound, we need to show that the transition relation of A \u03d5 is ExpSpace-computable (Lemma 3 in the appendix).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "This with Theorem 2 gives an alternative proof of the upper bound in [27] :",
+            "cite_spans": [
+                {
+                    "start": 69,
+                    "end": 73,
+                    "text": "[27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "Corollary 3. Finite satisfiability of FO 2 (\u2264 1 , 2 , S 2 ) is in ExpSpace. [27] . Naturally, there are similarities between the techniques; our extremal strings and tasks are similar to their profiles and directional constraints. However, a key difference is that in their 'geometric' view, elements of the data word are assigned points (a, b) in the plane with a a position in \u2264 1 , and b a data value. Existential constraints are indicated by marking the witnesses with the letters they should have, and many profiles in a consistent sequence can contain points with the same a value.",
+            "cite_spans": [
+                {
+                    "start": 76,
+                    "end": 80,
+                    "text": "[27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Lemma 2. Let T be a D-task word. T is perfect if and only if D |= \u03d5 \u2200 ."
+        },
+        {
+            "text": "In contrast, our 'temporal' view arises from the computation of the PIA. We mark elements with existential constraints they need to satisfy and that they have satisfied, which is compatible with the read-once nature of PIA. It does not seem possible to use their proof techniques without modifying PIA to allow multiple readings of the input. The modified model would work for the logic-toautomata relation established here, but we suspect it would be too strong for the other direction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to the Proof of Schwentick and Zeume"
+        },
+        {
+            "text": "We introduced pebble-intervals automata (PIA) and studied their computational power. We proved that the projections of data languages definable in FO 2 (\u2264 1 , 2 , S 2 ) are PI languages, and as a by-product, obtained an alternative proof that finite satisfiability is in ExpSpace. The main question that remains is the converse of our main result: whether every PI language is the projection of an FO 2 (\u2264 1 , 2 , S 2 ) definable data language. We believe this is the case. Our work also gives rise to other questions. We suspect that our results can be extended to \u03c9-languages, and we would like to adapt them to C 2 , which extends FO 2 with counting quantifiers [25, 29] . We also plan to explore further the computational power of our automata model, for instance, to establish a pumping lemma that allows us to prove that some context-free languages are not PI languages.",
+            "cite_spans": [
+                {
+                    "start": 665,
+                    "end": 669,
+                    "text": "[25,",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 670,
+                    "end": 673,
+                    "text": "29]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion and Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Managing change in graphstructured data using description logics",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ahmetaj",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Calvanese",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ortiz",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Simkus",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ACM Trans. Comput. Logic",
+            "volume": "18",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "On notions of regularity for data languages",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bj\u00f6rklund",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Theor. Comput. Sci",
+            "volume": "411",
+            "issn": "4-5",
+            "pages": "702--715",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Two-variable logic on data trees and XML reasoning",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Boja\u0144czyk",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "David",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Muscholl",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Segoufin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "PODS",
+            "volume": "",
+            "issn": "",
+            "pages": "10--19",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Two-variable logic on data words",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Boja\u0144czyk",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "David",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Muscholl",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Segoufin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "TOCL",
+            "volume": "12",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Two-variable logic on words with data",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Boja\u0144czyk",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Muscholl",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Segoufin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "David",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "LICS",
+            "volume": "",
+            "issn": "",
+            "pages": "7--16",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "An algebraic approach to data languages and timed languages",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Bouyer",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Petit",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Th\u00e9rien",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Inf. Comput",
+            "volume": "182",
+            "issn": "2",
+            "pages": "137--162",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Shape and content",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Calvanese",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kotek",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "\u0160imkus",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Veith",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Zuleger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "IFM 2014",
+            "volume": "8739",
+            "issn": "",
+            "pages": "3--17",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-10181-1_1"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Verification of evolving graph-structured data under expressive path constraints",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Calvanese",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ortiz",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Simkus",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ICDT",
+            "volume": "15",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Handbook of Model Checking",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Clarke",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Henzinger",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Veith",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-10575-8"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "On the satisfiability of two-variable logic over data words",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "David",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Libkin",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Tan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "LPAR 2010",
+            "volume": "6397",
+            "issn": "",
+            "pages": "248--262",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-16242-8_18"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Decidability and complexity of Petri net problems -an introduction",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Esparza",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "ACPN 1996",
+            "volume": "1491",
+            "issn": "",
+            "pages": "374--428",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "First-order logic with two variables and unary temporal logic",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Etessami",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vardi",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Wilke",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Inform. Comput",
+            "volume": "179",
+            "issn": "2",
+            "pages": "279--295",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "On the decision problem for two-variable firstorder logic",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Gr\u00e4del",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Kolaitis",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vardi",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "Bull. Symb. Log",
+            "volume": "3",
+            "issn": "01",
+            "pages": "53--69",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "On logics with two variables",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Gr\u00e4del",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Otto",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Theor. Comput. Sci",
+            "volume": "224",
+            "issn": "1",
+            "pages": "73--113",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Variable automata over infinite alphabets",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Grumberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Kupferman",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Sheinvald",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "LATA 2010",
+            "volume": "6031",
+            "issn": "",
+            "pages": "561--572",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-13089-2_47"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "On the automated verification of web applications with embedded SQL",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Itzhaky",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ICDT. LIPIcs",
+            "volume": "68",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Finite-memory automata",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kaminski",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Francez",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Theor. Comput. Sci",
+            "volume": "134",
+            "issn": "2",
+            "pages": "329--363",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Logics on data words",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kara",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Two-variable logic on 2-dimensional structures",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Manuel",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Zeume",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "484--499",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Jumping finite automata",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Meduna",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Zemek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Int. J. Found. Comput. Sci",
+            "volume": "23",
+            "issn": "7",
+            "pages": "1555--1578",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "On languages with two variables",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mortimer",
+                    "suffix": ""
+                }
+            ],
+            "year": 1975,
+            "venue": "Math. Log. Q",
+            "volume": "21",
+            "issn": "1",
+            "pages": "135--140",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Finite state machines for strings over infinite alphabets",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Neven",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Vianu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "TOCL",
+            "volume": "5",
+            "issn": "3",
+            "pages": "403--435",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Two-variable logic and key constraints on data words",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Niewerth",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "ICDT",
+            "volume": "",
+            "issn": "",
+            "pages": "138--149",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Two variable first-order logic over ordered domains",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Otto",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "J. Symb. Logic",
+            "volume": "66",
+            "issn": "2",
+            "pages": "685--702",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Logics with counting and equivalence",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Pratt-Hartmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "CSL-LICS",
+            "volume": "76",
+            "issn": "",
+            "pages": "1--76",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Canonical graph shapes",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rensink",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "ESOP 2004",
+            "volume": "2986",
+            "issn": "",
+            "pages": "401--415",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-24725-8_28"
+                ]
+            }
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Two-variable logic with two order relations",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schwentick",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Zeume",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Log. Meth. Comput. Sci",
+            "volume": "8",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Automata and logics for words and trees over an infinite alphabet",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Segoufin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "CSL 2006",
+            "volume": "4207",
+            "issn": "",
+            "pages": "41--57",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11874683_3"
+                ]
+            }
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Extending two-variable logic on data trees with order on data values and its automata",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Tan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "ACM Trans. Comput. Log",
+            "volume": "15",
+            "issn": "1",
+            "pages": "1--8",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "An automata-theoretic approach to automatic program verification (preliminary report)",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vardi",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Wolper",
+                    "suffix": ""
+                }
+            ],
+            "year": 1986,
+            "venue": "LICS",
+            "volume": "",
+            "issn": "",
+            "pages": "332--344",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "[m]. By\u03c4 : [m] \u222a { , } \u2192 {0} \u222a [n + 1] we denote the extension of \u03c4 with\u03c4 ( ) = 0 and\u03c4 ( ) = n + 1.Definition 2 (Semantics of PIAs). Consider a PIAA = (\u03a3, m, Q, q init , F, \u03b4). A configuration of A on string u \u2208 \u03a3 is a triple (q, \u03c1, N ) where q \u2208 Q is the current state, \u03c1 : [m] \u2192 [|u|]\u222a{\u22a5} is the current pebble assignment, and N \u2286 [|u|] is the set of already-read positions. The initial configuration \u03c0 init is (q init , \u03c1 \u22a5 , \u2205). A configuration (q, \u03c1, N ) is accepting if q \u2208 F and N = [|u|]. Let \u03c0 = (q, \u03c1, N ) and \u03c0 = (q , \u03c1 , N ) be configurations on u. We call them consecutive and write \u03c0 t \u03c0 if there exists a transition t in \u03b4 such that either:1. t isa silent transition of the form (q, q ), N = N , and \u03c1 = \u03c1 ; or 2. t is a move transition (q, k-move i,j , u( ), q ) with\u03c1(i) < <\u03c1(j) and \u2208 [|u|] \u2212 N , and additionally \u03c1 = \u03c1[k \u2192 ] and N = N \u222a { }. That is, pebble k is placed on position in the open interval between i and j, reading the letter u( ).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "A language L is accepted by a standard non-deterministic finite-state automaton iff L = L(A) for a unidirectional PIA A with the same number of states.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "To avoid ambiguity, in our running examples we use underlined symbols. Let \u039e = {\u03be 1 , \u03be 2 } be a set of unary relations and let D be the data word with universe D = {a, b, c, d, e, f} where \u2264 1 is the lexicographic order, the interpretation of \u03be 1 is {a, b, c, e}, the interpretation of \u03be 2 is {d, f}, and b 2 a 2 e 2 c 2 d \u223c 2 f . Note e.g. that D |= S 2 (a, e) and D |= \u00acS 2 (b, e)\u2227(b 2 e). The string projection of D is string(D) = \u03be 1 \u03be 1 \u03be 1 \u03be 2 \u03be 1 \u03be 2 .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "For \u03d5, we have A = 2, B = 1, and C = 2. The witness type sets of \u03d5 are {\u03b8 111 }, {\u03b8 112 }, {\u03b8 211 }, and {\u03b8 212 }, where \u03b8 111 = \u03b8 1 , \u03b8 112 = \u03b8 3 , \u03b8 211 = \u03b8 2 , and \u03b8 212 = \u03b8 4 . Hence, we have \u03a9 = {{\u03b8 1 }, {\u03b8 2 }, {\u03b8 3 }, {\u03b8 4 }}, and \u03be {\u03b8 1 } = \u03be {\u03b8 3 } = \u03be 1 , and \u03be {\u03b8 2 } = \u03be {\u03b8 4 } = \u03be 2 .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Data abstraction). Let T be a D-task word. For every d \u2208 D, let ts d be such that T |= ts d (d), and let A be the data word over \u0393 with same universe and order relations as T , and with A |= \u03b3 h (d) where \u03b3 h = (h, ts d ) iff (a) h = 1top and value D (d) = max val D , (b) h = 2top and value D (d) = max val D \u22121, or (c) h = rest and value D (d) \u2208 [max val D \u2212 2]. The data abstraction abst(T ) of T is the string projection string(A).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "For every data word D \u2208 DW(\u039e), D |= \u03d5 if and only if there exists a perfect completed D-task word. There is D |= \u03d5 if and only if there is a sequence of consecutive perfect extremal strings where the last one is completed.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "The following are examples of PI languages: 1. There is a PIA A Dyck with one pebble that accepts the Dyck language L Dyck of well-nested brackets, which is context-free but not regular. The alphabet has two letters [ and ], and the states are q [ and q ] . The initial and only accepting state is q ] . The transition relation contains (q ] , 1-move , , [, q [ ) and (q [ , 1-move 1, , ], q ] ). A Dyck accepts a string iff there are as many left as right brackets, and no prefix has more right than left brackets. 2. A similar one pebble PIA accepts the language L two of all strings of two types",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Example 3. Since the witness type sets in \u03a9 are singletons, so are the ts \u2208 2 Tasks \u03a9 . Let ts C i = {C \u03b8 i } and ts P i = {P \u03b8 i } for i \u2208 [4]. Then we have 2 Tasks {C \u03b8 i } and {P \u03b8 i } are {\u03b8 i }-realizations for i \u2208 [4].",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We thank the anonymous reviewers for their helpful remarks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgments."
+        }
+    ]
+}

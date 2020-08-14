@@ -1,0 +1,1015 @@
+{
+    "paper_id": "1ce4be31bc5557078b84e90e456786c6080cd091",
+    "metadata": {
+        "title": "Improving Latent Dirichlet Allocation: On Reliability of the Novel Method LDAPrototype",
+        "authors": [
+            {
+                "first": "Jonas",
+                "middle": [],
+                "last": "Rieger",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Dortmund University",
+                    "location": {
+                        "postCode": "44221",
+                        "settlement": "Dortmund",
+                        "country": "Germany"
+                    }
+                },
+                "email": "rieger@statistik.tu-dortmund.de"
+            },
+            {
+                "first": "J\u00f6rg",
+                "middle": [],
+                "last": "Rahnenf\u00fchrer",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Dortmund University",
+                    "location": {
+                        "postCode": "44221",
+                        "settlement": "Dortmund",
+                        "country": "Germany"
+                    }
+                },
+                "email": "rahnenfuehrer@statistik.tu-dortmund.de"
+            },
+            {
+                "first": "Carsten",
+                "middle": [],
+                "last": "Jentsch",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU Dortmund University",
+                    "location": {
+                        "postCode": "44221",
+                        "settlement": "Dortmund",
+                        "country": "Germany"
+                    }
+                },
+                "email": "jentsch@statistik.tu-dortmund.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "A large number of applications in text data analysis use the Latent Dirichlet Allocation (LDA) as one of the most popular methods in topic modeling. Although the instability of the LDA is mentioned sometimes, it is usually not considered systematically. Instead, an LDA is often selected from a small set of LDAs using heuristic means or human codings. Then, conclusions are often drawn based on the to some extent arbitrarily selected model. We present the novel method LDAPrototype, which takes the instability of the LDA into account, and show that by systematically selecting an LDA it improves the reliability of the conclusions drawn from the result and thus provides better reproducibility. The improvement coming from this selection criterion is unveiled by applying the proposed methods to an example corpus consisting of texts published in a German quality newspaper over one month.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Due to the growing number and especially the increasing amount of unstructured data, it is of great interest to be able to analyze them. Text data is an example for unstructured data and at the same time it covers a large part of them. It is organized in so-called corpora, which are given by collections of texts.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "For the analysis of such text data topic models in general and the Latent Dirichlet Allocation in particular is often used. This method has the weakness that it is unstable, i.e. it gives different results for repeated runs. There are various approaches to reduce this instability. In the following, we present a new method LDAPrototype that improves the reliability of the results by choosing a center LDA. We will demonstrate this improvement of the LDA applying the method to a corpus consisting of all articles published in the German quality newspaper S\u00fcddeutsche Zeitung in April 2019.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The Latent Dirichlet Allocation [3] is very popular in text data analysis. Numerous extensions to Latent Dirichlet Allocation have been proposed, each customized for certain applications, as the Author-Topic Model [18] , Correlated Topics Model [2] or the more generalized Structural Topic Model [17] . We focus on LDA as one of the most commonly used topic models and propose a methodology to increase reliability of findings drawn from the results of LDA.",
+            "cite_spans": [
+                {
+                    "start": 32,
+                    "end": 35,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 214,
+                    "end": 218,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 245,
+                    "end": 248,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 296,
+                    "end": 300,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "Reassigning words to topics in the LDA is based on conditional distributions, thus it is stochastic. This is rarely discussed in applications [1] . However, several approaches exist to encounter this problem based on a certain selection criterion. One of these selection criteria is perplexity [3] , a performance measure for probabilistic models to estimate how well new data fit into the model [18] . As an extension, Nguyen et al. [13] proposed to average different iterations of the Gibbs sampling procedure to achieve an increase of perplexity. In general, it was shown that optimizing likelihood-based measures like perplexity does not select the model that fits the data best regarding human judgements. In fact, these measures are negatively correlated with human judgements on topic quality [5] . A better approach should be to optimize semantic coherence of topics as Chang et al. [5] proposed. They provide a validation technique called Word or Topic Intrusion which depends on a coding process by humans. Measures without human interaction, but almost automated, and also aiming to optimize semantic coherence can be transferred from the Topic Coherence [12] . Unfortunately, there is no validated procedure to get a selection criterion for LDA models from this topic's \"quality\" measure. Instead, another option to overcome the weakness of instability of LDA is to start the first iteration of the Gibbs sampler with reasonably initialized topic assignments [11] of every token in all texts. One possibility is to use co-occurences of words. The initialization technique comes with the drawback of restricting the model to a subset of possible results.",
+            "cite_spans": [
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 294,
+                    "end": 297,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 396,
+                    "end": 400,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 434,
+                    "end": 438,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 800,
+                    "end": 803,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 891,
+                    "end": 894,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1166,
+                    "end": 1170,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1471,
+                    "end": 1475,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "In this paper, we propose an improvement of the Latent Dirichlet Allocation through a selection criterion of multiple LDA runs. The improvement is made by increasing the reliability of results taken from LDA. This particular increase is obtained by selecting the model that represents the center of the set of LDAs best. The method is called LDAPrototype [16] and is explained in Sect. 3. We show that it generates reliable results in the sense that repetitions lie in a rather small sphere around the overall centered LDA, when applying the proposed methods to an example corpus of articles from the S\u00fcddeutsche Zeitung.",
+            "cite_spans": [
+                {
+                    "start": 355,
+                    "end": 359,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "The method we propose is based on the LDA [3] estimated by a Collapsed Gibbs sampler [6] , which is a probabilistic topic model that is widely used in text data analysis. The LDA assumes that there is a topic distribution for every text, and it models them by assigning one topic from the set of topics T = {T 1 , ..., T K } to every token in a text, where K \u2208 N denotes the user-defined number of modeled topics. We denote a text (or document) of a corpus consisting of M texts by",
+            "cite_spans": [
+                {
+                    "start": 42,
+                    "end": 45,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 85,
+                    "end": 88,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Latent Dirichlet Allocation"
+        },
+        {
+            "text": "We refer to the size of text m as N (m) ; W = {W 1 , ..., W V } is the set of words and V \u2208 N denotes the vocabulary size. Then, analogously the topic assignments of every text m are given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Latent Dirichlet Allocation"
+        },
+        {
+            "text": "Each topic assignment T ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Latent Dirichlet Allocation"
+        },
+        {
+            "text": ") T denote the vectors of word counts for the k = 1, ..., K topics. Using these definitions, the underlying probability model of LDA [6] can be written as",
+            "cite_spans": [
+                {
+                    "start": 133,
+                    "end": 136,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Latent Dirichlet Allocation"
+        },
+        {
+            "text": "where \u03b1 and \u03b7 are Dirichlet distribution hyperparameters and must be set by the user. Although the LDA permits \u03b1 and \u03b7 to be vector valued [3] , they are usually chosen symmetric because typically the user has no a-priori information about the topic distributions \u03b8 and word distributions \u03c6. Increasing \u03b7 leads to a loss of homogenity of the mixture of words per topic. In contrast, a decrease leads to a raise of homogenity, identified by less but more dominant words per topic. In the same manner \u03b1 controls the mixture of topics in texts.",
+            "cite_spans": [
+                {
+                    "start": 139,
+                    "end": 142,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Latent Dirichlet Allocation"
+        },
+        {
+            "text": "The Gibbs sampler in the modeling procedure of the LDA is sensitive to the random initialization of topic assignments as mentioned in Sect. 1.1. We present a method that reduces the stochastic component of the LDA. This adaption of the LDA named LDAPrototype [16] increases the reliability of conclusions drawn from the resulting prototype model, which is obtained by selecting the model that seems to be the most central of (usually around) 100 independently modeled LDA runs. The procedure can be compared to the calculation of the median in the univariate case. The method makes use of topic similarities measured by the modified Jaccard coefficient for the corresponding topics to the word count vectors w i and w j",
+            "cite_spans": [
+                {
+                    "start": 259,
+                    "end": 263,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LDAPrototype"
+        },
+        {
+            "text": "where c is a vector of lower bounds. Words are assumed to be relevant for a topic if the count of the word passes this bound. The threshold c marks the modification to the traditional Jaccard coefficient [8] and can be chosen in an absolute or relative manner or as a combination of both.",
+            "cite_spans": [
+                {
+                    "start": 204,
+                    "end": 207,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LDAPrototype"
+        },
+        {
+            "text": "The main part of LDAPrototype is to cluster two independent LDA replications using Complete Linkage [7] based on the underlying topic similarities of those two LDA runs. Let G be a pruned cluster result composed by single groups g consisting of topics and let g |1 and g |2 denote groups of g restricted to topics of the corresponding LDA run. Then, the method aims to create a pruning state where g |1 and g |2 are each build by only one topic for all g \u2208 G. This is achieved by maximizing the measure for LDA similarity named S-CLOP (Similarity of Multiple Sets by Clustering with Local Pruning) [16] :",
+            "cite_spans": [
+                {
+                    "start": 100,
+                    "end": 103,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 598,
+                    "end": 602,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LDAPrototype"
+        },
+        {
+            "text": "We denote the best pruning state by G * = arg max{S-CLOP(G)} for all possible states G and determine similarity of two LDA runs by S-CLOP(G * ). The prototype model of a set of LDAs then is selected by maximizing the mean pairwise similarity of one model to all other models. The methods are implemented in the R [14] package ldaPrototype [15] . The user can specify the number of models, various options for c including a minimal number of relevant words per topic as well as the necessary hyperparameters for the basic LDA \u03b1, \u03b7, K and the number of iterations the Gibbs sampler should run. The package is linked to the packages lda [4] and tosca [10] .",
+            "cite_spans": [
+                {
+                    "start": 313,
+                    "end": 317,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 339,
+                    "end": 343,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 634,
+                    "end": 637,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 648,
+                    "end": 652,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LDAPrototype"
+        },
+        {
+            "text": "We show that the novel method LDAPrototype improves the Latent Dirichlet Allocation in the sense of reliability. To prove that, the following study design is applied to an example corpus from the German quality newspaper S\u00fcddeutsche Zeitung (SZ). The corpus consists of all 3 718 articles published in the SZ in April 2019. It is preprocessed using common steps for cleaning text data including duplicate removal leading to 3 468 articles. Moreover, punctuation, numbers and German stopwords are removed. In addition, all words that occur ten times or less are deleted. This results in M = 3 461 non-empty texts and a vocabulary size of V = 11 484. The preprocessing was done using the R package tosca [10] .",
+            "cite_spans": [
+                {
+                    "start": 702,
+                    "end": 706,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Analysis"
+        },
+        {
+            "text": "The study is as follows: First of all, a large number N of LDAs is fitted. This set represents the basic population of all possible LDAs in the study. Then we repeat P times the random selection of R LDAs and calculate their LDAPrototype. This means, finally P prototypes are selected, each based on R basic LDAs, where each LDA is randomly drawn from a set of N LDAs. Then, a single prototype is determined based on a comparison of the P prototypes. This particular prototype forms the assumed true center LDA. In addition, we establish a ranking of all other prototypes. The order is determined by sequentially selecting the next best prototype which realizes the maximum of the mean S-CLOP values by adding the corresponding prototype and simultaneously considering all higher ranked LDAPrototypes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Study Design"
+        },
+        {
+            "text": "For the application we choose three different parameter combinations for the basic LDA. In fact, we want to model the corpus of the SZ with K = 20, 35, 50 topics. We choose accordingly \u03b1 = \u03b7 = 1/K and let the Gibbs sampler iterate 200 times. We choose the size of the population as N = 25 000, so that we initially calculate a total of 75 000 LDAs, which is computationally intensive but bearable. We use the R package ldaPrototype [15] to compute the models on batch systems. We set the parameters of the study to a sufficiently high and at the same time calculable value of P = R = 500. That is, we get 500 PrototypeLDAs, each based on 500 basic LDAs, that are sampled without replacement from the set of 25 000 basic LDAs. The sampling procedure is carried out without replacement in order to protect against falsification by multiple selection of one specific LDA. Figure 1 represents this particular study design schematically.",
+            "cite_spans": [
+                {
+                    "start": 432,
+                    "end": 436,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 869,
+                    "end": 877,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Study Design"
+        },
+        {
+            "text": "Then, we inspect the selection of the P prototypes. On the one hand, we quantify the goodness of selection by determining how many LDAs, that were available in the corresponding run, are ranked before the corresponding LDAPrototype. On the other hand, the analysis of the distance to the best available LDA run in the given prototype run provides a better assessment of the reliability of the method. We compare the observed values with randomized choices of the prototype. This leads to statements of the form that the presented method LDAPrototype selects its prototypes only from a sufficiently small environment around the true center LDA, especially in comparison to random selected LDAs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Study Design"
+        },
+        {
+            "text": "For the analysis we first determine the true center LDA and a ranking for all 500 prototypes as described in Sect. 4.1 for each K = 20, 35, 50. The corresponding mean S-CLOP value at the time of addition is assigned to each prototype in the ranking as a measure of proximity to the true center LDA. To visualize the rankings, we use so-called beanplots [9] as a more accurate form of boxplots, as well as empirical cumulative distribution functions (ECDF) and bar charts. For K = 20, 35, 50 each of the 25 000 LDAs is included at least once in the 500 times 500 selected LDAs. Nevertheless, only 169, 187 and 186 different LDAs are chosen as prototypes. The LDAPrototype method thus differs significantly from a random selection, whose associated simulated 95% confidence interval suggests between 490 and 499 different prototypes. Figure 2 summarizes the analysis of the increase of reliability for 20, 35 and 50 topics, respectively. The beanplots in Fig. 2a indicate the distance of each LDA actually selected from the LDAPrototype method to the supposedly most suitable LDA from the identical prototype run with respect to the values from the ranking. For comparison, the distribution of the distances for random selection of the prototype is given besides. The corresponding values were generated by simulation with permutation of the ranking. The ECDFs in Fig. 2b show the relative number of LDAs, in each of the P = 500 prototype runs, that according to the ranking would represent a better choice as prototype. Finally, the bar charts in Fig. 2c show the corresponding distribution of the absolute numbers of available better LDAs in the same run in accordance to the determined ranking of prototypes. In addition, simulated 95% confidence intervals for frequencies realized by the use of random selection are also shown.",
+            "cite_spans": [
+                {
+                    "start": 353,
+                    "end": 356,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 832,
+                    "end": 840,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 953,
+                    "end": 960,
+                    "text": "Fig. 2a",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1362,
+                    "end": 1369,
+                    "text": "Fig. 2b",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1546,
+                    "end": 1553,
+                    "text": "Fig. 2c",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "For K = 20, many randomly selected LDAs have a rather large distance of about 0.07 at a total mean value of just below 0.04, while the presented method realizes distances that are on average below 0.01. For increasing K the distances seem to increase as well. While the random selection produces an almost unchanging distribution over an extended range, the distribution of LDAPrototype shifts towards zero. Higher values become less frequent. The ECDFs look very similar for all K, whereby for K = 35 slightly lower values are observed for small proportions. This is supported by the only major difference in the bar charts. Modeling 20 or 50 topics, for 50% of the prototype runs there is no better available LDA to choose, while for the modeling of 35 topics this scenario applies for just over 40%. The corresponding confidence intervals in Fig. 2c are lowered as well. This is an indication that for K = 35 it is easier to find a result that is stable to a certain extent for the basic LDA. This is supported by the fact that the distribution of distances in Fig. 2a does not seem to suffer.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 845,
+                    "end": 852,
+                    "text": "Fig. 2c",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1064,
+                    "end": 1071,
+                    "text": "Fig. 2a",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "We show that the LDAPrototype method significantly improves the reliability of LDA results compared to a random selection. The presented method has several advantages, e.g. the automated computability, as no need of manual coding procedures. In addition, besides the intuitive statistical approach, the proposed method preserves all components of an LDA model, especially the specific topic assignments of each token in the texts. This means that all analyses previously carried out on individual runs can be applied to the LDAPrototype as well. The results suggest that K = 35 topics produces more stable results and might therefore be a more appropriate choice for the number of topics than K = 20 or 50 on the given corpus. Further studies to analyze the observed differences in the number of better LDAs as well as the distances to the best LDA between different choices of the numbers of topics, may lead to progress in the field of hyperparameter tuning for the LDA.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "What is wrong with topic modeling? And how to fix it using search-based software engineering",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Agrawal",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Fu",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Menzies",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Inf. Softw. Technol",
+            "volume": "98",
+            "issn": "",
+            "pages": "74--88",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.infsof.2018.02.005"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "A correlated topic model of science",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Blei",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Lafferty",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Ann. Appl. Stat",
+            "volume": "1",
+            "issn": "1",
+            "pages": "17--35",
+            "other_ids": {
+                "DOI": [
+                    "10.1214/07-AOAS114"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Latent Dirichlet allocation",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Blei",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Ng",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Jordan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "J. Mach. Learn. Res",
+            "volume": "3",
+            "issn": "",
+            "pages": "993--1022",
+            "other_ids": {
+                "DOI": [
+                    "10.1162/jmlr.2003.3.4-5.993"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "LDA: Collapsed Gibbs Sampling Methods for Topic Models",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Reading tea leaves: how humans interpret topic models",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Boyd-Graber",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Gerrish",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Blei",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Proceedings of the 22nd International NIPS-Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "288--296",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Finding scientific topics",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Griffiths",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Steyvers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Proc. Natl. Acad. Sci",
+            "volume": "101",
+            "issn": "",
+            "pages": "5228--5235",
+            "other_ids": {
+                "DOI": [
+                    "10.1073/pnas.0307752101"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The Elements of Statistical Learning. SSS",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Hastie",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Tibshirani",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Friedman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-0-387-84858-7"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "The distribution of the flora in the alpine zone",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Jaccard",
+                    "suffix": ""
+                }
+            ],
+            "year": 1912,
+            "venue": "New Phytol",
+            "volume": "11",
+            "issn": "2",
+            "pages": "37--50",
+            "other_ids": {
+                "DOI": [
+                    "10.1111/j.1469-8137.1912.tb05611.x"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Beanplot: a boxplot alternative for visual comparison of distributions",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Kampstra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "J. Stat. Softw. Code Snippets",
+            "volume": "28",
+            "issn": "1",
+            "pages": "1--9",
+            "other_ids": {
+                "DOI": [
+                    "10.18637/jss.v028.c01"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "tosca: Tools for Statistical Content Analysis",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Koppers",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rieger",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Boczek",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Von Nordheim",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.5281/zenodo.3591068"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Applying LDA topic modeling in communication research: toward a valid and reliable methodology",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Maier",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Commun. Methods Measur",
+            "volume": "12",
+            "issn": "2-3",
+            "pages": "93--118",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/19312458.2018.1430754"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Optimizing semantic coherence in topic models",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mimno",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wallach",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Talley",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Leenders",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mccallum",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Proceedings of the 2011 EMNLP-Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "262--272",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Sometimes average is best: the importance of averaging for prediction using MCMC inference in topic modeling",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Boyd-Graber",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Resnik",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Proceedings of the 2014 EMNLP-Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "1752--1757",
+            "other_ids": {
+                "DOI": [
+                    "10.3115/v1/D14-1182"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "R Core Team",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "LDAPrototype: Prototype of Multiple Latent Dirichlet Allocation Runs",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rieger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.5281/zenodo.3604359"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Improving Reliability of Latent Dirichlet Allocation by Assessing Its Stability Using Clustering Techniques on Replicated Runs",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rieger",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Koppers",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Jentsch",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rahnenf\u00fchrer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "The structural topic model and applied social science",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Roberts",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Stewart",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Tingley",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Airoldi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "NIPS-Workshop on Topic Models: Computation, Application, and Evaluation",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "The author-topic model for authors and documents",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rosen-Zvi",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Griffiths",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Steyvers",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Smyth",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Proceedings of the 20th UAI-Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "487--494",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "= 1, ..., K, v = 1, ..., V describes the number of assignments of word v in text m to topic k, we can define the cumulative count of word v in topic k over all documents by n",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Schematic representation of the study design for N = 25 000 LDAs in the base population and P = 500 selected prototypes, each based on R = 500 sampled LDAs from the base population.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Distance of each of the LDAPrototypes to the LDA that would have been the best choice in the corresponding prototype run regarding closeness to the center LDA. Empirical cumulative distribution function of the proportion of how many LDAs are closer to the center LDA than the selected LDAPrototype. Number of LDAs that are closer to the center LDA than the selected LDAPrototype.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Analysis of the improvement of reliability by using the LDAPrototype for K = 20, 35, 50 modeled topics. Every single value corresponds to one of the P = 500 prototype runs resulting in the corresponding LDAPrototype.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

@@ -1,0 +1,3128 @@
+{
+    "paper_id": "1ca354d24da3f91d6932a4558d946884a96929b5",
+    "metadata": {
+        "title": "Benchmarking Deep Learning Models and Automated Model Design for COVID-19 Detection with Chest CT Scans",
+        "authors": [
+            {
+                "first": "Xin",
+                "middle": [],
+                "last": "He",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Shihao",
+                "middle": [],
+                "last": "Wang",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Shaohuai",
+                "middle": [],
+                "last": "Shi",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Xiaowen",
+                "middle": [],
+                "last": "Chu",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Jiangping",
+                "middle": [],
+                "last": "Tang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Hangzhou Dianzi University",
+                    "location": {
+                        "addrLine": "Hang Zhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Xin",
+                "middle": [],
+                "last": "Liu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Hangzhou Dianzi University",
+                    "location": {
+                        "addrLine": "Hang Zhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Chenggang",
+                "middle": [],
+                "last": "Yan",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Hangzhou Dianzi University",
+                    "location": {
+                        "addrLine": "Hang Zhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Jiyong",
+                "middle": [],
+                "last": "Zhang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Hangzhou Dianzi University",
+                    "location": {
+                        "addrLine": "Hang Zhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Guiguang",
+                "middle": [],
+                "last": "Ding",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Tsinghua University",
+                    "location": {
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "COVID-19 pandemic has spread all over the world for months. As its transmissibility and high pathogenicity seriously threaten people's lives, the accurate and fast detection of the COVID-19 infection is crucial. Although many recent studies have shown that deep learning based solutions can help detect COVID-19 based on chest CT scans, there lacks a consistent and systematic comparison and evaluation on these techniques. In this paper, we first build a clean and segmented CT dataset called Clean-CC-CCII by fixing the errors and removing some noises in a large CT scan dataset CC-CCII with three classes: novel coronavirus pneumonia (NCP), common pneumonia (CP), and normal controls (Normal). After cleaning, our dataset consists of a total of 340,190 slices of 3,993 scans from 2,698 patients. Then we benchmark and compare the performance of a series of state-of-the-art (SOTA) 3D and 2D convolutional neural networks (CNNs). The results show that 3D CNNs outperform 2D CNNs in general. With extensive effort of hyperparameter tuning, we find that the 3D CNN model DenseNet3D121 achieves the highest accuracy of 88.63% (F1score is 88.14% and AUC is 0.940), and another 3D CNN model ResNet3D34 achieves the best AUC of 0.959 (accuracy is 87.83% and F1-score is 86.04%). We further demonstrate that the mixup data augmentation technique can largely improve the model performance. At last, we design an automated deep learning methodology to generate a lightweight deep learning model MNas3DNet41 that achieves an accuracy of 87.14%, F1-score of 87.25%, and AUC of 0.957, which are on par with the best models made by AI experts. The automated deep learning design is a promising methodology that can help health-care professionals develop effective deep learning models using their private data sets. Our Clean-CC-CCII dataset and source code are available at:https://github.com/arthursdays/HKBU HPML COVID-19.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The COVID-19 (Corona Virus Disease 2019) pandemic is an ongoing pandemic caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) [1] . The SARS-CoV-2 virus can be easily spread among people via small droplets produced by coughing, sneezing, and talking [2] . Even worse, \u00a7 Corresponding author at Hong Kong Baptist University, Tel.: +852-3411-5998; Email: chxw@comp.hkbu.edu.hk \u00b6 Corresponding author at Hangzhou Dianzi University; Email:",
+            "cite_spans": [
+                {
+                    "start": 144,
+                    "end": 147,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 268,
+                    "end": 271,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "jzhang@hdu.edu.cn SARS-CoV-2 can be highly stable in a favourable environment so that it can adhere to different object surfaces up to several days [3] , which causes a higher risk of getting infected by touching these contaminated surfaces and then touching their own faces. COVID-19 is not only easily contagious, but also a serious threat to human lives. The COVID-19 infected patients usually present with pneumonia-like symptoms (fever, dry cough, dyspnea, etc.) and gastrointestinal symptoms such as diarrhea, followed by a severe acute respiratory infection. In some cases, acute respiratory distress accompanied by severe respiratory complications may even lead to death. According to the COVID-19 situation report [4] provided by the World Health Organization (WHO), as of the end of May, there were 5,934,936 COVID-19 infections and 367,166 deaths globally. The usual incubation period of COVID-19 ranges from one to 14 days. Many COVID-19 patients do not even know that they have been infected without any symptoms, which would easily cause delayed treatments and lead to a sudden exacerbation of the condition. Therefore, a fast and accurate method of diagnosing COVID-19 infection is crucial.",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 151,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 723,
+                    "end": 726,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Currently, there are two commonly used methods for COVID-19 diagnosis. One is viral testing, which uses real-time reverse transcription-polymerase chain reaction (rRT-PCR) to detect viral RNA fragments. The other one is making diagnoses based on characteristic imaging features on chest X-rays or computed tomography (CT) scan images. [5] conducted the effectiveness comparison between the two diagnosis methods and concluded that chest CT has a faster detection from the initial negative to positive than rRT-PCR. However, the manual process of analyzing and diagnosing based on CT images highly relies on professional knowledge and is time-consuming to analyze the features on the CT images. Therefore, many recent studies have tried to use deep learning (DL) methods to assist COVID-19 diagnosis with chest X-rays or CT scan images.",
+            "cite_spans": [
+                {
+                    "start": 335,
+                    "end": 338,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "However, the reported accuracy of the existing DL-based COVID-19 detection solutions spans a broad spectrum because they were evaluated on different datasets, making it difficult to achieve a fair comparison. In this paper, we aim to conduct a reproducible comparative study of DL methods for COVID-19 detection using chest CT scans. To this end, we first build a clean and segmented CT scans dataset based on a largescale open-source dataset 1 from CC-CCII (China Consortium of Chest CT Image Investigation) [6] . Our dataset, named Clean-CC-CCI, consists of three classes: novel coronavirus pneumonia (NCP), common pneumonia (CP), and normal controls (Normal). Totally, there are 340,190 slices of 3,993 scans from 2,698 patients in our dataset, where the number of slices of NCP, CP, and Normal is 131,517, 135,038, and 73,635, respectively. We split the dataset into the training and test sets according to the patient's ID with a ratio of 4:1, the details of which are shown in Table II . Notice that our test set size is the largest one (e.g., it is twice of that in [6] ), making our evaluation results more conservative than existing ones. Our benchmark dataset is made open to the public and can facilitate the fair comparison of new DL models for COVID-19 detection.",
+            "cite_spans": [
+                {
+                    "start": 509,
+                    "end": 512,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1073,
+                    "end": 1076,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 983,
+                    "end": 991,
+                    "text": "Table II",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In this paper, we use our dataset to benchmark two types of state-of-the-art (SOTA) DL models: 1) 3D convolutional neural networks (CNNs), including DenseNet3D121 [17] , R2Plus1D [18] , MC3 18 [18] , ResNeXt3D101 [17] , Pre-Act ResNet [17] , and ResNet3D series [17] ; 2) 2D CNNs, including DenseNet121 [19] , DenseNet201 [19] , ResNet50 [20] , ResNet101 [20] and ResNeXt101 [21] . We explore three key factors that may affect the detection performance, including model depth, methods of reading slice images, and model architecture. First, regarding the model depth, we compare the performance of the ResNet architecture [20] with 3D from 10 layers to 152 layers, i.e., ResNet3D10, ResNet3D18, ResNet3D34, ResNet3D50, ResNet3D101, ResNet3D152, and ResNet3D200. Second, in terms of how to read the slice images, we consider two popular approaches: one is to read a slice as an RGB image with three channels; another is to convert the slice to a greyscale image with only one channel. Therefore, the scan images used to train the model will be different because of the different ways of slice reading. Third, we exploit multiple DNN architectures including the hand-craft models and automatically generated models with AutoML techniques [22] , [23] . We use seven 3D models to analyze the effect of two types of scan data. Besides, we discuss the influence of the number of slices in a CT scan on the model performance. We also evaluate the effectiveness of the mixup data augmentation method by comparing model accuracy before and after applying the mixup method. Our major contributions are summarized as follows:",
+            "cite_spans": [
+                {
+                    "start": 163,
+                    "end": 167,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 179,
+                    "end": 183,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 193,
+                    "end": 197,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 213,
+                    "end": 217,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 235,
+                    "end": 239,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 262,
+                    "end": 266,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 303,
+                    "end": 307,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 322,
+                    "end": 326,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 338,
+                    "end": 342,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 355,
+                    "end": 359,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 375,
+                    "end": 379,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 622,
+                    "end": 626,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1236,
+                    "end": 1240,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1243,
+                    "end": 1247,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "for COVID-19 detection using chest CT scans, and benchmark 9 different CNN architectures with more than 20 variants. 2) We find that both 3D and 2D CNNs are promising solutions for detecting COVID-19 infections. However, the overall performance of 3D CNNs is better than 2D",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "1) We build an open benchmark dataset Clean-CC-CCII"
+        },
+        {
+            "text": "CNNs. Besides, the results of the ResNet3D series show that the model performance does not scale very well with the model depth. 3) We find that the models can achieve higher AUC when the slices are converted to greyscale images. 4) To the best of our knowledge, this is the first paper to explore the relationship between model performance and the number of slices in a CT scan. Our result shows that there is no significant correlation between them. In other words, increasing the number of slices does not necessarily improve the model performance. Instead, the model trained on scan data with a small number of slices can also achieve comparable or even better results. 5) We demonstrate that the mixup data augmentation method [24] can effectively improve model accuracy in our study. 6) We develop an automated deep learning methodology to generate a lightweight deep learning model MNas3DNet41. On our dataset, it achieves an accuracy of 87.14%, F1-score of 87.25%, and AUC of 0.957, which are on par with the best results of the highly fine-tuned models made by AI experts. The rest of the paper is organized as follows. Section II describes the related work. In section III, we describe the strategies used to build our dataset, the comparison study of SOTA CNN models, and the automated model design methodology. Section IV presents and discusses the experimental results. We conclude the paper and introduce the future research directions in Section V.",
+            "cite_spans": [
+                {
+                    "start": 732,
+                    "end": 736,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "1) We build an open benchmark dataset Clean-CC-CCII"
+        },
+        {
+            "text": "In recent years, DL techniques have been proved to be effective in the diagnosis of diseases with X-ray and CT images [25] . To enable machine learning techniques be applied in helping detect COVID-19, an increasing number of publicly available COVID-19 datasets has been proposed in the past few months as shown in Table I . These datasets can be classified into two classes: X-ray and CT scan images. Machine/Deep learning techniques highly rely on both the quality and quantity of the dataset.",
+            "cite_spans": [
+                {
+                    "start": 118,
+                    "end": 122,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 316,
+                    "end": 323,
+                    "text": "Table I",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "II. RELATED WORK"
+        },
+        {
+            "text": "IEEE8023 Coivd-chestxray-dataset [26] is an open dataset of COVID-19 cases with chest X-ray and CT images, which allows users to submit other COVID-19 data to this dataset. However, this dataset mainly focuses on X-ray images with only a very small number of CT scans. Based on this dataset, several DL based techniques have been proposed [7] - [9] to detect COVID-19.",
+            "cite_spans": [
+                {
+                    "start": 33,
+                    "end": 37,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 339,
+                    "end": 342,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 345,
+                    "end": 348,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Publicly-available datasets of COVID-19"
+        },
+        {
+            "text": "Covid-ct-dataset [27] is a CT dataset of COVID-19, which is mainly composed of CT images extracted from PDF files of COVID-19 papers in medRxiv and bioRxiv. Thus, it has two main drawbacks. First, many CT images contain some marks created by the CT machine or doctors, which may have a high impact on the DL techniques. Second, each patient has only one to several CT images instead of a complete 3D scan volume, which results in some difficulties to use 3D CNNs to exploit the depth information of the lung. CC-CCII is another publicly available CT volume dataset proposed by [6] . It is currently one of the largest CT datasets for COVID-19, which contains 617,775 slices of CT images from 6,752 scans of 4,154 patients. It has 3 classes of novel coronavirus pneumonia (NCP), common pneumonia (CP), and normal controls (Normal). CP includes bacterial pneumonia and viral pneumonia. However, this dataset (version 1.0 released on 23 April 2020) contains some errors (e.g., disorder of CT images in some scans, some scans include CT of the head but not the lung, etc.).",
+            "cite_spans": [
+                {
+                    "start": 17,
+                    "end": 21,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 577,
+                    "end": 580,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Publicly-available datasets of COVID-19"
+        },
+        {
+            "text": "COVID-19-CT-Seg-Dataset [28] is a publicly available CT dataset of COVID-19. It contains 20 well-labeled scans with annotation of left lung, right lung and lesions. Three experienced radiologists are involved for each annotation: two radiologists do the annotation and one does the verification.",
+            "cite_spans": [
+                {
+                    "start": 24,
+                    "end": 28,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Publicly-available datasets of COVID-19"
+        },
+        {
+            "text": "Most research is conducted on CT images, but many of them do not exploit the 3D information of CT images, such as the work by [10] , [13] , [14] . They only propose the DL models with 2D CNNs for COVID-19 detection. [11] is the most related work to ours; but it only benchmarks ten 2D CNNs and compares their performance in classifying 2D CT images on their private dataset with 102 testing images.",
+            "cite_spans": [
+                {
+                    "start": 126,
+                    "end": 130,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 133,
+                    "end": 137,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 140,
+                    "end": 144,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 216,
+                    "end": 220,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. DL-based methods for COVID-19 detection"
+        },
+        {
+            "text": "On the other hand, the studies in utilizing 3D CT images are relatively rare, which is mainly due to the lack of 3D CT scan dataset of COVID-19 in the earlier days. However, there still exist some work proposing 3D CNNs with their private 3D CT datasets (e.g., [16] , [15] ). Recently, [6] publish a large-scale publicly available 3D CT dataset, based on which they propose 3D CNNs methods to segment lesion and detect COVID-19. However, in [6] , only two DL models are exploited to evaluate the model performance using 10% of the dataset as test set. It is of practical importance to evaluate which types of models are suitable to the 3D CT images in detecting There are also some other studies conducted on X-ray images. For example, [9] propose three 2D CNNs for COVID-19 detection. [7] introduce a deep anomaly detection model for fast and reliable screening. [8] investigate the estimation of uncertainty and interpretability by droiopweights-based Baysian CNN on the X-ray images. [12] use both X-ray images and CT images to do segmentation and detection.",
+            "cite_spans": [
+                {
+                    "start": 261,
+                    "end": 265,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 268,
+                    "end": 272,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 286,
+                    "end": 289,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 441,
+                    "end": 444,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 736,
+                    "end": 739,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 786,
+                    "end": 789,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 864,
+                    "end": 867,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 987,
+                    "end": 991,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. DL-based methods for COVID-19 detection"
+        },
+        {
+            "text": "In recent years, Automated Machine Learning (AutoML) has created many SOTA results by automatically searching model architectures and hyper-parameters for specific tasks [22] , [23] , [29] . For example, [30] introduce AutoML into the medical image processing task. They used five public datasets, MESSIDOR, OCT images, HAM 10000, Paediatric images and CXR images, to train models by Google Cloud AutoML. Their experimental results demonstrate that AutoML can generate competitive classifiers compared to manually designed DL models.",
+            "cite_spans": [
+                {
+                    "start": 170,
+                    "end": 174,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 177,
+                    "end": 181,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 184,
+                    "end": 188,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 204,
+                    "end": 208,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Automated model design for medical image analysis"
+        },
+        {
+            "text": "A. Dataset [6] provide an open-source chest CT image dataset for COVID-19 diagnosis, namely China Consortium of Chest CT Image Investigation (CC-CCII), which contains a total of 617,775 CT slices of 6,752 CT scans from 4,154 patients. CC-CCII has three classes: novel coronavirus pneumonia (NCP), common pneumonia (CP), and normal controls (Normal). CP includes bacterial pneumonia and viral pneumonia. To best of our knowledge, CC-CCII is the largest COVID-19 CT dataset which is publicly available currently. It would be helpful for accelerating the research on machine learning based methods in COVID-19 diagnosis. However, CC-CCII has five main issues (i.e., damaged data, non-unified data type, repeated and noisy slices, disordered slices, and non-segmented slices) that would have high negative impacts on the model performance.",
+            "cite_spans": [
+                {
+                    "start": 11,
+                    "end": 14,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. MATERIALS AND METHODS"
+        },
+        {
+            "text": "In this section, we first describe our methods to address the problems in CC-CCII to generate a better dataset for DL techniques. Then we introduce the strategies of scan images construction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. MATERIALS AND METHODS"
+        },
+        {
+            "text": "3 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. MATERIALS AND METHODS"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. . https://doi.org/10.1101/2020.06.08.20125963 doi: medRxiv preprint After addressing the above problems, we construct a clean CC-CCII dataset named Clean-CC-CCII, which is more suitable to DL-based methods in COVID-19 diagnosis. The statistics of our dataset are presented in Table II . Finally, our Clean-CC-CCII dataset consists of 340,190 slices of 3,993 scans from 2,698 patients. The dataset is divided into the training set and the test set according to patients to make sure that the CT scan 2 https://github.com/booz-allen-hamilton/DSB3Tutorial 4 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 349,
+                    "end": 357,
+                    "text": "Table II",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. . images from the same patient will appear either only in the training set or in the test set. The ratio of the number of scans in the training set and the test set is 4:1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "2) Scan images construction: After data pre-processing, we need to construct CT scan images as inputs of DL models for training. As shown in Fig. 3 , there are two steps before feeding data into DL models: slice sampling and slice processing.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 141,
+                    "end": 147,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Slice sampling: In our dataset, each CT scan contains a different number of slices as shown in Fig. 2 . The minimum and maximum number of slices are 9 and 457, respectively. However, DL models generally require the same dimensional inputs. To keep the same dimension inputs, we propose two types of slice sampling strategies: random sampling and symmetrical sampling. Specifically, the random sampling strategy is applied to the training set, which can be regarded as data augmentation, while the symmetrical sampling strategy is performed on the test set to avoid introducing randomness into the testing results. Besides, because the number of slices can be manually set to different values, both sampling strategies support automatically select upsampling or downsampling based on the original and target number of slices. We will also study the performance impact of the number of slices in Section IV-C. Notably, the relative order between slices remains the same before and after sampling. The details of our sampling strategies are given in Algorithms 1 and 2 of A.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 95,
+                    "end": 101,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Slice processing: After slice sampling, each scan data is composed of the same number of slices. We then resize all slices to 160\u00d7160 and central crop to 128\u00d7128. In this way, the final input data sizes for the 3D and 2D models are c\u00d7d\u00d7 128 \u00d7 128 and d \u00d7 128 \u00d7 128, respectively, where c \u2208 {1, 3} is the number of channels of the slice image, and d indicates the configured number of slices. For all scan data in the training set, we apply a 3D random horizontal flip transformation. The scan data in both the training and test sets is normalized by subtracting the mean and dividing the variance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In this study, we aim to investigate the performance of different types of DL models on detecting COVID-19 infection with chest CT scans. Therefore, we implement various experiments to evaluate the potential effective methods for COVID-19 diagnosis. Specifically, we compare the performance between SOTA DL models, including 3D and 2D models, and explore the relationship between model performance and (a) model depth and (b) how to read slice images. We also evaluate the effectiveness of the mixup data augmentation method in improving model classification accuracy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. A comparative study of COVID-19 detection methods"
+        },
+        {
+            "text": "Our pipeline of using DL models to classify CP, NCP, and Normal CT scans is shown in Fig. 3 . The first step is to construct CT scan images to feed into the DL models by slice sampling and processing. The sizes of all slices are fixed to 128\u00d7128 for the model inputs. The models are trained with the training set and evaluated on the test set.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 85,
+                    "end": 91,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "B. A comparative study of COVID-19 detection methods"
+        },
+        {
+            "text": "1) Exp 1: Comparing different CNN models: In this study, we evaluate 17 CNN classification models shown in Table III , including 3D models and 2D models. For ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 107,
+                    "end": 116,
+                    "text": "Table III",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "B. A comparative study of COVID-19 detection methods"
+        },
+        {
+            "text": "the 3D models, we use DenseNet3D121 [17] , R2Plus1D [18] , MC3 18 [18] , ResNeXt3D101 [17] , PreAct ResNet3D [17] , and ResNet3D series [17] (ResNet3D10, ResNet3D18, ResNet3D34, ResNet3D50, ResNet3D101, ResNet3D152, and ResNet3D200). For the 2D models, we use DenseNet121 [19] , DenseNet201 [19] , ResNet50 [20] , ResNet101 [20] and ResNeXt101 [21] . For the 2D models, the input scan data is composed of greyscale slice images. In terms of 3D models, we evaluate two types of scan data: RGB slice images with three input channels and greyscale slice images. Besides, for both 2D and 3D models, the size of slices is fixed to 128 \u00d7 128. Therefore, the input sizes for 3D and 2D models are c \u00d7 d \u00d7 128 \u00d7 128 and d \u00d7 128 \u00d7 128, respectively, where c is the number of channels of the slice image that depends on how to read the slice images, and d is the number of slices in a scan image. c = 3 and c = 1 indicate that each slice is read as the RGB and greyscale image, respectively. The number of input channels in the first convolutional layer of all models is modified accordingly to handle the input with different size.",
+            "cite_spans": [
+                {
+                    "start": 36,
+                    "end": 40,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 52,
+                    "end": 56,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 66,
+                    "end": 70,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 86,
+                    "end": 90,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 109,
+                    "end": 113,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 136,
+                    "end": 140,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 272,
+                    "end": 276,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 291,
+                    "end": 295,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 307,
+                    "end": 311,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 324,
+                    "end": 328,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 344,
+                    "end": 348,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. A comparative study of COVID-19 detection methods"
+        },
+        {
+            "text": "2) Exp 2: Comparing the different number of slices: In [6] , the scan input is fixed to 64 slices. However, in our dataset, the number of slices contained in different CT scans ranges from 9 to 457, and the mean value is 85 as shown in Fig. 2 . Intuitively, the higher number of slices, the more information can be extracted by the models, which could result in a higher performance. We empirically study the performance impacts of the number of slices by setting d to different values. We choose four representative 3D models (MC3 18, DenseNet3D121, ResNet3D101, and ResNeXt3D101) to evaluate the relationship between the model performance and the number of slices. For MC3 18, DenseNet3D121, and ResNet3D101, we evaluate five types of scan images containing 16, 32, 64, 128, and 256 slices, respectively. For ResNeXt3D101, it is too large to fit into the GPU memory when d > 64, so d is chosen with 5 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [
+                {
+                    "start": 55,
+                    "end": 58,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 236,
+                    "end": 242,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "B. A comparative study of COVID-19 detection methods"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. is a generic and straightforward data augmentation strategy, which has been proven to be effective in improving the model performance on 2D image classification tasks. Therefore, we explore the effectiveness of the mixup method in our 3D CT scan classification task.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In essence, mixup trains a DL model on linear combinations of pairs of examples and their labels. The formula is given as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "x",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "where (x i , y i ) and (x j , y j ) are two feature-target vectors drawn at random from the training set, and the variable \u03bb \u2208 [0, 1] obeys a \u03b2-distribution, i.e., \u03bb \u223c \u03b2(\u03b1, \u03b1) for \u03b1 \u2208 (0, \u221e). By doing so, a new feature-target vector will be generated by mixing up two feature-target vectors, which encourages the model to behave linearly in-between training examples.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In our experiments, we also use four representative 3D models (MC3 18, R2Plus1D, ResNet3D101, DenseNet121) to evaluate the feasibility of the mixup strategy. We set \u03b1 = 0.4, as recommended in [24] .",
+            "cite_spans": [
+                {
+                    "start": 192,
+                    "end": 196,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The results of all baseline experiments (to be discussed in Section IV) show that DL is a powerful tool to assist the detection of COVID-19 infection based on CT images, where 3D models generally outperform 2D models. However, as shown in Table III , 3D models have a very large model size and are slow to train. Based on the results of Table IV  and Table V , we can see that a larger or a deeper model does not necessarily result in better performance. For example, ResNeXt3D101 is the largest model in our evaluated models, but its performance is not the best. Therefore, in this section, we aim to design a lightweight 3D model, which is expected to achieve comparable or even better results than the baseline 3D models and is easier to deployment for faster detection.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 239,
+                    "end": 248,
+                    "text": "Table III",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 337,
+                    "end": 358,
+                    "text": "Table IV  and Table V",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "C. Automated model design for COVID-19 detection"
+        },
+        {
+            "text": "However, manually designing a deep neural network is a time-consuming process that highly relies on experience and expertise. Luckily, a recent technique, namely neural architecture search (NAS), would be a promising solution for us. NAS can be seen as a sub-field of AutoML [22] , [23] , [29] , which draws much attention from academia and industry as it can design various neural networks automatically. In the following content, we first introduce our search space and search strategy, and then describe the implementation details and experimental results.",
+            "cite_spans": [
+                {
+                    "start": 275,
+                    "end": 279,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 282,
+                    "end": 286,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 289,
+                    "end": 293,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Automated model design for COVID-19 detection"
+        },
+        {
+            "text": "1) Search space: The first step of NAS is to build the search space, which defines the design principles of neural architectures. MobileNet [31] and MobileNetV2 [32] are a class of efficient models manually designed for mobile and embedded devices for efficient inference. Many NAS studies [33] , [34] use the MobileNetV2 structure to design the factorized hierarchical search space, but they mainly focus on 2D image recognition tasks. In this work, we also exploit MobileNetV2 as the backbone to design the 3D search space.",
+            "cite_spans": [
+                {
+                    "start": 140,
+                    "end": 144,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 161,
+                    "end": 165,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 290,
+                    "end": 294,
+                    "text": "[33]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 297,
+                    "end": 301,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Automated model design for COVID-19 detection"
+        },
+        {
+            "text": "An overview of the final model is shown in Fig. 4 , which consists of n different cells. The number of blocks in a cell can be different, represented by [B 1 , ..., B i , ..., B n ]. The stride is set to 2 in the first block if the resolutions of input and output are different, and the stride is 1 in all other blocks. The blocks within the same cell have the same number of input/output channels. Besides, the structure of each block is selected from a series of 3D mobile inverted bottleneck convolution operations [32] , represented by K \u00d7 K M BConvE, where K is the filter kernel size and E is the expansion ratio of linear layers. In our method, the search space consists of the following operations:",
+            "cite_spans": [
+                {
+                    "start": 518,
+                    "end": 522,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 43,
+                    "end": 49,
+                    "text": "Fig. 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "C. Automated model design for COVID-19 detection"
+        },
+        {
+            "text": "CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Automated model design for COVID-19 detection"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "2) Search strategy: After building the search space, we can see that the key idea of the search task is to select the best submodel (in terms of validation accuracy) from the super-model. As summarized in [22] , [29] , there are various of search strategies, such as reinforcement learning, evolutionary algorithms, gradient descent-based methods, and random search. In recent studies [35] - [37] , the authors demonstrate that random search is a more competitive method than many others. Therefore, we also apply the random search strategy.",
+            "cite_spans": [
+                {
+                    "start": 205,
+                    "end": 209,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 212,
+                    "end": 216,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 385,
+                    "end": 389,
+                    "text": "[35]",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 392,
+                    "end": 396,
+                    "text": "[37]",
+                    "ref_id": "BIBREF36"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "3) Implementation details: The pipeline of our NAS methodology is shown in Fig. 5 , which contains two stages for searching 3D models on our Clean-CC-CCII dataset: the search stage and the evaluation stage.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 75,
+                    "end": 81,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Search stage. In the search stage, we search for 100 epochs. Each epoch consists of a number of steps. We sample a new neural architecture every five steps and make sure that every sampled architecture is trained. Note that only the training set is used for training and evaluating the sampled models in the search stage. At the end of the search stage, there are 100 neural architectures and their corresponding training accuracy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Evaluation stage. After the search stage, we need to select several top ranked models (in terms of validation accuracy) for the next stage. Specifically, according to the training records, we choose those models that perform better validation accuracy than the previous sampled models. The selected models are first trained with the training set from scratch for 200 epochs, and then evaluated on the test set.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Implementation details. For both search and evaluation stages, we use the Adam optimizer [38] [24, 40, 80, 96, 192, 320] . Each experiment is conducted on four Nvidia Tesla V100 GPUs . Furthermore, to improve the searching efficiency, we fix the height and width of the input scan to 60\u00d760 during the search stage, and restore the size to 128\u00d7128 in the evaluation stage.",
+            "cite_spans": [
+                {
+                    "start": 89,
+                    "end": 93,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 94,
+                    "end": 98,
+                    "text": "[24,",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 99,
+                    "end": 102,
+                    "text": "40,",
+                    "ref_id": null
+                },
+                {
+                    "start": 103,
+                    "end": 106,
+                    "text": "80,",
+                    "ref_id": null
+                },
+                {
+                    "start": 107,
+                    "end": 110,
+                    "text": "96,",
+                    "ref_id": null
+                },
+                {
+                    "start": 111,
+                    "end": 115,
+                    "text": "192,",
+                    "ref_id": null
+                },
+                {
+                    "start": 116,
+                    "end": 120,
+                    "text": "320]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Our NAS-related code is based on NNI 3 and can be found at https://github.com/arthursdays/HKBU HPML COVID-19.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In this section, we present and analyze the results of the different experiments mentioned above. All models are trained using the Adam [38] optimizer with an initial learning rate of 0.001. The cosine annealing scheduler [39] is applied to adjust the learning rate.",
+            "cite_spans": [
+                {
+                    "start": 136,
+                    "end": 140,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 222,
+                    "end": 226,
+                    "text": "[39]",
+                    "ref_id": "BIBREF38"
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. RESULTS AND DISCUSSION"
+        },
+        {
+            "text": "To compare the performance of CNN models, we use several commonly used evaluation metrics as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Evaluation metrics"
+        },
+        {
+            "text": "3 https://github.com/microsoft/nni 7 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Evaluation metrics"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. . https://doi.org/10.1101/2020.06.08.20125963 doi: medRxiv preprint (a) The ROC curves of 3D models that are trained with greyscale slices.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "(b) The ROC curves of 3D models that are trained with RGB slices.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "(c) The ROC curves of 2D models that are trained with greyscale slices. Fig. 6 . The ROC curves of 3D and 2D models. The overall performance of 3D models is better than 2D models. Besides, the variance between the performance of the models that are trained with greyscale slices is smaller. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 72,
+                    "end": 78,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "where Z(p, q) = 1, if p = q 0, otherwise .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Besides, the area under the receiver operating characteristic (ROC) curve (AUC) is also applied to evaluate the performance of COVID-19 diagnosis. In this study, the positive and negative cases are assigned to NCP and non-NCP (i.e., CP and Normal) scans, respectively. Specifically, N T P and N T N indicate the number of correctly classified NCP and non-NCP scans, respectively. N F P and N F N indicate the number of wrongly classified NCP and non-NCP scans, respectively. The accuracy is the micro-averaging value for all test data, which is used to evaluate the overall performance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The performance comparison between different CNN modes including 3D and 2D is shown in Table IV , in which the number of slices in the scan data is fixed to 64 and there are two types of inputs that differ in the way of reading slice images.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 87,
+                    "end": 95,
+                    "text": "Table IV",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "B. Results of Exp 1: Comparing different CNN models"
+        },
+        {
+            "text": "The results in Table IV show that both 2D and 3D models can achieve relatively good results on our Clean-CC-CCII 8 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 15,
+                    "end": 23,
+                    "text": "Table IV",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "B. Results of Exp 1: Comparing different CNN models"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. . dataset, which indicates that the computer-aided COVID-19 diagnosis with state-of-the-art DL techniques would be a promising solution. It shows that DenseNet3D121 is one of the best models among all evaluated models as it achieves the best accuracy, precision, sensitivity, specificity, and F1-score, and MC3 18 obtains the highest AUC score when the slices are read as the greyscale images.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In terms of the accuracy of 3D models, the different number of input channels has different impacts on the different network architectures. However, regarding the AUC metric, almost all 3D models with the greyscale slice images perform better the RGB images. One can see that the ROC curves in Fig. 6 (a) are higher and distributed closer than those in Fig.  6 (b) , which indicates that the models trained with greyscale slices are more robust. The main reason is that the original CT slices are greyscale images, and duplicating the greyscale images to RGB images would introduce much repetitive and redundant information, which instead increases the difficulty of model training. Regarding the comparison of 2D models and 3D models, we can see that the overall performance of the 3D models is better than that of the 2D models, which is as expected because the convolutional filters in 3D models can better extract the three-dimensional spatial relationship between the slices of the scan data.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 294,
+                    "end": 300,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 353,
+                    "end": 364,
+                    "text": "Fig.  6 (b)",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We also explore the impact of model depth on model performance as shown in Table V , from which one can see that there is no model that can have an absolute advantages on all metrics. Although no significant correlation can be found between model performance and model depth, the results suggest that a smaller model can also obtain similar or even better results than the larger one. Fig. 7 (a) plots the relationship between model accuracy and the number of slices. One can see that only the accuracy of ResNet3D101 increases with the number of slices, while other models do not. However, because the distribution of our dataset is imbalanced, higher accuracy does not mean better performance. As Fig. 7 (b) presents, when the number of slices is 64, the AUC of ResNet3D101 is smaller than the other cases. Besides, Fig. 7 (b) also shows that increasing the number of slices does not always improve the performance. Instead, the models trained on a smaller number of slices can also achieve comparable or even better 9 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 75,
+                    "end": 82,
+                    "text": "Table V",
+                    "ref_id": "TABREF7"
+                },
+                {
+                    "start": 385,
+                    "end": 395,
+                    "text": "Fig. 7 (a)",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 699,
+                    "end": 709,
+                    "text": "Fig. 7 (b)",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 818,
+                    "end": 824,
+                    "text": "Fig. 7",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted June 9, 2020. . https://doi.org/10.1101/2020.06.08.20125963 doi: medRxiv preprint A possible explanation for this result might be that the original training data can be regarded as a pile of scattered points distributed in high-dimensional space, and a large number of new data points between the original data points are created by the mixup method. In this way, the original dataset is expanded to some extent, and the data distribution becomes smoother, which regularizes the model training and improves the model performance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We implement two types of NAS experiments. One is to search for 21-layer networks, taking 3.7 hours, while the other searching for 41-layer networks took 5 hours. Table VII presents the performance comparison between the baseline 3D models and our searched 3D models by NAS, namely MNas3DNet. To have a fair comparison, for all models, the input scan images are composed of 64 greyscale slice images. Compared to the baseline 3D models, the sizes of our searched models are much smaller, where MNas3DNet21 and MNas3DNet41 are 12.34 and 22.91 MB, respectively. At the same time, both models achieve the SOTA performance. Specifically, MNas3DNet41 achieves an accuracy of 87.14%, F1-score of 87.25%, and AUC of 0.957, which are on par with the best models designed by AI experts. The strong empirical results prove the effectiveness of random search strategy, and demonstrate that NAS is a promising research direction for designing neural networks of detecting COVID-19.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 163,
+                    "end": 172,
+                    "text": "Table VII",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "E. Results of automated model design for COVID-19 detection"
+        },
+        {
+            "text": "In this paper, we aim to benchmark DL models and use AutoML techniques to design DL models for COVID-19 detection using chest CT scans. Our experimental results show that DL models are promising solutions, and 3D models outperform 2D models. We find that the model performance does not absolutely improve with the increase of model depth or the number of slices. In other words, a smaller model trained on less number of slices can also achieve comparable or even better results. Besides, we demonstrate that mixup data augmentation can effectively improve model performance. Last but not least, we design an automated deep learning methodology to generate a lightweight deep learning model, which achieves comparable results to the models designed by AI experts.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. CONCLUSION AND FUTURE WORK"
+        },
+        {
+            "text": "We have several directions for future work on the agenda as follows. First, most of the data in our dataset are from China, thus we plan to collect more data from other countries to further improve the accuracy of COVID-19 detection. Second, we will try to apply semantic segmentation technology to our dataset, so as to help doctors diagnose more effectively. Last, we will try other SOTA NAS methods to explore more types of deep learning models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. CONCLUSION AND FUTURE WORK"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Naming the coronavirus disease (covid-19) and the virus that causes it",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Organization",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Q&a on coronaviruses (covid-19),\" World Health Organization",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Organization",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Stability of SARS-CoV-2 in different environmental conditions",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Chin",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Perera",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Hui",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-L",
+                    "middle": [],
+                    "last": "Yen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Chan",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Peiris",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Poon",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Coronavirus disease (covid-2019) situation reports",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Organization",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Correlation of chest ct and rt-pcr testing in coronavirus disease 2019 (covid-19) in china: a report of 1014 cases",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Ai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Hou",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zhan",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Lv",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Tao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Xia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Radiology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Clinically applicable AI system for accurate diagnosis, quantitative measurements, and prognosis of covid-19 pneumonia using computed tomography",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Shen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Sang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zha",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Cell",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "COVID-19 Screening on Chest X-ray Images Using Deep Learning based Anomaly Detection",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Shen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Xia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Estimating Uncertainty and Interpretability in Deep Learning for Coronavirus (COVID-19) Detection",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ghoshal",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tucker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "1--14",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Automatic Detection of Coronavirus Disease (COVID-19) Using X-ray Images and Deep Convolutional Neural Networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Narin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kaya",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Pamuk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Classification of COVID-19 patients from chest CT images using multi-objective differential evolution-based convolutional neural networks",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Singh",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kumar",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vaishali",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kaur",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Application of deep learning technique to manage COVID-19 in routine clinical practice using CT images: Results of 10 convolutional neural networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Ardakani",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Kanafi",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Acharya",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Khadem",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mohammadi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Computers in Biology and Medicine",
+            "volume": "121",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Covid MTNet: Covid-19 detection with multi-task deep learning approaches",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "Z"
+                    ],
+                    "last": "Alom",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "M S"
+                    ],
+                    "last": "Rahman",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Nasrin",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Taha",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Asari",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Sample-Efficient Deep Learning for COVID-19 Diagnosis Based on CT Scans",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Xing",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "XX",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Radiologist-Level COVID-19 Detection Using CT Scans with Detail-Oriented Capsule Networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mobiny",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Cicalese",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zare",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Yuan",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Abavisani",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ahuja",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "De Groot",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Van Nguyen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Deep Learning-based Detection for COVID-19 from Chest CT using Weak Label",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Deng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Fu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Feng",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Artificial intelligence distinguishes covid-19 from community acquired pneumonia on chest ct",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Qin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Yin",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Kong",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Bai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Fang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Radiology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Can spatiotemporal 3D CNNs retrace the history of 2D CNNs and ImageNet",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Hara",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Kataoka",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Satoh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of the IEEE conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "6546--6555",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "A closer look at spatiotemporal convolutions for action recognition",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Tran",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Torresani",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ray",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lecun",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Paluri",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Densely connected convolutional networks",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Van Der Maaten",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "Q"
+                    ],
+                    "last": "Weinberger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the IEEE confer",
+            "volume": "",
+            "issn": "",
+            "pages": "4700--4708",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Deep residual learning for image recognition",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ren",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the IEEE conference on computer vision and pattern recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "770--778",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Aggregated residual transformations for deep neural networks",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Girshick",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Doll\u00e1r",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Tu",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the IEEE conference on computer vision and pattern recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "1492--1500",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Automl: A survey of the state-of-the-art",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Chu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1908.00709"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Automated machine learning: Methods, systems, challenges",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hutter",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kotthoff",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vanschoren",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "mixup: Beyond empirical risk minimization",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Cisse",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Dauphin",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Lopez-Paz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "A survey on deep learning in medical image analysis",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Litjens",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kooi",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Bejnordi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A A"
+                    ],
+                    "last": "Setio",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Ciompi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ghafoorian",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Van Der Laak",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Van Ginneken",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "S\u00e1nchez",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Medical Image Analysis",
+            "volume": "42",
+            "issn": "",
+            "pages": "60--88",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Covid-19 image data collection",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Cohen",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Morrison",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Dao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Covid-ctdataset: A ct scan dataset about covid-19",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "COVID-19 CT Lung and Infection Segmentation Dataset",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Jun",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Yixin",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Xingle",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Jiantao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Ziqi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Minqing",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Xin",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Xueyuan",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Shucheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Hao",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Xiaoyu",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Ziwei",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Yuntao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Qiongjie",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Guoqiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Jian",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.5281/zenodo.3757476"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Neural architecture search: A survey",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Elsken",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Metzen",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hutter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1808.05377"
+                ]
+            }
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Automated deep learning design for medical image classification by health-care professionals with no coding experience: a feasibility study",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Faes",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Wagner",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Fu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Korot",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Ledsam",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Back",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Chopra",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Pontikos",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kern",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Moraes",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Schmid",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Sim",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Balaskas",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Bachmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Denniston",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Keane",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "The Lancet Digital Health",
+            "volume": "1",
+            "issn": "5",
+            "pages": "30108--30114",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S2589-7500(19"
+                ]
+            }
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Mobilenets: Efficient convolutional neural networks for mobile vision applications",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Howard",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kalenichenko",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Weyand",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Andreetto",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Adam",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Proceedings of the IEEE conference on computer vision and pattern recognition",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sandler",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Howard",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Zhmoginov",
+                    "suffix": ""
+                },
+                {
+                    "first": "L.-C",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "4510--4520",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Mnasnet: Platform-aware neural architecture search for mobile",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tan",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pang",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Vasudevan",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sandler",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Howard",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Le",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "2820--2828",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Fbnet: Hardware-aware efficient convnet design via differentiable neural architecture search",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Tian",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Vajda",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Jia",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Keutzer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "10--734",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Random search and reproducibility for neural architecture search",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Talwalkar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1902.07638"
+                ]
+            }
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Efficient neural architecture search via parameter sharing",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Pham",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Guan",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Zoph",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Le",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dean",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1802.03268"
+                ]
+            }
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Evaluating the search phase of neural architecture search",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Sciuto",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Jaggi",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Musat",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Salzmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1902.08142"
+                ]
+            }
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Adam: A method for stochastic optimization",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Kingma",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "SGDR: Stochastic gradient descent with warm restarts",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Loshchilov",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hutter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "International Conference on Learning Representations (ICLR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Some samples of segmented chest CT scan images of class (a) NCP, (b) CP, and (c) Normal.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The frequency of the different number of slices. The minimum and maximum number of slices are 9 and 457, respectively.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The pipeline of DL models to detect novel coronavirus pneumonia (NCP), common pneumonia (CP), and normal controls (Normal) from chest CT scans. For each step, the input data of the models is a batch of scan images. All scan images contain the same number of slices by sampling, and the size of each slice is fixed to 128 \u00d7 128. The final input data sizes for the 3D and 2D models are c \u00d7 d \u00d7 128 \u00d7 128 and d \u00d7 128 \u00d7 128, respectively, where c is the number of channels of slice images, and d indicates the number of slices in a scan data. Three dashed boxes represent three different experiments: 1) the box A explores the effect of different sizes of scan data on model performance by sampling the different number of slices.; 2) the box B evaluates the effectiveness of mixup data augmentation method; 3) the box C compares the performance of different models and the performance of models at different depths.16, 32, and 64.3) Exp 3: Training with mixup: Mixup[24]",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The relationship between model performance and the number of slices. Only the accuracy of ResNet3D101 is positively correlated with the number of slices. When AUC is used as the evaluation metric, there is no obvious relationship between the performance of the model and the number of slices.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "OF THE EXISTING STUDIES OF DEEP LEARNING-BASED METHODS FOR COVID-19 DETECTION. \u2021: THE NUMBER OF SCANS. *: THE NUMBER OF PATIENTS.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "STATISTICS OF OUR CLEAN-CC-CCII DATASET. THE DATASET IS DIVIDED INTO THE TRAINING AND TEST SETS. THE RATIO OF THE NUMBER OF PATIENTS, SCANS AND SLICES FOR THE TWO SETS IS 4:1. NCP, CP, AND NORMAL INDICATE NOVEL CORONAVIRUSPNEUMONIA, COMMON PNEUMONIA, AND NORMAL CONTROL, RESPECTIVELY.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "CNN CLASSIFICATION MODELS USED IN OUR STUDY. THE INPUT SIZES FOR 3D AND 2D MODELS ARE c \u00d7 d \u00d7 h \u00d7 w AND d \u00d7 h \u00d7 w, RESPECTIVELY, WHERE c IS THE NUMBER OF CHANNELS OF THE SLICE IMAGE, d IS THE NUMBER OF SLICES IN A SCAN IMAGE, h AND w INDICATE THE HEIGHT AND WIDTH OF THE SLICE IMAGE, RESPECTIVELY.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Fig. 4. The overview of our search space. The model is generated by stacking a predefined number of cells, and each cell contains a different number of repeated identical blocks. Only the first block has a stride of 2 if resolutions of input and output are different, but all other blocks have a stride of 1.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF5": {
+            "text": "with an initial learning",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF6": {
+            "text": "PERFORMANCE COMPARISON BETWEEN DIFFERENT CNN CLASSIFICATION MODELS ON THE TEST SET. THE POSITIVE AND NEGATIVE CASES ARE ASSIGNED TO NCP AND NON-NCP (I.E., CP AND NORMAL) SCANS, RESPECTIVELY. FOR 3D MODELS, THERE TWO TYPES OF INPUT SIZE: 3 AND 1 INDICATE THAT THE SCAN DATA IS COMPOSED BY RGB AND GREYSCALE SLICE IMAGES, RESPECTIVELY.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF7": {
+            "text": "PERFORMANCE COMPARISON BETWEEN RESNET3D MODELS OF DIFFERENT DEPTHS ON THE TEST SET. FOR ALL MODELS, THE INPUT SCAN DATA HAS THE SAME NUMBER OF SLICES, I.E., 64. \"ACCURACY\" INDICATES THE FINAL VALUE OF ALL DATA, WHILE FOR METRICS SUCH AS \"PRECISION, SENSITIVITY, SPECIFICITY, F1-SCORE\", NCP IS THE POSITIVE SAMPLE, AND NON-NCP (CP AND NORMAL) IS THE NEGATIVE SAMPLE. PERFORMANCE OF MODELS THAT ARE TRAINED WITH SCAN DATA COMPRISING OF THE DIFFERENT NUMBER OF SLICES.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF8": {
+            "text": "the results of different models trained with the scan data comprising the different number of slices. For MC3 18, DenseNet3D121, and ResNet3D101, we evaluate the cases of 16, 32, 64, 128, and 256 slices, while for ResNeXt3D101, we only test the cases of 16, 32, and 64 slices due to its large size.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF9": {
+            "text": "PERFORMANCE COMPARISON BETWEEN THE BASELINE MODELS AND THE MODELS SEARCHED BY NAS. FOR ALL MODELS, THE INPUT SCAN IMAGES ARE COMPOSED OF 64 GREYSCALE SLICE IMAGES.TABLE VIII THE MODEL ACCURACY BEFORE AND AFTER USING THE MIXUP STRATEGY. THE NUMBER OF SLICES IS FIXED TO 64 FOR ALL MODELS. results. For example, both MC3 18 and ResNeXt3D achieves the highest value of AUC when the number of slices is 16.D. Results of Exp 3: Training with mixupTable VIII presents the model performance before and after using the mixup strategy. One can see that mixup can significantly enhance model performance. After applying mixup, the accuracy of R2Plus1D18, MC3 18, DenseNet3D121, and ResNet3D101 is improved by 3.00%, 1.44%, 4.27%, and 2.64%, respectively.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "A. Slice Sampling Strategies 1) Random Sampling Strategy: The random sampling strategy is applied to the training set. In this way, each scan data will be composed of different slices, which can be regarded as data augmentation to improve the model robustness and avoid overfitting.Algorithm 1: Random slice sampling algorithm.Input: S: the ordered slice list n: the target number of slices Output:S: the sampled slice list Function Main(S, n):if n == len(S) thenre-order(\u015c) return\u015c 2) Symmetrical Sampling Strategy: The symmetrical samling strategy is applied to the test set. This avoids the randomness of the test results, and also makes a fair performance comparison between different models. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "APPENDIX"
+        }
+    ]
+}

@@ -1,0 +1,806 @@
+{
+    "paper_id": "1d3a81610491fc3b15a325968b27e2c84bc738f2",
+    "metadata": {
+        "title": "Manifold Learning for Innovation Funding: Identification of Potential Funding Recipients",
+        "authors": [
+            {
+                "first": "Vincent",
+                "middle": [],
+                "last": "Grollemund",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Sorbonne Universit\u00e9",
+                    "location": {
+                        "postCode": "75005",
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": "vincent.grollemund@lip6.fr"
+            },
+            {
+                "first": "Ga\u00e9tan",
+                "middle": [],
+                "last": "Le Chat",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Jean-Fran\u00e7ois",
+                "middle": [],
+                "last": "Pradat-Peyre",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Sorbonne Universit\u00e9",
+                    "location": {
+                        "postCode": "75005",
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Fran\u00e7ois",
+                "middle": [],
+                "last": "Delbot",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Sorbonne Universit\u00e9",
+                    "location": {
+                        "postCode": "75005",
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "finElink is a recommendation system that provides guidance to French innovative companies with regard to their financing strategy through public funding mechanisms. Analysis of financial data from former funding recipients partially feeds the recommendation system. Financial company data from a representative French population are reduced and projected onto a two-dimensional space with Uniform Manifold Approximation and Projection, a manifold learning algorithm. Former French funding recipients' data are projected onto the twodimensional space. Their distribution is non-uniform, with data concentrating in one region of the projection space. This region is identified using Density-based Spatial Clustering of Applications with Noise. Applicant companies which are projected within this region are labeled potential funding recipients and will be suggested the most competitive funding mechanisms.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Given the diversity and quantity of unstructured information available on existing French funding mechanisms, innovative companies need guidance with regard to their financing strategy. finElink [4] is a recommendation system that meets this need. Developed by FRS Consulting, a French consulting firm specialized in public innovation funding, it was initially based on business knowledge of FRS Consulting associates. Analysis of financial data from former French funding recipients, using machine learning, helped identify applicant companies with a high potential and further enhance finElink's recommendation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "However, relevance of applicant companies cannot be solely assessed on former funding recipient data, as these data suffer from significant data sparsity, bias and missing data constraints. Funding recipients data were obtained through cross-checking information from funding mechanism websites and the French national company registry where companies' financial statements are available. Financial information was frequently missing, specifically for newly created companies which are the targeted recipients of numerous funding mechanisms. Data collected had a significant number of missing features. Moreover, most funding mechanisms did not communicate on their recipients, especially for small funding mechanisms. As such, available funding recipient data were strongly biased towards well-known funding mechanisms. Supervised learning on data with these limitations would have easily led to overfitting. These limitations were avoided using unsupervised learning and another larger dataset of French companies obtained using a proprietary software. This other dataset was representative of all French companies and suffered from fewer missing data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "These representative company data were reduced and projected into a two-dimensional space with Uniform Manifold Approximation and Projection (UMAP), a manifold learning algorithm. Former funding recipient data were then projected into the new space. Funding recipient projections showed an uneven distribution pattern with funding recipients concentrating in one projection space area. This area was identified using a density-based clustering method: Density-based Spatial Clustering on Applications with Noise (DBSCAN) [3] .",
+            "cite_spans": [
+                {
+                    "start": 521,
+                    "end": 524,
+                    "text": "[3]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "This study presents our approach to use this target population of funding recipients in order to isolate a sub-population of potential funding recipients within a large representative population. This approach is neighborhood-based and combines a manifold learning algorithm with a density-based clustering method. Section 2 will present the data used and the data processing steps. Section 3 will focus on data reduction results. The conclusion will be addressed in Sect. 4.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Dimension reduction intends to represent high-dimensional data in a lowdimensional space while preserving data structure. Linear dimension reduction algorithms, namely Principal Component Analysis (PCA), strive to preserve global input data structure but describe poorly the true geometry of nonlinear data [7] . In this study, former funding recipient and representative populations had similar spatial distributions in the low-dimensional space, hence PCA was unable to isolate the target population from the representative population. Nonlinear dimension reduction algorithms, also referred to as manifold learning algorithms, can describe a wider range of variable interactions [14] . They are usually divided into two categories based on whether they focus on local or global data structure preservation. Global nonlinear dimension reduction algorithms such as Kernel PCA [10] or Isometric feature Mapping (ISOMAP) [17] strive to preserve input data geometry at all scales: neighborhood and remoteness are preserved between the input and output spaces. Local nonlinear dimension reduction algorithms such as Locally Linear Embedding (LLE) [11] or t-Stochastic Neighbor Embedding (t-SNE) [8] focus primarily on local geometry preservation in small neighborhoods of the manifold [14] . Recently developed, UMAP [9] falls into this last category. The local approach has two advantages over the global approach: first, lower computational complexity as computations involve sparse matrix manipulation, second, an enhanced ability to represent a wider range of manifolds, specifically when geometry is Euclidean at a local scale but is non-Euclidean at a global scale. t-SNE has proven to balance well local and global data structures on real life data giving t-SNE a competitive edge. This was not the case for LLE and its other nonlinear counterparts [8] . But t-SNE suffers from several drawbacks [13, 18] , which do not affect UMAP, such as:",
+            "cite_spans": [
+                {
+                    "start": 307,
+                    "end": 310,
+                    "text": "[7]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 682,
+                    "end": 686,
+                    "text": "[14]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 877,
+                    "end": 881,
+                    "text": "[10]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 920,
+                    "end": 924,
+                    "text": "[17]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1144,
+                    "end": 1148,
+                    "text": "[11]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1192,
+                    "end": 1195,
+                    "text": "[8]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1282,
+                    "end": 1286,
+                    "text": "[14]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1314,
+                    "end": 1317,
+                    "text": "[9]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1853,
+                    "end": 1856,
+                    "text": "[8]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1900,
+                    "end": 1904,
+                    "text": "[13,",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1905,
+                    "end": 1908,
+                    "text": "18]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Previous Work"
+        },
+        {
+            "text": "\u2022 inability to scale computationally when working with widely used python libraries; \u2022 non-convexity of its cost function, leading to potential initialization-based results; \u2022 non-preservation of density and distances between the input and output spaces (neighborhood is nonetheless preserved).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Previous Work"
+        },
+        {
+            "text": "Due to computational scaling constraints and the inability to use distances in the output space, UMAP was preferred to t-SNE. UMAP has already been successfully used in various medical contexts such as survival prognosis estimation of Amyotrophic Lateral Sclerosis (ALS) patients [6] , gene co-expression analysis [5] and infection risk prediction of newly diagnosed B-cell chronic lymphocytic leukemia (B-CLL) patients [1] .",
+            "cite_spans": [
+                {
+                    "start": 280,
+                    "end": 283,
+                    "text": "[6]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 314,
+                    "end": 317,
+                    "text": "[5]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 420,
+                    "end": 423,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Previous Work"
+        },
+        {
+            "text": "Applying UMAP in the context of public innovation funding is original with regard to both testing this recent manifold learning algorithm and experimenting on novel data in a field where public data is sparse.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Previous Work"
+        },
+        {
+            "text": "The first dataset was our target population of French funding recipients which included 3,350 samples. The second dataset was our representative population of French companies which contained 152,899 instances, randomly sampled from the Amadeus database [2]. As such, companies sampled from that database were selected with less bias than funding recipient data. Features selected for this study were limited to turnover, net income, equity and headcount over a threeyear period. Data were not processed as time-series. Feature selection was based upon finElink's use case: information asked to users needed to be easily available to improve user-friendliness. Age, business sector and location information was excluded as these features were not continuous. Age was discretized in years. Business sector and location were categorized with respectively NACE codes and region names. When categorical or discretized features are included in a UMAP projection, the algorithm primarily learns how to represent these different categories or bins without providing additional information on the data. As such, these UMAP projections were unable to isolate the target population from the representative population when these features were included.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data"
+        },
+        {
+            "text": "Missing data were imputed using MissForest [15] , a multiple imputation method based on a random forest model. Multiple imputation methods preserve input data distribution better than single imputation methods. MissForest has a good tolerance for high missing data rates and can handle Non Missing At Random (NMAR) schemes [16] . Multiple Imputation by Chained Equations (MICE) [12] is another multiple imputation method based on regression. Both MICE and MissForest deal with mixed data types (categorical and/or continuous). However, MissForest is non-parametric and, as such, can handle non-linearity and variable interactions in data, which MICE cannot. Initial missing data rates were 58% and 34% for respectively the target and representative populations. Given the high missing data rates, data imputation on the overall available population would have been inappropriate. Data with up to 7 missing features, on a total of 15 (age, business sector and location were included for missing data imputation) were selected. As such, initial feature distributions were not significantly altered after data imputation. Data were normalized prior to missing data imputation. After processing, the two datasets included 1,413 and 114,628 samples for respectively the target and representative populations.",
+            "cite_spans": [
+                {
+                    "start": 43,
+                    "end": 47,
+                    "text": "[15]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 323,
+                    "end": 327,
+                    "text": "[16]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 378,
+                    "end": 382,
+                    "text": "[12]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Missing Data Analysis"
+        },
+        {
+            "text": "Data reduction was carried out using UMAP. The representative population was projected into a two-dimensional space. UMAP is neighborhood-based and works in two steps. First, a compressed embedding of the input space is built through topological analysis of the data structure using simplexes 1 . Second, a low-dimensional (in our case two-dimensional) data embedding is found through a cross-entropy 2 optimization process. UMAP preserves data neighborhoods, distances and density. The initial modeling step depends on whether the algorithm should focus on preserving the local or global input data structure. Data structure is estimated according to the size of the neighborhood investigated. The second compression step is mainly defined using two parameters which are the output dimension size and the minimum distance permitted between two points in the output space, i.e. how compact the output projection can be. In our study, UMAP parameters were set as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Dimension Reduction"
+        },
+        {
+            "text": "\u2022 output dimensionality was set to 2, as adding an additional dimension did not provide more insight;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Dimension Reduction"
+        },
+        {
+            "text": "\u2022 neighborhood size was set as high as possible given computational time (6, 500) in order to obtain a global overview of data structures, funding recipients were not isolated when the focus was made on local data structure; \u2022 no minimum distance in the output space was set to allow overlapping.",
+            "cite_spans": [
+                {
+                    "start": 73,
+                    "end": 76,
+                    "text": "(6,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 77,
+                    "end": 81,
+                    "text": "500)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Dimension Reduction"
+        },
+        {
+            "text": "The UMAP projection space was divided into a grid and density differences within that grid were examined using the ratio of funding recipient samples within each cell over the total cell samples. Centroid-based clustering methods are not relevant given the data distribution as they are unable to deal with noise. Density-based clustering methods, such as DBSCAN, manage noise through density analysis which meets our problem's constraints. In DBSCAN, cluster identification is carried out by assessing the neighborhood density of each sample, i.e. evaluating the number of neighbors within an radius of that sample. Provided the number of neighbors is above the user-defined threshold, that sample is said to be a cluster core point. If the sample does not have enough neighbors within an radius while having at least one core point as a neighbor, then that point is assigned to the core point's cluster. Otherwise, that point is labeled as noise. Projections from the target population were fed into DBSCAN to isolate the projection space area with a high density of target population samples. The remaining samples were labeled as noise. DBSCAN tuning led to the following setup:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Clustering"
+        },
+        {
+            "text": "\u2022 the distance was set to the first percentile of the target population distance distribution; \u2022 the minimum number of points within a radius required to form a cluster was set to 20.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Clustering"
+        },
+        {
+            "text": "As UMAP is a non-linear dimension reduction method, projection features cannot be analyzed to provide any interpretability. Output dimension analysis, as commonly performed for PCA, cannot be carried out. Nonetheless, analysis of input feature distribution in the UMAP projection space is an alternative as it gives a broad overview of variable importance with regard to the projection. Plot analysis can help identify strong correlations between projections and input features. This was the case for turnover and headcount variables for year N-1, presented in respectively Fig. 1a and Fig. 1c . These variables appeared to have an impact on the overall data projection pattern. Net income and equity variables did not show a high degree of correlation with the projection, as shown respectively in Fig. 1b and Fig. 1d , as feature distribution appeared to be random in some projection space areas. Results were plotted for year N-1, but the patterns were similar for the two other years (N-2 and N-3). Turnover and headcount appeared to be the variables that mattered the most distance-wise in the output space. Net income and equity, which showed a weaker or limited impact on the overall UMAP projection distribution, might have had a more local impact distance-wise in the output space.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 574,
+                    "end": 593,
+                    "text": "Fig. 1a and Fig. 1c",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 799,
+                    "end": 818,
+                    "text": "Fig. 1b and Fig. 1d",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Input Feature Distribution Analysis"
+        },
+        {
+            "text": "Funding recipient samples were then projected onto the low-dimensional space. Distribution patterns for funding recipients were different from those observed for the representative population as shown in Fig. 2a . Funding recipients were prone to concentrate primarily in the left region of the projection in the shape of a curve. The curve went from the projection's upper left side to the lower center region, in the shape of a \"backbone\". Projection space division into a grid, presented in Fig. 1b , helped understand the projection space density distribution. Density analysis confirmed the shape identification. Funding recipient samples were mainly located within the \"backbone\" shape as 74% of funding recipients belonged to it (i.e. 1,041 out of the 1,413 funding recipient samples). Funding recipient concentration within a specific projection space area confirmed that our similarity-based approach on financial features for potential funding recipient identification was relevant. DBSCAN was then applied on the target population and its main cluster was identified. The remaining funding recipients were labeled as noise. Company samples from the representative population that were within an radius of cluster core points were labeled potential funding recipients as shown in Fig. 2c . Membership to the main cluster was fed into the recommendation system and potential funding recipients were suggested more competitive funding mechanisms.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 204,
+                    "end": 211,
+                    "text": "Fig. 2a",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 494,
+                    "end": 501,
+                    "text": "Fig. 1b",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1290,
+                    "end": 1297,
+                    "text": "Fig. 2c",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Funding Recipient Distribution Analysis"
+        },
+        {
+            "text": "Our study demonstrated that our approach successfully isolated a subset of companies which shared similarities with the target population of former funding recipients. Combining a novel non-linear dimension reduction method with a density-based clustering algorithm proved to be most instructive. Similarity was assessed using a limited set of financial features: turnover, net income, headcount and equity over a period of three fiscal years. Our approach can be summarized in three stages. First, representative company data were projected onto a lowdimensional space using the manifold learning algorithm UMAP. Second, former funding recipient data were projected onto that same low-dimensional space. Third, the cluster with the highest density of former funding recipients was identified using the density-based clustering algorithm DBSCAN. Companies close to that cluster, either from the representative company dataset or newly added from a finElink user, were separated from the rest. They were deemed to be more successful than their counterparts. Finelink suggestions were personalized to companies' financial information as companies with higher chances of success were proposed the most competitive funding mechanisms while the others were offered smaller funding mechanisms. Further recommendation system tuning includes analyzing funding recipients from mechanisms with similar characteristics in order to identify distribution patterns specific to these sub-groups. Additionally, this approach can be extended to other contexts for minority population identification within a larger population sample when facing strong data constraints. Notwithstanding significant data sparsity, bias and missing data constraints, we have demonstrated that combining non-linear dimension reduction with density-based clustering, important correlations can be unraveled.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Machine learning can identify newly diagnosed patients with CLL at high risk of infection",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Agius",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nat. Commun",
+            "volume": "11",
+            "issn": "1",
+            "pages": "1--17",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "A density-based algorithm for discovering clusters in large spatial databases with noise",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ester",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Kriegel",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sander",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "In: KDD",
+            "volume": "96",
+            "issn": "34",
+            "pages": "226--231",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Bridging the gap between connectome and transcriptome",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Fornito",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Arnatkevi\u010di\u016bt\u0117",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Fulcher",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Trends Cogn. Sci",
+            "volume": "23",
+            "issn": "1",
+            "pages": "34--50",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Manifold learning for ALS prognosis: development and validation of a prognosis model",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Grollemund",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Pradat",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Delbot",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Le Chat",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Pradat-Peyre",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Bede",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Scientific Reports",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Nonlinear Dimensionality Reduction",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Verleysen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-0-387-39351-3"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Visualizing data using t-SNE",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Maaten",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Hinton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "J. Mach. Learn. Res",
+            "volume": "9",
+            "issn": "",
+            "pages": "2579--2605",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "UMAP: uniform manifold approximation and projection for dimension reduction",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Mcinnes",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Healy",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Melville",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1802.03426"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Kernel PCA and de-noising in feature spaces",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mika",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Sch\u00f6lkopf",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Smola",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "M\u00fcller",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Scholz",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "R\u00e4tsch",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "11th International Conference on Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "546--542",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Nonlinear dimensionality reduction by locally linear embedding",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Roweis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Science",
+            "volume": "290",
+            "issn": "5500",
+            "pages": "2323--2326",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Analysis of Incomplete Multivariate Data",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Schafer",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Intrinsic t-stochastic neighbor embedding for visualization and outlier detection",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Schubert",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gertz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "SISAP 2017",
+            "volume": "10609",
+            "issn": "",
+            "pages": "188--203",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Global versus local methods in nonlinear dimensionality reduction",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Silva",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Tenenbaum",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Advances in Neural Information Processing System",
+            "volume": "",
+            "issn": "",
+            "pages": "721--728",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "MissForest -non-parametric missing value imputation for mixed-type data",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Stekhoven",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "B\u00fchlmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Bioinformatics",
+            "volume": "28",
+            "issn": "1",
+            "pages": "112--118",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Random forest missing data algorithms",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Tang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ishwaran",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Stat. Anal. Data Min.: ASA Data Sci. J",
+            "volume": "10",
+            "issn": "6",
+            "pages": "363--377",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "A global geometric framework for nonlinear dimensionality reduction",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Tenenbaum",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Science",
+            "volume": "290",
+            "issn": "5500",
+            "pages": "2319--2323",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "How to use t-SNE effectively",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wattenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Vi\u00e9gas",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Johnson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Distill",
+            "volume": "1",
+            "issn": "10",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Input feature distribution for samples from the representative population of French companies: turnover(a), net income (b), headcount (c) and equity (d ) for the year N-1. Axes are dimensionless and come from UMAP dimension reduction (a, b, c, d ).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Funding recipients were projected onto the two-dimensional plane with a nonuniform distribution pattern (a). The projection space was divided in a grid to analyze density of funding recipients within each cell(b). DBSCAN identified the main cluster of funding recipients. Companies close to the funding recipient cluster belonged to the potential funding recipient cluster (c). Axes are dimensionless and come from UMAP dimension reduction(a, b, c).",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

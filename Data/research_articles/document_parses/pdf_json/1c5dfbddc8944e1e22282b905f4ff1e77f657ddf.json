@@ -1,0 +1,530 @@
+{
+    "paper_id": "1c5dfbddc8944e1e22282b905f4ff1e77f657ddf",
+    "metadata": {
+        "title": "Directly Identify Unexpected Instances in the Test Set by Entropy Maximization",
+        "authors": [
+            {
+                "first": "Sha",
+                "middle": [],
+                "last": "Chaofeng",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Fudan University",
+                    "location": {
+                        "postCode": "200433",
+                        "settlement": "Shanghai",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Zhen",
+                "middle": [],
+                "last": "Xu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Fudan University",
+                    "location": {
+                        "postCode": "200433",
+                        "settlement": "Shanghai",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Xiaoling",
+                "middle": [],
+                "last": "Wang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Shanghai Key Laboratory of Trustworthy Computing Institute of Massive Computing East China Normal University",
+                    "institution": "",
+                    "location": {
+                        "postCode": "200062",
+                        "settlement": "Shanghai",
+                        "country": "China"
+                    }
+                },
+                "email": "xlwang@sei.ecnu.edu.cn"
+            },
+            {
+                "first": "Aoying",
+                "middle": [],
+                "last": "Zhou",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Shanghai Key Laboratory of Trustworthy Computing Institute of Massive Computing East China Normal University",
+                    "institution": "",
+                    "location": {
+                        "postCode": "200062",
+                        "settlement": "Shanghai",
+                        "country": "China"
+                    }
+                },
+                "email": "ayzhou@sei.ecnu.edu.cn"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "In real applications, a few unexpected examples unavoidably exist in the process of classification, not belonging to any known class. How to classify these unexpected ones is attracting more and more attention. However, traditional classification techniques can't classify correctly unexpected instances, because the trained classifier has no knowledge about these. In this paper, we propose a novel entropy-based method to the problem. Finally, the experiments show that the proposed method outperforms previous work in the literature.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "For the present of unexpected instances in test set, the trained classifier can't correctly classify them. In practice, this phenomenon is very common. For example, the evolution of species may cause that many new unknown or undefined species emerge. If new species are classified to some known or predefined old species, it is obviously unsuitable, even leads to terrible consequences. Take SARS(Severe Acute Respiratory Syndrome) as an example, a kind of new disease having broken out in south China and spread to other countries. Initially, SARS was considered as a kind of common flu, and hence the patients got the incorrect treatment. Ultimately, When treating SARS as a new virus for treatment, this kind of new virus was completely overwhelmed. Currently, identifying unexpected instances [6] is an interesting topic in the data mining and machine learning communities.",
+            "cite_spans": [
+                {
+                    "start": 797,
+                    "end": 800,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "With the absence of labeled unexpected (or negative) instances, traditional classification methods can't be applied directly. The crucial point of this problem is how to find or generate the negative instances and put them into the training data set for learning. Once negative instances are obtained, the traditional classification approach is directly for the rest task.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In order to solve the above problem, we present an entropy-based approach to identify unexpected instances hidden in the test set. Experimentally, The proposed technique outperforms existing ones.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The main contributions of this paper are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "-This is the first work of using entropy maximization techniques to identify directly unexpected instances in test set. -Besides text data, the proposed method also can deal with other types of data (e.g. nominal). -Even when the proportion of unexpected instances is very small, the performance remains consistent.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The rest of this paper is organized as follows: Section 2 presents related research works and Section 3 briefly introduces the proposed approach. The experiments are shown in Section 4, followed by the conclusion in Section 5.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "PU learning(learning from Positive and Unlabeled examples) gets more and more focus in recent years. Now several different approaches are proposed to this problem. For example, the outstanding method LGN [6] firstly generates artificial negative instances based on the different distribution of equal words within training and test set respectively, and then use Na\u00efve Bayesian classifier for the rest. Howerer, the assumption that every positive word has the same distribution is not easily satisfied in practice; Besides this, it only concerns text data, not other types.",
+            "cite_spans": [
+                {
+                    "start": 204,
+                    "end": 207,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "Other approaches [1, 5] also have similar shortcomings, e.g., when the percentage of unexpected instances is very small, these classifiers have very poor performances.",
+            "cite_spans": [
+                {
+                    "start": 17,
+                    "end": 20,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 21,
+                    "end": 23,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "In this paper, however, a simple but effective approach is introduced. This new method directly classifies the unexpected instances hidden in test set using entropy, which firstly chooses negative instances and then realizes the rest classification. Besides text data, it also can apply to other types of data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "In this section, we propose the method named Na\u00efve Bayesian classifier based on Entropy(NB-E) to find unexpected instances for classification.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Our Approach"
+        },
+        {
+            "text": "Entropy H(x). The entropy of the probability distribution P (x) on set {x 1 , \u00b7 \u00b7 \u00b7 , x n } is defined as [4] :",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 109,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "where n is the number of known or predefined classes, and P (x i ) is the class posterior probability of instance x belonging to the ith class.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "The basic motivation is to use entropy as the direct measurement of confidence for correct classification, namely, the bigger the entropy H(x), the smaller the probability of correct classification, and vice versa. Therefore, the instances with the biggest entropy have nearly equal confidences to belong to any predefined class, i.e., the highest probability to be unexpected.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "As an extreme example, there are three documents x a , x b and x u belonging to three different classes respectively. After preprocess, the term vectors are",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Here, x a and x b are training instances for two positive classes C 1 and C 2 , and x u as the negative example hidden in test set.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Then, C 1 and C 2 have the same prior probability, namely, P (C 1 ) = P (C 2 ) = 1 2 ; Subsequently, by the na\u00efve bayesian formula, the class conditional probabilities are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Then, the posterior probabilities of x u are listed as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Since H(x u ) is biggest, the conclusion is made that x u has higher probability of being unexpected or negative.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "As a highly effective classification technique, Na\u00efve Bayesian classifier [2] is employed within this paper. Based on the property of entropy, the proposed approach is presented in Algorithm 1, which mainly has the following four steps: ",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 77,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Na\u00efve Bayesian Classifier Based on Entropy(NB-E)"
+        },
+        {
+            "text": "For the evaluation, we mainly use two kinds of representative data collections -20 newsgroups 1 and uci letter. 2 Here, several parameters are set as follows:",
+            "cite_spans": [
+                {
+                    "start": 112,
+                    "end": 113,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Experimental Dataset"
+        },
+        {
+            "text": "\u03b1 is the proportion of negative instances hidden in test set with respect to positive ones. In order to simulate various situations, \u03b1 has 8 different values, namely, {5%, 10%, 15%, 20%, 40%, 60%, 80%, 100%}; -n is the number of selected likely negative instances. As different cases, n has 2 rows of different values, i.e., {5, 10, 15, 20, 30, 30, 30, 30}(denoted as NB-E) and a constant 10(denoted as NB-E + ) respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Dataset"
+        },
+        {
+            "text": "Additionally, as to the number of positive sub-classes, there are mainly 2 different assumptions: 2 positive sub-classes existing in the training set and 3 ones. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Dataset"
+        },
+        {
+            "text": "As for document data, we mainly compare NB-E with LGN [6] , which has the best performance among former approaches, however, previous works are never done for nominal data, hence no comparison here. Fig.1 shows that as to document data, NB-E outperforms LGN, especially when the number fo positive sub-classes increases; Both at document and nominal data, NB-E has consistent performances, without being influenced by the number of positve sub-classes too. Fig.2 shows that the values of parameter n has little influence on the final results, only if not too big or too small; On the other hand, because the number attribute words of document data is greater than the one of nominal data, document data have higher accuracy and F-score values. ",
+            "cite_spans": [
+                {
+                    "start": 54,
+                    "end": 57,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 199,
+                    "end": 204,
+                    "text": "Fig.1",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 457,
+                    "end": 462,
+                    "text": "Fig.2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "To identify unexpected instances hidden in test set, we propose a novel entropybased approach called NB-E, which is simple but very useful. Meanwhile, the experiments prove that this approach has excellent performances, such as high F-score and accuracy at document and nominal data. There are still some places to be improved, however, e.g., much more datasets are evaluated; The cluster techniques are applied to improve the accuracy of the chosen negative instances; Besides these, many other classification methods are used together, inclusive of logic regression, SVM and ensemble methods, etc.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Building Text Classifiers Using Positive and Unlabeled Examples",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "IJCAI 2003",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Bayesian decision with rejection. Problems of Control and Information Theory",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gy\u00f6rfi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Gy\u00f6rfi",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Vajda",
+                    "suffix": ""
+                }
+            ],
+            "year": 1978,
+            "venue": "",
+            "volume": "8",
+            "issn": "",
+            "pages": "445--452",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A Probabilistic Theory of Pattern Recognition",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Devroye",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gy\u00f6rfi",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lugosi",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Elements of information theory",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Cover",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Thomas",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Text Classificaton by Labeling Words",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "AAAI 2004",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Learning to identify unexpected instances in the test set",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "IJCAI 2007",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Optimistic active learning using mutual information",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Greiner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "IJCAI 2007",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "From Line 3 to 5, TF-IDF technique is applied to do feature selection for document data; -The entropy of the class posterior probabilities of any test instance, is computed and sorted by ascending order(Line 7 to 12). For any positive class, the top k instances are removed from test set and are labeled as the corresponding positive class, namely, every positive class has more k new instances for learning.(Line 14 to 17); -From Line 19 to 24, by descending order, every instance is sorted based on the entropy. The biggest n instances chosen from test set are added into training set(labeled as \"-\"). At the same time, all positive training instances are viewed as one class (denoted as\"+\"); -From Line 25 to 31, there are only two different classes within training set.Finally, the multinomial Na\u00efve Bayesian classifier is directly applied classification. Finally, the hidden unexpected examples are returned (Line 32).Algorithm 1. NB-E()Input: training set P , testing set U , negative percentage \u03b1, threshold parameter \u03b4, choice factor n; Output: unexpected instances set Ue; Ue = \u03c6;1 C = {c1, . . . ,cn} is the set of classes appearing in the training set; 2 if P is the document data then 3 Using TF-IDF technique to extract representative attribute words for every 4 class; end 5 Build a na\u00efve Bayesian classifier(NB) with the training set P ; 6 for each instance di \u2208 U do 7 Use NB to classify di; 8 H(di) = \u2212 c j \u2208C P (cj|di) log P (cj |di); 9 j \u2190 argmax c j \u2208C P (cj |di); 10 Bj = Bj {di}; 11 end 12 k \u2190 \u03b4 \u00d7 argmin c j \u2208C |Bj | , \u03b4 \u2208 (0, 1) and the default value is 0.8; 13 for each class ci \u2208 C do 14 Sort all the instances in Bi according to the ascending relation of the 15 entropy of every instance's posterior probability; Remove the first k instances from U and throw them into P as the 16 instances of ci; end 17 Build a new Na\u00efve Bayesian classifier(NB) with P ; /* here, P is updated */ 18 for each instance di \u2208 U do 19 Use NB to classify di; 20 H(di) = \u2212 c j \u2208C P (cj|di) log P (cj |di); 21 end 22 Rank the entropy of all instances in U by the descending order and choose the 23 top n instances and insert into P as the instances of unexpected class \"-\"; Merge all positive classes in P and view them as a whole positive class \"+\"; 24 Build a new Na\u00efve Bayesian classifier(NB) with P ; /* here, P is updated */ 25 for each instance di \u2208 U do 26 Use NB to classify di; 27 if P (\u2212|di) > P (+|di) then 28 Ue = Ue {di};",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The comparison results with different values for \u03b1 in 2 and 3-classes experiments",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The comparison results with different values for n in 2 and 3-classes experiments",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

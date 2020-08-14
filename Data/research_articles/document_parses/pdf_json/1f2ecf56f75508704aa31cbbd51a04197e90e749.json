@@ -1,0 +1,1338 @@
+{
+    "paper_id": "1f2ecf56f75508704aa31cbbd51a04197e90e749",
+    "metadata": {
+        "title": "MOIN: A Nested Sequent Theorem Prover for Intuitionistic Modal Logics (System Description)",
+        "authors": [
+            {
+                "first": "Marianna",
+                "middle": [],
+                "last": "Girlando",
+                "suffix": "",
+                "affiliation": {},
+                "email": "marianna.girlando@inria.fr"
+            },
+            {
+                "first": "B",
+                "middle": [],
+                "last": "",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Lutz",
+                "middle": [],
+                "last": "Stra\u00dfburger",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "We present a simple Prolog prover for intuitionistic modal logics based on nested sequent proof systems. We have implemented single-conclusion systems (Gentzen-style) and multi-conclusion systems (Maehara-style) for all logics in the intuitionistic modal IS5-cube. While the single-conclusion system are better investigated and have an internal cut-elimination, the multi-conclusion systems can provide a countermodel in case the proof search fails. To our knowledge this is the first automated theorem prover for intuitionistic modal logics. For wider usability, we also implemented classical normal modal logics in the S5cube.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In the last decade, nested sequent calculi have been successfully used to define cut-free deductive systems for various normal modal logics (classical [3] , intuitionistic [17, 23] , constructive [1] and tense logics [10] ) and non-normal modal logics [14] . For some variants there also exist focused calculi [5, 6] .",
+            "cite_spans": [
+                {
+                    "start": 151,
+                    "end": 154,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 172,
+                    "end": 176,
+                    "text": "[17,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 177,
+                    "end": 180,
+                    "text": "23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 196,
+                    "end": 199,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 217,
+                    "end": 221,
+                    "text": "[10]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 252,
+                    "end": 256,
+                    "text": "[14]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 310,
+                    "end": 313,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 314,
+                    "end": 316,
+                    "text": "6]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Even though many of these calculi yield terminating decision procedures, most of them have not (yet) been implemented in automated theorem provers. In fact, the only implementations of nested sequent systems that we are aware of are for non-normal logics [13, 14] and normal conditional logics [18] . But for the more widely used classical and intuitionistic normal modal logics in the S5-cube no implementations using nested sequents exist. In fact, for intuitionistic modal logics we are not aware of any automated theorem provers.",
+            "cite_spans": [
+                {
+                    "start": 255,
+                    "end": 259,
+                    "text": "[13,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 260,
+                    "end": 263,
+                    "text": "14]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 294,
+                    "end": 298,
+                    "text": "[18]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "For this reason we present here a modular Prolog implementation for nested sequent calculi for all intuitionistic normal modal logics in the IS5-cube (see Fig. 1 ). For the systems whose decidability is known, our prover terminates. For IS4, IK4, and ID4, for which decidability is still an open problem, we cannot ensure termination. For the sake of higher usability, we included in the implementation also all classical normal modal logics in the S5-cube, but they are not discussed here, as their implementation is rather straightforward [3] .",
+            "cite_spans": [
+                {
+                    "start": 541,
+                    "end": 544,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 155,
+                    "end": 161,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "The prover, called Moin 1 (for MOdal Intuitionistic Nested sequents), is inspired by the lean deduction methodology introduced in [2] : the program is constituted by a set of Prolog clauses, one for each inference rule of the calculus, and the proof search is provided by the Prolog depth-first mechanism 2 . The advantages of this approach, as stated in [2] , are high degree of adaptability and safety (i.e. the Prolog clauses are easy to verify), and high efficiency.",
+            "cite_spans": [
+                {
+                    "start": 130,
+                    "end": 133,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 355,
+                    "end": 358,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "This article is organized as follows. Section 2 introduces intuitionistic modal logics; Sect. 3 and 4 present nested sequents (single-and multi-conclusion) and the proof systems we use. Section 5 treats termination and countermodel construction, and Sect. 6 describes the main features of Moin.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We consider here the variant of intuitionistic modal logic that has first been studied in [7] and [20] , and then been investigated in detail by Simpson in his PhD-thesis [22] . It is obtained from intuitionistic propositional logic, by adding the two modalities and \u2666, together with the necessitation rule (if A is provable, then so is A), and the following five axioms:",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 93,
+                    "text": "[7]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 98,
+                    "end": 102,
+                    "text": "[20]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 171,
+                    "end": 175,
+                    "text": "[22]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Intuitionistic Modal Logics"
+        },
+        {
+            "text": "In classical modal logic, only k 1 is added, as the others follow via the De Morgan duality between and \u2666, which is not present in the intuitionistic case.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuitionistic Modal Logics"
+        },
+        {
+            "text": "But as in the classical case, we can extend the logic by additional axioms. We restrict ourselves here to the five axioms d, t, b, 4 and 5, which in the classical as well as in the intuitionistic case generate 15 different logics, which can be arranged in the so-called S5-cube (classical) or IS5-cube (intuitionistic). Figure 1 shows the intuitionistic variant of that cube, together with the five aforementioned axioms. The reason for the restriction to these logics in this presentation is that the nested sequent proof systems for them are particularly well-studied [3, 5, 6, 8, 17, 23] . The Prolog code is written in a way that it can easily be extended to other logics. The semantics of the logics in the IS5-cube is defined in terms of bi-relational models, introduced in [7, 20, 22] . No complexity results are known for these logics; however, their complexity has to be at least PSPACE-hard, as intuitionistic propositional logic is PSPACE-complete.",
+            "cite_spans": [
+                {
+                    "start": 570,
+                    "end": 573,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 574,
+                    "end": 576,
+                    "text": "5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 577,
+                    "end": 579,
+                    "text": "6,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 580,
+                    "end": 582,
+                    "text": "8,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 583,
+                    "end": 586,
+                    "text": "17,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 587,
+                    "end": 590,
+                    "text": "23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 780,
+                    "end": 783,
+                    "text": "[7,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 784,
+                    "end": 787,
+                    "text": "20,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 788,
+                    "end": 791,
+                    "text": "22]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 320,
+                    "end": 328,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Intuitionistic Modal Logics"
+        },
+        {
+            "text": "Nested sequents have been introduced independently in [3, 11] , and [21] . Whereas an ordinary sequent is a list (or multiset or set) of formulas, a nested sequent is ",
+            "cite_spans": [
+                {
+                    "start": 54,
+                    "end": 57,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 58,
+                    "end": 61,
+                    "text": "11]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 68,
+                    "end": 72,
+                    "text": "[21]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "where A 1 , . . . , A n are formulas and \u0393 1 , . . . , \u0393 m are nested sequents. This corresponds to a one-sided setting, and the formula interpretation fm(\u0393 ) of the sequent above isfm(",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "This setting is used by Br\u00fcnnler in [3] , to give cut-free systems for all logics in the classical S5-cube, including a decision procedure. He has also shown how a finite countermodel can be extracted from a failed proof search. We implemented his method in Moin, but we will not go into details here because there are already many different provers for classical modal logic in the literature 3 , and the details of our implementation for classical modal logics follow straightforwardly from our implementation for intuitionistic modal logics, that we discuss below.",
+            "cite_spans": [
+                {
+                    "start": 36,
+                    "end": 39,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "The first observation is that for intuitionistic logic we need two-sided sequents, which are formally generated by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "where A 1 , . . . , A n are the formulas that would occur on the left of the turnstile if there was a turnstile, B 1 , . . . , B k are the formulas that would occur on the right of the turnstile if there was a turnstile, and \u0393 1 , . . . , \u0393 m are nested sequents. We use the \u2022and \u2022-superscripts as polarity indication for formulas. In this (multi-conclusion) intuitionistic two-sided setting, it is not possible to give a formula interpretation as in the one-side classical case. However, this is possible in the single-conclusion setting, where there is only one formula B \u2022 in the whole sequent. Single-conclusion sequents are formally generated by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "where \u0393 stands for a (non-empty) sequent that contains exactly one formula with \u2022-polarity, and \u039b for a (possibly empty) sequent in which all formulas have \u2022-polarity. Then the formula interpretation is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "In order to define inference rules on nested sequents, we need the notion of context, denoted as \u0393 {\u00b7}, which is a nested sequent that contains exactly one occurrence of the hole {\u00b7} in the place of a formula (of either polarity). ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Nested Sequents"
+        },
+        {
+            "text": "There are two kinds of nested sequent systems for intuitionistic logic: singleconclusion [6, 17, 23] in the style of Gentzen [9] and multi-conclusion [12] , in the style of Maehara [15] . In Moin, we implemented both. More precisely, we implemented the single-conclusion systems of [23] and (a minor variation of) the multi-conclusion systems presented in [12] . Figure 2 shows the basic single-conclusion system NIKs for the modal logic IK as presented in [23] . Formulas marked in gray are formally not part of the rules, but are part of the implementation in order to ease termination checks, and to reduce the search space. Gray formulas can never be principal in a rule application; they are kept in the premisses for book-keeping. The use of \u0393 * in the \u2283 \u2022 s -rule is due to the fact that every sequent occurring in a proof has to be a single-conclusion sequent.",
+            "cite_spans": [
+                {
+                    "start": 89,
+                    "end": 92,
+                    "text": "[6,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 93,
+                    "end": 96,
+                    "text": "17,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 97,
+                    "end": 100,
+                    "text": "23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 125,
+                    "end": 128,
+                    "text": "[9]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 150,
+                    "end": 154,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 181,
+                    "end": 185,
+                    "text": "[15]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 282,
+                    "end": 286,
+                    "text": "[23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 356,
+                    "end": 360,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 457,
+                    "end": 461,
+                    "text": "[23]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 363,
+                    "end": 371,
+                    "text": "Figure 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "The Proof Systems"
+        },
+        {
+            "text": "Then, Fig. 3 shows the extension rules corresponding to the axioms in Fig. 1 . They are taken from [23] , and we refer the reader to [23] or [17] for a discussion on which set of rules gives which logic in the cube in Fig. 1 . For a set X \u2286 {d, t, b, 4, 5}, we write NIKs + X for the system obtained from NIKs by adding the corresponding rules in Fig. 3 . If d \u2208 X we need in some cases also the d [] s -rule shown in Fig. 4 (see [16] for more details). 4 Finally, Fig. 4 shows the rules needed for the multi-conclusion system. For each X \u2286 {d, t, b, 4, 5}, we write NIKm + X for the system obtained from NIKs + X by removing the rules with an s in the subscript and replacing them with the",
+            "cite_spans": [
+                {
+                    "start": 99,
+                    "end": 103,
+                    "text": "[23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 133,
+                    "end": 137,
+                    "text": "[23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 141,
+                    "end": 145,
+                    "text": "[17]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 430,
+                    "end": 434,
+                    "text": "[16]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 454,
+                    "end": 455,
+                    "text": "4",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 6,
+                    "end": 12,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 70,
+                    "end": 76,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 218,
+                    "end": 224,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 347,
+                    "end": 353,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 418,
+                    "end": 424,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 465,
+                    "end": 471,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "The Proof Systems"
+        },
+        {
+            "text": "s is in the system, the rules d s -rule is never needed in the multi-conclusion system. For more details see [12] .",
+            "cite_spans": [
+                {
+                    "start": 109,
+                    "end": 113,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Proof Systems"
+        },
+        {
+            "text": "All the classical modal logics in the S5-cube are decidable, and a simple loop check in the rules that create a new nesting is enough to ensure termination (see [3] for details). It is also explained in [3] how to obtain a finite countermodel from a failed proof search, and we implemented that method in Moin.",
+            "cite_spans": [
+                {
+                    "start": 161,
+                    "end": 164,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 203,
+                    "end": 206,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Termination and Countermodel Construction"
+        },
+        {
+            "text": "In the intuitionistic case, not all logics in the IS5-cube are known to be decidable. For the logics ID4, IK4 and IS4, this is still an open problem. But, as already observed in [22] , all other logics are decidable. Termination for logics that do not need the 4and 5-axioms can be proved similarly as in the case of propositional intuitionistic logic: the only loop-check to be performed concerns application of the \u2283 \u2022 s -rule, where it is needed to check whether the current sequent already occurs in the derivation branch.",
+            "cite_spans": [
+                {
+                    "start": 178,
+                    "end": 182,
+                    "text": "[22]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Termination and Countermodel Construction"
+        },
+        {
+            "text": "For the logics containing the 5-axiom, it is enough to restrict the depth of a sequent to 1: when the \u2666 \u2022 -, \u2022 -, or one of the d-rules creates a new nesting at a depth > 1, the nesting is introduced at the root level of the sequent. Completeness of the resulting proof system has been proved in [8] . Thus, the restriction on the \u2283 \u2022 s rule mentioned above is the only loop-check needed for these systems. For the remaining logics (ID4, IK4, IS4), decidability is not known, and we implement only two naive loop-checks: one for \u2283 \u2022 s mentioned above, and one that is similar to the loop-check for classical modal logics. Refer to [22] for an explanation on why this strategy does not suffice to ensure termination.",
+            "cite_spans": [
+                {
+                    "start": 296,
+                    "end": 299,
+                    "text": "[8]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 631,
+                    "end": 635,
+                    "text": "[22]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Termination and Countermodel Construction"
+        },
+        {
+            "text": "When using the single-conclusion systems, termination and completeness can easily be shown via cut-elimination [23] . However, it is not clear how to obtain a finite countermodel from a failed proof search. The reason is that there is not such a close correspondence between models and sequents as for classical modal logic. For this reason we also implemented the multi-conclusion systems of [12] . They are related to the intuitionistic (bi-relational) Kripke models [7, 20] , as classical nested sequent systems to classical Kripke models. The treestructure of the sequent tree corresponds to the R-relation (the accessibility relation for the modalities), and the tree-structure of the proof tree corresponds to the intuitionistic \u2264-relation (often interpreted as future-relation). We follow the construction of [12] for obtaining a countermodel from a failed proof search, with certain simplifications, as in our case the model is always finite.",
+            "cite_spans": [
+                {
+                    "start": 111,
+                    "end": 115,
+                    "text": "[23]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 393,
+                    "end": 397,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 469,
+                    "end": 472,
+                    "text": "[7,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 473,
+                    "end": 476,
+                    "text": "20]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 816,
+                    "end": 820,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Termination and Countermodel Construction"
+        },
+        {
+            "text": "Termination for NIKm + X is ensured by the same arguments as for NIKs + X, with the difference that the loop-check (which is performed for \u2283 \u2022 s in NIKs) is performed for \u2283 \u2022 m and \u2022 m in NIKm + X.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Termination and Countermodel Construction"
+        },
+        {
+            "text": "Moin implements the nested sequents for classical modal logics from [3] , and the single-and multi-conclusion calculi for intuitionistic modal logics shown in s -rule, and the rules for the multi-conclusion system NIKm + X Figs. 2, 3, 4. The prover is composed of a set clauses, each implementing a rule of the sequent calculus. The structure of Moin reflects the modularity of the calculi: implementations of stronger systems are obtained by adding the clauses corresponding to the rules to the set of clauses for weaker systems.",
+            "cite_spans": [
+                {
+                    "start": 68,
+                    "end": 71,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Prolog Implementation"
+        },
+        {
+            "text": "The biggest difficulty in implementing nested sequents lies in the choice of the data structure. For ordinary sequents, it is straightforward to use the Prologlists. However, nested sequents are not lists of formulas, but trees of lists of formulas, and Prolog does not come with an efficient representation of trees, which would allow formulas occurring in lists inside a node of the tree to be easily accessed and replaced. There exist several approaches to overcome this difficulty. The implementation of conditional modal logics in [18] and of non-normal modal logics in [14] implement nested sequents as nested lists, while the implementation of non-normal modal logics in [13] uses a tree structure, in which nodes are annotated with sequents. We follow a different approach, representing nested sequents as Prolog lists with annotations. This can be compared to labelled calculi [22] : an annotation is an index labelling formulas of a nested sequent, with formulas occurring at the same node sharing the same annotation. This data structure allows for an easier countermodel extraction from a failed branch.",
+            "cite_spans": [
+                {
+                    "start": 536,
+                    "end": 540,
+                    "text": "[18]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 575,
+                    "end": 579,
+                    "text": "[14]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 678,
+                    "end": 682,
+                    "text": "[13]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 886,
+                    "end": 890,
+                    "text": "[22]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Prolog Implementation"
+        },
+        {
+            "text": "Propositional variables are represented in Moin as Prolog atoms a,b,. . . ; \u22a5 and are Prolog false and true, and the connectives \u00ac, \u2227, \u2228, \u2283, and \u2666 are respectively represented by~, v^, ->, ! and ?. Nested sequents for classical modal logic are represented by means of two Prolog lists Rel,Seq. Seq is a list of triples (X,F,Sign), where F is a formula in Moin syntax, X is the annotation of F, i.e., an integer keeping track of the component of the nested sequent at which the formula occurs, and Sign is either + or -. Rules can only be applied to formulas with a positive sign, while formulas with a negative sign are used for book-keeping (they are the gray formulas from Figs. 2, 3 and 4). Rel is a list of pairs (X,Y), representing the parent-child relation between nodes of a nested sequent. Single-conclusion nested sequents are represented as Rel,Lambda,Out, where Lambda is a list of elements (X,F,Sign) storing the \u2022-formulas, and Out is a pair (X,F) storing the \u2022-formula. Finally, multi-conclusion nested sequents are represented by means of three lists Rel,Gamma,Delta, where Gamma and Delta are lists of elements (X,F,Sign), respectively representing \u2022and \u2022-formulas.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Prolog Implementation"
+        },
+        {
+            "text": "Proof search is invoked by the predicate derive(PS,Axioms,F), where F is the formula to be checked, PS selects the proof system (k for classical, i for intuitionistic single-conclusion, m for intuitionistic multi-conclusion nested sequents), and Axioms is a (possibly empty) list specifying the additional axioms to be used (d, t, b, 4 and 5). For instance, derive(i, [b,5] , (?a -> !?a)^(?!a -> !a)) triggers the derivation of axiom 5 in NIKs + {b, 5}. The predicate derive queries the corresponding predicate prove_k\\4, prove_i\\3 or prove_m\\4. These predicates are recursively invoked and generate the proof-search tree (and the countermodel). To ensure termination, application of some rules needs to be restricted (see Sect. 5). The loop-checks are implemented by auxiliary predicates. The application of prove to a branch stops when an axiom clause is reached (success), or when no clause succeeds, producing a A = 1, . . . , 8(a \u2283 b) \u2283 ( 1, . . . , 8 a \u2283 1, . . . , 8 b) B = (\u26661, . . . , \u26665a \u2283 1, . . . , 5b) \u2283 1, . . . , 5(a 5 . Formulas A and B are generated by adding modal operators to k1 and k4, and are both derivable in all systems. Formulas C and D are from [4] ; C is valid in all systems with 4 and D in all systems with b. Formula E is not derivable in any system. ID  IT  IKB  IK5  IK45  IKB5  IDB  ID5  ID45 ITB IS5 A 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 7 0, 2 \u00b7 0, 2 0, 1 \u00b7 0, 1 19, 6 \u00b7 0, 2 113, 9 \u00b7 0, 3 16, 1 \u00b7 0, 3 0, 2 \u00b7 38, 7 * \u00b7 * * \u00b7 * 0, 2 \u00b7 0, 2 32, 8 \u00b7 0, 5 B 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 2 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 2 0, 1 \u00b7 0, 2 0, 1 \u00b7 0, 5 0, 2 \u00b7 40, 2 0, 2 \u00b7 46, 2 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 2 C 0, 1 \u00b7 0, 1 0, 3 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 6 \u00b7 0, 1 0, 2 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 2 \u00b7 0, 1 3, 0 \u00b7 0, 1 8, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 1, 2 \u00b7 0, 1 0, 1 \u00b7 0, 1 D 0, 1 \u00b7 0, 2 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 E 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 3 0, 1 \u00b7 0, 8 0, 1 \u00b7 0, 1 0, 1 \u00b7 0, 1 failed branch. In case of success of the proof-search, Moin produces a file containing the derivation. Otherwise, for classical and intuitionistic multiconclusion sequents, Moin prints out a countermodel in a file. While in the classical system the information contained in the leaf of a failed branch is enough to extract a countermodel, this is not the case for NIKm + X, where all the failed branches need to be considered.",
+            "cite_spans": [
+                {
+                    "start": 368,
+                    "end": 373,
+                    "text": "[b,5]",
+                    "ref_id": null
+                },
+                {
+                    "start": 931,
+                    "end": 934,
+                    "text": "8(a",
+                    "ref_id": null
+                },
+                {
+                    "start": 1028,
+                    "end": 1031,
+                    "text": "5(a",
+                    "ref_id": null
+                },
+                {
+                    "start": 1172,
+                    "end": 1175,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 935,
+                    "end": 976,
+                    "text": "\u2283 b) \u2283 ( 1, . . . , 8 a \u2283 1, . . . , 8 b)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1032,
+                    "end": 1033,
+                    "text": "5",
+                    "ref_id": null
+                },
+                {
+                    "start": 1282,
+                    "end": 1326,
+                    "text": "ID  IT  IKB  IK5  IK45  IKB5  IDB  ID5  ID45",
+                    "ref_id": null
+                }
+            ],
+            "section": "The Prolog Implementation"
+        },
+        {
+            "text": "Due to the absence of benchmarks for intuitionistic modal logics, we have measured the performance Moin with some adhoc (valid and non valid) formulas shown in Fig. 5 . The construction of a set of benchmark formulas has to be postponed to future work, as the 15 different logics in the IS5-cube make this not an easy task.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 160,
+                    "end": 166,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Performances"
+        },
+        {
+            "text": "We used SWI Prolog 8.0.3 on a Dell XPS 13 9370 laptop running with a 1.80 GHz Quad Core, Intel Core i7-8550U, 8 GB RAM, under Linux Mint 19.1. The numbers reported in the Fig. 6 are the results given in seconds of the user time command from bash script, approximated at 0,05 s. Numbers in red (left side) are the results of the single-conclusion calculus, numbers in blue (right side) of the multi-conclusion one. We removed the -output part from Moin before proceeding to the tests.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 171,
+                    "end": 177,
+                    "text": "Fig. 6",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Performances"
+        },
+        {
+            "text": "The results vary depending on the formula under scope. In some cases (formula A tested in IK45 and IS5; formula C in IDB, ID5) the implementation of NIKm + X seems to have better performances than the one of NIKs + X, since the multi-conclusion prover has a smaller number of backtrack points (only the rules \u2283 \u2022 m and \u2022 m are non-invertible). In some other cases (formula A tested in IDB; formula B tested in ID5 and ID45), the NIKm + X prover is slower than the NIKs + X one: this is due to the fact that in the multi-conclusion implementation the order in which the rules are applied is different from the single-conclusion one, and a larger number of sequents can be introduced in the proof search.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Performances"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "On nested sequents for constructive modal logics",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Arisaka",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Das",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Stra\u00dfburger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Log. Methods Comput. Sci",
+            "volume": "11",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.2168/LMCS-11(3:7)2015"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "leanTAP: lean tableau-based deduction",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Beckert",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Posegga",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "J. Autom. Reasoning",
+            "volume": "15",
+            "issn": "3",
+            "pages": "339--358",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Deep sequent systems for modal logic",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Br\u00fcnnler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Arch. Math. Logic",
+            "volume": "48",
+            "issn": "6",
+            "pages": "551--577",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00153-009-0137-3"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "TABLEAUX: a general theorem prover for modal logics",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Catach",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "J. Autom. Reasoning",
+            "volume": "7",
+            "issn": "4",
+            "pages": "489--510",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/BF01880326"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Focused and synthetic nested sequents",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Chaudhuri",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Marin",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Stra\u00dfburger",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "FoSSaCS 2016",
+            "volume": "9634",
+            "issn": "",
+            "pages": "390--407",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Modular focused proof systems for intuitionistic modal logics",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Chaudhuri",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Marin",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Stra\u00dfburger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "1st International Conference on Formal Structures for Computation and Deduction. FSCD",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "18. Schloss Dagstuhl -Leibniz-Zentrum fuer Informatik",
+            "authors": [
+                {
+                    "first": "Porto",
+                    "middle": [],
+                    "last": "Lipics",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "52",
+            "issn": "",
+            "pages": "1--16",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Axiomatizations for some intuitionistic modal logics",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Fischer-Servi",
+                    "suffix": ""
+                }
+            ],
+            "year": 1984,
+            "venue": "Rend. Sem. Mat. Univers. Politecn. Torino",
+            "volume": "42",
+            "issn": "3",
+            "pages": "179--194",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Label-free proof systems for intuitionistic modal logic IS5",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Galmiche",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Salhi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "LPAR 2010",
+            "volume": "6355",
+            "issn": "",
+            "pages": "255--271",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-17511-4_15"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Untersuchungen\u00fcber das logische Schlie\u00dfen",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Gentzen",
+                    "suffix": ""
+                }
+            ],
+            "year": 1935,
+            "venue": "I. Math. Z",
+            "volume": "39",
+            "issn": "",
+            "pages": "176--210",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/BF01201353"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Cut-elimination and proof search for biintuitionistic tense logic",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Gor\u00e9",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Postniece",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tiu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "2010 Advances in Modal Logic",
+            "volume": "",
+            "issn": "",
+            "pages": "156--177",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Cut-free sequent calculi for some tense logics",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kashima",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Stud. Logica",
+            "volume": "53",
+            "issn": "1",
+            "pages": "119--136",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Maehara-style modal nested calculi",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kuznets",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Stra\u00dfburger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Arch. Math. Logic",
+            "volume": "58",
+            "issn": "3-4",
+            "pages": "359--385",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00153-018-0636-1"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Combining monotone and normal modal logic in nested sequentswith countermodels",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Lellmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "TABLEAUX 2019. LNCS (LNAI)",
+            "volume": "11714",
+            "issn": "",
+            "pages": "203--220",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-29026-9_12"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Modularisation of sequent calculi for normal and nonnormal modalities",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Lellmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Pimentel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ACM Trans. Comput. Logic (TOCL)",
+            "volume": "20",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Eine darstellung der intuitionistischen logik in der klassischen",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Maehara",
+                    "suffix": ""
+                }
+            ],
+            "year": 1954,
+            "venue": "Nagoya Math. J",
+            "volume": "7",
+            "issn": "",
+            "pages": "45--64",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Modal proof theory through a focused telescope",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Marin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Label-free modular systems for classical and intuitionistic modal logics",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Marin",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Stra\u00dfburger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Advances in Modal Logic 10",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "NESCOND: an implementation of nested sequent calculi for conditional logics",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Olivetti",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Pozzato",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "IJCAR 2014",
+            "volume": "8562",
+            "issn": "",
+            "pages": "511--518",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-08587-6_39"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "How to build an automated theorem prover",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Otten",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "A framework for intuitionistic modal logic",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Plotkin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Stirling",
+                    "suffix": ""
+                }
+            ],
+            "year": 1986,
+            "venue": "Theoretical Aspects of Reasoning About Knowledge",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "The method of tree-hypersequents for modal propositional logic",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Poggiolesi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Towards Mathematical Philosophy. TL",
+            "volume": "28",
+            "issn": "",
+            "pages": "31--51",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-1-4020-9084-4_3"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "The proof theory and semantics of intuitionistic modal logic",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Simpson",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Cut elimination in nested sequents for intuitionistic modal logics",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Stra\u00dfburger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "FoSSaCS 2013",
+            "volume": "7794",
+            "issn": "",
+            "pages": "209--224",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-37075-5_14"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "The intuitionistic modal IS5-cube a tree of lists (or multisets or sets) of formulas. In the classical setting a nested sequent \u0393 is written as",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "\u2022 s and d \u2022 can be omitted, as they become admissible.corresponding rules inFig. 4with an m in the subscript. The d[]",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Intuitionistic \u2666 \u2022 -and \u2022 -rules for the axioms d, t, b, 4, and 5.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The structural d []",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Results in seconds of tests in implementations for NIKs + X (red/left entry) and NIKm + X (blue/right entry). Symbol * means execution time > 150 s. (Color figure online)",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Then we write \u0393 {A} (respectively \u0393 {\u0394}, respectively \u0393 {\u2205}) for the sequent obtained from the context \u0393 {\u00b7} by replacing the hole {\u00b7} by the formula A (respectively the sequent \u0394, respectively deleting the hole). Finally, we define \u0393 * {\u00b7} to be the context that is obtained from \u0393 {\u00b7} by removing all \u2022-formulas.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The main purpose of Moin is to be a tool for experimentation. The proof theory of intuitionistic modal logics has seen many advances in the last decade, and we felt the need for a tool that makes these advances accessible to a wider audience. We also hope to get through the use of Moin some new insights in the decision problem for ID4, IK4 and IS4.Further future work is to find more efficient implementations of the termination checks and to implement the focused systems of [5, 6] .",
+            "cite_spans": [
+                {
+                    "start": 478,
+                    "end": 481,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 482,
+                    "end": 484,
+                    "text": "6]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion and Future Work"
+        }
+    ]
+}

@@ -1,0 +1,970 @@
+{
+    "paper_id": "0f936ca3034ef23408171432413e65b07177ee7f",
+    "metadata": {
+        "title": "Analysis of Breast Cancer Detection Using Different Machine Learning Techniques",
+        "authors": [
+            {
+                "first": "Siham",
+                "middle": [
+                    "A"
+                ],
+                "last": "Mohammed",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Taiz University",
+                    "location": {
+                        "settlement": "Taiz",
+                        "country": "Yemen"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Sadeq",
+                "middle": [],
+                "last": "Darrab",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Magdeburg",
+                    "location": {
+                        "settlement": "Magdeburg",
+                        "country": "Germany"
+                    }
+                },
+                "email": "sadeq.darrab@ovgu.de"
+            },
+            {
+                "first": "Salah",
+                "middle": [
+                    "A"
+                ],
+                "last": "Noaman",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aden University",
+                    "location": {
+                        "settlement": "Aden",
+                        "country": "Yemen"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Gunter",
+                "middle": [],
+                "last": "Saake",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Magdeburg",
+                    "location": {
+                        "settlement": "Magdeburg",
+                        "country": "Germany"
+                    }
+                },
+                "email": "gunter.saake@ovgu.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Data mining algorithms play an important role in the prediction of early-stage breast cancer. In this paper, we propose an approach that improves the accuracy and enhances the performance of three different classifiers: Decision Tree (J48), Na\u00efve Bayes (NB), and Sequential Minimal Optimization (SMO). We also validate and compare the classifiers on two benchmark datasets: Wisconsin Breast Cancer (WBC) and Breast Cancer dataset. Data with imbalanced classes are a big problem in the classification phase since the probability of instances belonging to the majority class is significantly high, the algorithms are much more likely to classify new observations to the majority class. We address such problem in this work. We use the data level approach which consists of resampling the data in order to mitigate the effect caused by class imbalance. For evaluation, 10 fold cross-validation is performed. The efficiency of each classifier is assessed in terms of true positive, false positive, Roc curve, standard deviation (Std), and accuracy (AC). Experiments show that using a resample filter enhances the classifier's performance where SMO outperforms others in the WBC dataset and J48 is superior to others in the Breast Cancer dataset.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Breast cancer is the second leading cause of death among women worldwide [1] . In 2019, 268,600 new cases of invasive breast cancer were expected to be diagnosed in women in the U.S., along with 62,930 new cases of non-invasive breast cancer [2] . Early detection is the best way to increase the chance of treatment and survivability. Data mining has become a popular tool for knowledge discovery which shows good results in marketing, social science, finance and medicine [19, 20] . Recently, multiple classifiers algorithms are applied on medical datasets to perform predictive analysis about patients and their medical diagnosis [6, 9, 10, 21] . For example, using machine learning techniques to assess tumor behavior for breast cancer patients. One problem is that there is a class imbalance in the training data, since the probability of not having this disease is higher than the one of having it. This paper introduces a comparison between three different classifiers: J48, NB, and SMO with respect to accuracy in detection of breast cancer. Our aim is to prepare the dataset by proposing a suitable method that can manage the imbalanced dataset and the missing values, to enhance the classifier's performance. All tasks were conducted using Weka 3.8. 3 .",
+            "cite_spans": [
+                {
+                    "start": 73,
+                    "end": 76,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 242,
+                    "end": 245,
+                    "text": "[2]",
+                    "ref_id": null
+                },
+                {
+                    "start": 473,
+                    "end": 477,
+                    "text": "[19,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 478,
+                    "end": 481,
+                    "text": "20]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 632,
+                    "end": 635,
+                    "text": "[6,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 636,
+                    "end": 638,
+                    "text": "9,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 639,
+                    "end": 642,
+                    "text": "10,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 643,
+                    "end": 646,
+                    "text": "21]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1259,
+                    "end": 1260,
+                    "text": "3",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The remainder of this paper is organized as follows. Section 2 presents literature review. Section 3 introduces the datasets. Section 4 describes the research methodology including pre-processing experiments, classification and performance evaluation criteria. The experimental results are presented in Sect. 5. Finally, Sect. 6 shows the conclusion and future work.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In recent years, several studies have applied data mining algorithms on different medical datasets to classify Breast Cancer. These algorithms show good classification results and encourage many researchers to apply these kind of algorithms to solve challenging tasks. In [21] , a convolutional neural network (CNN) was used to predict and classify the invasive ductal carcinoma in breast histology images with an accuracy of almost 88%. Moreover, data mining is used widely in medical fields to predict and classify abnormal events to create a better understanding of any incurable diseases such as cancer. The outcomes of using data mining in classification are promising for breast cancer detection. Therefore, data mining approach is used in this work. A list of some literature studies related to this method is presented in Table 1 .",
+            "cite_spans": [
+                {
+                    "start": 272,
+                    "end": 276,
+                    "text": "[21]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 830,
+                    "end": 837,
+                    "text": "Table 1",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "Literature Review"
+        },
+        {
+            "text": "The datasets that are used in this paper are available at the UCI Machine Learning Repository [13] .",
+            "cite_spans": [
+                {
+                    "start": 94,
+                    "end": 98,
+                    "text": "[13]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Datasets"
+        },
+        {
+            "text": "The WBC dataset contains 699 instances and 11 attributes in which 458 were benign and 241 were malignant cases [14] . In the WBC, the value of the attribute (Bare Nuclei) status was missing for 16 records. Hence data preprocessing is essential and important for this dataset, requiring us to manage the imbalanced data and the missing values.",
+            "cite_spans": [
+                {
+                    "start": 111,
+                    "end": 115,
+                    "text": "[14]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "WBC Dataset"
+        },
+        {
+            "text": "The feature form this dataset are computed from a digitized image of a fine needle aspirate (FNA) of a breast tumor. The target feature records the prognosis (i.e., malignant or benign). The dataset contains 286 instances and 10 attributes in which 201 were norecurrence-events and 85 were recurrence events. In the Breast Cancer dataset, the value of the attribute (node-caps) status was missing in 8 records. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Breast Cancer Dataset"
+        },
+        {
+            "text": "The two datasets used in this work are vulnerable to missing and imbalanced data therefore, before performing the experiments, a large fraction of this work will be for preprocessing the data in order to enhance the classifier's performance. Preprocessing will focus on managing the missing values and the imbalanced data. To manage the missing attributes, all the instances with missing values are removed. The imbalance data problem needs to adjust either the classifier or the training set balance. To do so, the resample filter is used to rebalance the data artificially. Then, 10 fold cross validation is applied and finally a comparison between these three classifiers is implemented.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Research Methodology"
+        },
+        {
+            "text": "First, the data were discretized using discretize filter, then missing values were removed from the dataset. Second, instances were resampled using the resample filter in order to maintain the class distribution in the subsample and to bias the class distribution toward a uniform distribution. Section 5 will show that this idea is improving the classifier's performance. Third, 10 fold cross validation was applied then experiments were carried out over three classifiers Na\u00efve Bayes, SMO and J48, as illustrated in Fig. 1 . In Fig. 1 , the data preprocessing technique has been applied including three steps: discretization, instances resampling and removing the missing values. After that, 10 fold cross validation has been applied. Then, three classifiers have been evaluated over the prepared datasets.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 518,
+                    "end": 524,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 530,
+                    "end": 536,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Preprocessing Phase"
+        },
+        {
+            "text": "In order to minimize the bias associated with the random sampling of the training data, we use 10 fold cross validation after the pre-processing phase. In k-fold cross-validation, the original dataset is randomly partitioned into k equal size subsets. The classification model is trained and tested k times. Each time, a single subset is retained as the validation data for testing the model, and the remaining k\u22121 subsets are used as training data. Three classification techniques were selected: a Na\u00efve Bayes (NB), a Decision Tree built on the J48 algorithm, and a Sequential Minimal Optimization (SMO). The NB classifier is a probabilistic classifier based on the Bayes rule. It works by estimating the portability of each class value that a given instance belongs to that class [15] . The J48 algorithm [16] uses the concept of information entropy and works by splitting each data attributers into smaller datasets in order to examine entropy differences. It is an improved and enhanced version of C4.5 [17] . The SMO model implements John Platt's sequential minimal optimization algorithm for training a support vector classifiers. This implementation globally replaces all missing values and transforms nominal attributes into binary ones. It also normalizes all attributes by default [18] .",
+            "cite_spans": [
+                {
+                    "start": 782,
+                    "end": 786,
+                    "text": "[15]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 807,
+                    "end": 811,
+                    "text": "[16]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1007,
+                    "end": 1011,
+                    "text": "[17]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1291,
+                    "end": 1295,
+                    "text": "[18]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Training and Classification"
+        },
+        {
+            "text": "In this study, we use five performance measures to evaluate all the classifiers: true positive, false positive, ROC curve, standard deviation (Std) and accuracy (AC).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Performance Evaluation Criteria"
+        },
+        {
+            "text": "(1)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "AC = (TP + TN )/(TP + TN + FP + FN )."
+        },
+        {
+            "text": "Where TP, TN, FP and FN denote true positive, true negative, false positive and false negative, respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "AC = (TP + TN )/(TP + TN + FP + FN )."
+        },
+        {
+            "text": "First, the three classifications algorithms were tested on the WBC and the Breast Cancer datasets without applying the preprocessing techniques. Among them, the best result was recorded for J48: 75.52% in the Breast Cancer dataset and for SMO: 96.99% in the WBC dataset. Next, after applying preprocessing techniques accuracy increases to 98.20% with J48 in the Breast Cancer dataset and 99.56% with SMO in the WBC dataset.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "First, the three classifiers are tested over original data (without any preprocessing).The results show that J48 is the best one with 75.52% accuracy where the accuracy of NB and SMO are 71.67% and 69.58%, respectively. Next, we apply discretization filter and remove the records with missing values, results improved with NB and SMO as follows: NB: 75.53% and SMO: 72.66% where J48: 74.82%. After that, resample filter was applied for 7 times. The Performance of the classifiers are improved and enhanced as shown in Table 2 . As illustrated in Table 2 , we can obviously notice that the more resample filter we apply, the improved accuracy we obtain. That is because the data is imbalanced and the filter maintains the class distribution. For the Breast cancer dataset, J48 outperforms others with 98.20%. Accuracy measures for J48 classifier is shown in Table 3 and Roc curve of J48 is shown in Fig. 2 . To measure the performance of the proposed model, we compare the obtained results with the study proposed in [9] . The same dataset and three classifiers including J48 algorithm are used to evaluate the model's performance. According to the results, the J48 classifier of the proposed model achieves high accuracy comparing to other classifiers. This is because of using the resample filter for the pre-processing phase in the proposed model rather than feature selection technique that used in [9] as illustrated in Table 4 . ",
+            "cite_spans": [
+                {
+                    "start": 1016,
+                    "end": 1019,
+                    "text": "[9]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1402,
+                    "end": 1405,
+                    "text": "[9]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 518,
+                    "end": 525,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 546,
+                    "end": 553,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 857,
+                    "end": 864,
+                    "text": "Table 3",
+                    "ref_id": "TABREF2"
+                },
+                {
+                    "start": 898,
+                    "end": 904,
+                    "text": "Fig. 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 1424,
+                    "end": 1431,
+                    "text": "Table 4",
+                    "ref_id": "TABREF3"
+                }
+            ],
+            "section": "Experiment Using the Breast Cancer Dataset"
+        },
+        {
+            "text": "Same experiments were applied with the WBC dataset. With respect to applying preprocessing techniques all algorithms present higher classification accuracy, the difference lies in the fact that using the resample filter several times improves the classification accuracy. SMO classifier achieve 99.56% efficiency compared to 99.12% of the Na\u00efve Bayes and 99.24% of the J48. Results are illustrated in Table 5 . In the WBC dataset, SMO superior than others with 99.56%. Accuracy measures for SMO classifier is shown in Table 6 and Roc curve of SMO is shown in Fig. 3 . In terms of the WBC dataset, our proposed method is compared with two studies [6, 10] . Results shows that the performance of SMO classifier is better since our model employs pre-processing, and resampling approaches. Thus, utilizing pre-processing, and resampling techniques play an important role in increasing the SMO accuracy comparable to the other techniques in [6, 10] . Details are shown below in Table 7 . ",
+            "cite_spans": [
+                {
+                    "start": 646,
+                    "end": 649,
+                    "text": "[6,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 650,
+                    "end": 653,
+                    "text": "10]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 936,
+                    "end": 939,
+                    "text": "[6,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 940,
+                    "end": 943,
+                    "text": "10]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 401,
+                    "end": 408,
+                    "text": "Table 5",
+                    "ref_id": "TABREF4"
+                },
+                {
+                    "start": 518,
+                    "end": 525,
+                    "text": "Table 6",
+                    "ref_id": "TABREF5"
+                },
+                {
+                    "start": 559,
+                    "end": 565,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 973,
+                    "end": 980,
+                    "text": "Table 7",
+                    "ref_id": "TABREF6"
+                }
+            ],
+            "section": "Experiment Using the WBC Dataset"
+        },
+        {
+            "text": "Breast cancer is considered to be one of the significant causes of death in women. Early detection of breast cancer plays an essential role to save women's life. Breast cancer detection can be done with the help of modern machine learning algorithms. In this paper, we focus on how to deal with imbalanced data that have missing values using resampling techniques to enhance the classification accuracy of detecting breast cancer. In our work, three classifiers algorithms J48, NB, and SMO applied on two different breast cancer datasets. Results show that using the resample filter in the preprocessing phase enhances the classifier's performance. In the future, the same experiments will apply to different classifiers and different datasets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "United States Cancer Statistics: 1999-2008 Incidence and Mortality Web-based Report",
+            "authors": [],
+            "year": null,
+            "venue": "Department of Health and Human Services",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Integration of data mining classification techniques and ensemble learning for predicting the type of breast cancer recurrence",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Silva",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [
+                        "B P"
+                    ],
+                    "last": "Lezama",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Varela",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Borrero",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Miani",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Camargos",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Zarpel\u00e3o",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Rosas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "GPC 2019",
+            "volume": "11484",
+            "issn": "",
+            "pages": "18--30",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-19223-5_2"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A study on prediction of breast cancer recurrence using data mining techniques",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Ojha",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Goel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "7th International Conference on Cloud Computing",
+            "volume": "",
+            "issn": "",
+            "pages": "527--530",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Predicting breast cancer recurrence using effective classification and feature selection technique",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Pritom",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A R"
+                    ],
+                    "last": "Munshi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Sabab",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Shihab",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "19th International Conference on Computer and Information Technology (ICCIT)",
+            "volume": "",
+            "issn": "",
+            "pages": "310--314",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Using machine learning algorithms for breast cancer risk prediction and diagnosis",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Asri",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Mousannif",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Al",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Noel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Procedia Comput. Sci",
+            "volume": "83",
+            "issn": "",
+            "pages": "1064--1069",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Study and analysis of breast cancer cell detection using Na\u00efve Bayes, SVM and Ensemble Algorithms",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Hazra",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Mandal",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Gupta",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Int. J. Comput. Appl",
+            "volume": "145",
+            "issn": "",
+            "pages": "975--8887",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Analysis of the Wisconsin Breast Cancer dataset and machine learning for breast cancer detection",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Rodrigues",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of XI Workshop de Vis\u00e3o Computational",
+            "volume": "",
+            "issn": "",
+            "pages": "15--19",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Comparative study on different classification techniques for breast cancer dataset",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "L S"
+                    ],
+                    "last": "Saabith",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Sundararajan",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Bakar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Int. J. Comput. Sc. Mob. Comput",
+            "volume": "3",
+            "issn": "10",
+            "pages": "185--191",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "A novel approach for breast cancer detection using data mining techniques",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Chaurasia",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Int. J. Innovative Res. Comput. Commun. Eng",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Experimental comparison of classifiers for breast cancer diagnosis",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Salama",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Abdelhalim",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A E"
+                    ],
+                    "last": "Zeid",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "2012 Seventh International Conference on Computer Engineering & Systems (ICCES)",
+            "volume": "",
+            "issn": "",
+            "pages": "180--185",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Analysis of feature selection with classification: breast cancer datasets",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Lavanya",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "K U"
+                    ],
+                    "last": "Rani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Indian J. Comput. Sci. Eng. (IJCSE)",
+            "volume": "",
+            "issn": "",
+            "pages": "756--763",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Available at: UCI Machine Learning Repository 14. Dataset Description. Available at: UCI Machine Learning Repository",
+            "authors": [],
+            "year": null,
+            "venue": "Breast Cancer Wisconsin Dataset",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Data Mining: Concepts and Techniques",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Han",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Pei",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kamber",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "4.5: Programs for Machine Learning",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Quinlan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1993,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Simplifying decision trees",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Quinlan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1987,
+            "venue": "Int. J. Man-Mach. Stud",
+            "volume": "27",
+            "issn": "",
+            "pages": "221--234",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Fast training of support vector machines using sequential minimal optimization",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Piatt",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Advances in Kernel Methods-Support Vector Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Vertical pattern mining algorithm for multiple support thresholds",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Darrab",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ergenc",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "International Conference on Knowledge Based and Intelligent Information and Engineering (KES), Procedia Computer Science",
+            "volume": "112",
+            "issn": "",
+            "pages": "417--426",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Frequent pattern mining under multiple support thresholds, the International Conference on Applied Computer Science (ACS). Wseas Transactions on Computer Research",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Darrab",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ergenc",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "1--10",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Predicting Invasive Ductal Carcinoma in breast histology images using Convolutional Neural Network",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Alghodhaifi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Alghodhaifi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Alghodhaifi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "2019 IEEE National Aerospace and Electronics Conference (NAECON)",
+            "volume": "",
+            "issn": "",
+            "pages": "374--378",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Proposed breast cancer detection model using Breast Cancer and WBC datasets.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Breast cancer detection research using different machine learning algorithms.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Performance of the classifiers in the Breast Cancer Dataset.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "Accuracy measures for J48 in the Breast Cancer Dataset.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Compression of accuracy measures for the Breast Cancer Dataset.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Performance of the classifiers in WBC dataset.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF5": {
+            "text": "Accuracy measures for SMO in WBC Dataset.Fig. 3. SMO ROC curve in WBC Dataset.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF6": {
+            "text": "Compression of accuracy measures for the WBC Dataset.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

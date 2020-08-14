@@ -1,0 +1,1804 @@
+{
+    "paper_id": "0e90220ead6de5039b83526fae0e6953d3051a10",
+    "metadata": {
+        "title": "Assessing Disease Exposure Risk with Location Data: A Proposal for Cryptographic Preservation of Privacy",
+        "authors": [
+            {
+                "first": "Alex",
+                "middle": [],
+                "last": "Berke",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "MIT Media Lab",
+                    "institution": "",
+                    "location": {
+                        "settlement": "Cambridge",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": "aberke@mit.edu"
+            },
+            {
+                "first": "Michiel",
+                "middle": [],
+                "last": "Bakker",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "MIT Media Lab",
+                    "institution": "",
+                    "location": {
+                        "settlement": "Cambridge",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": "bakker@mit.edu"
+            },
+            {
+                "first": "Praneeth",
+                "middle": [],
+                "last": "Vepakomma",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "MIT Media Lab",
+                    "institution": "",
+                    "location": {
+                        "settlement": "Cambridge",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": "vepakom@mit.edu"
+            },
+            {
+                "first": "Kent",
+                "middle": [],
+                "last": "Larson",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "MIT Media Lab",
+                    "institution": "",
+                    "location": {
+                        "settlement": "Cambridge",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Alex",
+                "middle": [
+                    "&apos;"
+                ],
+                "last": "Sandy&apos; Pentland",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "MIT Media Lab",
+                    "institution": "",
+                    "location": {
+                        "settlement": "Cambridge",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Governments and researchers around the world are implementing digital contact tracing solutions to stem the spread of infectious disease, namely COVID-19. Many of these solutions threaten individual rights and privacy. Our goal is to break past the false dichotomy of effective versus privacy-preserving contact tracing. We offer an alternative approach to assess and communicate users' risk of exposure to an infectious disease while preserving individual privacy. Our proposal uses recent GPS location histories, which are transformed and encrypted, and a private set intersection protocol to interface with a semi-trusted authority.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "There have been other recent proposals for privacy-preserving contact tracing, based on Bluetooth and decentralization, that could further eliminate the need for trust in authority. However, solutions with Bluetooth are currently limited to certain devices and contexts while decentralization adds complexity. The goal of this work is two-fold: we aim to propose a location-based system that is more privacy-preserving than what is currently being adopted by governments around the world, and that is also practical to implement with the immediacy needed to stem a viral outbreak.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "This is a proposed design for how a system can identify and notify users who may have come in contact with diagnosed disease carriers about their risk while respecting individual' privacy. It is common practice for healthcare workers to interview individuals diagnosed with a communicable disease about their recent movements in order to identify and alert others who they may have come in contact with. This process is referred to as contact tracing and is crucial as health entities, communities and governments attempt to contain viral outbreaks. Manually performing contact tracing is highly resource-intensive, intrusive and time-consuming. Yet the ubiquitous use of personal digital devices provides access to detailed location histories that are collected automatically, enabling a system that could conduct this process at scale. The objective of this paper is to describe such a system in the face of the COVID-19 pandemic that better preserves the privacy of its users than the systems we see governments adopting.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "There currently are digital approaches to contact tracing that use location histories 1 but many operate on a skewed trade-off between privacy and effectiveness [4] . Some rely on general public broadcasting of information that introduces uncertainty in the information disseminated. 2 Other alternatives resort to the usage of technologies that risk violating individual rights against stigmatization and surveillance 3 (see [4] for a discussion).",
+            "cite_spans": [
+                {
+                    "start": 161,
+                    "end": 164,
+                    "text": "[4]",
+                    "ref_id": null
+                },
+                {
+                    "start": 284,
+                    "end": 285,
+                    "text": "2",
+                    "ref_id": null
+                },
+                {
+                    "start": 426,
+                    "end": 429,
+                    "text": "[4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Contact tracing & privacy"
+        },
+        {
+            "text": "Even when systems do attempt to use location data while respecting individual privacy, their methods are often insufficient: simply anonymizing user location histories by replacing users' identifiers with random new ones fails to achieve privacy in a meaningful way. Secondary data that is not anonymized can be used to re-identify users by matching data points across the datasets. For example, a study using credit cards records has shown that only four data points from a user's location history are enough to uniquely re-identify 90% of individuals [12] .",
+            "cite_spans": [
+                {
+                    "start": 553,
+                    "end": 557,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Contact tracing & privacy"
+        },
+        {
+            "text": "This work breaks past the dichotomy of privacy versus effectiveness established by previous digital contact tracing approaches. We propose a technology-based solution for contact tracing and disseminating information on the state of infections while protecting the privacy rights of both diagnosed infected carriers and other citizens.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contact tracing & privacy"
+        },
+        {
+            "text": "The privacy and trust principles central to the design of this work are summarized below:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust & privacy principles"
+        },
+        {
+            "text": "\u2022 Keep location data private. Locations visited are kept private for all users including those who are diagnosed disease carriers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust & privacy principles"
+        },
+        {
+            "text": "\u2022 Avoid surveillance. The system can detect points of contact between users without precise location histories being exposed.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust & privacy principles"
+        },
+        {
+            "text": "\u2022 Only allow one-way private data publication. Only diagnosed carriers ever publish data, but this data remains encrypted and private, and their identities remain protected. Other users can check if they came in contact with carriers without sharing their location histories.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust & privacy principles"
+        },
+        {
+            "text": "Any privacy-preserving contact tracing framework should be considered a \"best effort\" and avoid promising to be perfectly private. Our primary contribution to the space of existing frameworks and digital tools is the degree to which our cryptographic approach can preserve user privacy while providing highly useful and accurate information through individuals GPS location histories.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust & privacy principles"
+        },
+        {
+            "text": "We present our proposal in response to current events where we see an increase in surveillance and a forfeit of privacy due to contact tracing efforts designed to contain the spread of COVID-19. We intend to show that effective contact tracing is possible without further forfeiting privacy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust & privacy principles"
+        },
+        {
+            "text": "A simple first version of a system that provides exposure risk information is one that collects, anonymizes, and aggregates the recent GPS location histories of diagnosed carriers. This information allows the creation of a spatiotemporal heatmap representing large geographic regions where diagnosed carriers spent time and when. 1 There are also digital contact tracings solutions that use Bluetooth technology to detect points of contact between individuals without using location histories directly [1, 2, 3] . We will discuss these in Section 2.",
+            "cite_spans": [
+                {
+                    "start": 330,
+                    "end": 331,
+                    "text": "1",
+                    "ref_id": null
+                },
+                {
+                    "start": 502,
+                    "end": 505,
+                    "text": "[1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 506,
+                    "end": 508,
+                    "text": "2,",
+                    "ref_id": null
+                },
+                {
+                    "start": 509,
+                    "end": 511,
+                    "text": "3]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "A useful first step"
+        },
+        {
+            "text": "2 Information about where diagnosed COVID-19 carriers have visited has been publicly broadcasted in different ways. Singapore updates a map and lists details about the identities about each COVID-19 case [5] . South Korea sends text messages to citizens containing personal information about diagnosed carriers [6] . In the US, location information about diagnosed patients has been published through media outlets and university and government websites [7, 8, 9] . 3 Israel employs cellphone tracking for coronavirus patients [10] . China requires use of an COVID-19 mobile application to effectively surveil citizens and dictate quarantines [11] .",
+            "cite_spans": [
+                {
+                    "start": 204,
+                    "end": 207,
+                    "text": "[5]",
+                    "ref_id": null
+                },
+                {
+                    "start": 311,
+                    "end": 314,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 454,
+                    "end": 457,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 458,
+                    "end": 460,
+                    "text": "8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 461,
+                    "end": 463,
+                    "text": "9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 466,
+                    "end": 467,
+                    "text": "3",
+                    "ref_id": null
+                },
+                {
+                    "start": 527,
+                    "end": 531,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 643,
+                    "end": 647,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A useful first step"
+        },
+        {
+            "text": "Individuals' data and areas visited must be aggregated and obfuscated in a way that minimizes what can be learned about individual people or places visited in the dataset. This is done in order to protect people and businesses from potential stigmatization or any other threat. This aggregated view can provide helpful information about infection risk across different areas, types of places, and time periods for both health authorities and the general public. This aggregated data can be further analyzed to better understand the flow and trends of disease transmission.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A useful first step"
+        },
+        {
+            "text": "In the current paper we build upon this first step and discuss the potential use of a private set intersection protocol to provide more precise risk assessments to individual users based on points of contact with individuals who were later diagnosed as disease carriers. Our approach partitions the space of fine-grained GPS location and time data into discrete spatiotemporal points that represent location histories. This combination of a partition scheme and private set intersection protocol allows the system to detect when a user came in contact (e.g. was in close proximity) with diagnosed carriers to assess and inform them of their risk, while preserving the privacy of individuals.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contributions"
+        },
+        {
+            "text": "Clever approaches to privacy-preserving systems for contact tracing that rely on Bluetooth rather than GPS have been proposed and implemented as smartphone applications, such as TraceTogether [2] , which was created by the government of Singapore, and the open source projects COVID Watch [3] and CoEpi [1] . Instead of recording user location histories, these systems record when users come in proximity of one another. A user's smartphone application generates, and periodically updates, a random identifier called a \"contact event number\" (CEN). The user's device broadcasts this CEN using Bluetooth Low Energy and receives and locally records CENs broadcast by other users' devices. Users who later fall ill then share their CENs, which can be matched against the CENs recorded locally by other users to identify points of contact between diagnosed users and the other users. The different implementations vary in the privacy and security they provide their users. For example, the Singapore government requires users of its TraceTogether app to share their phone numbers and identities with a central authority that maintains a database of recorded CENs. This authority contacts users whose recorded CENs match against diagnosed users' CENs to alert them of their exposure. This system provides users with no privacy from the central authority but does protect users from having their identities exposed to other users. In contrast, the COVID-Watch and CoEpi projects place more trust in users rather than in a central authority. 4 With their designs, diagnosed users' CENs are stored in a database that is either made public for other users' apps to download or made available for them to poll [13, 14] . These models are not perfectly privacy-preserving either, as they are susceptible to privacy attacks from other users, as described by Cho et al. [15] .",
+            "cite_spans": [
+                {
+                    "start": 192,
+                    "end": 195,
+                    "text": "[2]",
+                    "ref_id": null
+                },
+                {
+                    "start": 289,
+                    "end": 292,
+                    "text": "[3]",
+                    "ref_id": null
+                },
+                {
+                    "start": 303,
+                    "end": 306,
+                    "text": "[1]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1535,
+                    "end": 1536,
+                    "text": "4",
+                    "ref_id": null
+                },
+                {
+                    "start": 1700,
+                    "end": 1704,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1705,
+                    "end": 1708,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1857,
+                    "end": 1861,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A Short Survey of Alternative Solutions"
+        },
+        {
+            "text": "These systems use Bluetooth to directly detect whether users come in proximity of one another, which GPS cannot provide. With Bluetooth, proximity can be approximated by signal strength that is reduced by obstructions like walls; therefore, it more accurately reflects functional proximity in highrisk environments for close contact, such as within buildings and vehicles, or in underground transit. These Bluetooth features can benefit our proposed system as well, as the installation of Bluetooth beacons could mark locations with higher levels of accuracy than what would otherwise be marked only with GPS coordinates.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Short Survey of Alternative Solutions"
+        },
+        {
+            "text": "We note that applications that detect users' exposure risk by relying on users to come into Bluetooth proximity may not be sufficient, given that in addition to human-to-human transmission, coro-naviruses can transmit through commonly touched surfaces or environments [16] . In contrast, our proposed system can be extended to handle this kind of exposure risk by checking adjacent time periods to accommodate when two users may have occupied the same space one after another.",
+            "cite_spans": [
+                {
+                    "start": 268,
+                    "end": 272,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A Short Survey of Alternative Solutions"
+        },
+        {
+            "text": "Another issue with purely Bluetooth-based systems is that they require people to use a special application that could suffer from slower or limited adoption, limiting the ability to capture a large enough base of users before they are diagnosed, and therefore limiting their potential to be useful. With GPS based approaches we might leverage the fact that the applications on users' phones are already collecting their GPS location histories, and develop a technology as a plugin to interface with these apps, to more quickly roll out our system as a life-saving contact tracing technology.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Short Survey of Alternative Solutions"
+        },
+        {
+            "text": "In what follows, we describe what type of information our proposed system provides before showing a high-level system overview. We then explain the trust and privacy model it is designed for, and finally provide a more technical description with details on how the system could be built in practice.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A GPS-based privacy-preserving scheme"
+        },
+        {
+            "text": "The proposed system provides a probabilistic measure of disease exposure risk for a user, based on the time they have spent in spaces shared with users who were later diagnosed as disease carriers. More time spent in such shared spaces indicates higher levels of risk, but this risk is also dependent on where those spaces are.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic risk assessment"
+        },
+        {
+            "text": "Any technological system should be wary of claiming to precisely determine exposure risk, due to the limitations of the technologies used for detection, and the ambiguity over what types of interactions between people, shared spaces, or common surfaces, most elevate risk. Our proposed system uses GPS points collected from users' devices and can be extended to use Bluetooth to indicate locations visited as well. It is worth noting that GPS has limited accuracy, especially in dense urban environments or multi-story buildings. But even detecting whether a user spent sustained time in a crowd or multistory building with a diagnosed carrier may be useful, due to the heightened likelihood of sharing not only space but surfaces such as door handles or elevator buttons, which help a virus spread [16] . For this reason, we propose a probabilistic risk assessment based on the amount of time and number of places that a user shared with a disease carrier, which we call \"points of contact\".",
+            "cite_spans": [
+                {
+                    "start": 799,
+                    "end": 803,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Probabilistic risk assessment"
+        },
+        {
+            "text": "Below we provide a high-level overview of our system and walk through an illustrated example.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "Our proposed system follows four (4) steps, namely (1) data collection, (2) redaction and transformation of data, (3) secure data exchange, and (4) risk assessment and notification. We expand upon these steps below (see Figure 1 ).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 220,
+                    "end": 228,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "System overview"
+        },
+        {
+            "text": "Step 1: Data collection. An application (app), installed on the mobile device of the user, collects timestamped GPS points throughout the user's day, every t minutes. The sequence of points represents their location history.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "Step 2: Redaction and transformation of data. All collected location histories are redacted, transformed, and encrypted before leaving the device, to protect user privacy. In the case that a user is diagnosed, their points are transformed and shared with the server in a way that maintains their privacy. Collected points are deleted from both devices and servers d days after they were collected, where d is the period of possible disease transmission informed by medical experts. (4) individualized risk assessment and notification, as well as the distribution of aggregated data to create a 'heatmap' to inform the public of more general risk. A more detailed description of the process includes usage of discrete spatiotemporal 'point intervals' and 'a private set intersection protocol and is described later on in this paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "Step 3: Secure data exchange. In this phase, using the agreed secure data exchange mechanism, the mobile app (acting as the client) establishes a secure channel with the designated server. Within this secure channel, the mobile application requests the server for the 'point interval' data of known infected carriers for a chosen duration of time (e.g. the last 2 weeks) for a given region (e.g. Boston).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "The infected carriers' data in the server's possession is anonymized and has already undergone redaction and transformation to remove sensitive information to limit the risk for reidentification, and contains no personally-identifying information (PII).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "Users' apps can check whether they came in contact with carrier users, and how often, while preserving privacy. This is done with a cryptographically secure \"private set intersection\" (PSI) protocol to find matches between encrypted 'point intervals' for carriers and other users.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "Step 4: Risk assessment and notification. The app assesses risk for its user based on the points of contact it found via (3) and can notify users of risk. Users whose apps find them at risk due to contact with carriers can then be encouraged to get tested or self-quarantine. The app can optionally show the user where and when the points of contact occurred.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System overview"
+        },
+        {
+            "text": "This process is also illustrated above in Figure 1 . We expand upon the steps 2 and 3 in the following section.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 42,
+                    "end": 50,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "System overview"
+        },
+        {
+            "text": "As GPS points are collected by a user's device, sensitive areas are removed through either automatic redaction or manually by the user. Redaction is an important privacy step, as knowledge about where someone was when, or where they commonly spend time, such as their home area, can be used to re-identify pseudo-anonymized users [17, 18] .",
+            "cite_spans": [
+                {
+                    "start": 330,
+                    "end": 334,
+                    "text": "[17,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 335,
+                    "end": 338,
+                    "text": "18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "The system provides two methods of redaction: automatic and manual. Home areas can be easily inferred by the app based on where users spend time in the nighttime, and these can be automatically redacted. In addition, the app can provide the user with an interface to mark additional sensitive areas for redaction. Any GPS point collected within an area marked for redaction is deleted and not shared. To further protect the user's privacy, this redaction happens on the user's device and the remaining points are then transformed or obfuscated before they are stored. Redacting and modifying GPS points on the device, rather than after points are shared, is an important privacy measure to prevent users from being coerced into providing information on where they have been.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "If a mobile app user is diagnosed as a carrier (e.g. by professional medical personnel), the proposed system provides two different ways for that user to anonymously share their GPS points to provide important information to healthcare professionals, other system users, and the general public.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "The two GPS transformations that support these different use cases are:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "(a) GPS points are replaced by larger geographic areas that contain them to represent the areas where carriers spent time and when, without representing precise locations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "(b) Precise timestamped GPS points are transformed into \"point intervals\" and obfuscated using a one-way hash function (e.g. NIST standard SHA256 hash algorithm).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "The first way (a) is used for the aggregated view of data that we previously described as a motivating first step. The granularity level can be dialed-up or dialed-down depending on the circumstances. The more fine-grain granularity means an increase in likelihood that the user can be re-identified.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "The second way (b) is used for contact tracing. This use case is where we make a new contribution with our approach to finding points of contact while preserving privacy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "The two different use cases that (a) and (b) serve are both central to this work as they will both be invaluable to containing the spread of infectious disease such as COVID-19. However the remainder of this document focuses on (b), as it is our main contribution and requires explanation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Storing and sharing GPS histories"
+        },
+        {
+            "text": "The proposed system is designed around a model that assumes there is a semi-trusted authority maintaining the server with diagnosed carriers' redacted location histories. Such semi-trusted authorities could be local hospitals or local government agencies chartered and regulated to hold citizen data and maintain data privacy. We believe that a common goal -one that would make the proposed system usable while preserving individual privacy -is to minimize the amount of information from a diagnosed carrier that is exposed to other users and to the semi-trusted authority.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust and privacy model"
+        },
+        {
+            "text": "The proposed system is designed to minimize the amount of diagnosed carriers' information that is exposed, and to maximize the privacy for all other users of the system. These other users need not share any of their location data in order to find points of contact with diagnosed users. However, diagnosed users do risk forfeiting some privacy when they share their location histories with the authority managing the server 5 . Even though they only share their redacted and encrypted location data, given enough computational resources and malicious intent, the managing authority can attempt to circumvent these measures and reconstruct location history data and re-identify users 6 .",
+            "cite_spans": [
+                {
+                    "start": 683,
+                    "end": 684,
+                    "text": "6",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Trust and privacy model"
+        },
+        {
+            "text": "There is a clear need for a governance model regarding this data collection and use. For example, data should be deleted d days after it was shared, where d is the number of days the diagnosed user could have transmitted the virus before sharing their location history. There also needs to be a legal framework in place to end the practice of collecting data in this way once the health crisis is under control 7 .",
+            "cite_spans": [
+                {
+                    "start": 411,
+                    "end": 412,
+                    "text": "7",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Trust and privacy model"
+        },
+        {
+            "text": "That said, we must also acknowledge that governments already have access to the massive amounts of location data that our proposed system would collect. Location histories are already collected by apps on users' smartphones, and the cellular towers they connect to, and through credit card purchases.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Trust and privacy model"
+        },
+        {
+            "text": "Our proposed system broadly involves data collection followed by a method to deterministically construct hashed spatiotemporal intervals that discrete points in users' location histories are mapped to. These intervals are then used with a private set intersection protocol to inform users when points in their location histories match the points in the location histories of diagnosed carriers. We discuss these steps in the following sections.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Technical description"
+        },
+        {
+            "text": "Timestamped GPS points are collected within user devices as they move throughout their day. These points are collected as tuples of latitude, longitude, and time: (latitude, longitude, time). A user's app checks for matches between their collected points and the points shared by users who were diagnosed as carriers in order to identify points of contact.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Collecting and representing GPS points"
+        },
+        {
+            "text": "For privacy purposes, GPS points are never directly compared in order to find these matches. Timestamped GPS points are instead first mapped to a 3-dimensional grid, where two dimensions are for geographic space (latitude and longitude), and the third dimension is time. We call these 3dimensional grid cells 'point intervals'. The point intervals are then obfuscated with a deterministic one-way hash function. Identifying points of contact becomes a matter of matching hashed point intervals. Transforming GPS histories in this way to map (latitude, longitude, time) points that occur within a continuous spatiotemporal space into discrete 'point intervals' makes comparing obfuscated GPS histories possible. It also makes sense for our use case of finding (short) time intervals where users occupied the same spatial area 8 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Partition space and time into intervals"
+        },
+        {
+            "text": "There are established ways to partition a geographic space, such as with geohashes 9 for square grid cells or with the hexagonal global geospatial indexing system of H3 grid 10 .",
+            "cite_spans": [
+                {
+                    "start": 174,
+                    "end": 176,
+                    "text": "10",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Partition space and time into intervals"
+        },
+        {
+            "text": "Similarly, time can be partitioned into intervals. For example, if an interval size is 2 minutes, then an interval boundary can always fall on the hour, and on the 2nd minute of the hour, and so 7 We have examples to be wary of regarding measures taken in times of crisis that extend indefinitely. Israel declared a state of emergency during its 1948 War of Independence, justifying a range of \"temporary\" measures that removed individual freedoms. They won the War of Independence but never declared their state of emergency over, and many of the \"temporary\" measures are ongoing [20] . Israel recently approved cellphone tracking for its COVID-19 patients [21] . Similarly COVID-19 surveillance innovations in China are likely to be used by China's counterterrorism forces beyond the pandemic to further monitor and regulate the movement of its people. Consider the Uighur people. The Chinese government has categorized this ethnic group as terrorists and has subjected many of them to forced labor [22] . 8 Phones collect GPS data with limited accuracy and therefore trying to match users across spatial areas with radii too small will miss points of contact. 9 https://en.wikipedia.org/wiki/Geohash 10 https://h3geo.org/ on. The 3-dimensional grid of point intervals is an underlying system parameter (or logical \"map\") that is agreed-upon and shared across all user devices in the system. The specific partition scheme and interval sizes used are implementation details. What matters more is that the chosen partition scheme and the geographic and temporal resolution used are consistent across devices.",
+            "cite_spans": [
+                {
+                    "start": 195,
+                    "end": 196,
+                    "text": "7",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 581,
+                    "end": 585,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 658,
+                    "end": 662,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 1001,
+                    "end": 1005,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1008,
+                    "end": 1009,
+                    "text": "8",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Partition space and time into intervals"
+        },
+        {
+            "text": "We note that when collecting GPS points there is a trade-off between accuracy in detecting points of contact and the amount of data that must be then stored and processed. For example, if data is collected more frequently, the system is more likely to detect when users spend little time near each other, such as sharing a bus ride. However, this requires collecting and storing more data, and hence more compute resources. We also note that the geographic partition of space can be expanded to include specific locations. For example, a bus line might install Bluetooth beacons on its buses with unique identifiers to serve as the geographic portion of point intervals, allowing users with an app that supports this functionality to later detect if they shared a bus ride with a diagnosed carrier.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Partition space and time into intervals"
+        },
+        {
+            "text": "Since the point intervals are transformed with a one-way hash function, they cannot be easily reversed to expose underlying location histories of users.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Checking for matches across obfuscated GPS histories"
+        },
+        {
+            "text": "Yet, since this transformation is deterministic, users' apps can still check for points of contact with diagnosed users by checking for matches between their transformed point intervals and those returned by a server. Verifying whether two individuals came into contact becomes a matter of comparing whether the transformed point intervals that were constructed from timestamped GPS points (latitude, longitude, time) collected by their devices coincide with any of the transformed point intervals provided by the server (as well as adjacent point intervals). 11",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Checking for matches across obfuscated GPS histories"
+        },
+        {
+            "text": "We now describe the protocol that facilitates the private detection of matches across users' GPS histories. We assume that there is a semi-trusted authority (e.g. a local health agency) operating a server. When a patient is diagnosed as a disease carrier, they share their redacted, anonymized, hashed point intervals to the central server. Other users' apps periodically exchange information about their own hashed point intervals with the server to detect if their hashed point intervals match against those shared by diagnosed carriers. They do so with a private set intersection protocol. 11 Technical note about matching against adjacent intervals: Since the partition of geographic space into intervals was predetermined, two points may be close together in space but fall into different intervals. For this reason a user's app checks each of their collected point intervals, as well as the spatially adjacent intervals against the diagnosed carriers' shared point intervals. That is, if we use a spatial grid of hexagons (like H3), a user's collected point falls within a grid cell and that grid cell is used as an interval. We must check that interval as well as the surrounding 6 hexagons in the grid against each data point shared by diagnosed carriers. This adds some complexity in terms of processing power to make the comparisons 7Nu \u00d7 N I rather than just Nu \u00d7 N I .",
+            "cite_spans": [
+                {
+                    "start": 593,
+                    "end": 595,
+                    "text": "11",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Detecting points of contact using private set intersection"
+        },
+        {
+            "text": "Private set intersection (PSI) enables two parties to compute the intersection of their data in a privacy-preserving way, such that only the common data values are revealed. It has applications in a variety of privacy sensitive settings, from measuring conversion rates for online advertising [23] to securely testing sequenced human genomes [24] .",
+            "cite_spans": [
+                {
+                    "start": 293,
+                    "end": 297,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 342,
+                    "end": 346,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Detecting points of contact using private set intersection"
+        },
+        {
+            "text": "In our case, the two parties involved are the server storing the hashed point intervals shared by diagnosed carriers, and another users' device -the client. Their data are their respective hashed point intervals. We can leverage PSI in a way so that only the user learns about the intersection of their data -the server does not learn whether it shares any point intervals in common with the user, while the users' app does learn this. Therefore, our use of PSI is designed to maximize the privacy for users who may be wary of surveillance or who do not fully trust the entities that maintain the server.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Detecting points of contact using private set intersection"
+        },
+        {
+            "text": "There are many PSI schemes that would fit our needs. These different schemes vary in their computational complexity, speed, and accuracy. Researchers have developed fast PSI protocols optimized for a client-server model, including those where the client is a smartphone app [25] and where the server's dataset is significantly larger than the client's [26] , which is the case for our system 12 . A good overview and comparison of PSI protocols can be found in [23] .",
+            "cite_spans": [
+                {
+                    "start": 274,
+                    "end": 278,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 352,
+                    "end": 356,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 461,
+                    "end": 465,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Detecting points of contact using private set intersection"
+        },
+        {
+            "text": "To aid the reader in understanding how PSI supports our privacy goals, we provide a simple scheme using the Diffie-Hellman protocol [27, 28] in Appendix A.",
+            "cite_spans": [
+                {
+                    "start": 132,
+                    "end": 136,
+                    "text": "[27,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 137,
+                    "end": 140,
+                    "text": "28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Detecting points of contact using private set intersection"
+        },
+        {
+            "text": "The use of a PSI protocol adds an extra layer of privacy protection for both the diagnosed carriers and the other users, beyond just the redaction and obfuscation of data 13 .",
+            "cite_spans": [
+                {
+                    "start": 171,
+                    "end": 173,
+                    "text": "13",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PSI benefits and implementation notes"
+        },
+        {
+            "text": "Other users only ever learn points shared by diagnosed carriers that their own points matched with (the intersection P I \u2229 P U ). This further protects the privacy of diagnosed carriers. Moreover, the server need not learn whether any points match; only the other user learns the intersection of P I and P U . This further protects the privacy of undiagnosed users who may be wary of their location histories leaving their device, or being shared with an authority.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PSI benefits and implementation notes"
+        },
+        {
+            "text": "There are implementation details that further enhance privacy and efficiency. For example, servers can hold data for their local geographic regions, so that users with location histories specific to an area (e.g. the Boston area) need not interact with servers holding data specific to a far away region (e.g. the Bay Area in California). This helps subset the data so as to run PSI on a much smaller dataset, thereby helping computational efficiency. In addition, data shared by diagnosed carriers to servers should be deleted after d days, as both a privacy and efficiency measure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PSI benefits and implementation notes"
+        },
+        {
+            "text": "The server should also limit the amount of data that a user's client device can exchange with it. It is only relevant to compare recent location histories (i.e. from the past d days). Since points are partitioned into consistent time intervals, there is therefore an upper bound on the number of points, N, that any app needs to check against the server's set of points, P I . The server can limit the exchanges with any client to N points per exchange, and limit the number of queries per day. This limitation is important for preventing privacy attacks where an adversary might attempt querying over the entire spatiotemporal grid to reconstruct the location histories of diagnosed carriers. It also reduces the computational burden for servers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PSI benefits and implementation notes"
+        },
+        {
+            "text": "A user's app can assess their risk of infection based on the comparison (performed on the user's device) between the point intervals on the user's device with those received from the server. Users whose apps find them at reasonable risk can then be encouraged to get tested or self quarantine.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assessing risk and notifying users"
+        },
+        {
+            "text": "The implementation of our system can differ to either allow the app to learn just the number of points of contact that occured, or where and when points of contact occurred. These different implementations have different implications for the privacy and utility that our system can offer to its users.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assessing risk and notifying users"
+        },
+        {
+            "text": "The number of detected points of contact is related to how likely a user was to have spent sustained time in spaces shared with diagnosed users, so the number of detected points of contact is commensurate with risk and can be used to provide a risk assessment. When the locations of points of contact are known, the risk assessment can leverage context about these locations, such as whether they are confined spaces with few people versus multi-story office buildings versus outdoor parks. Future work can further incorporate intelligence into the risk assessment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assessing risk and notifying users"
+        },
+        {
+            "text": "Given the urgency of the COVID-19 pandemic, we note that intermediary steps can be taken to implement the system we describe. Even before a secure server is set up to perform the private set intersection (PSI) protocol, hashed point intervals for diagnosed carriers can be published to a flat data file for other users to download. While this would speed up implementation, privacy guarantees would be diminished in this case, as attackers can attempt to create points representing every potential point interval to check for matches. Attackers could then attempt to reconstruct location histories of users diagnosed as carriers and possibly re-identify them from their shared anonymized data. While the redaction step would decrease the likelihood of an attacker's success, some privacy risk remains. Finally, this intermediary implementation with a flat data file can then be subsequently transitioned to the more secure implementation using a PSI protocol.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intermediary implementation"
+        },
+        {
+            "text": "We proposed a technical design to address the problem of assessing users' risk of disease exposure with location histories. Our proposal is in response to existing digital contact tracing technologies, with an approach that better preserves the privacy of individuals.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "We are encouraged by other recent privacy-sensitive proposals for contact tracing [29, 15, 1, 3] . Some of these even extend our notions of privacy by removing the need for trust in authorities who might abuse their access to diagnosed patients' encrypted data and violate their privacy. However, these systems are more complex and require more infrastructure and coordination, making them more difficult to implement. Our goal is to propose a system that is more privacy-preserving than the contact tracing technologies that we see governments around the world adopting, but that can also be practically implemented with the immediacy needed to both stem the spread of disease and stem the adoption of privacy-violating technologies.",
+            "cite_spans": [
+                {
+                    "start": 82,
+                    "end": 86,
+                    "text": "[29,",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 87,
+                    "end": 90,
+                    "text": "15,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 91,
+                    "end": 93,
+                    "text": "1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 94,
+                    "end": 96,
+                    "text": "3]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Importantly, any implemented system, based on Bluetooth or GPS, should be opt-in, and clearly communicate to users how it collects, retains, and uses data, to provide users the opportunity to weigh the trade-off between their individual privacy risk posed by sharing information with the system and the ongoing risk the pandemic poses.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "In addition to the trade-offs between privacy, effectiveness, and the speed of implementation for these technologies, we must consider adoption. None of these systems can have widespread impact without extensive adoption. To expand system adoption, the proposed app's technology can be developed as an SDK (software development kit) and integrated into partnering applications that already collect user location histories, such as Google Maps. These partner applications can then ask the user for the extra permissions and consent for this system's use case. There are many such applications that already collect user location histories in the background. They often use this information to serve the user more relevant advertisements and content. This data is used to improve the user experience but more often serves private profit. Now, in the face of the COVID-19 pandemic, is the time for industry and researchers to come together and for the ubiquitous collection of location data to serve the public good. At the same time, we must avoid building any new surveillance systems to serve as short-term emergency measures that can last beyond a time of crisis. This protocol allows for flexibility in terms of whether it allows a client to learn which of its points have matches versus how many of its points have matches. At step (3) of the protocol the server further encrypts the data received from the client, H(PU)a, and returns H(PU)ab. If the server maintains the order in the sequence of points intervals, then the client can then learn exactly which hashed point intervals in the sequence it sent to the server, H(P U ) a = [H(p U 1 ) a , H(p U 1 ) a , ...H(p U n ) a ] match against items in the server's encrypted data, H(P I ) ba . If the server instead shuffles the sequence before returning it in step (3), then the client can learn how many of its point intervals match against the server's data, but not which ones do.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "We described a simple protocol in order to more easily explain how our system can operate. Optimizations can be made for efficiency. For example, the server can reuse its private key, b, and set of encrypted data across multiple interactions with different clients. It can refresh this key and re-encrypt its data periodically, or as new data is shared by diagnosed carriers or deleted as it becomes old. Decreasing how often the server encrypts its data can increase its efficiency. Faster PSI protocols have been developed, including those that optimize for the exchange of information between a server and client, particularly where the server has a much larger set of data than the client, such as in our use case [30, 26] .",
+            "cite_spans": [
+                {
+                    "start": 718,
+                    "end": 722,
+                    "text": "[30,",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 723,
+                    "end": 726,
+                    "text": "26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Community epidemiology in action",
+            "authors": [
+                {
+                    "first": "Dana",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Lewis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Akhil Veeraghanta, Mikhail Voloshin, Sydney Von Arx, and Tina White",
+            "authors": [
+                {
+                    "first": "Rhys",
+                    "middle": [],
+                    "last": "Fenwick",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mike",
+                    "middle": [],
+                    "last": "Hittle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mark",
+                    "middle": [],
+                    "last": "Ingle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Oliver",
+                    "middle": [],
+                    "last": "Nash",
+                    "suffix": ""
+                },
+                {
+                    "first": "Victoria",
+                    "middle": [],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "James",
+                    "middle": [],
+                    "last": "Petrie",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jeff",
+                    "middle": [],
+                    "last": "Schwaber",
+                    "suffix": ""
+                },
+                {
+                    "first": "Zsombor",
+                    "middle": [],
+                    "last": "Szabo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Apps gone rogue: Maintaining personal privacy in an epidemic",
+            "authors": [
+                {
+                    "first": "Ramesh",
+                    "middle": [],
+                    "last": "Raskar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Isabel",
+                    "middle": [],
+                    "last": "Schunemann",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rachel",
+                    "middle": [],
+                    "last": "Barbar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kristen",
+                    "middle": [],
+                    "last": "Vilcans",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jim",
+                    "middle": [],
+                    "last": "Gray",
+                    "suffix": ""
+                },
+                {
+                    "first": "Praneeth",
+                    "middle": [],
+                    "last": "Vepakomma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Suraj",
+                    "middle": [],
+                    "last": "Kapa",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andrea",
+                    "middle": [],
+                    "last": "Nuzzo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rajiv",
+                    "middle": [],
+                    "last": "Gupta",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alex",
+                    "middle": [],
+                    "last": "Berke",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.08567"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Covid-19: Cases in singapore",
+            "authors": [],
+            "year": 2020,
+            "venue": "Government Digital Services",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "South korea is reporting intimate details of covid-19 cases: has it helped?",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zastrow",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The New York Times. Coronavirus in the u.s.: Latest map and case count",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Coronavirus covid-19 global cases",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Coronavirus disease 2019",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Israel approves cellphone tracking for coronavirus patients as cases rise to 213",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Haaretz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "In coronavirus fight, china gives citizens a color code",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Unique in the shopping mall: On the reidentifiability of credit card metadata",
+            "authors": [
+                {
+                    "first": "Yves-Alexandre De",
+                    "middle": [],
+                    "last": "Montjoye",
+                    "suffix": ""
+                },
+                {
+                    "first": "Laura",
+                    "middle": [],
+                    "last": "Radaelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "Vivek Kumar",
+                    "middle": [],
+                    "last": "Singh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Science",
+            "volume": "347",
+            "issn": "6221",
+            "pages": "536--539",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Cen proposals for privacy-preserving distributed contact tracing",
+            "authors": [
+                {
+                    "first": "Sourabh",
+                    "middle": [],
+                    "last": "Niyogi",
+                    "suffix": ""
+                },
+                {
+                    "first": "James",
+                    "middle": [],
+                    "last": "Petrie",
+                    "suffix": ""
+                },
+                {
+                    "first": "Scott",
+                    "middle": [],
+                    "last": "Leibrand",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jack",
+                    "middle": [],
+                    "last": "Gallagher",
+                    "suffix": ""
+                },
+                {
+                    "first": "Manu",
+                    "middle": [],
+                    "last": "Hamish",
+                    "suffix": ""
+                },
+                {
+                    "first": "Zsombor",
+                    "middle": [],
+                    "last": "Eder",
+                    "suffix": ""
+                },
+                {
+                    "first": "George",
+                    "middle": [],
+                    "last": "Szabo",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Danezis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Cen proposals for privacy-preserving distributed contact tracing",
+            "authors": [
+                {
+                    "first": "Sourabh",
+                    "middle": [],
+                    "last": "Niyogi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Scott",
+                    "middle": [],
+                    "last": "Leibrand",
+                    "suffix": ""
+                },
+                {
+                    "first": "Dana",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Lewis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Contact tracing mobile apps for covid-19: Privacy considerations and related trade-offs",
+            "authors": [
+                {
+                    "first": "Hyunghoon",
+                    "middle": [],
+                    "last": "Cho",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daphne",
+                    "middle": [],
+                    "last": "Ippolito",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yun",
+                    "middle": [
+                        "William"
+                    ],
+                    "last": "Yu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.11511"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Persistence of coronaviruses on inanimate surfaces and its inactivation with biocidal agents",
+            "authors": [
+                {
+                    "first": "G\u00fcnter",
+                    "middle": [],
+                    "last": "Kampf",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Todt",
+                    "suffix": ""
+                },
+                {
+                    "first": "Stephanie",
+                    "middle": [],
+                    "last": "Pfaender",
+                    "suffix": ""
+                },
+                {
+                    "first": "Eike",
+                    "middle": [],
+                    "last": "Steinmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Hospital Infection",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "On the anonymity of home/work location pairs",
+            "authors": [
+                {
+                    "first": "Philippe",
+                    "middle": [],
+                    "last": "Golle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kurt",
+                    "middle": [],
+                    "last": "Partridge",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "International Conference on Pervasive Computing",
+            "volume": "",
+            "issn": "",
+            "pages": "390--397",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Inference attacks on location tracks",
+            "authors": [
+                {
+                    "first": "John",
+                    "middle": [],
+                    "last": "Krumm",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "International Conference on Pervasive Computing",
+            "volume": "",
+            "issn": "",
+            "pages": "127--143",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "-Can-I-say-no-to-uploading-my-TraceTogether-data-when-contacted-by-the-Ministry-of-H note = Accessed",
+            "authors": [
+                {
+                    "first": "Trace",
+                    "middle": [],
+                    "last": "Team",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Together",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "The world after coronavirus",
+            "authors": [
+                {
+                    "first": "Yuval",
+                    "middle": [],
+                    "last": "Noah Harari",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Financial Times",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Israel to track mobile phones of suspected coronavirus cases. The Guardian",
+            "authors": [
+                {
+                    "first": "Oliver",
+                    "middle": [],
+                    "last": "Holmes",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Coronavirus and surveillance tech: how far will gov'ts go and will they stay when they get there",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Shui-Yin Sharon Yam",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Phasing: Private set intersection using permutation-based hashing",
+            "authors": [
+                {
+                    "first": "Benny",
+                    "middle": [],
+                    "last": "Pinkas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gil",
+                    "middle": [],
+                    "last": "Segev",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Zohner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "24th {USENIX} Security Symposium ({USENIX} Security 15)",
+            "volume": "",
+            "issn": "",
+            "pages": "515--530",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Countering gattaca: Efficient and secure testing of fully-sequenced human genomes (full version)",
+            "authors": [
+                {
+                    "first": "Pierre",
+                    "middle": [],
+                    "last": "Baldi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Roberta",
+                    "middle": [],
+                    "last": "Baronio",
+                    "suffix": ""
+                },
+                {
+                    "first": "Emiliano",
+                    "middle": [],
+                    "last": "De Cristofaro",
+                    "suffix": ""
+                },
+                {
+                    "first": "Paolo",
+                    "middle": [],
+                    "last": "Gasti",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gene",
+                    "middle": [],
+                    "last": "Tsudik",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1110.2478"
+                ]
+            }
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Mobile private contact discovery at scale",
+            "authors": [
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Kales",
+                    "suffix": ""
+                },
+                {
+                    "first": "Christian",
+                    "middle": [],
+                    "last": "Rechberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "Matthias",
+                    "middle": [],
+                    "last": "Senker",
+                    "suffix": ""
+                },
+                {
+                    "first": "Christian",
+                    "middle": [],
+                    "last": "Weinert",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "28th {USENIX} Security Symposium ({USENIX} Security 19)",
+            "volume": "",
+            "issn": "",
+            "pages": "1447--1464",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Private set intersection for unequal set sizes with mobile applications",
+            "authors": [
+                {
+                    "first": "\u00c1gnes",
+                    "middle": [],
+                    "last": "Kiss",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jian",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Asokan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benny",
+                    "middle": [],
+                    "last": "Pinkas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings on Privacy Enhancing Technologies",
+            "volume": "2017",
+            "issn": "",
+            "pages": "177--197",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "New directions in cryptography",
+            "authors": [
+                {
+                    "first": "Whitfield",
+                    "middle": [],
+                    "last": "Diffie",
+                    "suffix": ""
+                },
+                {
+                    "first": "Martin",
+                    "middle": [],
+                    "last": "Hellman",
+                    "suffix": ""
+                }
+            ],
+            "year": 1976,
+            "venue": "IEEE transactions on Information Theory",
+            "volume": "22",
+            "issn": "6",
+            "pages": "644--654",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Enhancing privacy and trust in electronic communities",
+            "authors": [
+                {
+                    "first": "Matt",
+                    "middle": [],
+                    "last": "Bernardo A Huberman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tad",
+                    "middle": [],
+                    "last": "Franklin",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Hogg",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Proceedings of the 1st ACM conference on Electronic commerce",
+            "volume": "",
+            "issn": "",
+            "pages": "78--86",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Anonymous collocation discovery:taming the coronavirus while preserving privacy",
+            "authors": [
+                {
+                    "first": "Ran",
+                    "middle": [],
+                    "last": "Canetti",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ari",
+                    "middle": [],
+                    "last": "Trachtenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mayank",
+                    "middle": [],
+                    "last": "Varia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Fast private set intersection from homomorphic encryption",
+            "authors": [
+                {
+                    "first": "Hao",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kim",
+                    "middle": [],
+                    "last": "Laine",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Rindal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security",
+            "volume": "",
+            "issn": "",
+            "pages": "1243--1255",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "The client encrypts the user's hashed point intervals, H(P U ), with a and sends this data to the server",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "The server encrypts its stored hashed point intervals, H(P I ), with b and sends this data to the client",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Server \u2192 Client : H(P I ) b = [H(p I1 ) b , H(p I1 ) b , ...H(p Im ) b ]modp",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Upon receiving the encrypted hashed point intervals sent by the client H(P U ) a , the server further encrypts this data with its key b and sends the result back to the client",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "The client receives both H(P I ) b and H(P U ) ab . The client then further encrypts H(P I ) b with its key a to create H(P I ) ba = [H(p I1 ) ba , H(p I1 ) ba",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "The client can then compute the set intersection by comparing the elements of H(P U ) ab and H(P I ) ba",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Due to the multiplicative properties of the group, any matching H(p U ) and H( I ) values will have matching H(p U ) ab and H(p I ) ba values. This means that if the client has any point intervals that match point intervals shared to the server, p U = p I , then H(p U ) ab = H(p I ) ba",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "High-level schematic showing the major steps in the system's process for privacy-preserving contact tracing: (1) data collection, (2) redaction and transformation of data, (3) secure data exchange, and",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "A geographic area partitioned by a hexagonal H3 grid. Points are mapped to an index corresponding to their containing grid cell.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "This figure shows our private set intersection (PSI) protocol based on Diffie-Hellman key exchange. The intersection is done on encrypted point intervals corresponding to the client's and carrier's location traces. The encrypted point intervals from diagnosed carriers are stored in a server. Only the client device learns the intersection of data, where the intersection is the set of point intervals it has in common with the point intervals on the server (P U \u2229 P I ). Points in (P U \u2229 P I ) are represented in (H(P U ) ab \u2229 H(P I ) ba ).",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We thank Thomas Hardjono, Dan Calacci, Ethan Zuckerman, and Robert Obryk for contributing their ideas and critiques, and we thank Connection Science and Media Lab sponsors for their support.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        },
+        {
+            "text": "A An example private set intersection protocol using Diffie-Hellman Below we outline an example of how our system would work with a simple Diffie-Hellman PSI protocol. Note that the actual implementation may differ from this example. Our description assumes familiarity with Diffie-Hellman, modular arithmetic and concepts from cryptography such as the discrete log problem. Readers can otherwise skip this section to the PSI protocol summary below. Before we walk through this PSI protocol, we clarify the problem and notation.Notation and Problem Statement: We call a point interval p, and a collected sequence of point intervals P = [p 1 , p 2 , ...]. We call the users' point intervals that are collected by their device P U . We call the point intervals collected for diagnosed carriers and later shared with the server P I . As we noted earlier, each point interval is encrypted by a commonly shared deterministic hash function, which we call H. This means that a user's phone really stores H(P U ) = [H(p U 1 ), H(p U 1 ), ...H(p U n )], and the server storesIf a user has a point interval matching one shared by a diagnosed carrier, i.e. p U i = p Ij for some p U i in P U collected by the user's device, and some p Ij in P I collected by a diagnosed carriers' device and later shared to the server, then the encrypted hashes of these point intervals match as well.Consider H(P U ) as a set which is stored on the user's device, and H(P I ) as a set stored on the server. The problem is then to allow the user's app to learn the set intersection of H(P U ) and H(P I ).Protocol: Our described use of Diffie-Hellman is written with the multiplicative group of integers modulo p, where p is prime, and g is a primitive root modulo p.Setup: The server and the client user's device have an agreed upon modulus, p, and base of the multiplicative group, g. The server and client each generate secret private keys, a and b, respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "annex"
+        }
+    ]
+}

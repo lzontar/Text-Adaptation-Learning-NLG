@@ -1,0 +1,2320 @@
+{
+    "paper_id": "00dd17fcbf34e0cb84272565ac52768cf14d42da",
+    "metadata": {
+        "title": "Handling Impossible Derivations During Stream Reasoning",
+        "authors": [
+            {
+                "first": "Hamid",
+                "middle": [
+                    "R"
+                ],
+                "last": "Bazoobandi",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Vrije Universiteit Amsterdam",
+                    "location": {
+                        "settlement": "Amsterdam",
+                        "country": "The Netherlands"
+                    }
+                },
+                "email": "h.bazoubandi@vu.nl"
+            },
+            {
+                "first": "Henri",
+                "middle": [],
+                "last": "Bal",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Vrije Universiteit Amsterdam",
+                    "location": {
+                        "settlement": "Amsterdam",
+                        "country": "The Netherlands"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Frank",
+                "middle": [],
+                "last": "Van Harmelen",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Vrije Universiteit Amsterdam",
+                    "location": {
+                        "settlement": "Amsterdam",
+                        "country": "The Netherlands"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Jacopo",
+                "middle": [],
+                "last": "Urbani",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Vrije Universiteit Amsterdam",
+                    "location": {
+                        "settlement": "Amsterdam",
+                        "country": "The Netherlands"
+                    }
+                },
+                "email": "jacopo@cs.vu.nl"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "With the rapid expansion of the Web and the advent of the Internet of Things, there is a growing need to design tools for intelligent analytics and decision making on streams of data. Logic-based frameworks like LARS allow the execution of complex reasoning on such streams, but it is paramount that the computation is completed in a timely manner before the stream expires. To reduce the runtime, we can extend the validity of inferred conclusions to the future to avoid repeated derivations, but this is not enough to avoid all sources of redundant computation. To further alleviate this problem, this paper introduces a new technique that infers the impossibility of certain derivations in the future and blocks the reasoner from performing computation that is doomed to fail anyway. An experimental analysis on microbenchmarks shows that our technique leads to a significant reduction of the reasoning runtime.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In highly dynamic environments like the Web or the Internet of Things, there are many use cases that require an efficient processing of large streams of data to provide complex data analytics or intelligent decision making. For instance, the content of the stream can be used to make predictions about future behaviors (e.g., financial market movement), or to build an accurate representation of the current environment (e.g., crowd control).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In some cases, a semantic-oriented approach is needed to process the stream. An example is given by autonomous driving, which is currently one of the most prominent frontiers of AI. As it was recently shown by Suchan et al. [31] , there are situations that cannot (yet) be handled by deep-learning-based computer vision techniques, and this can lead to safety concerns. The occlusion scenario is an example of such a situation. This scenario occurs when another vehicle, which is clearly visible in close proximity, suddenly disappears and reappears shortly after (e.g., due to the steering of a third vehicle). When this event occurs, a system that relies only on the input provided by computer vision might erroneously conclude that the vehicle is no longer in close proximity, and consequently act on this false premise. Humans, in contrast, (usually) apply some logic-based reasoning and conclude that the vehicle is still nearby although it is hidden.",
+            "cite_spans": [
+                {
+                    "start": 224,
+                    "end": 228,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Suchan et al. mention this scenario to motivate the need for semantics and logic-based reasoning of temporal data. Currently, one of the most prominent frameworks for this type of processing is LARS [5] . LARS is ideal for use cases like the aforementioned one. First, its semantics is grounded on Answer Set Programming (ASP); thus it provides an AI that is explainable by design, which means that it can be used also by non experts or audited by regulators. Second, LARS offers a variety of operators that are specifically designed for modeling streams to allow the execution of complex reasoning without making it harder than it is in ASP. For instance, LARS offers window operators that allow the restriction of the analysis to the last data in the stream, or other operators like @ which specifies when a derived conclusion will be valid.",
+            "cite_spans": [
+                {
+                    "start": 199,
+                    "end": 202,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Since often the data in the stream expires after a short amount of time, it is paramount that reasoning is performed in a timely manner. Recently, several works have used LARS to implement stream reasoning that reconciles the expressivity of LARS with high performance. One of such reasoner is Ticker [6] , while a more recent distributed implementation is presented in [14] . Another of such reasoners is Laser, which we presented in a previous paper [4] . Laser distinguishes itself from the previous two by focusing on a smaller and more tractable fragment of LARS called Plain LARS. Another distinctive feature is that Laser introduces a new technique that annotates the formulae with two timestamps, called consideration and horizon times, to extend the validity of the formulae in the future to avoid that they are re-derived at each time point. This technique is particularly effective when the body of the rules contains the LARS operators 3 (validity at some time point) or @ (validity at one specific time point), and it can lead to significantly faster runtimes. However, this technique does not work with the operator 2 (validity at all time points) because the semantics of this operator is such that the validity cannot be guaranteed in the future.",
+            "cite_spans": [
+                {
+                    "start": 301,
+                    "end": 304,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 370,
+                    "end": 374,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 452,
+                    "end": 455,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper, we present a new technique to further limit the number of redundant derivations. Our technique targets formulae for which the consideration and horizon timestamps are not effective (i.e., the rules that use the 2 operator). The main idea is to identify the cases when it will be impossible to produce some derivations in the future and to use this knowledge to disable rules that won't be able to produce any new conclusion. For example, consider the LARS rule 3 2p(a) \u2192 q(a). This rule specifies that if the fact p(a) appears in the stream in last three time points, then we can infer q(a). In this case, if the stream does not contain p(a) at the current time point, then we can conclude that for the next three time points the rule will never be able to infer q(a), thus making it an \"impossible derivation\". Since we know that it is impossible that q(a) will be derived, we can disable the rule and simplify reasoning. Moreover, if other rules use q(a) in their body, then they can also be disabled, with a further improvement of the performance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We have implemented our technique in a new reasoner called Laser2, which is a completely rewritten Plain LARS reasoner in Golang. Our experiments show that our technique returns significant improvements in terms of runtime. The code of Laser2 and other evaluation data can be found at at https://bitbucket. org/hrbazoo/laser.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We start our discussion with some background notions on logic programming and LARS [5] . Let C, V, P be disjoint sets of constants, variables, and predicates. A predicate p can be either extensional or intensional and it is associated to a fixed arity ar(p) \u2265 0. A term is either a constant or variable. An atom is an expression of the form p(t) where p is a predicate, t = t 1 , . . . , t n is a list of terms and n = ar(p). A ground expression is an expression without any variable. A fact is a ground atom.",
+            "cite_spans": [
+                {
+                    "start": 83,
+                    "end": 86,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "Let A be the set of all facts we can construct from P and C and let A E \u2286 A be the subset of facts with extensional predicates. A timeline T is a closed nonempty interval in the set of natural numbers N. We refer to each member in a timeline as a time point. Abusing notation, we write t \u2208 T to indicate a generic time point in T. We are now ready to define the notion of stream. ) is a pair of a timeline and evaluation func-",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 380,
+                    "end": 381,
+                    "text": ")",
+                    "ref_id": null
+                }
+            ],
+            "section": "Background"
+        },
+        {
+            "text": "Intuitively, v is used to map time points to sets of facts. We say that S is a data stream if v maps only to atoms in A E . Also, a stream is ground if v maps only to facts. Finally, we say that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "w is a computable function which receives in input a stream S and a time point t and returns in output a stream S \u2286 S. LARS proposes several window functions: a time-based window function w n returns a substream that filters out all the atoms that are not in t or in the previous n \u2212 1 time points; a tuple-based window function returns a substream with the last n facts, etc. In this paper, we consider only time-based windows functions, and leave an extension of our technique to other types of window functions as future work.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "In this paper, we focus on a fragment of LARS called Plain LARS [4] . Plain LARS restricts some features of LARS in order to enable a fast computation. In Plain LARS, an extended atom \u03b1 is a formula that complies with the grammar",
+            "cite_spans": [
+                {
+                    "start": 64,
+                    "end": 67,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "where t \u2208 N, a is an atom, @ is an operator that specifies that a holds at t, n is used to restrict the stream using the time-based window w n , 3 states that a should hold at least in one time point, while 2 states that a should hold at every time point. A (ground) rule is an expression of the form:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "where B 1 , . . . , B m are (ground) extended atoms, and H is a (ground) extended atom that is either an atom or of the form @ t a. A (ground) program is a finite set of (ground) rules. Let r be a rule as shown in (1) . Throughout, we use the shortcut B(r) (body) to refer to the left-side of the rule and H(r) (head) for the right-side.",
+            "cite_spans": [
+                {
+                    "start": 214,
+                    "end": 217,
+                    "text": "(1)",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "We first define the semantics for ground programs. Let M = S, w n , B be a structure where S = (T, v) is a ground stream of facts in A, w n is the time-based window function, B \u2286 A is a set of facts called background knowledge. Then, M entails \u03b1 at time point t, denoted as M, t \u03b1, as follows: The semantics of a non ground program P (i.e., a program where some rules contain variables) equals to the semantics of the ground program that is obtained by grounding all rules in P with all possible substitutions in C. For instance, if",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "Given an input data stream and a program, our goal is to compute answer streams and return the derivations to the user. We have now all the elements to define the output of our computation. Definition 3. Let S = (T, v) be the answer stream of program P (for D) at time point t. Then, the output is the set v(t)\\A E , that is, the set of all the atoms with intensional predicates that can be inferred by P at t.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "which maps integers to set of atoms in"
+        },
+        {
+            "text": "The example below illustrates the computation performed during LARS reasoning and is useful to provide an intuitive description of our technique. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "that is, a high temperature is observed only at time points 2 and 3 (all other time points are mapped to the empty set).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "Moreover, let us consider a ground program P with the rules",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "Given this input, an answer stream of P for D at time point 2 is the stream",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "is an answer stream at time point 3. In this case, the output will be the set {warning(b 1 )} both at time point 2 and 3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "Since the output of a LARS program is defined with respect to a single time point, the framework does not put any restriction on the order in which the time points should be considered. In Example 1, for instance, a user could decide to compute first the output at time point 3 and then at time point 2. In practice, however, streams are typically evaluated time point after time point.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "This evaluation criterion can be exploited to avoid triggering redundant derivations. In Example 1, a na\u00efve application of rule r 1 will derive warning(b 1 ) twice; both at time point 2 and 3. However, the second derivation can be avoided since we know that warning(b 1 ) will hold at least until time point 12 because r 1 fires if highT emp(b 1 ) appears at least once in the last 10 time points.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "In [4] , it has been shown how we can exploit this observation by annotating the formulae with two timestamps: a consideration and a horizon time. The consideration time identifies the first time point where the formula holds, while the horizon time identifies the last time point where the formula is guaranteed to hold. For instance, at time point 2 the formula 10 3highT emp(b 1 ) is annotated with a consideration time equals to 2 (i.e., the first time point where this formula is inferred). Instead, the horizon time equals to 12 since we know that the body of the rule will hold until 12. The annotated formula with these timestamps is denoted as 10 3highT emp(b 1 ) [2, 12] . From these annotations, it also follows that the fact warning(b 1 ) can be annotated as warning(b 1 ) [2, 12] . Since these two formulae will hold in the future, they are kept in the working memory until the current time point is greater than the horizon time. When this occurs, they expire and can be removed.",
+            "cite_spans": [
+                {
+                    "start": 3,
+                    "end": 6,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 673,
+                    "end": 676,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 677,
+                    "end": 680,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 785,
+                    "end": 788,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 789,
+                    "end": 792,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "When we execute a rule, we can use the annotations to perform a check that is similar to the one of Semi Na\u00efve Evaluation (SNE) [1] -a well-known Datalog technique to reduce the number of duplicate derivations. The idea behind SNE is to block the firing of the rule if no atom that instantiates the body was derived in the previous step. In our setting, we can apply a similar principle and enforce that at least one formula used in the body has a consideration time equal to the current time point. In our example, this constraint will block the application of r 1 at time point 3 because 10 3highT emp(b 1 ) [2, 12] has already been considered.",
+            "cite_spans": [
+                {
+                    "start": 610,
+                    "end": 613,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 614,
+                    "end": 617,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "While the consideration and horizon timestamps are useful to reduce the runtime [4] , their introduced benefit cannot be extended to formulae that use the operator 2. In fact, a formula like 2a holds only if a holds at every time point. Because of this constraint, we are unable to guarantee that it will hold in the future, hence we cannot extend the horizon time.",
+            "cite_spans": [
+                {
+                    "start": 80,
+                    "end": 83,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "The technique presented in this paper aims precisely at overcoming this limitation. The main idea is the following: Although we cannot guarantee that a formula with 2 will hold in the future, sometimes we can guarantee that the formula will not hold. Let us consider again Example 1. At time point 1, the absence of facts with the predicate highT emp in the data stream tells us that rule r 2 will never fire for at least the following three time points. Consequently, also r 3 will never fire and therefore can be safely ignored until time point 4. By doing so, our technique complements the usage of consideration and horizon times by covering the formulae where these two time stamps are not beneficial.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intuition"
+        },
+        {
+            "text": "Algorithm 1 describes the reasoning procedure with our technique enabled to compute the output of a Plain LARS program. Function reason receives in input a data stream D = (T, v D ), background knowledge B and a program P and returns the output on T, i.e., a data structure (Out in Algorithm 1) that contains the output at each time point in T (Out[t 1 ] contains the output at time point t 1 , Out[t 2 ] contains the output at time point t 2 , etc.). The presented algorithm assumes that the user is interested in computing the output at each time point. If this is not the case, then the algorithm can be easily adapted.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "The computation of reason can be divided into four parts:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "\u2022 Init (lines 1-7): In this phase the algorithm initializes various data structures;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "\u2022 EnableRules (lines 9-11): Rules that were previously disabled are re-enabled;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "\u2022 Reasoning (lines [12] [13] [14] : Computes the derivations at a given time point;",
+            "cite_spans": [
+                {
+                    "start": 19,
+                    "end": 23,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 24,
+                    "end": 28,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 29,
+                    "end": 33,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "\u2022 DisableRules (lines 15-23): Rules that won't fire in the future are disabled.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "Init. The procedure uses four global variables. P A contains the active rules, i.e., that are considered during reasoning while P I contains the disabled rules. Initially, P A equals to P while P I is empty (line 7). R is a multimap used to collect the rules that can be invalidated for some time points in the future. We use R to retrieve these rules after we observe that there are no facts derived in the current time point. These rules have a formula of the form x 2p(t) in their body. Let r be such a rule. In this case, R maps p to one tuple of the form r, x which indicates that r can be disabled for x time points (line 5). The variable S refers to another multimap that point to the rules that derive formulae with a given predicate. We use S to decide whether the exclusion of a rule can trigger the exclusion of other ones. Before reasoning starts, it checks whether some rules that were previously disabled can be included again. To this end, the procedure considers all rules in P I which have expired, re-add them to P A , and remove them from P I (lines 10-11).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "Reasoning. Reasoning is computed in lines 12-14. First, it initializes the data structure Out. Then, it computes the answer stream according to Definition 2 and the corresponding output as specified in Definition 3. Note that these are computed using only the rules in P A . Our method is agnostic to the procedure that is used to compute the derivations. In our implementation, we rely on the reasoning procedure specified in [4] , that is the one that uses consideration and horizon timestamps, but one could in principle use any other routine, as long as it computes a valid answer stream.",
+            "cite_spans": [
+                {
+                    "start": 427,
+                    "end": 430,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Formal Description"
+        },
+        {
+            "text": "After the answer stream is computed, we check whether some rules can be disabled. First, we identify all the predicates which do not appear in the output at the current time point (line 15). If there is a body atom with the operator 2 in a rule in P A (line 16), then we remove the rule from P A (line 17) and add it to P I (line 22). When we add r to P I , we also specify the number of time points for which the rule should remain disabled. This number corresponds to the size of the window. If the rule is already disabled (this can occur if r has multiple body atoms with 2), then we use the maximum time point (line 20).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DisableRules."
+        },
+        {
+            "text": "If a rule is disabled, then other rules can be disabled as well. To this purpose, we invoke the function disable, reported in Algorithm 2. The function receives in input the rule that was just removed, i.e., r d , the time point until r d will be disabled, and the current time point. First, we consider further rules only if r d is the only rule that derives facts with the predicate in the head (q, see line 28). If this occurs, then some rules that use q in the body won't be able to fire as well. These are the rules where q appears either as body atom or used with the 2 operator (with other operators, the rule can still fire). We identify such rules in the loop in lines 31-35 with the flag rm. If the flag is enabled, then the rule is disabled until the time point g (lines [36] [37] [38] [39] . Note that if the body atom is used inside a window, then g is updated considering the maximum time point as expiration time point (line 34). After this, the procedure is invoked recursively (termination is ensured because in the worst case all rules in P A are removed and then the recursive call will not occur).",
+            "cite_spans": [
+                {
+                    "start": 782,
+                    "end": 786,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                },
+                {
+                    "start": 787,
+                    "end": 791,
+                    "text": "[37]",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 792,
+                    "end": 796,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 797,
+                    "end": 801,
+                    "text": "[39]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "DisableRules."
+        },
+        {
+            "text": "Let us consider the input in Example 1. At time point 1, the stream is empty. Thus, Out [1] will be equal to v D (1). Therefore, predicate highT emp will be considered in the loop in line 16. The tuple r 2 , 3 is selected and r 2 is disabled by removing it from P A (line 17) and adding the tuple r 2 , 4 to P I (line 22). Then, function disable is invoked. The if condition in line 28 succeeds and the for loop selects rule r 3 to be deactivated. Therefore, in line 37 rule r 3 is also removed and the tuple r 3 , 4 is added to P I . After reasoning at time points 2 and 3, rules r 2 and r 3 will be re-activated at time point 4 by adding them back to P A (line 10) and removing them from P I (line 11). In fact, it is only at this time point that these two rules can fire and produce some derivations.",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 91,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Example 2."
+        },
+        {
+            "text": "The application of our method to Example 1 as shown before illustrates the benefit of our technique: The facts that some atoms were missing in one time point resulted in disabling two rules and for two time points reasoning was performed considering only r 1 , and this can result in a better runtime.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2."
+        },
+        {
+            "text": "We implemented a new reasoner in Golang which includes the optimization introduced in Laser and the technique proposed in this paper. The re-implementation was necessary since the pre-existing implementation of Laser was too prototypical to be extended. Throughout, we refer to the old Laser as \"Laser1\" and to the new implementation as \"Laser2\".",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "Below, we report the results of a number of experiments that we executed to illustrate the benefit introduced by our technique. The experiments can be grouped into four classes:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "\u2022 Ours vs. Laser1 : We compare the runtime vs. our old implementation; \u2022 Runtime single rule (best case): We study the runtime in the best case; \u2022 Runtime single rule (worst case): We study the runtime in the worst case;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "\u2022 Runtime multiple rules: We observe the runtime with multiple rules.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "Although several benchmarks for stream processing exist (e.g., SRBench [38] ) we are not aware of any that supports the operators in LARS and that can be used to stress the techniques introduced in this paper. In order to have full control on the experimental setting and to accurately measure the effects with the various configurations, we created, in a similar fashion as done in [4] , a number of microbenchmarks that are specifically designed to evaluate our technique.",
+            "cite_spans": [
+                {
+                    "start": 71,
+                    "end": 75,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 383,
+                    "end": 386,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Inputs."
+        },
+        {
+            "text": "We ran all the experiments on an iMac equipped with 8-core Intel(R) 2.60 GHz CPU and 8 GB of memory. We used Golang 1.13 to compile and run our system and Pypy 7.2.0 to run Laser1. To minimize the footprint of external effects (e.g., memory garbage collection, etc.) in our results, we run each experiment ten times over 300 time points and report the average result.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation Setup."
+        },
+        {
+            "text": "Ours vs. Laser1. Before we evaluate our proposal, we report some experiments where we compare the performance of Laser1 and Laser2 (the latter is executed without our proposed optimization). The motivation for doing so is to show that our new implementation is more performant than the old one, and this justifies its usage in the following experiments when we evaluate our technique.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation Setup."
+        },
+        {
+            "text": "In this set of experiments, we created a number of programs P n where n \u2208 {10, 50, 100} which contain a single rule of the form n 3p(X, Y ) \u2192 q(X, Y ). Similarly, we have also created other programs P n with the rule n 2p(X, Y ) \u2192 q(X, Y ). Intuitively, P 10,50,100 test the performance of the reasoner with a rule that uses the 3 operator while P 10,50,100 does the same but with the 2 operator.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation Setup."
+        },
+        {
+            "text": "In each experiment, we instruct the data generator to create, at each time point, the set of facts m i:=1 {p(a i , a i )} where m \u2208 {100, 500, 1000}. In this way, we can stress the system both varying the window size and the number of facts in input. The average reasoning runtime for processing one input fact with P 10,50,100 is reported in Fig. 1a while the one with P 10,50,100 is reported in Fig. 1b .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 343,
+                    "end": 350,
+                    "text": "Fig. 1a",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 397,
+                    "end": 404,
+                    "text": "Fig. 1b",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Evaluation Setup."
+        },
+        {
+            "text": "From the figures, we can see that in both cases Laser2 outperforms Laser1. In addition, we can make some interesting observations about the operators 3 and 2. In Fig. 1a , we can see that if the number of input atoms increases and the window size remains constant, then the average runtime remains relatively constant or even decreases. This behavior is due to the usage of the horizon time introduced in [4] which extends the validity of a formula for as many time points as the window size. Moreover, reasoning at each time point has a fixed cost that is amortized over the input facts. If there are more input facts, this cost becomes less prominent. This explains the slight decrease in the runtime when the input size increases.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 162,
+                    "end": 169,
+                    "text": "Fig. 1a",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Evaluation Setup."
+        },
+        {
+            "text": "The results in Fig. 1b show a different behaviour. In this case, the validity of the body of the rule cannot be extended to the future. Consequently, the runtime increases both when the window size increases (since the reasoner has to check that the facts hold at more time points) and when the size of the stream increases. This shows that the evaluation of 2 can be much more challenging than 3. The increase of the runtime is observed with both implementations although with Laser2 it is less pronounced. The reason behind this difference is purely technical and due to the fact that the new implementation does not have the overhead introduced by the interpretation layer of Python.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 15,
+                    "end": 22,
+                    "text": "Fig. 1b",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Evaluation Setup."
+        },
+        {
+            "text": "We now compare the runtime on a simple benchmark with and without activating our technique. We consider a series of (a i , a i ), q(a i , a i ) } otherwise, where m \u2208 {100, 500, 1000}. In essence, the idea is to use a stream where every n time points there are no q\u2212facts so that n 2q(X, Y ) does not hold and consequently the rule is disabled. This scenario represents the best case for our method because without it the reasoner would need to evaluate the rule at each time point. Figures 2a and 2b report the total number of formulae evaluations and the average runtime per input fact with different window and stream sizes. The results marked with \"With IP\" (\"Without IP\") use (don't use) our technique. The results show that with our approach the reasoner evaluates many fewer formulae (because the rule is disabled most of the time). Note that when our technique is enabled the number of evaluated formulae is non-zero. The reason is that every n time points the counter for disabling the rule expires and the rule is re-added to the set of active rules. This event occurs less frequently if the window size is larger. This explains why the number of evaluated formulae decreases in Fig. 2a .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 116,
+                    "end": 143,
+                    "text": "(a i , a i ), q(a i , a i )",
+                    "ref_id": null
+                },
+                {
+                    "start": 483,
+                    "end": 500,
+                    "text": "Figures 2a and 2b",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1189,
+                    "end": 1196,
+                    "text": "Fig. 2a",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Runtime Single Rule (Best Case)."
+        },
+        {
+            "text": "As a consequence that some rules are disabled, the runtime decreases to the point it is barely visible in Fig. 2b . It is worth to point out that in Fig. 2b the runtime with our technique is almost constant while, without our technique, it increases with the window size (this behavior was observed also in Fig. 1b) . This comparison illustrates the effectiveness of our approach in disabling rules.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 106,
+                    "end": 113,
+                    "text": "Fig. 2b",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 149,
+                    "end": 156,
+                    "text": "Fig. 2b",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 307,
+                    "end": 315,
+                    "text": "Fig. 1b)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Runtime Single Rule (Best Case)."
+        },
+        {
+            "text": "In the previous set of experiments, we evaluated our technique in a best-case scenario. We now present some experiments in a worst-case scenario. To simulate this case, we consider programs with the rule 10 3p(X, Y ), n 2q(X, Y ) \u2192 m(X, Y ) where n (i.e., the window size) is very small. In particular, we considered n \u2208 {1, 2, 3}. If n = 1 and the rule is disabled, then our approach immediately re-adds it in the next iteration since its invalidity has expired. For this reason, we can use this type of program to measure the overhead of our approach with an input where it is not effective. As input streams, we consider those that add the facts m i:=1 {p(a i , a i )} at each time point where m \u2208 {100, 500, 1000}. Note that since no fact with predicate q appears in the stream, the rule will always try to disable it (unless it was already previously disabled) but in the next 1, 2, or 3 time points the rule will be re-activated. Figures 3a and 3b report, similarly as before, the number of formulae evaluations and the runtime per input fact. From these results, we observe that when the window size is one (which is the worst scenario), the number of evaluations is the same as when our technique is disabled. However, the overhead incurred by our approach significantly increases the runtime. If the window size increases, then the performance improves because the overhead is less prominent.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 936,
+                    "end": 953,
+                    "text": "Figures 3a and 3b",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "Runtime Single Rule (Worst Case)."
+        },
+        {
+            "text": "Note that there is a simple optimization to overcome the problem observed in this experiment: When we populate R in line 5 of Algorithm 1, we can consider only the formulae where the window size is sufficiently large (e.g., x > 10). In this way, we can restrict the application only to the cases whether the saving introduced by our technique outweighs the overhead. Runtime Multiple Rules. We have shown that sometimes disabling a rule can have a cascading effect that leads to the disabling of more rules. To test the performance in this scenario, we consider a series of programs of the form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Runtime Single Rule (Worst Case)."
+        },
+        {
+            "text": "where n \u2208 {10, 50, 100} and w \u2208 {10, 20}. As input, we use a fixed stream which contains the facts Figures 4a and 4b report the total number of formulae evaluations and the average runtime per input fact respectively. We observe a similar trend as in the previous cases: Without our technique, at each time point the reasoner evaluates many more formulae and the runtime is significantly higher. With our technique, the average runtime drops and remains reasonably constant with different window sizes and number of rules (the slight increase is due to the overhead incurred by larger programs). The saving can be very high: In the best case (with n = 100 and w = 20), the runtime is 31 times faster. Although these numbers are obtained with artificially created datasets, they nevertheless indicate the effectiveness of our proposal in speeding up stream reasoning.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Runtime Single Rule (Worst Case)."
+        },
+        {
+            "text": "Related Work. The problem of stream reasoning in the context of the Semantic Web was first introduced by Della Valle et al. in [11, 12] . Since then, numerous works have been focused on different aspects of this problem and yearly workshops 1 have further fostered the creation of an active research community.",
+            "cite_spans": [
+                {
+                    "start": 127,
+                    "end": 131,
+                    "text": "[11,",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 132,
+                    "end": 135,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        },
+        {
+            "text": "The surveys at [13, 21] provide a first overview of the various techniques. A few influential works have tackled this problem by extending SPARQL with stream operators [2, 3, [7] [8] [9] . Additionally, other stream reasoners either propose a custom processing model [20] or rely on (probabilistic) ASP [15, 25, 38] or on combinations of the two [22] . Finally, some works focus on improving the scalability [16, 26, 27] by distributing the computation on multiple machines or with incremental techniques [19] . Since these works support different semantics, it is challenging to compare them. Indeed, providing a fair and comprehensive comparison of the various proposal remains an open problem, despite notable efforts in this direction [30, 33, 34] .",
+            "cite_spans": [
+                {
+                    "start": 15,
+                    "end": 19,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 20,
+                    "end": 23,
+                    "text": "21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 168,
+                    "end": 171,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 172,
+                    "end": 174,
+                    "text": "3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 175,
+                    "end": 178,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 179,
+                    "end": 182,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 183,
+                    "end": 186,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 267,
+                    "end": 271,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 303,
+                    "end": 307,
+                    "text": "[15,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 308,
+                    "end": 311,
+                    "text": "25,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 312,
+                    "end": 315,
+                    "text": "38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 346,
+                    "end": 350,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 408,
+                    "end": 412,
+                    "text": "[16,",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 413,
+                    "end": 416,
+                    "text": "26,",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 417,
+                    "end": 420,
+                    "text": "27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 505,
+                    "end": 509,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 739,
+                    "end": 743,
+                    "text": "[30,",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 744,
+                    "end": 747,
+                    "text": "33,",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 748,
+                    "end": 751,
+                    "text": "34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        },
+        {
+            "text": "The problem of stream reasoning has been studied also by the AI community. In [18] , Koopmann proposes a new language to provide OBQA on temporal and probabilistic data. In [32] , the authors investigate stream reasoning with Metric Temporal Logic (MTL) and later extend it with approximate reasoning [10] . In a similar setting, in [36] , the authors consider stream reasoning in datalogMTL -an extension of Datalog with metric temporal operators. Finally, Ronca et al. [29] introduced the window validity problem, i.e., the problem of determining the minimum number of time points for which data must be kept in main memory to comply with the window sizes. None of these works address the problem of exploiting the impossibility of future derivations for improving the performance, as we do in this paper.",
+            "cite_spans": [
+                {
+                    "start": 78,
+                    "end": 82,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 173,
+                    "end": 177,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 301,
+                    "end": 305,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 333,
+                    "end": 337,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                },
+                {
+                    "start": 471,
+                    "end": 475,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        },
+        {
+            "text": "Finally, a research area that is closely related to stream reasoning is incremental reasoning [17, 23, 24, 28, 35, 37] . The major difference between incremental reasoning and stream reasoning is that the latter is characterized by the usage of windows functions to focus on the most recent data. Moreover, in a typical stream reasoning scenario data expires after a relatively short amount of time.",
+            "cite_spans": [
+                {
+                    "start": 94,
+                    "end": 98,
+                    "text": "[17,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 99,
+                    "end": 102,
+                    "text": "23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 103,
+                    "end": 106,
+                    "text": "24,",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 107,
+                    "end": 110,
+                    "text": "28,",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 111,
+                    "end": 114,
+                    "text": "35,",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 115,
+                    "end": 118,
+                    "text": "37]",
+                    "ref_id": "BIBREF36"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        },
+        {
+            "text": "In this paper, we tackled the problem of providing efficient streambased reasoning with (plain) LARS programs. In our previous work [4] we proposed a technique to reduce the number of redundant derivations by extending the time validity of formulae which will hold in the future. Here, we presented a technique to extend the time validity of formulae which will not hold. This is meant to target formulae where the previous technique is not effective.",
+            "cite_spans": [
+                {
+                    "start": 132,
+                    "end": 135,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion."
+        },
+        {
+            "text": "Future work can be done in multiple directions. First, it is interesting to study whether more advanced techniques can determine a longer time validity (or invalidity) for formulae which are beyond plain LARS (e.g., nested windows). Moreover, a dynamic strategy can be designed to detect whether for some formulae a na\u00efve recomputation is faster. Such a strategy could be used to mitigate the performance decrease observed in the worst-case scenario. Finally, our technique is triggered when no atoms with a certain predicate appear in the stream. It is possible that a more fine-grained technique, which considers facts rather than predicates, leads to improvements in more cases, but it is not trivial to implement it without introducing significant overhead.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion."
+        },
+        {
+            "text": "Our experimental evaluation on artificially created microbenchmarks shows that the performance gain is significant. This makes our proposal a valuable addition to the portfolio of techniques for computing logic-based stream reasoning efficiently and at scale.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion."
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Foundations of Databases",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Abiteboul",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Hull",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Vianu",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "",
+            "volume": "8",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "EP-SPARQL: a unified language for event processing and stream reasoning",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Anicic",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fodor",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Rudolph",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Stojanovic",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Proceedings of WWW",
+            "volume": "",
+            "issn": "",
+            "pages": "635--644",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "C-SPARQL: a continuous query language for RDF data streams",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Barbieri",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Braga",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ceri",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Grossniklaus",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Int. J. Seman. Comput",
+            "volume": "4",
+            "issn": "1",
+            "pages": "3--25",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Expressive stream reasoning with laser",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Bazoobandi",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Beck",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Urbani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ISWC 2017",
+            "volume": "10587",
+            "issn": "",
+            "pages": "87--103",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-68288-4_6"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Lars: a logic-based framework for analytic reasoning over streams",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Beck",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Dao-Tran",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Eiter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Artif. Intell",
+            "volume": "261",
+            "issn": "",
+            "pages": "16--70",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Ticker: a system for incremental ASP-based stream reasoning",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Beck",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Eiter",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Folie",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Theory and Practice of Logic Programming",
+            "volume": "17",
+            "issn": "5-6",
+            "pages": "744--763",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Streaming SPARQL -extending SPARQL to process data streams",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bolles",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Grawunder",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Jacobi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Bechhofer",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hauswirth",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Hoffmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "ESWC 2008",
+            "volume": "5021",
+            "issn": "",
+            "pages": "448--462",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-68234-9_34"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "C-Sprite: efficient hierarchical reasoning for rapid RDF stream processing",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Bonte",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Tommasini",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "De Turck",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Ongenae",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Valle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of DEBS",
+            "volume": "",
+            "issn": "",
+            "pages": "103--114",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Enabling ontology-based access to streaming data sources",
+            "authors": [
+                {
+                    "first": "J.-P",
+                    "middle": [],
+                    "last": "Calbimonte",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Corcho",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J G"
+                    ],
+                    "last": "Gray",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "ISWC 2010",
+            "volume": "6496",
+            "issn": "",
+            "pages": "96--111",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-17746-0_7"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Approximate stream reasoning with metric temporal logic under uncertainty",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "De Leng",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Heintz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of AAAI",
+            "volume": "",
+            "issn": "",
+            "pages": "2760--2767",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "A first step towards stream reasoning",
+            "authors": [
+                {
+                    "first": "Della",
+                    "middle": [],
+                    "last": "Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Ceri",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Barbieri",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Braga",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Campi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "FIS 2008",
+            "volume": "5468",
+            "issn": "",
+            "pages": "72--81",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-00985-3_6"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "It's a streaming world! reasoning upon rapidly changing information",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ceri",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Van Harmelen",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Fensel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "IEEE Intell. Syst",
+            "volume": "24",
+            "issn": "6",
+            "pages": "83--89",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Stream reasoning: a survey and outlook",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Dell&apos;aglio",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Della Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Van Harmelen",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bernstein",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Data Sci",
+            "volume": "1",
+            "issn": "1-2",
+            "pages": "59--83",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "A distributed approach to LARS stream reasoning (System paper)",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Eiter",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Ogris",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Schekotihin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Theor. Pract. Logic Program",
+            "volume": "19",
+            "issn": "5-6",
+            "pages": "974--989",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Answer set programming for stream reasoning",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gebser",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Grote",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kaminski",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Obermeier",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Sabuncu",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Schaub",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "High-performance distributed stream reasoning using S4",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Hoeksema",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kotoulas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Ordring Workshop at ISWC",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Optimised maintenance of datalog materialisations",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Motik",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Horrocks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of AAAI",
+            "volume": "",
+            "issn": "",
+            "pages": "1871--1879",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Ontology-based query answering for probabilistic temporal data",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Koopmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of AAAI",
+            "volume": "",
+            "issn": "",
+            "pages": "2903--2910",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Operator-aware approach for boosting performance in RDF stream processing",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Le-Phuoc",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "J. Web Semant",
+            "volume": "42",
+            "issn": "",
+            "pages": "38--54",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "A native and adaptive approach for unified processing of linked streams and linked data",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Le-Phuoc",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Dao-Tran",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Xavier Parreira",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hauswirth",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "ISWC 2011",
+            "volume": "7031",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-25073-6_24"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Streaming the web: reasoning over dynamic data",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Margara",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Urbani",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Van Harmelen",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "J. Web Semant",
+            "volume": "25",
+            "issn": "",
+            "pages": "24--44",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "StreamRule: a nonmonotonic stream reasoning system for the semantic web",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mileo",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Abdelrahman",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Policarpio",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hauswirth",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "RR 2013",
+            "volume": "7994",
+            "issn": "",
+            "pages": "247--252",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-39666-3_23"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Incremental update of datalog materialisation: the backward/forward algorithm",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Motik",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Nenov",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Piro",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Horrocks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of AAAI",
+            "volume": "",
+            "issn": "",
+            "pages": "1560--1568",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Maintenance of datalog materialisations revisited",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Motik",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Nenov",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Piro",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Horrocks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Artif. Intell",
+            "volume": "269",
+            "issn": "",
+            "pages": "76--136",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Web stream reasoning using probabilistic answer set programming",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Nickles",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mileo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "RR 2014",
+            "volume": "8741",
+            "issn": "",
+            "pages": "197--205",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-11113-1_16"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Enhancing the scalability of expressive stream reasoning via input-driven parallelization",
+            "authors": [
+                {
+                    "first": "T.-L",
+                    "middle": [],
+                    "last": "Pham",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Ali",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mileo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Semant. Web",
+            "volume": "10",
+            "issn": "3",
+            "pages": "457--474",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Strider R: massive and distributed RDF graph stream reasoning",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Ren",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Cur\u00e9",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of International Conference on Big Data",
+            "volume": "",
+            "issn": "",
+            "pages": "3358--3367",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Optimising ontology stream reasoning with truth maintenance system",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Ren",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "Z"
+                    ],
+                    "last": "Pan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Proceedings of CIKM",
+            "volume": "",
+            "issn": "",
+            "pages": "831--836",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "The window validity problem in rule-based stream reasoning",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ronca",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kaminski",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Grau",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Horrocks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of KR",
+            "volume": "",
+            "issn": "",
+            "pages": "571--580",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Seven commandments for benchmarking semantic flow processing systems",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Scharrenbach",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Urbani",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Margara",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Della Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bernstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Cimiano",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Corcho",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Presutti",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Hollink",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "ESWC 2013",
+            "volume": "7882",
+            "issn": "",
+            "pages": "305--319",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-38288-8_21"
+                ]
+            }
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Out of sight but not out of mind: an answer set programming based online abduction framework for visual sensemaking in autonomous driving",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Suchan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of IJCAI",
+            "volume": "",
+            "issn": "",
+            "pages": "1879--1885",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Stream reasoning using temporal logic and predictive probabilistic state models",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tiger",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Heintz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "23rd International Symposium on Temporal Representation and Reasoning",
+            "volume": "",
+            "issn": "",
+            "pages": "196--205",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Heaven: a framework for systematic comparative research approach for RSP engines",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Tommasini",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Della Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Balduini",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Dell&apos;aglio",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Sack",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Blomqvist",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Aquin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ghidini",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Ponzetto",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ESWC 2016",
+            "volume": "9678",
+            "issn": "",
+            "pages": "250--265",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-34129-3_16"
+                ]
+            }
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "RSPLab: RDF stream processing benchmarking made easy",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Tommasini",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Della Valle",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mauri",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Brambilla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ISWC 2017",
+            "volume": "10588",
+            "issn": "",
+            "pages": "202--209",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-68204-4_21"
+                ]
+            }
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "DynamiTE: parallel materialization of dynamic RDF data",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Urbani",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Margara",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Jacobs",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Van Harmelen",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "ISWC 2013",
+            "volume": "8218",
+            "issn": "",
+            "pages": "657--672",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-41335-3_41"
+                ]
+            }
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Reasoning over streaming data in metric temporal datalog",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Walega",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kaminski",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Grau",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of AAAI",
+            "volume": "",
+            "issn": "",
+            "pages": "3092--3099",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "An incremental reasoning algorithm for large scale knowledge graph",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Luo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "KSEM 2018",
+            "volume": "11061",
+            "issn": "",
+            "pages": "503--513",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-99365-2_45"
+                ]
+            }
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "SRBench: a streaming RDF/SPARQL benchmark",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Duc",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Corcho",
+                    "suffix": ""
+                },
+                {
+                    "first": "J.-P",
+                    "middle": [],
+                    "last": "Calbimonte",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "a data stream D = (T, v D ), we say that M is a model of P (for D) at time point t, denoted as M, t |= P , if M, t r for every r \u2208 P and M and S coincides with D on A E , i.e., S \u2287 D and every fact with extensional predicate in S at time point x is also in D at x. If no other model M = S , w n , B = M exists such that S = (T, v ) and v (t) \u2286 v(t) for any t \u2208 T, then M is minimal.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Stream S is an answer stream of program P for data stream D at time point t if M = S, w n , B is a minimal model of the reduct P M,t = {r \u2208 P | M, t |= B(r)}.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Let P = {highT emp, warning, error, shutdown} be a set of predicates where only highT emp is extensional and C = {b 1 , b 2 }. We consider an input stream D = (T, v) which is defined with the timeline T = 1, . . . , 15 and",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "reason(D, B, P ) Input : data stream D = (T, vD), background data B, program P Output : Output on T Global vars : PA, PI , R, S 1 R := \u2205 S := \u2205 2 foreach r \u2208 P 3 Let q be the predicate used in H(r) 4 S[q] := S[q] \u222a {r} 5 foreach \u03b1 \u2208 B(r) such that \u03b1 := x 2p(t) do R[p] := R[p] \u222a r, x 6 Let T be of the form t1, . . . , tn 7 PA := P PI := \u2205 ti := t1 8 while ti \u2264 tn do 9 foreach r, t \u2208 PI and t = ti 10 PA := PA \u222a {r} 11 PI := PI \\ { r, t } 12 Out[ti] := \u2205 13 Compute answer stream S = (T, v) of PA for D at ti 14 Out[ti] := v(ti) \\ vD(ti) 15 foreach p \u2208 P that does not appear in v(ti) 16 foreach r, t \u2208 R[p] such that r \u2208 PA 17 PA := PA \\ {r} 18 if r, y \u2208 PI 19 PI := PI \\ { r, y } 20 l := max(ti + t, y) 21 else l := ti + t 22 PI := PI \u222a { r, l } 23 disable(r, l, ti) 24 ti := ti + 1 25 end 26 return Out EnableRules. The procedure considers each time point in a sequence (line 8).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "disable(r d , l, t i ) Input : r d is the rule that was deactivated, l the length of the deactivation, ti is the current time point Output : Modified PA and PI 27 Let q be the predicate used in H(r d ) 28 if |S[q]| = 1 29 foreach r \u2208 PA 30 rm := false g := l 31 foreach \u03b1 \u2208 B(r) 32 if \u03b1 = q(t) rm := true 33 if \u03b1 = n 2q(t) 34 g := max(l, ti + n) 35 rm := true 36 if rm = true 37 PA := PA \\ {r} 38 PI := PI \u222a { r, g } 39 disable(r, g, ti)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Runtime of Laser1 and Laser2. In (a), wn refers to Pn. In (b), wn refers to P n .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Total number of evaluated formulae (a) and average runtime per input fact (b) in a best-case scenario. programs which contain a single rule of the form n 3p(X, Y ), n 2q(X, Y ) \u2192 m(X, Y ) where n \u2208 {10, 50, 100}. We apply the programs on different streams. At time point i, the various streams contain the facts m i:=1 {p(a i , a i )} if i mod n = 0 or m i:=1 {p",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Total number of evaluated formulae (a) and average runtime per input fact (b) in a worst-case scenario.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "i:=1 {p(a i , a i )} at each time point. Total number of evaluated formulae (a) and average runtime per input fact (b) with multiple rules.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

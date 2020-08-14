@@ -1,0 +1,3228 @@
+{
+    "paper_id": "0a6ca86c9b6bd25de2766e48b9bb2be6c04b5ef3",
+    "metadata": {
+        "title": "Building Mean Field State Transition Models Using The Generalized Linear Chain Trick and Continuous Time Markov Chain Theory",
+        "authors": [
+            {
+                "first": "Preprint",
+                "middle": [],
+                "last": "Hurtado",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Nevada",
+                    "location": {
+                        "settlement": "Reno"
+                    }
+                },
+                "email": "phurtado@unr.edu"
+            },
+            {
+                "first": "Paul",
+                "middle": [
+                    "J"
+                ],
+                "last": "",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Nevada",
+                    "location": {
+                        "settlement": "Reno"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Cameron",
+                "middle": [],
+                "last": "Richards",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Nevada",
+                    "location": {
+                        "settlement": "Reno"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The well-known Linear Chain Trick (LCT) allows modelers to derive mean field ODEs that assume gamma (Erlang) distributed passage times, by transitioning individuals sequentially through a chain of sub-states. The time spent in these states is the sum of k exponentially distributed random variables, and is thus gamma (Erlang) distributed. The Generalized Linear Chain Trick (GLCT) extends this technique to the much broader phase-type family of distributions, which includes exponential, Erlang, hypoexponential, and Coxian distributions. Intuitively, phase-type distributions are the absorption time distributions for continuous time Markov chains (CTMCs). Here we review CTMCs and phase-type distributions, then illustrate how to use the GLCT to efficiently build mean field ODE models from underlying stochastic model assumptions. We generalize the Rosenzweig-MacArthur and SEIR models and show the benefits of using the GLCT to compute numerical solutions. These results highlight some practical benefits, and the intuitive nature, of using the GLCT to derive ODE models from first principles.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Continuous time state transition models, often formulated as mean field ODE models, are widely used throughout the biological sciences and across multiple scales. Examples include models of multi-species interactions, infectious disease transmission, cell proliferation, and various other applications in which entities transition among a finite number of states (e.g., Allen, 2007; Anderson and May, 1992; Arrowsmith and Place, 1990; Beuter et al., 2003; Clapp and Levy, 2015; Dayan and Abbott, 2005; Edelstein-Keshet, 2005; Ellner and Guckenheimer, 2006; Hirsch, Smale, and Devaney, 2012; Izhikevich, 2010; Keener and Sneyd, 2008a,b; Meiss, 2017; Murray, 2011a,b; Strogatz, 2014; Wiggins, 2003; Yates, Ford, and Mort, 2017) . One criticism of mean field ODE models is that they often implicitly assume the time individuals spend in the different states are exponentially distributed, and it is known that the timing of state transitions can very meaningfully affect model dynamics and model outputs in an applied setting (Getz et al., 2018; Krylova and Earn, 2013; Metz and Diekmann, 1986; Metz and Diekmann, 1991; Nisbet, Gurney, and Metz, 1989; Robertson et al., 2018; Wearing, Rohani, and Keeling, 2005) . That is, an ODE model with a linear loss rate can be interpreted as implicitly assuming an underlying stochastic state transmission model with an exponentially distributed dwell-time in that focal state. For example, the simple model dx/dt = b \u2212 d x is consistent with assuming an underlying stochastic state transition model in which individuals spend an exponentially distributed amount of time with mean 1/d in the state corresponding to variable x.",
+            "cite_spans": [
+                {
+                    "start": 370,
+                    "end": 382,
+                    "text": "Allen, 2007;",
+                    "ref_id": "BIBREF65"
+                },
+                {
+                    "start": 383,
+                    "end": 406,
+                    "text": "Anderson and May, 1992;",
+                    "ref_id": "BIBREF67"
+                },
+                {
+                    "start": 407,
+                    "end": 434,
+                    "text": "Arrowsmith and Place, 1990;",
+                    "ref_id": "BIBREF68"
+                },
+                {
+                    "start": 435,
+                    "end": 455,
+                    "text": "Beuter et al., 2003;",
+                    "ref_id": null
+                },
+                {
+                    "start": 456,
+                    "end": 477,
+                    "text": "Clapp and Levy, 2015;",
+                    "ref_id": "BIBREF72"
+                },
+                {
+                    "start": 478,
+                    "end": 501,
+                    "text": "Dayan and Abbott, 2005;",
+                    "ref_id": "BIBREF74"
+                },
+                {
+                    "start": 502,
+                    "end": 525,
+                    "text": "Edelstein-Keshet, 2005;",
+                    "ref_id": "BIBREF76"
+                },
+                {
+                    "start": 526,
+                    "end": 556,
+                    "text": "Ellner and Guckenheimer, 2006;",
+                    "ref_id": "BIBREF77"
+                },
+                {
+                    "start": 557,
+                    "end": 590,
+                    "text": "Hirsch, Smale, and Devaney, 2012;",
+                    "ref_id": "BIBREF81"
+                },
+                {
+                    "start": 591,
+                    "end": 608,
+                    "text": "Izhikevich, 2010;",
+                    "ref_id": "BIBREF90"
+                },
+                {
+                    "start": 609,
+                    "end": 635,
+                    "text": "Keener and Sneyd, 2008a,b;",
+                    "ref_id": null
+                },
+                {
+                    "start": 636,
+                    "end": 648,
+                    "text": "Meiss, 2017;",
+                    "ref_id": "BIBREF101"
+                },
+                {
+                    "start": 649,
+                    "end": 665,
+                    "text": "Murray, 2011a,b;",
+                    "ref_id": null
+                },
+                {
+                    "start": 666,
+                    "end": 681,
+                    "text": "Strogatz, 2014;",
+                    "ref_id": "BIBREF117"
+                },
+                {
+                    "start": 682,
+                    "end": 696,
+                    "text": "Wiggins, 2003;",
+                    "ref_id": "BIBREF120"
+                },
+                {
+                    "start": 697,
+                    "end": 725,
+                    "text": "Yates, Ford, and Mort, 2017)",
+                    "ref_id": "BIBREF122"
+                },
+                {
+                    "start": 1023,
+                    "end": 1042,
+                    "text": "(Getz et al., 2018;",
+                    "ref_id": "BIBREF80"
+                },
+                {
+                    "start": 1043,
+                    "end": 1066,
+                    "text": "Krylova and Earn, 2013;",
+                    "ref_id": "BIBREF99"
+                },
+                {
+                    "start": 1067,
+                    "end": 1091,
+                    "text": "Metz and Diekmann, 1986;",
+                    "ref_id": null
+                },
+                {
+                    "start": 1092,
+                    "end": 1116,
+                    "text": "Metz and Diekmann, 1991;",
+                    "ref_id": "BIBREF103"
+                },
+                {
+                    "start": 1117,
+                    "end": 1148,
+                    "text": "Nisbet, Gurney, and Metz, 1989;",
+                    "ref_id": "BIBREF107"
+                },
+                {
+                    "start": 1149,
+                    "end": 1172,
+                    "text": "Robertson et al., 2018;",
+                    "ref_id": "BIBREF113"
+                },
+                {
+                    "start": 1173,
+                    "end": 1208,
+                    "text": "Wearing, Rohani, and Keeling, 2005)",
+                    "ref_id": "BIBREF119"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "One remedy to address this issue with ODE models is known as the Linear Chain Trick (LCT; Hurtado and Kirosingh, 2019; Smith, 2010 , and references therein), which allows modelers to instead assume gamma (Erlang 1 ) distributed passage times (a.k.a., dwell times). This is accomplished by partitioning a state into a series of k sub-states, where individuals transition sequentially through this ''linear chain\" of states. The resulting time spent in this collection of sub-states is thus the sum of k exponentially distributed random variables, and therefore follows an Erlang distribution (if each exponential has the same rate) or a generalized Erlang 2 distribution if the rates differ.",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 118,
+                    "text": "Hurtado and Kirosingh, 2019;",
+                    "ref_id": "BIBREF89"
+                },
+                {
+                    "start": 119,
+                    "end": 130,
+                    "text": "Smith, 2010",
+                    "ref_id": "BIBREF115"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The Generalized Linear Chain Trick (GLCT) (Hurtado and Kirosingh, 2019) extends this technique to allow modelers to assume these passage times follow a much broader family of distributions that includes the phase-type family of distributions (Bladt and Nielsen, 2017a,b; Horv\u00e1th, Scarpa, and Telek, 2016; Horv\u00e1th and Telek, 2017; Reinecke, Bodrog, and Danilkina, 2012) . This broad family includes exponential, Erlang, hypoexponential, hyperexponential, Coxian and some other named distributions. Intuitively, phase-type distributions can be thought of as the family of all possible hitting time (or absorption time) distributions for continuous time Markov chains (CTMCs). In addition, statistical methods exist for estimating such distributions from data (Horv\u00e1th, Scarpa, and Telek, 2016; Horv\u00e1th et al., 2012; Hurtado and Kirosingh, 2019 , and references therein) allowing researchers to build approximate empirical distributions into ODE models using a more flexible family of distributions than only the Erlang distributions.",
+            "cite_spans": [
+                {
+                    "start": 42,
+                    "end": 71,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                },
+                {
+                    "start": 242,
+                    "end": 270,
+                    "text": "(Bladt and Nielsen, 2017a,b;",
+                    "ref_id": null
+                },
+                {
+                    "start": 271,
+                    "end": 304,
+                    "text": "Horv\u00e1th, Scarpa, and Telek, 2016;",
+                    "ref_id": "BIBREF85"
+                },
+                {
+                    "start": 305,
+                    "end": 329,
+                    "text": "Horv\u00e1th and Telek, 2017;",
+                    "ref_id": "BIBREF86"
+                },
+                {
+                    "start": 330,
+                    "end": 368,
+                    "text": "Reinecke, Bodrog, and Danilkina, 2012)",
+                    "ref_id": "BIBREF110"
+                },
+                {
+                    "start": 757,
+                    "end": 791,
+                    "text": "(Horv\u00e1th, Scarpa, and Telek, 2016;",
+                    "ref_id": "BIBREF85"
+                },
+                {
+                    "start": 792,
+                    "end": 813,
+                    "text": "Horv\u00e1th et al., 2012;",
+                    "ref_id": "BIBREF87"
+                },
+                {
+                    "start": 814,
+                    "end": 841,
+                    "text": "Hurtado and Kirosingh, 2019",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper, we illustrate how to use the GLCT alongside concepts and techniques from CTMC theory to build and numerically solve mean field ODE models using a much richer set of possible underlying stochastic model assumptions. The paper is organized as follows. First, we review CTMCs and phase-type distributions. We then state the GLCT for phase-type distributions and, for comparison, the well-known LCT. In the Results section, we generalize some simple biological state transition models by replacing their implicit assumption of exponentially distributed passage time assumptions with arbitrary phase-type distributions. Lastly, we investigate some of the computational costs and benefits of using this generalized model framework with regards to computing numerical solutions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To provide proper context for an intuitive understanding of the Generalized Linear Chain Trick (GLCT), we briefly review continuous time Markov chains (CTMCs) with a focus on CTMCs that have a single absorbing state. Our focus will then be on the probability distributions that describe the time it takes to reach that absorbing state starting from one of the transient states, since these absorption time distributions define the phase-type family of probability distributions. The following summaries build upon similar descriptions laid out in Hurtado and Kirosingh (2019).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains and Phase-Type Distributions"
+        },
+        {
+            "text": "Discrete time Markov chains (DTMCs) describe the transition of an individual (or other distinct entity) among a set of n states. The transition probabilities from a state i to a state j (p ij where 1 \u2264 i, j \u2264 n) are best organized using a transition probability matrix P, where p ij is value in the i th row and j th column of the matrix (P ij = p ij ). For our purposes below, we will restrict our attention to Markov Chains in which the first k = n \u2212 1 states are transient states, and the last (k + 1) state is an absorbing state. This means the system eventually enters this last state and remains there on each subsequent time step with probability 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "The transition probability matrix P can be written in block form according to these first k = n \u2212 1 transient states (we'll call this set of states X) and the last absorbing state as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "where P X is a k \u00d7 k matrix describing transition probabilities among transient states, P a is the k \u00d7 1 vector of probabilities of transitioning from the i th transient state to the absorbing state, and 0 is a 1 \u00d7 k vector of zeros.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "In a continuous time Markov chain (CTMC), these transitions don't occur according to a fixed time step, but instead each transition occurs after an exponentially distributed amount of time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "If the individual is in state i, that exponential distribution has rate \u03bb i or equivalently has mean duration 1/\u03bb i . Let R be the vector of the rates \u03bb i , for i = 1, . . . , k. Due to the memorylessness property of exponential distributions transitions from state i to state i can effectively be ignored, thus we can formulate a new transition probability matrix that describes an equivalent Markov chain but where we only track transitions to new states. This reformulated Markov chain is known as the embedded jump process (or embedded Markov chain), and it is described with a transition probability matrix P where the diagonal entries are 0 and the off-diagonal transition probabilities p ij = p ij / j =i p ij . That is, these are just the off-diagonal entries of P with the diagonal set to 0, and the rows normalized so each row sums to 1. For our purposes, since a Markov chain with an absorbing state is not ergodic and therefore does not properly have an embedded jump process representation, the above procedure is only applied to k rows corresponding to transient states.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "Thus, the last row of P and P will be the same, so that the last state in the Markov chain remains an absorbing state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "In a CTMC context, the transition probability matrix P and rate vector R are combined into a single matrix called the transition rate matrix Q. The entries of Q can be thought of as the mean-field, per-individual loss rates from each state (along the diagonal) and the transition rates from state i into state j (the off diagonal entries; see below). It has the block form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "where A is a k \u00d7 k matrix describing the transition rates among transient states, B is the k \u00d7 1 vector of transition rates from the transient states to the absorbing state, and the bottom row is all zeros for the absorbing state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "Matrices A and B are constructed from the entries of the transition probability matrix P and the vector of rates for the exponential distributed dwell-times R as follows. The i th diagonal entry of A is the loss rate \u2212\u03bb i and the rest of the entries in the i th row are the product of \u03bb i and the transition probability p ij . That is, the ij off-diagonal entries of A are the per-individual transition rates from the i th state into the j th state, given by \u03bb i p ij . Since the rows of P sum to 1, the rows of Q sum to 0, and it then follows that vector B is equal to the negative of the row sums of A. Thus, we can write B = \u2212A 1, where 1 is a column vector of k ones.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "Finally, assume that the initial state of such a CTMC is one of the k transient states. Let \u03b1 be the length k column vector of probabilities (i.e., k i=1 \u03b1 i = 1) that define the initial state distribution over these k states.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "Note that, for CTMCs which have k transient states and 1 absorbing state, all of the information necessary to describe the CTMC is contained in the transition rate matrix for transient states, A, and initial distribution vector \u03b1. As detailed next, these quantities are also sufficient to parameterize the corresponding phase-type distribution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Continuous Time Markov Chains"
+        },
+        {
+            "text": "With the above family of CTMCs in mind, let T i be defined as the duration of time that it takes to first reach the absorbing state, given the CTMC starts in the i th transient state. We call this an absorption time. More generally, let T be the absorption time given that the initial state is determined by the initial probability vector \u03b1 (i.e., T follows the mixture distribution of random variables T i with mixing probabilities \u03b1). Phase-type distributions are the family of absorption time distributions for all such T described above.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Phase-Type Distributions"
+        },
+        {
+            "text": "The most familiar examples are the exponential distribution, and the Erlang distribution (i.e., those gamma distributions that have an integer shape parameter k \u2265 1) which can be thought of as the sum of k independent exponentially distributed random variables, each with rate r. Erlang distributions can be parameterized in terms of their mean \u00b5 and coefficient of variation c v (the standard deviation over the mean), or their rate r and shape k, where \u00b5 = k r , \u03c3 2 = k r 2 , c v = 1 \u221a k , and thus, r = \u00b5 \u03c3 2 , and k =",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Phase-Type Distributions"
+        },
+        {
+            "text": "More generally, phase-type distributions are parameterized by vector \u03b1 and transient state rate matrix A (as defined in the previous section), and have the probability density function, cumulative distribution function, and j th moment given (respectively) by:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Phase-Type Distributions"
+        },
+        {
+            "text": "Here 1 is a column vector of ones that has the same number of rows as \u03b1 and A. Note that \u03b1 and A are not a unique parameterization of a given phase-type distribution, and there are equivalent parameterizations using vector-matrix pairs of the same dimension as well as different dimensions. Phase-type distributions can be classified as cyclic (transient states can be visited infintely often) and acyclic (transient states can only be visited once). This family of distributions has been relatively well studied in the queuing theory literature, and elsewhere, and readers are encouraged to consult Altiok (1985) , Bladt and Nielsen (2017a,b) , Horv\u00e1th, Scarpa, and Telek (2016) , Horv\u00e1th et al. (2012) , Reinecke, Bodrog, and Danilkina (2012) , and Reinecke, Krau, and Wolter (2012) for further details.",
+            "cite_spans": [
+                {
+                    "start": 600,
+                    "end": 613,
+                    "text": "Altiok (1985)",
+                    "ref_id": "BIBREF66"
+                },
+                {
+                    "start": 616,
+                    "end": 643,
+                    "text": "Bladt and Nielsen (2017a,b)",
+                    "ref_id": null
+                },
+                {
+                    "start": 646,
+                    "end": 679,
+                    "text": "Horv\u00e1th, Scarpa, and Telek (2016)",
+                    "ref_id": "BIBREF85"
+                },
+                {
+                    "start": 682,
+                    "end": 703,
+                    "text": "Horv\u00e1th et al. (2012)",
+                    "ref_id": "BIBREF87"
+                },
+                {
+                    "start": 706,
+                    "end": 744,
+                    "text": "Reinecke, Bodrog, and Danilkina (2012)",
+                    "ref_id": "BIBREF110"
+                },
+                {
+                    "start": 751,
+                    "end": 784,
+                    "text": "Reinecke, Krau, and Wolter (2012)",
+                    "ref_id": "BIBREF112"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Phase-Type Distributions"
+        },
+        {
+            "text": "Additionally, freely available computational tools such as BuTools for Matlab and Python (Horv\u00e1th and Telek, 2017, 2020) enable researchers to fit phase-type distributions to data. This fact, combined with the Generalized Linear Chain Trick, allows for the construction of ODE models that incorporate empirically derived distributional assumptions for the time spent in a given state.",
+            "cite_spans": [
+                {
+                    "start": 89,
+                    "end": 101,
+                    "text": "(Horv\u00e1th and",
+                    "ref_id": "BIBREF87"
+                },
+                {
+                    "start": 102,
+                    "end": 120,
+                    "text": "Telek, 2017, 2020)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Phase-Type Distributions"
+        },
+        {
+            "text": "The GLCT provides modelers with a direct way to take an existing ODE model that includes a state that has an exponentially distributed dwell time, and obtain a new set of ODEs where that exponentially distributed dwell time has been replaced with a phase-type dwell time distribution. This is done by partitioning that focal state into a set of sub-states and using the GLCT to write the new systems of ODEs that govern those sub-states using the matrix and vector parameterization of the assumed phase-type distribution. This technique can also be used to implement the classic Linear Chain Trick (LCT), since Erlang distributions (i.e., gamma distributions with integer shape parameters) are a subfamily of phase-type distributions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "The GLCT in its most general form (Hurtado and Kirosingh, 2019) extends the GLCT for phasetype distributions to the scenario where the rates and probabilities in the CTMC framework described above can vary with time. Here, we only provide a statement of the GLCT for phase-type distributions:",
+            "cite_spans": [
+                {
+                    "start": 34,
+                    "end": 63,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "Theorem 1 (GLCT for phase-type distributions [Corollary 2 in Hurtado and Kirosingh, 2019]). Assume individuals enter state X at rate I(t) and that the distribution of time spent in state X follows a continuous phase-type distribution given by the length k initial probability vector \u03b1 and the k \u00d7 k matrix A. The mean field equations for these transient sub-states x i are given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "where the rate of individuals leaving each of these sub-states of X is given by the vector (\u2212A 1) \u2022 x, where \u2022 is the Hadamard (element-wise) product of the two vectors, and thus the total rate of individuals leaving state X is given by the sum of those terms, i.e.,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "Note that the influx of individuals at time t (at rate I(t)) is distributed across the sub-states of X according to the initial distribution vector \u03b1, and the second term in eq. (5) describes both the movements among sub-states of X as well as the loss rate from the state X from each sub-state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "The Linear Chain Trick (LCT) has been known for decades, and is special case of the GLCT for phase-type distributions stated above (Hurtado and Kirosingh, 2019) . Here we give a formal statement of the LCT, which assumes an Erlang distributed dwell time, with shape parameter k and rate parameter r.",
+            "cite_spans": [
+                {
+                    "start": 131,
+                    "end": 160,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "Corollary 1 (Linear Chain Trick). Consider the GLCT above. Assume that the dwell-time distribution is an Erlang distribution with shape k and rate r (or if written in terms of shape k and mean \u03c4 = k/r, then use rate r = k/\u03c4 ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "Then the corresponding mean field ODE equations for the k sub-states of X are",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "where the total loss rate from state X at time t is the loss rate from the final sub-state, r x k (t).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "Proof. The phase-type distribution formulation of the Erlang distribution with shape k and rate r is given by v and M below, and substituting these into eq. (5) which yields the desired result.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "See Hurtado and Kirosingh (2019) for a direct proof that uses a recursive relationship between Erlang density functions and their derivatives.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalized Linear Chain Trick"
+        },
+        {
+            "text": "In the sections below, we extend two well-known models using the GLCT by replacing the implicit exponentially distributed dwell time assumptions of these models with phase-type distribution assumptions. These more general model formulations can also be used as a way to formulate models that could otherwise be derived using the standard LCT (i.e., the assumption of Erlang distributed dwell times). This may be the more desirable approach since the phase-type formulation of such models can be more practically and computationally advantageous to work with, which we show in section 2.4.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Results"
+        },
+        {
+            "text": "Maturation delays in population models can influence model outputs, although such delays are not always incorporated into models used in applications (Robertson et al., 2018) . In this section, we illustrate how one can use the GLCT to incorporate phase-type maturation times into such population models, using the widely used Rosenzweig-MacArthur model of predator-prey (consumer-resource) dynamics (Murdoch, Briggs, and Nisbet, 2003; Rosenzweig and MacArthur, 1963) :",
+            "cite_spans": [
+                {
+                    "start": 150,
+                    "end": 174,
+                    "text": "(Robertson et al., 2018)",
+                    "ref_id": "BIBREF113"
+                },
+                {
+                    "start": 400,
+                    "end": 435,
+                    "text": "(Murdoch, Briggs, and Nisbet, 2003;",
+                    "ref_id": "BIBREF104"
+                },
+                {
+                    "start": 436,
+                    "end": 467,
+                    "text": "Rosenzweig and MacArthur, 1963)",
+                    "ref_id": "BIBREF114"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "In the absence of predators (P ), the prey population (N ) is subject to logistic growth, and predators consume prey following a Holling's type II functional response (Dawes and Souza, 2013; Holling, 1959a,b; Murdoch, Briggs, and Nisbet, 2003) . Predators will then live for an exponentially distributed lifetime with mean 1/\u00b5.",
+            "cite_spans": [
+                {
+                    "start": 167,
+                    "end": 190,
+                    "text": "(Dawes and Souza, 2013;",
+                    "ref_id": "BIBREF73"
+                },
+                {
+                    "start": 191,
+                    "end": 208,
+                    "text": "Holling, 1959a,b;",
+                    "ref_id": null
+                },
+                {
+                    "start": 209,
+                    "end": 243,
+                    "text": "Murdoch, Briggs, and Nisbet, 2003)",
+                    "ref_id": "BIBREF104"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "One approach to incorporating a maturation delay of duration \u03c4 is to formulate a delay differential equation (DDE), as in (Xia et al., 2009) :",
+            "cite_spans": [
+                {
+                    "start": 122,
+                    "end": 140,
+                    "text": "(Xia et al., 2009)",
+                    "ref_id": "BIBREF121"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "This can be thought of as the limit of a distributed delay model, with mean delay time \u03c4 , for which the variance or coefficient of variation goes to zero. This corresponds to a delay distribution with point mass at \u03c4 (i.e., the distribution can be described with a Dirac delta function). The LCT has long been used to approximate such limiting cases in DDE models by assuming instead a delay distribution that is Erlang distributed with mean \u03c4 and a very small coefficient of variation, i.e., a large shape parameter k = 1/c 2 v (Hurtado and Kirosingh, 2019; Smith, 2010) . Writing this approximating model, as in Hurtado (2020), yields the Rosenzweig-MacArthur model with Erlang distributed maturation time in the predators:",
+            "cite_spans": [
+                {
+                    "start": 530,
+                    "end": 559,
+                    "text": "(Hurtado and Kirosingh, 2019;",
+                    "ref_id": "BIBREF89"
+                },
+                {
+                    "start": 560,
+                    "end": 572,
+                    "text": "Smith, 2010)",
+                    "ref_id": "BIBREF115"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "The sub-states x j , j = 1, . . . , k, track the immature stages of the predators before they mature.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "Using the GLCT, the above model can be generalized in two ways. First, the Erlang distributed maturation time assumption that yields the sub-states x i can be replaced by the assumption of a more general phase-type distribution with matrix-vector parameterization \u03b1 X and A X . Similarly, the exponentially distributed time duration that predators spend as adults can also be replaced with a more general phase-type distribution with parameter vector \u03b1 P and matrix A P . According to the GLCT -where x(t) denotes the vector of maturing predator sub-states x i (t), y(t) is the vector of adult predator sub-states y j (t), and where P (t) = all j y j (t) -these assumptions yield the more general model:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "Observe that eqs. (10) are the special case of eqs. (11) where the phase-type distribution matrixvector parameterization for an Erlang distribution with mean \u03c4 and shape k is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "and for an exponential distribution with rate \u00b5,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "Note that eqs. (10) are a much more compact way of formulating such generalized models without the need to specify the number of sub-states. As shown below, this formulation allows modelers to write more efficient computer code for computing numerical solutions to such models, and also can be used with computer algebra systems to generate ODEs like eqs. (10) from first principles.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rosenzweig-MacArthur Predator-Prey Model"
+        },
+        {
+            "text": "SIR-type models of infectious disease transmission are widely used in the study of infectious diseases, and can help inform public health efforts to limit the spread of infectious diseases (Anderson and May, 1992; Diekmann and Heesterbeek, 2000; Keeling and Grenfell, 1997; Kermack and McKendrick, 1927 , 1932 , 1933 , 1991a Lloyd, 2009; Wearing, Rohani, and Keeling, 2005) . For example, such models are currently being used in response to the ongoing SARS-CoV-2/COVID-19 pandemic.",
+            "cite_spans": [
+                {
+                    "start": 189,
+                    "end": 213,
+                    "text": "(Anderson and May, 1992;",
+                    "ref_id": "BIBREF67"
+                },
+                {
+                    "start": 214,
+                    "end": 245,
+                    "text": "Diekmann and Heesterbeek, 2000;",
+                    "ref_id": "BIBREF75"
+                },
+                {
+                    "start": 246,
+                    "end": 273,
+                    "text": "Keeling and Grenfell, 1997;",
+                    "ref_id": "BIBREF91"
+                },
+                {
+                    "start": 274,
+                    "end": 302,
+                    "text": "Kermack and McKendrick, 1927",
+                    "ref_id": "BIBREF93"
+                },
+                {
+                    "start": 303,
+                    "end": 309,
+                    "text": ", 1932",
+                    "ref_id": "BIBREF94"
+                },
+                {
+                    "start": 310,
+                    "end": 316,
+                    "text": ", 1933",
+                    "ref_id": "BIBREF95"
+                },
+                {
+                    "start": 317,
+                    "end": 324,
+                    "text": ", 1991a",
+                    "ref_id": "BIBREF96"
+                },
+                {
+                    "start": 325,
+                    "end": 337,
+                    "text": "Lloyd, 2009;",
+                    "ref_id": "BIBREF100"
+                },
+                {
+                    "start": 338,
+                    "end": 373,
+                    "text": "Wearing, Rohani, and Keeling, 2005)",
+                    "ref_id": "BIBREF119"
+                }
+            ],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "It is known that including a latent period prior to the onset of symptoms and infectiousness, as well as incorporating non-exponential distributions for the time spent in the different infection states, can be important to include in models that are being used in such applications (Feng, Xu, and Zhao, 2007; Wang et al., 2017; Wearing, Rohani, and Keeling, 2005) .",
+            "cite_spans": [
+                {
+                    "start": 282,
+                    "end": 308,
+                    "text": "(Feng, Xu, and Zhao, 2007;",
+                    "ref_id": "BIBREF78"
+                },
+                {
+                    "start": 309,
+                    "end": 327,
+                    "text": "Wang et al., 2017;",
+                    "ref_id": "BIBREF118"
+                },
+                {
+                    "start": 328,
+                    "end": 363,
+                    "text": "Wearing, Rohani, and Keeling, 2005)",
+                    "ref_id": "BIBREF119"
+                }
+            ],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "Here we use the GLCT to formulate a more general SEIR model where we assume that the latent period (time spent in state E) and infectious period (time spent in state I) follow independent phase-type distributions. For simplicity, we assume the state variables have been scaled by the total population size so that S + E + I + R = 1, and that there are no births or deaths in the model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "To begin, consider this simple SEIR model, where S is the fraction of susceptibles in the population, E the fraction of exposed individuals with latent infections, I the fraction of individuals with active infections, and R the fraction of recovered or removed individuals:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "Next, assume the latent period distribution is phase-type with parameters \u03b1 E and A E , and the infectious period distribution is also phase-type, but with parameters \u03b1 I and A I . Let x = [E 1 , . . .] T and y = [I 1 , . . .] T be the column vectors of the fraction of individuals in each of the exposed and infectious sub-states, respectively, where E = E j and I = I i . Then by the GLCT we can write the mean field ODEs for the generalized SEIR model as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "To assume, for example, an Erlang distributed latent period with mean \u03c4 E and shape k E , i.e., rate 1/\u03c4 E and coefficient of variation c v = 1/ \u221a k E , then one would use",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "Similarly, an Erlang infectious period distribution with mean \u03c4 I and shape parameter k I (coefficient of variation 1/ \u221a k I ) would be parameterized by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "Simplifying the right hand side of eqs. (15) using the matrix and vector definitions above yields the familiar sub-state equations for an SEIR model with Erlang distributed latent and infectious periods, eqs. (18).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "Other phase-type distributions could be assumed, e.g., by fitting non-Erlang phase-type distributions to data using computational tools like the free software BuTools (Horv\u00e1th and Telek, 2017, 2020).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model"
+        },
+        {
+            "text": "The examples above illustrate how an existing DDE or ODE model can be generalized by assuming that states with fixed or exponentially distributed dwell times instead have phase-type distributed dwell times. Here we take the generalized SEIR model above and use the GLCT to further explore more complex model assumptions. We do this by considering two special cases of this generalized model (see Figs. 1 , 2): one that models hospitalization in a manner that does not change the distribution of time in the infected class, and a second case that models heterogeneity in the severity and duration of disease. In each case, we assume that infected individuals will either experience mild or severe disease with the potential for distributional differences in the duration of infection.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 396,
+                    "end": 403,
+                    "text": "Figs. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "SEIR Model with Heterogeneity Among Infected Individuals"
+        },
+        {
+            "text": "For simplicity, here we assume the removed class R contains both recovered and deceased individuals, and that, upon transitioning from the class of individuals with latent infection (E) to the infectious class (I), a fraction \u03c1 will go on to develop severe symptoms (in state I s ) that may require hospitalization, whereas the remaining fraction (1 \u2212 \u03c1) do not develop severe disease and instead enter a different state of more mild disease (I 0 ). Using the GLCT, the states I 0 and I s are partitioned into sub-states, where the numbers in each are described by vectors y 0 and y s , respectively, and their dynamics obey the following system of ODEs:",
+            "cite_spans": [
+                {
+                    "start": 442,
+                    "end": 446,
+                    "text": "(I 0",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "SEIR Model with Heterogeneity Among Infected Individuals"
+        },
+        {
+            "text": "Eqs. (19) can be viewed as a special case of eqs. (15) defined in terms of a mixture of two phase-type distributions, where y = [y 0 T , y s T ], the vector \u03b1 I = [(1 \u2212 \u03c1)\u03b1 I 0 T , \u03c1\u03b1 Is T ], and A I is the block diagonal matrix A I =diag(A I 0 , A Is ). The two cases below are described in the context of eqs. (19).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR Model with Heterogeneity Among Infected Individuals"
+        },
+        {
+            "text": "In this scenario, individuals progress towards recovery or death according to an Erlang distribution with rate \u03bb and shape k y 0 . Independently, they also move towards hospitalization according to an Erlang distributed hospitalization time with rate r and shape k H (for an example of this structure used to model Ebola, but where k H = 1, see Feng et al., 2016) . Modeling this with Erlang latent and infectious period distributions for simplicity, and according to the competing Poisson processes motif detailed in (Hurtado and Kirosingh, 2019) , yields a sub-state structure as shown in Fig. 1 . The matrix-vector pairs \u03b1 E , A E , and \u03b1 I 0 , A I 0 are as described above for Erlang distributions.",
+            "cite_spans": [
+                {
+                    "start": 345,
+                    "end": 363,
+                    "text": "Feng et al., 2016)",
+                    "ref_id": "BIBREF79"
+                },
+                {
+                    "start": 518,
+                    "end": 547,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 591,
+                    "end": 597,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 1: Hospitalization Independent of Progress Towards Infection Resolution"
+        },
+        {
+            "text": "The matrix-vector pair A Is and \u03b1 Is are defined as follows 3 . If we order these states starting at the I 11 entry and work across each rows left to right before moving down to the next row (see Fig. 1 ), then the associated rate matrix has the following block form with each column and row having k H blocks of dimension k 1 \u00d7 k 1 . This block structure corresponds to each row of the I 1 sub-states shown in the lower portion of Fig. 1 as a k H \u00d7 k 1 grid of sub-states.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 196,
+                    "end": 202,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 432,
+                    "end": 438,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 1: Hospitalization Independent of Progress Towards Infection Resolution"
+        },
+        {
+            "text": "where the diagonal and superdiagonal blocks are R \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 . . . . . . . . . . . . Figure 1 : SEIR-type model with heterogeneity in illness severity and hospitalizations that do not alter the infectious period. A special case of eqs. (19) (cf. Fig. 2 ). See the main text for details. Here the standard LCT has been applied to the exposed (E) state, and the GLCT is applied to the infectious (I) states, using the competing Poisson Process approach (Hurtado and Kirosingh, 2019) to model hospitalizations in a fraction of the infectious individuals. This ensures that the time spent in I is independent of whether or not individuals transition to the hospital. and the bottom right diagonal entry is",
+            "cite_spans": [
+                {
+                    "start": 470,
+                    "end": 499,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 104,
+                    "end": 112,
+                    "text": "Figure 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 265,
+                    "end": 271,
+                    "text": "Fig. 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 1: Hospitalization Independent of Progress Towards Infection Resolution"
+        },
+        {
+            "text": "Together, the matrix A Is and the length k H k Is initial distribution vector \u03b1 Is = [1, 0, \u00b7 \u00b7 \u00b7 , 0] T complete the parameterization of model eqs. (19) to yield the model structure illustrated in Fig. 1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 198,
+                    "end": 204,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 1: Hospitalization Independent of Progress Towards Infection Resolution"
+        },
+        {
+            "text": "Observe that the matrix above has the same diagonal and superdiagonal blocks in all rows except for the last row, for which the diagonal entries are \u2212\u03bb and not \u2212\u03bb \u2212 r. Here the dwell time in each sub-state of I s (except for the last row) follows the minimum of two independent exponential distributions with rates \u03bb and r, so by the properties of exponential distributions, those dwell times are each exponentially distributed with rate \u03bb + r. Individuals leaving those sub-states then either move horizontally towards resolving their infections with probability \u03bb/(\u03bb + r), or move downwards towards hospitalization (the last row) with probability r/(\u03bb + r) (Hurtado and Kirosingh, 2019) . In the last row, individuals are hospitalized and can only move horizontally towards the resolution of their illness. This structure ensures that time transition to the hospital (the last row) does not impact their overall distribution of time spent in state I 1 .",
+            "cite_spans": [
+                {
+                    "start": 659,
+                    "end": 688,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Case 1: Hospitalization Independent of Progress Towards Infection Resolution"
+        },
+        {
+            "text": "\u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 Figure 2 : SEIR-type model with heterogeneity in illness severity in which a fraction of infected individuals experience severe illness and a fraction of those require critical care. This is also a special case of eqs. (19) (see Fig. 1 ). See the main text for details.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 24,
+                    "end": 32,
+                    "text": "Figure 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 253,
+                    "end": 259,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 1: Hospitalization Independent of Progress Towards Infection Resolution"
+        },
+        {
+            "text": "To further illustrate the flexibility of eqs. (15) and (19), we now consider the model structure illustrated in Fig. 2 . In this case, we make similar assumptions to the case above, except for the states that pertain to the fraction \u03c1 of individuals who experience severe illness. Those individuals exhibit an Erlang distributed period of more mild disease, with rate r 1 and shape parameter k 1 . Those individuals then either recover (with probability f ) after an Erlang distributed period of time with rate r R and shape k R , or they become even more ill (with probability 1 \u2212 f ) and require hospitalization for an Erlang distributed amount time with rate r C and shape k C . As above, all individuals eventually enter a removed state R which, for our purposes here, makes no distinction between recovery and death.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 112,
+                    "end": 118,
+                    "text": "Fig. 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 2: Hospitalization With Heterogeneous Need for Critical Care"
+        },
+        {
+            "text": "Comparing Figs. 1 and 2 , we see that this second scenario is also a special case of eqs. (19), and only differs from that case in the definition of matrix A Is and the length k 1 + k R + k C initial distribution vector \u03b1 Is = [1, 0, \u00b7 \u00b7 \u00b7 , 0] T . Ordering the substates of I s from I 11 to I 1k 1 to I R1 to I Rk R to I C1 to I Ck C , then, by the assumptions above, A Is is given by",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 10,
+                    "end": 23,
+                    "text": "Figs. 1 and 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Case 2: Hospitalization With Heterogeneous Need for Critical Care"
+        },
+        {
+            "text": "The two examples above illustrate the utility of deriving models using the GLCT and by thinking about deriving model structure from first principles using intuition from CTMCs. This approach can be leveraged for the analytical study of such models (Hurtado and Richards, in prep.) , but as we show in the next section it can also facilitate the process of computing numerical solutions to such systems of ODEs.",
+            "cite_spans": [
+                {
+                    "start": 248,
+                    "end": 280,
+                    "text": "(Hurtado and Richards, in prep.)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Case 2: Hospitalization With Heterogeneous Need for Critical Care"
+        },
+        {
+            "text": "Software like Matlab, Python, Julia, and R, have built-in ODE solvers that implement various numerical methods for obtaining numerical solutions to ODEs. In Fig. 3 8)] is included as a baseline). The second and third cases are mathematically equivalent systems. For smaller shape parameters (lower dimension systems) the GLCT model formulation is relatively slower than explicitly writing out the 2M + 1 equations, whereas for larger shape parameters (higher dimension systems) the GLCT formulation becomes markedly faster. This is likely due to the efficiency of the matrix computations. The x-axis values M indicate the number of maturing predator sub-states (k x = M ) and adult predator sub-states (k y = M ), which yields a 2M + 1 dimensional model. Numerical solutions were computed using the ode() function in the deSolve package (Soetaert, Petzoldt, and Setzer, 2010) in R (R Core Team, 2020), using method ode45 with atol=10^-6, for time points 0 to 500 in increments of 1, with r = 1, K = 1000, a = 5, k = 500, \u03c7 = 0.5, \u00b5 x = 0.5, \u00b5 y = 1, N (0) = 1000, x i (0) = 0 (i \u2265 1), y 1 (0) = 10, and y j (0) = 0 (j > 1). See Appendix A for details. 14)] is included as a baseline). The second and third cases are mathematically equivalent systems. For smaller shape parameters (lower dimension systems) the GLCT model formulation is relatively slower than explicitly writing out the 2N+2 equations, whereas for larger shape parameters (higher dimension systems) the GLCT formulation becomes faster, likely due to the efficiency of the matrix computations. The x-axis values N indicate the number of sub-states in each of E (k E = N ) and I (k I = N ), which yields a 2N + 2 dimensional model. Numerical solutions were computed using the ode() function in the deSolve package (Soetaert, Petzoldt, and Setzer, 2010) in R (R Core Team, 2020), using method ode45 with atol=10^-6, for time points 0 to 100 in increments of 0.5, with \u03b2 = 1, \u00b5 E = 4, \u00b5 I = 7, S(0) = 0.9999, E 1 (0) = 0.0001, E i (0) = 0 (i > 1), I 1 (0) = 0, I i (0) = 0 (i > 1), and R(0) = 0. See Appendix A for details.",
+            "cite_spans": [
+                {
+                    "start": 837,
+                    "end": 875,
+                    "text": "(Soetaert, Petzoldt, and Setzer, 2010)",
+                    "ref_id": "BIBREF116"
+                },
+                {
+                    "start": 1778,
+                    "end": 1816,
+                    "text": "(Soetaert, Petzoldt, and Setzer, 2010)",
+                    "ref_id": "BIBREF116"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 157,
+                    "end": 163,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Benchmarking Numerical Solutions: LCT vs GLCT"
+        },
+        {
+            "text": "To summarize these results, neither approach performs uniformly better than the other. In both comparisons, low dimensional models (i.e., smaller shape parameters and thus larger coefficients of variation) coded using the more explicit (LCT-based) model formulation, like eqs. (10) and (18), yielded numerical solutions faster than mathematically equivalent models coded using the more general phase-type (GLCT-based) formulation, like eqs. (11) and (15).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Benchmarking Numerical Solutions: LCT vs GLCT"
+        },
+        {
+            "text": "For higher dimensional models (i.e., larger shape parameters and thus smaller coefficients of variation), the phase-type (GLCT) formulation of these models outperformed their LCT-type counterparts. This is very likely the result of the matrix calculations used in the phase-type (GLCT) formulation of the models being more computationally efficient.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Benchmarking Numerical Solutions: LCT vs GLCT"
+        },
+        {
+            "text": "It is noteworthy that the GLCT-based ODE function only needs to be coded once, as it is agnostic of the number of sub-state variables. In contrast, researchers typically hard-code the number of sub-states for such computations using an LCT-based model, and must write multiple ODE functions to consider model outputs using different shape parameters for the assumed Erlang distributions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Benchmarking Numerical Solutions: LCT vs GLCT"
+        },
+        {
+            "text": "In summary, the GLCT may allow for faster computing times for high dimensional systems and it can simplify writing code for ODE solvers since a single instance of the model can be used to simulate ODE models with an arbitrary number of dimensions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Benchmarking Numerical Solutions: LCT vs GLCT"
+        },
+        {
+            "text": "ODE models are widely used in the biological sciences and can often be viewed as mean field models for some (oftentimes, unspecified) stochastic state transition model. Such ODE models are sometimes criticized for their implicit assumption of exponentially distributed dwell times (e.g., exponentially distributed lifetimes of organisms), and their frequent lack of age or stage structure, which may not adequately capture important time lags in the system being modeled, such as the maturation times of organisms or latent periods in disease transmission models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "In this paper, we have provided an overview of the Generalized Linear Chain Trick (GLCT), a relatively new tool modelers can use to improve upon existing ODE models to address these shortcomings, and we illustrate its utility using multiple examples. The GLCT extends the wellknown Linear Chain Trick (LCT) to a broad family of probability distributions known as the phase-type distributions, and also clarifies in a straightforward way how mean field ODEs reflect underlying stochastic model assumptions when viewed from the perspective of continuous time Markov chains (CTMCs). Therefore, we have also provided an overview of CTMCs, and their absorption time distributions in particular. Importantly, the phase-type distributions comprise these absorption time distributions, and include a broad set of named probability distributions including exponential, Erlang, hypoexponential (generalized Erlang), hyperexponential, and Coxian distributions. Freely available statistical tools like BuTools (Horv\u00e1th and Telek, 2017, 2020) exist for fitting phase-type distributions to data, enabling modelers to build approximate empirical dwell time distributions into ODE models using the GLCT.",
+            "cite_spans": [
+                {
+                    "start": 998,
+                    "end": 1010,
+                    "text": "(Horv\u00e1th and",
+                    "ref_id": "BIBREF87"
+                },
+                {
+                    "start": 1011,
+                    "end": 1029,
+                    "text": "Telek, 2017, 2020)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "We have illustrated how to apply the GLCT by using it to derive extensions of two familiar models: the Rosenzweig-MacArthur Predator-Prey model, and the SEIR model of infectious disease transmission. We showed how two special cases of the generalized SEIR model can be constructed to accommodate additional complexity among infected individuals: the first case models a hospitalization scenario in which the transition to the hospitalized state has no impact on the distribution of the overall time individuals spend sick (cf. Feng et al., 2016) , and the second case models heterogeneity in the progression and severity of infection outcomes. These examples illustrate how the GLCT can be used to refine model assumptions in a rigorous manner, but without the need to explicitly derive mean field ODEs from stochastic models and/or mean field integral equations.",
+            "cite_spans": [
+                {
+                    "start": 527,
+                    "end": 545,
+                    "text": "Feng et al., 2016)",
+                    "ref_id": "BIBREF79"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Lastly, we showed some of the potential computational benefits of using a GLCT-based approach to ODE model formulation by comparing the time it takes to compute numerical solutions of ODEs using the standard approach versus using a GLCT-based approach. We found that, for low dimensional models, the GLCT-based computations are slower than using a more traditional approach; however for higher dimensional models, the GLCT-based computations were faster. This improvement in computing time is likely the result of the computational efficiency of doing matrix and vector based computations. In addition to faster computation times, another benefit of the GLCT-based approach is that only one ODE model function needs to be written since it is agnostic of the model dimension. In contrast, models that have been extended using the standard LCT typically have the number of sub-states (i.e., the shape parameter for the Erlang distributions) hard-coded, and therefore multiple model functions must be coded to explore different shape parameters.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "In conclusion, we hope this work encourages other researchers to think more carefully about underlying model assumptions when deriving ODE models. We also hope this work demonstrates the relative ease with which some basic intuition from Markov chain theory can be used to specify clear model assumptions from first principles, which can then be very quickly realized as one or more mean field ODE models using the GLCT (Hurtado and Kirosingh, 2019) .",
+            "cite_spans": [
+                {
+                    "start": 420,
+                    "end": 449,
+                    "text": "(Hurtado and Kirosingh, 2019)",
+                    "ref_id": "BIBREF89"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "This work was supported by a grant awarded to PJH by the Sloan Scholars Mentoring Network of the Social Science Research Council with funds provided by the Alfred P. Sloan Foundation; and this material is based upon work supported by the National Science Foundation under Grant No. DEB-1929522 . This work was partly motivated by PJH's participation in the ICMA-VII conference held at Arizona State University, October 12-14, 2019, with travel support provided to PJH from NSF grant #DMS-1917512 awarded to the Organizing Committee of the ICMA-VII conference.",
+            "cite_spans": [
+                {
+                    "start": 255,
+                    "end": 293,
+                    "text": "Foundation under Grant No. DEB-1929522",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Funding"
+        },
+        {
+            "text": "The authors declare that they have no conflict of interest.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Disclosure statement"
+        },
+        {
+            "text": "For the complete R code used to generate Figs. 3 and 4, see the Electronic Supplements. The following R code shows a portion of that code, to illustrate how the GLCT-based model formulations differ from the LCT-based formulations. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Appendix A R Code for Numerical Solutions to ODEs"
+        },
+        {
+            "text": "10 library ( rbenchmark ) 11 12 # # Parameters 13 14 IC = c ( N =1000 , Y =10) ; 15 16 parms = c ( r = 1 , K = 1000 , a = 5 , k = 500 , chi = 0.5 , mux = 0.5 , muy = 1) ; 28 dN = r * N * (1 -N / K ) -( a / ( k + N ) ) * Y * N 29 dY = chi * ( a / ( k + N ) ) * N *Y -Y / muy 30 return ( list ( c ( dN , dY ) ) ) 31 } 32 33 34 # Generalized Rosenzweig -MacArthur with phase -type maturation and adult -life -stage times z0 [2] <-1 / PopSize # 1 in the initial exposed class",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A.1 Rosenzweig-MacArthur Model & Extensions"
+        },
+        {
+            "text": "1 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 2 # #7 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 8# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 23 # #",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A.2 SEIR Model & Extensions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "RMpt . ode <-function ( tm ,z , ps ) {",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "37 # kx = ps",
+            "authors": [],
+            "year": null,
+            "venue": "Number of substates in E , and",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "38 # ky = ps",
+            "authors": [
+                {
+                    "first": "#",
+                    "middle": [
+                        "."
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Number of substates in E , and",
+            "authors": [
+                {
+                    "first": ";",
+                    "middle": [],
+                    "last": "Kx &lt; &lt;-Ps",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "kx ) ) ; if ( kx >1) for ( i in 1:( kx -1) ) { Ax [i , i +1] = kx / mux } 65 66 ay = matrix (0 , nrow = kx",
+            "authors": [],
+            "year": null,
+            "venue": "Ax = kx / mux * ( diag ( rep",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "ky ) ) ; if ( ky >1) for ( i in 1:( ky -1) ) { Ay [i , i +1",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Ay ) 79 onesxt < <-matrix (1 , ncol = kx , nrow =1)",
+            "authors": [
+                {
+                    "first": "&lt; &lt;-T",
+                    "middle": [],
+                    "last": "Ayt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "onesx < <-matrix (1 , nrow = kx",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "onesyt < <-matrix (1 , ncol = ky , nrow =1)",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "onesy < <-matrix (1 , nrow = ky",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "RMlct1 . ode <-function ( tm ,z , ps ) {",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "RMlct2 . ode <-function ( tm ,z , ps ) {",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "RMlct20 . ode <-function ( tm ,z , ps ) {",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "184 b1 = benchmark ( RM .1 ={ ode ( y = IC , times = tms , func = RM . ode , parms = parms , method = mthd",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "1={ ode ( y = ICs , times = tms , func = RMlct1 . ode , parms = parms1 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rmlct",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "={ ode ( y = ICs , times = tms , func = RMpt . ode , parms = parms1 , method = mthd , atol = atol ) } , 187 replications = reps",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rmpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "={ ode ( y = IC , times = tms , func = RM . ode , parms = parms , method = mthd",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "2={ ode ( y = ICs , times = tms , func = RMlct2 . ode , parms = parms2 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rmlct",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "={ ode ( y = ICs , times = tms , func = RMpt . ode , parms = parms2 , method = mthd , atol = atol ) } , 193 replications = reps",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rmpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "intermediate values omitted for breveity --see electronic supplement for full code",
+            "authors": [
+                {
+                    "first": "#",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "={ ode ( y = IC , times = tms , func = RM . ode , parms = parms , method = mthd",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "20={ ode ( y = ICs , times = tms , func = RMlct20 . ode , parms = parms20 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rmlct",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "={ ode ( y = ICs , times = tms , func = RMpt . ode , parms = parms20 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rmpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "20",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "OnesE < <-matrix (1 , ncol = kE , nrow =1)",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "OnesI < <-matrix (1 , ncol = kI , nrow =1)",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "ICs < <-z0 = seq (0 , Tmax , length =200)",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "init ( parms ) # set ' s some initial conditions in ICs , and some matrices needed for SEIRpt",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "out = ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "Neg = sum ( out",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "out = ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "Neg = sum ( out",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "out = ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "Neg = sum ( out",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "out = ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "Neg = sum ( out",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "SEIRlct25 . ode <-compiler :: cmpfun ( SEIRlct25 . ode )",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF50": {
+            "ref_id": "b50",
+            "title": "={ ode ( y = IC , times = tms , func = SEIR . ode , parms = parms , method = mthd",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "1={ ode ( y = ICs , times = tms , func = SEIRlct1 . ode , parms = parms1 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirlct",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF52": {
+            "ref_id": "b52",
+            "title": "={ ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms1 , method = mthd , atol = atol ) } , 237 replications = reps",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF53": {
+            "ref_id": "b53",
+            "title": "={ ode ( y = IC , times = tms , func = SEIR . ode , parms = parms , method = mthd",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF54": {
+            "ref_id": "b54",
+            "title": "2={ ode ( y = ICs , times = tms , func = SEIRlct2 . ode , parms = parms2 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirlct",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF55": {
+            "ref_id": "b55",
+            "title": "={ ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms2 , method = mthd , atol = atol ) } , 243 replications = reps",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF56": {
+            "ref_id": "b56",
+            "title": "={ ode ( y = IC , times = tms , func = SEIR . ode , parms = parms , method = mthd",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF57": {
+            "ref_id": "b57",
+            "title": "25={ ode ( y = ICs , times = tms , func = SEIRlct25 . ode , parms = parms25 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirlct",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF58": {
+            "ref_id": "b58",
+            "title": "25 ={ ode ( y = ICs , times = tms , func = SEIRpt . ode , parms = parms25 , method = mthd",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seirpt",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF59": {
+            "ref_id": "b59",
+            "title": "255 out <-rbind ( b1 , b2 , b25 )",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF60": {
+            "ref_id": "b60",
+            "title": "2) [ ,2] 258 out $ Model <-stringr :: str _ split _ fixed ( out $ test",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Out $ N &lt;-Stringr",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "str _ split _ fixed ( out $ test",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF61": {
+            "ref_id": "b61",
+            "title": "SEIR ( Exponential )",
+            "authors": [
+                {
+                    "first": "&lt;-Gsub ;",
+                    "middle": [],
+                    "last": "# Out $ Model",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seir $",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF62": {
+            "ref_id": "b62",
+            "title": "# out $ Model <-gsub (\" lct",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF63": {
+            "ref_id": "b63",
+            "title": "Standard : Exponential latent & infetious periods \" , out $ Model ) 263 out $ Model <-gsub ( \" lct",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "# Out $ Model &lt;-Gsub",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "LCT : Erlang latent & infectious periods",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF64": {
+            "ref_id": "b64",
+            "title": "GLCT : Erlang latent & infectious periods ( phase -type formulation ) \" , out $ Model ) 265 out $ Model <-gsub",
+            "authors": [],
+            "year": null,
+            "venue": "out $ Model <-gsub ( \" pt",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF65": {
+            "ref_id": "b65",
+            "title": "An Introduction to Mathematical Biology",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [
+                        "J S"
+                    ],
+                    "last": "Allen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF66": {
+            "ref_id": "b66",
+            "title": "On the Phase-Type Approximations of General Distributions",
+            "authors": [
+                {
+                    "first": "Tayfur",
+                    "middle": [],
+                    "last": "Altiok",
+                    "suffix": ""
+                }
+            ],
+            "year": 1985,
+            "venue": "IIE Transactions",
+            "volume": "17",
+            "issn": "",
+            "pages": "110--116",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/07408178508975280"
+                ]
+            }
+        },
+        "BIBREF67": {
+            "ref_id": "b67",
+            "title": "Infectious Diseases of Humans: Dynamics and Control",
+            "authors": [
+                {
+                    "first": "Roy",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "May",
+                    "suffix": ""
+                }
+            ],
+            "year": 1992,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF68": {
+            "ref_id": "b68",
+            "title": "An Introduction to Dynamical Systems",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Arrowsmith",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Place",
+                    "suffix": ""
+                }
+            ],
+            "year": 1990,
+            "venue": "",
+            "volume": "432",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF70": {
+            "ref_id": "b70",
+            "title": "Matrix-Exponential Distributions in Applied Probability",
+            "authors": [
+                {
+                    "first": "Mogens",
+                    "middle": [],
+                    "last": "Bladt",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bo",
+                    "middle": [
+                        "Friis"
+                    ],
+                    "last": "Nielsen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-1-4939-7049-0"
+                ]
+            }
+        },
+        "BIBREF71": {
+            "ref_id": "b71",
+            "title": "Phase-Type Distributions''. In: Matrix-Exponential Distributions in Applied Probability",
+            "authors": [],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "125--197",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-1-4939-7049-0_3"
+                ]
+            }
+        },
+        "BIBREF72": {
+            "ref_id": "b72",
+            "title": "A review of mathematical models for leukemia and lymphoma",
+            "authors": [
+                {
+                    "first": "Geoffrey",
+                    "middle": [],
+                    "last": "Clapp",
+                    "suffix": ""
+                },
+                {
+                    "first": "Doron",
+                    "middle": [],
+                    "last": "Levy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Drug Discovery Today: Disease Models",
+            "volume": "16",
+            "issn": "",
+            "pages": "1--6",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ddmod.2014.10.002"
+                ]
+            }
+        },
+        "BIBREF73": {
+            "ref_id": "b73",
+            "title": "A derivation of Holling's type I, II and III functional responses in predator-prey systems",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "H P"
+                    ],
+                    "last": "Dawes",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Souza",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Journal of Theoretical Biology",
+            "volume": "327",
+            "issn": "",
+            "pages": "11--22",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.jtbi.2013.02.017"
+                ]
+            }
+        },
+        "BIBREF74": {
+            "ref_id": "b74",
+            "title": "Theoretical Neuroscience: Computational and Mathematical Modeling of Neural Systems. Computational Neuroscience",
+            "authors": [
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Dayan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Laurence",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Abbott",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF75": {
+            "ref_id": "b75",
+            "title": "Mathematical epidemiology of infectious diseases: Model building, analysis and interpretation",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Diekmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A P"
+                    ],
+                    "last": "Heesterbeek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Wiley Series in Mathematical and Computational Biology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF76": {
+            "ref_id": "b76",
+            "title": "Mathematical Models in Biology",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Edelstein-Keshet",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Society for Industrial and Applied Mathematics",
+            "volume": "46",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1137/1.9780898719147"
+                ]
+            }
+        },
+        "BIBREF77": {
+            "ref_id": "b77",
+            "title": "Dynamic Models in Biology",
+            "authors": [
+                {
+                    "first": "Stephen",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Ellner",
+                    "suffix": ""
+                },
+                {
+                    "first": "John",
+                    "middle": [],
+                    "last": "Guckenheimer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF78": {
+            "ref_id": "b78",
+            "title": "Epidemiological Models with Non-Exponentially Distributed Disease Stages and Applications to Disease Control",
+            "authors": [
+                {
+                    "first": "Zhilan",
+                    "middle": [],
+                    "last": "Feng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Dashun",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Haiyun",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Bulletin of Mathematical Biology",
+            "volume": "69",
+            "issn": "",
+            "pages": "1511--1536",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s11538-006-9174-9"
+                ]
+            }
+        },
+        "BIBREF79": {
+            "ref_id": "b79",
+            "title": "Mathematical models of Ebola-Consequences of underlying assumptions",
+            "authors": [
+                {
+                    "first": "Zhilan",
+                    "middle": [],
+                    "last": "Feng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Mathematical biosciences 277",
+            "volume": "",
+            "issn": "",
+            "pages": "89--107",
+            "other_ids": {}
+        },
+        "BIBREF80": {
+            "ref_id": "b80",
+            "title": "Making ecological models adequate",
+            "authors": [
+                {
+                    "first": "Wayne",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Getz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Ecology Letters",
+            "volume": "21",
+            "issn": "",
+            "pages": "153--166",
+            "other_ids": {
+                "DOI": [
+                    "10.1111/ele.12893"
+                ]
+            }
+        },
+        "BIBREF81": {
+            "ref_id": "b81",
+            "title": "Differential Equations, Dynamical Systems, and an Introduction to Chaos. 3rd",
+            "authors": [
+                {
+                    "first": "Morris",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Hirsch",
+                    "suffix": ""
+                },
+                {
+                    "first": "Stephen",
+                    "middle": [],
+                    "last": "Smale",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Devaney",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/C2009-0-61160-0"
+                ]
+            }
+        },
+        "BIBREF83": {
+            "ref_id": "b83",
+            "title": "Some Characteristics of Simple Types of Predation and Parasitism",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Holling",
+                    "suffix": ""
+                }
+            ],
+            "year": 1959,
+            "venue": "The Canadian Entomologist",
+            "volume": "91",
+            "issn": "",
+            "pages": "385--398",
+            "other_ids": {
+                "DOI": [
+                    "10.4039/ent91385-7"
+                ]
+            }
+        },
+        "BIBREF84": {
+            "ref_id": "b84",
+            "title": "The Components of Predation as Revealed by a Study of Small-Mammal Predation of the European Pine Sawfly",
+            "authors": [],
+            "year": 1959,
+            "venue": "The Canadian Entomologist",
+            "volume": "91",
+            "issn": "",
+            "pages": "293--320",
+            "other_ids": {
+                "DOI": [
+                    "10.4039/ent91293-5"
+                ]
+            }
+        },
+        "BIBREF85": {
+            "ref_id": "b85",
+            "title": "Phase Type and Matrix Exponential Distributions in Stochastic Modeling''. In: Principles of Performance and Reliability Modeling and Evaluation: Essays in Honor of Kishor Trivedi on his 70th Birthday",
+            "authors": [
+                {
+                    "first": "Andr\u00e1s",
+                    "middle": [],
+                    "last": "Horv\u00e1th",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marco",
+                    "middle": [],
+                    "last": "Scarpa",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mikl\u00f3s",
+                    "middle": [],
+                    "last": "Telek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "3--25",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-30599-8_1"
+                ]
+            }
+        },
+        "BIBREF86": {
+            "ref_id": "b86",
+            "title": "BuTools 2: A rich toolbox for Markovian performance evaluation",
+            "authors": [
+                {
+                    "first": "G\u00e1bor",
+                    "middle": [],
+                    "last": "Horv\u00e1th",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mikl\u00f3s",
+                    "middle": [],
+                    "last": "Telek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ValueTools 2016 -10th EAI International Conference on Performance Evaluation Methodologies and Tools",
+            "volume": "",
+            "issn": "",
+            "pages": "137--142",
+            "other_ids": {
+                "DOI": [
+                    "10.4108/eai.25-10-2016.2266400"
+                ]
+            }
+        },
+        "BIBREF87": {
+            "ref_id": "b87",
+            "title": "Efficient Generation of PH-Distributed Random Variates",
+            "authors": [
+                {
+                    "first": "G\u00e1bor",
+                    "middle": [],
+                    "last": "Horv\u00e1th",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Proceedings of the 19th international conference on Analytical and Stochastic Modeling Techniques and Applications",
+            "volume": "",
+            "issn": "",
+            "pages": "271--285",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-30782-9_19"
+                ]
+            }
+        },
+        "BIBREF88": {
+            "ref_id": "b88",
+            "title": "Building New Models: Rethinking and Revising ODE Model Assumptions",
+            "authors": [
+                {
+                    "first": "Paul",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Hurtado",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Foundations for Undergraduate Research in Mathematics",
+            "volume": "",
+            "issn": "",
+            "pages": "1--86",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-33645-5_1"
+                ]
+            }
+        },
+        "BIBREF89": {
+            "ref_id": "b89",
+            "title": "Generalizations of the 'Linear Chain Trick': incorporating more flexible dwell time distributions into mean field ODE models",
+            "authors": [
+                {
+                    "first": "Paul",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Hurtado",
+                    "suffix": ""
+                },
+                {
+                    "first": "Adam",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Kirosingh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Journal of Mathematical Biology",
+            "volume": "79",
+            "issn": "",
+            "pages": "1831--1883",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00285-019-01412-w"
+                ]
+            }
+        },
+        "BIBREF90": {
+            "ref_id": "b90",
+            "title": "Dynamical Systems in Neuroscience: The Geometry of Excitability and Bursting. Computational Neuroscience",
+            "authors": [
+                {
+                    "first": "Eugene",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Izhikevich",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "464",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF91": {
+            "ref_id": "b91",
+            "title": "Disease Extinction and Community Size: Modeling the Persistence of Measles",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Keeling",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Grenfell",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "Science 275",
+            "volume": "5296",
+            "issn": "",
+            "pages": "65--67",
+            "other_ids": {
+                "DOI": [
+                    "10.1126/science.275.5296.65"
+                ]
+            }
+        },
+        "BIBREF92": {
+            "ref_id": "b92",
+            "title": "Mathematical Physiology I: Cellular Physiology. 2nd",
+            "authors": [
+                {
+                    "first": "James",
+                    "middle": [],
+                    "last": "Keener",
+                    "suffix": ""
+                },
+                {
+                    "first": "James",
+                    "middle": [],
+                    "last": "Sneyd",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Mathematical Physiology II: Systems Physiology. 2nd",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF93": {
+            "ref_id": "b93",
+            "title": "Containing Papers of a Mathematical and Physical Character 115",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Kermack",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Mckendrick",
+                    "suffix": ""
+                }
+            ],
+            "year": 1927,
+            "venue": "Proceedings of the Royal Society of London. Series A",
+            "volume": "772",
+            "issn": "",
+            "pages": "700--721",
+            "other_ids": {}
+        },
+        "BIBREF94": {
+            "ref_id": "b94",
+            "title": "Contributions to the Mathematical Theory of Epidemics. II. The Problem of Endemicity",
+            "authors": [],
+            "year": 1932,
+            "venue": "Proceedings of the Royal Society of London. Series A",
+            "volume": "834",
+            "issn": "",
+            "pages": "55--83",
+            "other_ids": {}
+        },
+        "BIBREF95": {
+            "ref_id": "b95",
+            "title": "Contributions to the Mathematical Theory of Epidemics. III. Further Studies of the Problem of Endemicity",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Kermack",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Mckendrick",
+                    "suffix": ""
+                }
+            ],
+            "year": 1933,
+            "venue": "Proceedings of the Royal Society of London. Series A",
+            "volume": "834",
+            "issn": "",
+            "pages": "94--122",
+            "other_ids": {}
+        },
+        "BIBREF96": {
+            "ref_id": "b96",
+            "title": "Contributions to the mathematical theory of epidemics-I",
+            "authors": [],
+            "year": 1991,
+            "venue": "Bulletin of Mathematical Biology",
+            "volume": "53",
+            "issn": "1-2",
+            "pages": "33--55",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/bf02464423"
+                ]
+            }
+        },
+        "BIBREF97": {
+            "ref_id": "b97",
+            "title": "Contributions to the mathematical theory of epidemics-II. The problem of endemicity",
+            "authors": [],
+            "year": 1991,
+            "venue": "Bulletin of Mathematical Biology",
+            "volume": "53",
+            "issn": "1-2",
+            "pages": "57--87",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/bf02464424"
+                ]
+            }
+        },
+        "BIBREF98": {
+            "ref_id": "b98",
+            "title": "Contributions to the mathematical theory of epidemics-III. Further studies of the problem of endemicity",
+            "authors": [],
+            "year": 1991,
+            "venue": "Bulletin of Mathematical Biology",
+            "volume": "53",
+            "issn": "1-2",
+            "pages": "89--118",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/bf02464425"
+                ]
+            }
+        },
+        "BIBREF99": {
+            "ref_id": "b99",
+            "title": "Effects of the infectious period distribution on predicted transitions in childhood disease dynamics",
+            "authors": [
+                {
+                    "first": "Olga",
+                    "middle": [],
+                    "last": "Krylova",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [
+                        "J D"
+                    ],
+                    "last": "Earn",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Journal of The Royal Society Interface",
+            "volume": "10",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1098/rsif.2013.0098"
+                ]
+            }
+        },
+        "BIBREF100": {
+            "ref_id": "b100",
+            "title": "Sensitivity of Model-Based Epidemiological Parameter Estimation to Model Assumptions",
+            "authors": [
+                {
+                    "first": "Alun",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Lloyd",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Mathematical and Statistical Estimation Approaches in Epidemiology",
+            "volume": "",
+            "issn": "",
+            "pages": "123--141",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-90-481-2313-1_6"
+                ]
+            }
+        },
+        "BIBREF101": {
+            "ref_id": "b101",
+            "title": "Differential Dynamical Systems, Revised Edition",
+            "authors": [
+                {
+                    "first": "James",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Meiss",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Society for Industrial and Applied Mathematics",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1137/1.9781611974645"
+                ]
+            }
+        },
+        "BIBREF102": {
+            "ref_id": "b102",
+            "title": "The Dynamics of Physiologically Structured Populations",
+            "authors": [],
+            "year": 1986,
+            "venue": "",
+            "volume": "68",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-662-13159-6"
+                ]
+            }
+        },
+        "BIBREF103": {
+            "ref_id": "b103",
+            "title": "Exact finite dimensional representations of models for physiologically structured populations. I: The abstract formulation of linear chain trickery",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "A J"
+                    ],
+                    "last": "Metz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Odo",
+                    "middle": [],
+                    "last": "Diekmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 1989,
+            "venue": "Proceedings of Differential Equations With Applications in Biology, Physics, and Engineering",
+            "volume": "133",
+            "issn": "",
+            "pages": "269--289",
+            "other_ids": {}
+        },
+        "BIBREF104": {
+            "ref_id": "b104",
+            "title": "Consumer--Resource Dynamics",
+            "authors": [
+                {
+                    "first": "William",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Murdoch",
+                    "suffix": ""
+                },
+                {
+                    "first": "Cheryl",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Briggs",
+                    "suffix": ""
+                },
+                {
+                    "first": "Roger",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Nisbet",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Monographs in Population Biology",
+            "volume": "36",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF105": {
+            "ref_id": "b105",
+            "title": "Mathematical Biology: I. An Introduction",
+            "authors": [
+                {
+                    "first": "James",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Murray",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Interdisciplinary Applied Mathematics",
+            "volume": "584",
+            "issn": "17",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF106": {
+            "ref_id": "b106",
+            "title": "Mathematical Biology II: Spatial Models and Biomedical Applications. Interdisciplinary Applied Mathematics",
+            "authors": [],
+            "year": 2011,
+            "venue": "",
+            "volume": "584",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF107": {
+            "ref_id": "b107",
+            "title": "Stage Structure Models Applied in Evolutionary Ecology",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Nisbet",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "S C"
+                    ],
+                    "last": "Gurney",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A J"
+                    ],
+                    "last": "Metz",
+                    "suffix": ""
+                }
+            ],
+            "year": 1989,
+            "venue": "Applied Mathematical Ecology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF109": {
+            "ref_id": "b109",
+            "title": "R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "R Core Team",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF110": {
+            "ref_id": "b110",
+            "title": "Phase-Type Distributions''. In: Resilience Assessment and Evaluation of Computing Systems",
+            "authors": [
+                {
+                    "first": "Philipp",
+                    "middle": [],
+                    "last": "Reinecke",
+                    "suffix": ""
+                },
+                {
+                    "first": "Levente",
+                    "middle": [],
+                    "last": "Bodrog",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alexandra",
+                    "middle": [],
+                    "last": "Danilkina",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF112": {
+            "ref_id": "b112",
+            "title": "Cluster-based fitting of phase-type distributions to empirical data",
+            "authors": [
+                {
+                    "first": "Philipp",
+                    "middle": [],
+                    "last": "Reinecke",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tilman",
+                    "middle": [],
+                    "last": "Krau",
+                    "suffix": ""
+                },
+                {
+                    "first": "Katinka",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Computers & Mathematics with Applications",
+            "volume": "64",
+            "issn": "",
+            "pages": "3840--3851",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.camwa.2012.03.016"
+                ]
+            }
+        },
+        "BIBREF113": {
+            "ref_id": "b113",
+            "title": "A matter of maturity: To delay or not to delay? Continuoustime compartmental models of structured populations in the literature",
+            "authors": [
+                {
+                    "first": "Suzanne",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Robertson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Natural Resource Modeling",
+            "volume": "31",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1111/nrm.12160"
+                ]
+            }
+        },
+        "BIBREF114": {
+            "ref_id": "b114",
+            "title": "Graphical Representation and Stability Conditions of Predator-Prey Interactions",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Rosenzweig",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Macarthur",
+                    "suffix": ""
+                }
+            ],
+            "year": 1963,
+            "venue": "The American Naturalist 97",
+            "volume": "895",
+            "issn": "",
+            "pages": "209--223",
+            "other_ids": {
+                "DOI": [
+                    "10.1086/282272"
+                ]
+            }
+        },
+        "BIBREF115": {
+            "ref_id": "b115",
+            "title": "An introduction to delay differential equations with applications to the life sciences",
+            "authors": [
+                {
+                    "first": "Hal",
+                    "middle": [],
+                    "last": "Smith",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "57",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF116": {
+            "ref_id": "b116",
+            "title": "Solving Differential Equations in R: Package deSolve",
+            "authors": [
+                {
+                    "first": "Karline",
+                    "middle": [],
+                    "last": "Soetaert",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Petzoldt",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "Woodrow"
+                    ],
+                    "last": "Setzer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Journal of Statistical Software",
+            "volume": "33",
+            "issn": "",
+            "pages": "1--25",
+            "other_ids": {
+                "DOI": [
+                    "10.18637/jss.v033.i09"
+                ]
+            }
+        },
+        "BIBREF117": {
+            "ref_id": "b117",
+            "title": "Nonlinear Dynamics and Chaos: With Applications to Physics",
+            "authors": [
+                {
+                    "first": "Steven",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Strogatz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF118": {
+            "ref_id": "b118",
+            "title": "Evaluations of Interventions Using Mathematical Models with Exponential and Non-exponential Distributions for Disease Stages: The Case of Ebola",
+            "authors": [
+                {
+                    "first": "Xiaojing",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Bulletin of Mathematical Biology",
+            "volume": "79",
+            "issn": "",
+            "pages": "2149--2173",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s11538-017-0324-z"
+                ]
+            }
+        },
+        "BIBREF119": {
+            "ref_id": "b119",
+            "title": "Appropriate Models for the Management of Infectious Diseases",
+            "authors": [
+                {
+                    "first": "Helen",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Wearing",
+                    "suffix": ""
+                },
+                {
+                    "first": "Pejman",
+                    "middle": [],
+                    "last": "Rohani",
+                    "suffix": ""
+                },
+                {
+                    "first": "Matt",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Keeling",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "PLOS Medicine 2.7",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1371/journal.pmed.0020174"
+                ]
+            }
+        },
+        "BIBREF120": {
+            "ref_id": "b120",
+            "title": "Introduction to Applied Nonlinear Dynamical Systems and Chaos. 2nd",
+            "authors": [
+                {
+                    "first": "Stephen",
+                    "middle": [],
+                    "last": "Wiggins",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Texts in Applied Mathematics",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/b97481"
+                ]
+            }
+        },
+        "BIBREF121": {
+            "ref_id": "b121",
+            "title": "The Effects of Harvesting and Time Delay on Predator-prey Systems with Holling Type II Functional Response",
+            "authors": [
+                {
+                    "first": "Jing",
+                    "middle": [],
+                    "last": "Xia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "SIAM Journal on Applied Mathematics",
+            "volume": "70",
+            "issn": "",
+            "pages": "1178--1200",
+            "other_ids": {
+                "DOI": [
+                    "10.1137/080728512"
+                ]
+            }
+        },
+        "BIBREF122": {
+            "ref_id": "b122",
+            "title": "A Multi-stage Representation of Cell Proliferation as a Markov Process",
+            "authors": [
+                {
+                    "first": "Christian",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Yates",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Matthew",
+                    "suffix": ""
+                },
+                {
+                    "first": "Richard",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Ford",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Mort",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Bulletin of Mathematical Biology",
+            "volume": "79",
+            "issn": "",
+            "pages": "2905--2928",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s11538-017-0356-4"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": ", we summarize the average time it takes to compute a numerical solution to the generalized Rosenzweig-MacArthur model with Erlang distributed maturation time and time predators spend in the adult stage, either in the (LCT) form of eqs. (10) or in the (GLCT) form of eq. (11). In Fig. 4, we make a similar comparison with the SEIR model with Erlang latent and infectious periods comparing the time it takes to compute numerical solutions to that model in the form of eqs. (18) or the equivalent model in the (GLCT) form of eqs. (15). See the figure captions, the R code in Appendix A, and the Electronic Supplements for further computational details. No maturation delay & exponential time as adult predators LCT: Erlang maturation delay & time as adult predators GLCT: Erlang maturation delay & time as adult predators (phase\u2212type formulation)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Benchmark results for 140 iterations of computing numerical solutions to the Rosenzweig-MacArthur model with Erlang (gamma) distributed maturation times and time spent in the adult-stage, using either a direct (LCT; medium gray) or more general (GLCT; black) model formulations (the standard Rosenzweig-MacArthur model with no maturation delay and exponentially distributed time spent in the adult stage [light gray; eqs. (",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Benchmark results for 500 iterations of computing numerical solutions to the SEIR model with Erlang distributed latent and infectious periods, using either a direct (LCT; medium gray) or more general (GLCT; black) model formulations (SEIR with exponentially distributed latent and infectious periods [light gray; eqs. (",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Benchmarking the Rosenzweig -MacArthur model numerical solutions 3 # # ----------------------------------------------------------------4 # # Case 1: Standard : No maturation delay , exponentially distributed predator lifetime 5 # # Case 2: Classic LCT ( Erlang maturation time and adult life stage duration ) , hard -coded 6 # # Case 3: Phase -type / GLCT implementation of Case 2",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "LCT ( Erlang dwell times ) , hard -coded number of substates 6 # # Case 3: SEIR w / phase -type distributions , parameterized w / Erlang distributions",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "1.1 Continuous Time Markov Chains andPhase-Type Distributions . . . . . . . . . . . 4 1.1.1 Continuous Time Markov Chains . . . . . . . . . . . . . . . . . . . . . . . . . 4 1.1.2 Phase-Type Distributions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5 1.2 Generalized Linear Chain Trick . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 SEIR Model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9 2.3 SEIR Model with Heterogeneity Among Infected Individuals . . . . . . . . . . . . . . 11 Benchmarking Numerical Solutions: LCT vs GLCT . . . . . . . . . . . . . . . . . . 15 Rosenzweig-MacArthur Model & Extensions . . . . . . . . . . . . . . . . . . . . . . . 18 A.2 SEIR Model & Extensions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "Function definitions 20 21 # Standard Rosenzweig -MacArthur model 22 RM . ode <-function ( tm ,z , ps ) { 23 r = ps [1]; K = ps [2]; a = ps [3]; k = ps [4]; chi = ps [5]; mux = ps [6]; muy = ps [7]; 24 25 N = z [1] # prey population 26 Y = z [2] # predator population 27",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "library ( deSolve ) 9 library ( rbenchmark ) 10 11 # # Parameterization .... 12 reps <-50013 parms = c ( b =1 , muE =4 , muI =7 , cvE =1 , cvI =1 , kE =1 , kI =1) 14 parms2 = c ( b =1 ,muE =4 , cvE =1 / sqrt (2+1 e -10) , muI =7 , cvI =1 / sqrt (2+1 e -10) , kE =2 , kI =2) 15 parms2 16 17 parms3 = c ( b =1 , muE =4 , cvE =1 / sqrt (3.01) , muI =7 , cvI =1 / sqrt (3.01) ) 18 parms3 [ ' kE '] <-floor ((1 / parms [[ ' cvE ' ]])^2) 19 parms3 [ ' kI '] <-floor ((1 / parms [[ ' cvI ' ]])^2)",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Function definitions 24 25 # SEIR with Exponential dwell times 26 SEIR . ode <-function ( tm ,z , ps ) { # SEIR with hard -coded Erlang dwell times 40 SEIRlct1 . ode <-function ( tm ,z , ps ) { 41 b = ps [[ \" b \" ]] # beta 42 muE = ps [[ \" muE \" ]] # mean time spent in E 43 muI = ps [[ \" muI \" ]] # mean time in I SEIRlct2 . ode <-function ( tm ,z , ps ) { 58 b = ps [[ \" b \" ]] # beta 59 muE = ps [[ \" muE \" ]] # mean time spent in E 60 muI = ps [[ \" muI \" ]] # mean time in I # # This pattern is continued until ... 77 78 SEIRlct25 . ode <-function ( tm ,z , ps ) { 90 dE3 = z [3] * kE / muE -z [4] * kE / muE 91 dE4 = z [4] * kE / muE -z [5] * kE / muE 92 dE5 = z [5] * kE / muE -z [6] * kE / muE 93 dE6 = z [6] * kE / muE -z [7] * kE / muE 94 dE7 = z [7] * kE / muE -z [8] * kE / muE 95 dE8 = z [8] * kE / muE -z [9] * kE / muE 96 dE9 = z [9] * kE / muE -z [10] * kE / muE 97 dE10 = z [10] * kE / muE -z [11] * kE / muE 98 dE11 = z [11] * kE / muE -z [12] * kE / muE 99 dE12 = z [12] * kE / muE -z [13] * kE / muE 100 dE13 = z [13] * kE / muE -z [14] * kE / muE 101 dE14 = z [14] * kE / muE -z [15] * kE / muE 102 dE15 = z [15] * kE / muE -z [16] * kE / muE 103 dE16 = z [16] * kE / muE -z [17] * kE / muE 104 dE17 = z [17] * kE / muE -z [18] * kE / muE 105 dE18 = z [18] * kE / muE -z [19] * kE / muE 106 dE19 = z [19] * kE / muE -z [20] * kE / muE 107 dE20 = z [20] * kE / muE -z [21] * kE / muE 108 dE21 = z [21] * kE / muE -z [22] * kE / muE 109 dE22 = z [22] * kE / muE -z [23] * kE / muE 110 dE23 = z [23] * kE / muE -z [24] * kE / muE 111 dE24 = z [24] * kE / muE -z [25] * kE / muE 112 dE25 = z [25] * kE / muE -z [26] * kE / muE 113 dI1 = z [26] * kE / muE -z [27] * kI / muI 114 dI2 = z [27] * kI / muI -z [28] * kI / muI 115 dI3 = z [28] * kI / muI -z [29] * kI / muI 116 dI4 = z [29] * kI / muI -z [30] * kI / muI 117 dI5 = z [30] * kI / muI -z [31] * kI / muI 118 dI6 = z [31] * kI / muI -z [32] * kI / muI 119 dI7 = z [32] * kI / muI -z [33] * kI / muI 120 dI8 = z [33] * kI / muI -z [34] * kI / muI 121 dI9 = z [34] * kI / muI -z [35] * kI / muI 122 dI10 = z [35] * kI / muI -z [36] * kI / muI 123 dI11 = z [36] * kI / muI -z [37] * kI / muI 124 dI12 = z [37] * kI / muI -z [38] * kI / muI 125 dI13 = z [38] * kI / muI -z [39] * kI / muI 126 dI14 = z [39] * kI / muI -z [40] * kI / muI 127 dI15 = z [40] * kI / muI -z [41] * kI / muI 128 dI16 = z [41] * kI / muI -z [42] * kI / muI 129 dI17 = z [42] * kI / muI -z [43] * kI / muI 130 dI18 = z [43] * kI / muI -z [44] * kI / muI 131 dI19 = z [44] * kI / muI -z [45] * kI / muI 132 dI20 = z [45] * kI / muI -z [46] * kI / muI 133 dI21 = z [46] * kI / muI -z [47] * kI / muI 134 dI22 = z [47] * kI / muI -z [48] * kI / muI 135 dI23 = z [48] * kI / muI -z [49] * kI / muI 136 dI24 = z [49] * kI / muI -z [50] * kI / muI 137 dI25 = z [50] * kI / muI -z [51] * kI / muI 138 dR = z [51] * kI / muI 139 140return( list ( c ( dS , dE1 , dE2 , dE3 , dE4 , dE5 , dE6 , dE7 , dE8 , dE9 , dE10 , dE11 , dE12 , dE13 , dE14 , dE15 , dE16 , dE17 , dE18 ,  dE19 , dE20 , dE21 , dE22 , dE23 , dE24 , dE25 , dI1 , dI2 , dI3 , dI4 , dI5 , dI6 , dI7 , dI8 , dI9 , dI10 , dI11 , dI12 , dI13 , dI14  , dI15 , dI16 , dI17 , dI18 , dI19 , dI20 , dI21 , dI22 , dI23 , dI24 , dI25 , dR )  ) ) 141 } 142 143 # SEIR with Erlang dwell times in a GLCT framework 144 SEIRpt . ode <-function ( tm ,z , ps ) { 145 b = ps [[ \" b \" ]] # beta 146 muE = ps [[ \" muE \" ]] # mean time spent in E 147 muI = ps [[ \" muI \" ]] # mean time in I 148 kE = ps [[ ' kE ' ]] 149 kI = ps [[ ' kI ' ]] 150 Itot = sum ( z [1+ kE +(1: kI ) ]) # sum ( Ivec ) 151 dS = -b * z [1] * Itot 152 dE = b * z [1] * Itot * aE + AEt % * % z [1+(1: kE ) ] # t ( AE ) % * % Evec 153 dI = aI % * % ( -OnesE % * % AEt % * % z [1+(1: kE ) ]) + AIt % * % z [1+ kE +(1: kI ) ] # t ( AI ) % * % Ivec 154 dR = as . numeric ( -OnesI % * % AIt % * % z [1+ kE +(1: kI ) ]) 155 156 return ( list ( c ( dS , as . numeric ( dE ) , as . numeric ( dI ) , dR ) ) ) 157 } 158 159 # Function to initialize some objects used by SEIRpt . ode () 160 SEIRpt . init <-function ( ps ) { 161 # Unpack some parameter values ... 162 muE = ps [[ \" muE \" ]] # mean time spent in E 163 muI = ps [[ \" muI \" ]] # mean time in I 164 kE = ps [[ ' kE ' ]] # Number of substates in E , and ... 165 kI = ps [[ ' kI ' ]] # ... I . 166 167 # These are Erlang distributions framed in a Phase -type distribution context , 168 # where vector a = (1 0 ... 0) and matrix A is as follows ... 169 170 aE = matrix (0 , nrow = kE , ncol =1) ; aE [1] = 1; 171 AE = kE / muE * ( diag ( rep ( -1 , kE ) , kE ) ) ; if ( kE >1) for ( i in 1:( kE -1) ) { AE [i , i +1] = kE / muE } 172 173 aI = matrix (0 , nrow = kI , ncol =1) ; aI [1] = 1; 174 AI = kI / muI * ( diag ( rep ( -1 , kI ) , kI ) ) ; if ( kI >1) for ( i in 1:( kI -1) ) { AI [i , i +1] = kI / muI } 175 176 # Initial conditions 177 PopSize =10000 178 z0 = numeric ( kE + kI +2) # initialize the 1+ kE + kI +1 state variables 179",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The authors thank Deena Schmidt, Jillian Kiefer, and the other members Mathematical Biology Lab Group at UNR for conversations and comments that improved this manuscript.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        }
+    ]
+}

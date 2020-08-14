@@ -1,0 +1,2533 @@
+{
+    "paper_id": "1ab5db66bea0f628ca8b0c70e53b6971ecab695a",
+    "metadata": {
+        "title": "Differentiable Segmentation of Sequences",
+        "authors": [
+            {
+                "first": "Erik",
+                "middle": [],
+                "last": "Scharw\u00e4chter",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Bonn",
+                    "location": {
+                        "country": "Germany"
+                    }
+                },
+                "email": "scharwaechter@bit.uni-bonn.de"
+            },
+            {
+                "first": "Jonathan",
+                "middle": [],
+                "last": "Lennartz",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Bonn",
+                    "location": {
+                        "country": "Germany"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Emmanuel",
+                "middle": [],
+                "last": "M\u00fcller",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Bonn",
+                    "location": {
+                        "country": "Germany"
+                    }
+                },
+                "email": "mueller@bit.uni-bonn.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Segmented models are widely used to describe non-stationary sequential data with discrete change points. Their estimation usually requires solving a mixed discretecontinuous optimization problem, where the segmentation is the discrete part and all other model parameters are continuous. A number of estimation algorithms have been developed that are highly specialized for their specific model assumptions. The dependence on non-standard algorithms makes it hard to integrate segmented models in state-of-the-art deep learning architectures that critically depend on gradient-based optimization techniques. In this work, we formulate a relaxed variant of segmented models that enables joint estimation of all model parameters, including the segmentation, with gradient descent. We build on recent advances in learning continuous warping functions and propose a novel family of warping functions based on the two-sided power (TSP) distribution. TSP-based warping functions are differentiable, have simple closed-form expressions, and can represent segmentation functions exactly. Our formulation includes the important class of segmented generalized linear models as a special case, which makes it highly versatile. We use our approach to model the spread of COVID-19 by segmented Poisson regression, perform logistic regression on Fashion-MNIST with artificial concept drift, and demonstrate its capacities for phoneme segmentation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Preprint. Under review.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Non-stationarity is a classical challenge in the analysis of sequential data. One source of nonstationarity is the presence of change points, where the data-generating process switches its dynamics from one regime to another regime. In some applications, the detection of change points is of primary interest, since they may indicate important events in the data [40, 7, 6, 35, 33, 3, 45] . Other applications require models for the dynamics within each segment, which may yield more insights into the phenomenon under study and enable predictions. A plethora of segmented models for regression analysis [37, 22, 32, 5, 38, 1] and time series analysis [21, 11, 4, 13] have been proposed in the literature, where the segmentation materializes either in the data dimensions or the index set.",
+            "cite_spans": [
+                {
+                    "start": 363,
+                    "end": 367,
+                    "text": "[40,",
+                    "ref_id": "BIBREF39"
+                },
+                {
+                    "start": 368,
+                    "end": 370,
+                    "text": "7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 371,
+                    "end": 373,
+                    "text": "6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 374,
+                    "end": 377,
+                    "text": "35,",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 378,
+                    "end": 381,
+                    "text": "33,",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 382,
+                    "end": 384,
+                    "text": "3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 385,
+                    "end": 388,
+                    "text": "45]",
+                    "ref_id": "BIBREF44"
+                },
+                {
+                    "start": 604,
+                    "end": 608,
+                    "text": "[37,",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 609,
+                    "end": 612,
+                    "text": "22,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 613,
+                    "end": 616,
+                    "text": "32,",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 617,
+                    "end": 619,
+                    "text": "5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 620,
+                    "end": 623,
+                    "text": "38,",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 624,
+                    "end": 626,
+                    "text": "1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 652,
+                    "end": 656,
+                    "text": "[21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 657,
+                    "end": 660,
+                    "text": "11,",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 661,
+                    "end": 663,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 664,
+                    "end": 667,
+                    "text": "13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We adhere to the latter approach and consider models of the following form. Let x = (x 1 , ..., x T ) be a sequence of T observations, and let z = (z 1 , ..., z T ) be an additional sequence of covariates used to predict these observations. Observations and covariates may be scalars or vector-valued. We refer to the index t = 1, ..., T as the time of observation. The data-generating process (DGP) of x given z is time-varying and follows a segmented model with K T segments on the time axis. Let b k and e k denote the beginning and end of segment k, respectively. We assume that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "where the DGP in segment k is parametrized by \u03b8 k . This scenario is typically studied for nonstationary time series [20, 8, 26, 11, 42, 44] , but also captures predictive models with concept drift [17] . For example, in a segmented Gaussian autoregressive process of order h, the vector of covariates is z t = [x t\u2212h , ..., x t\u22121 , 1] and the DGP is the normal distribution N (z t \u03b8 k , \u03c3 2 ). In a segmented generalized linear model (GLM), the DGP is a probability distribution with conditional expectation E[x t | z t ] = g(z t \u03b8 k ), where the linear predictor is transformed by a link function g.",
+            "cite_spans": [
+                {
+                    "start": 117,
+                    "end": 121,
+                    "text": "[20,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 122,
+                    "end": 124,
+                    "text": "8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 125,
+                    "end": 128,
+                    "text": "26,",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 129,
+                    "end": 132,
+                    "text": "11,",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 133,
+                    "end": 136,
+                    "text": "42,",
+                    "ref_id": "BIBREF41"
+                },
+                {
+                    "start": 137,
+                    "end": 140,
+                    "text": "44]",
+                    "ref_id": "BIBREF43"
+                },
+                {
+                    "start": 198,
+                    "end": 202,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We express the segmentation of the time axis by a segmentation function \u03b6 : {1, ..., T } \u2212\u2192 {1, ..., K} that maps each time point t to a segment identifier k. The segmentation function is order-preserving with boundary constraints \u03b6(1) = 1 and \u03b6(T ) = K. We denote all segment-wise parameters by \u03b8 = (\u03b8 1 , ..., \u03b8 K ). The ultimate goal is to find a segmentation \u03b6 as well as segment-wise parameters \u03b8 that minimize a loss function L(\u03b6, \u03b8), for example, the negative log-likelihood of the observations x.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Existing approaches exploit the fact that model estimation within a segment is often straightforward when the segmentation is known. These approaches decouple the search for an optimal segmentation \u03b6 algorithmically from the estimation of the segment-wise parameters \u03b8:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Various algorithmic search strategies have been explored for the outer minimization of \u03b6, including grid search [32] , dynamic programming [22, 5] , hierarchical clustering [37] and other greedy algorithms [1] , some of which come with provable optimality guarantees. These algorithms are often tailored to a specific class of models like piecewise linear regression, and do not generalize beyond. Moreover, the use of non-standard optimization techniques in the outer minimization hinders the integration of such models with deep learning architectures, which usually perform joint optimization of all model parameters with gradient descent.",
+            "cite_spans": [
+                {
+                    "start": 112,
+                    "end": 116,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 139,
+                    "end": 143,
+                    "text": "[22,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 144,
+                    "end": 146,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 173,
+                    "end": 177,
+                    "text": "[37]",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 206,
+                    "end": 209,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this work, we provide a continuous and differentiable relaxation of the segmented model from Equation 1 that allows joint optimization of all model parameters, including the segmentation function, using state-of-the-art gradient descent algorithms. Our formulation is inspired by the learnable warping functions proposed recently for sequence alignment [34, 50] . In a nutshell, we replace the hard segmentation function \u03b6 with a soft warping function \u03b3. An optimal segmentation can be found by optimizing the parameters of the warping function. We propose a novel class of piecewise-constant warping functions based on the two-sided power (TSP) distribution [47, 28] that can represent segmentation functions exactly. TSP-based warping functions are appealing because they are differentiable, easy to evaluate analytically with closed-form expressions, and their parameters have a one-to-one correspondence with segment boundaries.",
+            "cite_spans": [
+                {
+                    "start": 356,
+                    "end": 360,
+                    "text": "[34,",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 361,
+                    "end": 364,
+                    "text": "50]",
+                    "ref_id": "BIBREF49"
+                },
+                {
+                    "start": 662,
+                    "end": 666,
+                    "text": "[47,",
+                    "ref_id": "BIBREF46"
+                },
+                {
+                    "start": 667,
+                    "end": 670,
+                    "text": "28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Although our notation in Equation 1 implies a probabilistic DGP, our formalism also applies to fully deterministic models. We can replace \u223c with = in Equation 1 and proceed analogously. Moreover, the segmented model may be part of a larger model architecture, where the covariates z t and the parameters \u03b8 k come from some upstream computational layer, and the outputs x t are passed on to the next computational layer with an arbitrary downstream loss function. The interpretation of z t as covariates and \u03b8 k as parameters is merely for consistency with prior work on segmented models. It is more accurate to interpret z t as temporal variables that differ for every time step t, and \u03b8 k as segmental variables that differ for every segment k. The DGP combines the information from both types of variables to produce an output for every time step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The main idea of our work is to relax the segmented model formulation from Equation 1 and the optimization problem from Equation 2 by replacing the hard segmentation function \u03b6 with a soft parametric warping function \u03b3 that can be estimated effectively with gradient descent. We now describe step-by-step how this relaxation is implemented. We first rewrite the model definition to",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "where we substitute the actual parameter \u03b8 k of the DGP at time step t in segment k by the predictor\u03b8 t . We allow the predictor\u03b8 t to take on values between two parameters \u03b8 k and \u03b8 k+1 , if there is ambiguity as to whether time step t belongs to segment k or segment k + 1. More precisely, we define the predictor as a linear interpolation [23, 50, 34] between the parameters of two consecutive segments,",
+            "cite_spans": [
+                {
+                    "start": 342,
+                    "end": 346,
+                    "text": "[23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 347,
+                    "end": 350,
+                    "text": "50,",
+                    "ref_id": "BIBREF49"
+                },
+                {
+                    "start": 351,
+                    "end": 354,
+                    "text": "34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "The interpolation depends on a continuous predictor\u03b6 t \u2208 [1, K] for the value of the segmentation function \u03b6(t). If\u03b6 t = \u03b6(t) \u2208 {1, ..., K} for all t, no interpolation takes place, and the novel formulation is fully equivalent to Equation 1. Non-integer values in\u03b6 t encode ambiguity in the segment assignment that leads to interpolated parameters\u03b8 t . Ideally, the predictors take on integer values as often as possible, and are ambiguous only near the segment boundaries. The predictors can be transformed into a hard segmentation function by rounding to the closest integers. For consistency, the predictors\u03b6 t must be order-preserving,\u03b6 1 \u2264 ... \u2264\u03b6 T , and satisfy the boundary constraints\u03b6 1 = 1 and\u03b6 T = K of the segmentation function. We obtain such predictors from warping functions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "Warping functions describe order-preserving alignments between closed continuous intervals [41] . Formally, the function \u03b3 :",
+            "cite_spans": [
+                {
+                    "start": 91,
+                    "end": 95,
+                    "text": "[41]",
+                    "ref_id": "BIBREF40"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "is a warping function if it is monotonically increasing and satisfies the boundary constraints \u03b3(0) = 0 and \u03b3(1) = 1. We transform a warping function \u03b3 into a predictor\u03b6 t by sampling \u03b3 at T evenly-spaced grid points on the unit interval [0, 1] and rescaling the result to [1, K] . Let u t = (t \u2212 1)/(T \u2212 1) for t = 1, ..., T be a such a unit grid. We defin\u00ea",
+            "cite_spans": [
+                {
+                    "start": 273,
+                    "end": 279,
+                    "text": "[1, K]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "The predictor\u03b6 t exactly represents the segmentation function \u03b6 if",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "which is satisfied only for piecewise-constant warping functions with a step-like shape. An example segmentation function and three warping functions are shown in Figure 1 . The problem of searching for a segmentation function has changed to that of estimating a suitable warping function:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 163,
+                    "end": 171,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "Several families of warping functions have been proposed, based on trigonometric functions [2] , spline basis functions [41, 19, 16] , warplets [10] , continuous piecewise-affine (CPA) velocity fields [15, 12, 50] , and nonparametric approaches [31, 34] . None of them contains piecewise-constant warping functions, since these families are based on strictly increasing functions for invertibility. As a result, no member of these families can represent a segmentation function exactly. Moreover, these families are more expressive than necessary for the segmentation task, which makes estimation harder than necessary. Below, we define a novel class of piecewise-constant warping functions that represents any segmentation function exactly, with only one parameter per segment boundary.",
+            "cite_spans": [
+                {
+                    "start": 91,
+                    "end": 94,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 120,
+                    "end": 124,
+                    "text": "[41,",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 125,
+                    "end": 128,
+                    "text": "19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 129,
+                    "end": 132,
+                    "text": "16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 144,
+                    "end": 148,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 201,
+                    "end": 205,
+                    "text": "[15,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 206,
+                    "end": 209,
+                    "text": "12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 210,
+                    "end": 213,
+                    "text": "50]",
+                    "ref_id": "BIBREF49"
+                },
+                {
+                    "start": 245,
+                    "end": 249,
+                    "text": "[31,",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 250,
+                    "end": 253,
+                    "text": "34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relaxed segmented models"
+        },
+        {
+            "text": "Warping functions have some similarity with cumulative distribution functions (cdfs) for random variables [34] . Cdfs are monotonically increasing, right-continuous, and normalized over their domain [49] . If their support is bounded to [0, 1], they satisfy the same boundary constraints as warping functions. Therefore, we can exploit the vast literature on statistical distributions to define and characterize families of warping functions. Surprisingly, there are only few established distributions for random variables with continuous bounded support [28] . The most prominent example is the beta distribution, which has no closed-form expression and requires approximations. Our family of warping functions is instead based on the two-sided power (TSP) distribution [47, 28] .",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 110,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 199,
+                    "end": 203,
+                    "text": "[49]",
+                    "ref_id": "BIBREF48"
+                },
+                {
+                    "start": 555,
+                    "end": 559,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 771,
+                    "end": 775,
+                    "text": "[47,",
+                    "ref_id": "BIBREF46"
+                },
+                {
+                    "start": 776,
+                    "end": 779,
+                    "text": "28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "TSP-based warping functions"
+        },
+        {
+            "text": "The TSP distribution has been proposed recently to model continuous random variables with bounded support [a, b] \u2282 R. It generalizes the triangular distribution and can be viewed as a peaked alternative to the beta distribution [24] . In its most illustrative form, its probability density function (pdf) is unimodal with power-law decay on both sides, but it can yield U-shaped and J-shaped pdfs as well, depending on the parametrization. Formally, the pdf is given by",
+            "cite_spans": [
+                {
+                    "start": 228,
+                    "end": 232,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background: Two-sided power distribution"
+        },
+        {
+            "text": "with a \u2264 m \u2264 b. a and b define the boundaries of the support, m is the mode (anti-mode) of the distribution, and n > 0 is the power parameter that tapers the distribution. The rectangular distribution is the special case with n = 2. In the following, we restrict our attention to the unimodal regime with a < m < b and n > 1. In this case, the cdf is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background: Two-sided power distribution"
+        },
+        {
+            "text": "For convenience, we introduce a three-parameter variant of the TSP distribution with support restricted to subintervals of [0, 1] located around the mode. It is fully specified by the mode m \u2208 (0, 1), the width w \u2208 (0, 1] of the subinterval, and the power n > 1. Depending on the mode and the width, the distribution is symmetric or asymmetric. Illustrations of the pdf and cdf of the three-parameter TSP distribution for various parametrizations can be found in Figure 2 . We denote the three-parameter TSP distribution as TSP(m, w, n) and write f TSP (u; m, w, n) and F TSP (u; m, w, n) for its pdf and cdf, respectively. The original parameters a and b are obtained from m and w via",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 463,
+                    "end": 471,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Background: Two-sided power distribution"
+        },
+        {
+            "text": "and yield a unimodal regime. Intuitively, the three-parameter TSP distribution describes a symmetric two-sided power kernel of window size w that is located at m and becomes asymmetric only if a symmetric window would exceed the domain [0, 1]. An advantage of the TSP distribution over the beta distribution is that its pdf and cdf have closed form expressions that are easy to evaluate computationally. Moreover, they are differentiable almost everywhere with respect to all parameters.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background: Two-sided power distribution"
+        },
+        {
+            "text": "We define the TSP-based warping function \u03b3 TSP : [0, 1] \u2212\u2192 [0, 1] for a fixed number of segments K as a mixture distribution of K \u2212 1 three-parameter TSP distributions. The motivation is that mixtures of unimodal distributions have step-like cdfs that approximate segmentation functions. We use uniform mixture weights, and treat the width w and power n of the TSP component distributions as fixed hyperparameters. The components differ only in their modes m = (m 1 , ..., m K\u22121 ):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Mixtures of TSP distributions"
+        },
+        {
+            "text": "We constrain the modes to be strictly increasing, so that \u03b3 TSP is identifiable. If the windows around two consecutive modes m k\u22121 and m k are non-overlapping, \u03b3 TSP will be constant at level k\u22121 K\u22121 between these windows. It is also constant at level 0 for all points that come before the first window and constant at level 1 for all points that come after the last window. Therefore, the family of TSP-based warping functions contains piecewise-constant functions. In fact, the functions \u03b3 1 and \u03b3 2 in Figure 1 are examples of TSP-based warping functions. Lemma 1. For every segmentation function \u03b6, there is a TSP-based warping function \u03b3 TSP such that the predictor\u03b6 t from Equation 5 represents \u03b6 exactly, in the sense of Equation 6.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 505,
+                    "end": 513,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Mixtures of TSP distributions"
+        },
+        {
+            "text": "Proof. We place the K \u2212 1 modes m k on the segment boundaries (projected to the unit grid) and choose a window size w not larger than the resolution of the grid. The power n > 1 can be choosen freely. Formally, let \u03b6(t) = k and \u03b6(t + 1) = k + 1 be the k-th segment boundary. We set m k := (u t+1 + u t )/2 for all segment boundaries k and w := 1/(T \u2212 1) to obtain the result.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Mixtures of TSP distributions"
+        },
+        {
+            "text": "In practice, the segmentation function \u03b6 is unknown and the modes m = (m 1 , ..., m K\u22121 ) must be estimated in an unsupervised way. To simplify the estimation problem, we rewrite the modes as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Mixtures of TSP distributions"
+        },
+        {
+            "text": "with unconstrained real parameters \u00b5 = (\u00b5 1 , ..., \u00b5 K ). The transformation of the parameters guarantees that the modes are strictly increasing and come from the interval (0, 1), with a bogus mode m K = 1 that can be ignored. The warping function is now overparametrized, since transformation is invariant to additive terms in the parameters \u00b5. This issue can be resolved by enforcing \u00b5 1 := 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Mixtures of TSP distributions"
+        },
+        {
+            "text": "We have described all components of the relaxed segmented model architecture. It can use any family of warping functions to approximate a segmentation function. An overview of our model architecture with TSP-based warping functions is given in Figure 3 . The learnable parameters of this architecture are \u03b8 = (\u03b8 1 , ..., \u03b8 K ) for the DGP and \u00b5 = (\u00b5 1 , ..., \u00b5 K ) for the warping function. The hyperparameters are the number of segments 1 < K T , and the window size w \u2208 (0, 1] and power n > 1 of the TSP distributions. This architecture is a concatenation of simple functions that are either fully differentiable or differentiable almost everywhere. Therefore, all parameters can be learned jointly using gradient descent. We implemented the model in Python 1 using the PyTorch library 2 . Source codes can be found in the supplementary material.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 244,
+                    "end": 252,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Model architecture and training"
+        },
+        {
+            "text": "For effective training of the segmentation parameters \u00b5 with gradient descent, the window size of the TSP components should be chosen larger than the sampling resolution of the unit grid, 1/(T \u2212 1), 1 https://python.org/ 2 https://pytorch.org/ to allow the loss to backpropagate across segment boundaries. The window size can be interpreted as the receptive field of the individual TSP components. In all our experiments, we use a large window size of w = .5 combined with a high power n = 20 to obtain functions that are close to piecewise-constant. The width can be tapered down to w \u2264 1/(T \u2212 1) over the training epochs to obtain a warping function that is truly piecewise-constant and exactly represents a segmentation function. An alternative strategy that works for any family of warping functions is to replace the linear interpolation from Equation 4 by integer interpolation for a few epochs at the end of training. We applied the latter strategy for simplicity and consistency across all families of warping functions. The learning problem may be non-convex and converge to local optima that are not global optima. Therefore, it is advisable to train the model multiple times with randomized initial parameters.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model architecture and training"
+        },
+        {
+            "text": "First, we analyze how well our relaxed model identifies simple and complex functions. All experiments in this and the following sections can be reproduced with the codes in the supplementary material. We generate a piecewise linear time series of length T = 1, 000 with a single change point at t = 500 where the slope changes from \u22121 to 1. We use the linear DGP f Linear (z t , \u03b8 k ) = \u03b8 k z t with scalar covariates z t spaced evenly within [\u22121, 1]. We experiment with three different families of warping functions: nonparametric (NP) [34] , CPA-based (CPAb) [50] , and our TSP-based functions (TSPb). We minimize the mean squared error over 200 epochs of ADAM [25] with learning rate \u03b7 = 0.01. We explore two training strategies to obtain hard segmentations at the end of training: (i) 160 epochs with linear interpolation followed by 40 epochs of integer interpolation (160, 40) , and (ii) 200 epochs with integer interpolation only (0, 200). Convergence plots, averaged over 100 restarts, are shown in Figure 4 (left block). Our relaxed segmented model architecture easily identifies the segment boundary and DGP with all families of warping functions and both training strategies: the average loss after training is around 0.01 throughout all approaches, with standard deviations of 0.01-0.02. The reason is that the loss function is close to convex near the optimal solution.",
+            "cite_spans": [
+                {
+                    "start": 537,
+                    "end": 541,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 561,
+                    "end": 565,
+                    "text": "[50]",
+                    "ref_id": "BIBREF49"
+                },
+                {
+                    "start": 663,
+                    "end": 667,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 879,
+                    "end": 882,
+                    "text": "40)",
+                    "ref_id": "BIBREF39"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1007,
+                    "end": 1015,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Simulations"
+        },
+        {
+            "text": "We repeat the experiment with sinusoidal time series using the DGP f Sin (z t , \u03b8 k ) = sin(\u03b8 k z t ), with covariates z t spaced evenly within [0, T ]. At the change point, the frequency parameter changes from 0.2 to 0.1. This task has a highly non-convex loss function with many local optima and cannot be We observe that the mixed strategy yields slightly better losses than the pure integer strategy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simulations"
+        },
+        {
+            "text": "Next, we fit our relaxed segmented model to COVID-19 [51] case numbers. Exploratory work [30, 39] has applied segmented Poisson regression [36, 38] to identify change points in the pandemic. We check whether our approach finds change points consistent with these works. We follow K\u00fcchenhoff et al. [30] and model daily time series of newly reported cases. We obtained official data for Germany from Robert Koch Institute 3 . Figure 5 (bars) reveals non-stationary growth rates and weekly periodicity in the reported data. We use time and a day-of-week indicator as covariates. We tie the coefficients for the day-of-week across all segments, while the daily growth rates and the bias terms differ in every segment. We minimize the negative log-likelihood (NLL) loss with TSPb warping functions (K = 5) using ADAM (\u03b7 = 0.01, (15000, 5000) training strategy, 10 restarts).",
+            "cite_spans": [
+                {
+                    "start": 53,
+                    "end": 57,
+                    "text": "[51]",
+                    "ref_id": "BIBREF50"
+                },
+                {
+                    "start": 89,
+                    "end": 93,
+                    "text": "[30,",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 94,
+                    "end": 97,
+                    "text": "39]",
+                    "ref_id": "BIBREF38"
+                },
+                {
+                    "start": 139,
+                    "end": 143,
+                    "text": "[36,",
+                    "ref_id": "BIBREF35"
+                },
+                {
+                    "start": 144,
+                    "end": 147,
+                    "text": "38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 298,
+                    "end": 302,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 425,
+                    "end": 433,
+                    "text": "Figure 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Poisson regression: COVID-19 outbreak in Germany"
+        },
+        {
+            "text": "In the model with the lowest loss, the four change points are located at 2020-03-16, 2020-03-29, 2020-04-09, and 2020-04-28. Although the studies are based on different data, the change points at 2020-03-16, 2020-03-29, and 2020-04-09 are consistent with K\u00fcchenhoff et al. [30] in that they lie within their reported 95% confidence intervals. Muggeo et al. [39] do not report confidence bands, but find nearby change points at 2020-03-17 (+1 day), 2020-03-29 (\u00b10), 2020-04-06 (\u22123). Predictions from the model are shown in Figure 5 (blue line). We also provide smoothed predictions where the average day of week (dow) effect is incorporated into the bias term to highlight the change of the growth rate from segment to segment, see Figure 5 (purple line).",
+            "cite_spans": [
+                {
+                    "start": 273,
+                    "end": 277,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 357,
+                    "end": 361,
+                    "text": "[39]",
+                    "ref_id": "BIBREF38"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 522,
+                    "end": 530,
+                    "text": "Figure 5",
+                    "ref_id": null
+                },
+                {
+                    "start": 731,
+                    "end": 739,
+                    "text": "Figure 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Poisson regression: COVID-19 outbreak in Germany"
+        },
+        {
+            "text": "We now demonstrate that our model can be combined with deep architectures for feature learning. We designed a segmented logistic regression model where the covariates in the segmented model are the output of a stack of convolutional layers. The feature transformation is shared across all segments, while the parameters of the final classifier change. We use the Fashion-MNIST dataset [52] to simulate a sequential binary classification task with concept drift [17] . We generate a segmented sequence of labeled instances from two classes and change the class associations +1 and \u22121 from segment to segment. In the first segment, we provide Results are visualized in Figure 6 . The true segment boundaries are located at t = 200 and t = 700 and detected by our model at locations t = 201 and 699. The model fit on the training data is almost perfect, with a single misclassified instance near the first segment boundary (training accuracy .999).",
+            "cite_spans": [
+                {
+                    "start": 385,
+                    "end": 389,
+                    "text": "[52]",
+                    "ref_id": "BIBREF51"
+                },
+                {
+                    "start": 461,
+                    "end": 465,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 667,
+                    "end": 675,
+                    "text": "Figure 6",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Logistic regression: Fashion-MNIST with concept drift"
+        },
+        {
+            "text": "To verify that the model has learned different classifiers in the three segments, we apply it on three sequences of test instances, where each sequence contains 1,000 examples from a single task only. The classifiers in every segment in fact perform best on the tasks that they specialized on.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Logistic regression: Fashion-MNIST with concept drift"
+        },
+        {
+            "text": "At last, we apply our model for unsupervised phoneme segmentation. We assume that the speech signal-represented by a sequence of 12-dimensional MFCC vectors-is piecewise constant within a phoneme. We model it by a minimal DGP with no covariates that simply copies the 12-dimensional parameter vectors to the output. We fit the model to a single utterance (\"choreographer\") from the TIMIT corpus [18] with ground-truth segment labels, by minimizing the mean squared error loss with ADAM (\u03b7 = 0.01, (160, 40) training strategy, 10 restarts), and obtain: observed sequence, with true phoneme boundaries predicted sequence, with true phoneme boundaries Although the simple DGP does not capture all dynamics of the speech signal, 7 out of 9 phoneme boundaries were correctly identified, with a time tolerance of 20 ms. A baseline detector that predicts segment boundaries from a uniform distribution was as good or better only in 69 out of 10000 runs (< 1%). This minimal experiment suggests that relaxed segmented models, when combined with more powerful DGPs, may be useful for discrete representation learning [43, 46, 14] , in particular for learning segmental embeddings [27, 48, 9, 29] . We consider this a fruitful direction for future work.",
+            "cite_spans": [
+                {
+                    "start": 395,
+                    "end": 399,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1108,
+                    "end": 1112,
+                    "text": "[43,",
+                    "ref_id": "BIBREF42"
+                },
+                {
+                    "start": 1113,
+                    "end": 1116,
+                    "text": "46,",
+                    "ref_id": "BIBREF45"
+                },
+                {
+                    "start": 1117,
+                    "end": 1120,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1171,
+                    "end": 1175,
+                    "text": "[27,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 1176,
+                    "end": 1179,
+                    "text": "48,",
+                    "ref_id": "BIBREF47"
+                },
+                {
+                    "start": 1180,
+                    "end": 1182,
+                    "text": "9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1183,
+                    "end": 1186,
+                    "text": "29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Phoneme segmentation"
+        },
+        {
+            "text": "We have described a novel approach to learn models for non-stationary sequential data with discrete change points. Our relaxed segmented model formulation is highly versatile and can use any family of warping functions to approximate a hard segmentation function. If the family of warping functions is differentiable, our model can be trained with gradient descent. We have introduced the novel family of TSP-based warping functions designed specifically for the segmentation task: it is differentiable, contains piecewise-constant functions that exactly represent segmentation functions, its parameters directly correspond to segment boundaries, and it is simple to evaluate computationally. While our simulations did not show significant differences between our family and existing families in terms of final loss, they yield evidence for a more robust convergence. We believe that this robustness will translate to improved results when our model is embedded within larger model architectures. Finally, the experiments on diverse real datasets demonstrate the modeling capacities of our approach.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "Broader impact and ethical considerations. The application of our model to COVID-19 case numbers must be interpreted with care, as the analysis is only explorative. In particular, the reported change points and model predictions should be not used (unless further validation is performed) for conclusions on the efficacy of containment strategies implemented in Germany at specific points in time. Apart from that, this work does not present any foreseeable societal consequence.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Fast algorithms for segmented regression",
+            "authors": [
+                {
+                    "first": "Jayadev",
+                    "middle": [],
+                    "last": "Acharya",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ilias",
+                    "middle": [],
+                    "last": "Diakonikolas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jerry",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ludwig",
+                    "middle": [],
+                    "last": "Schmidt",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ICML",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Speech recognition using time-warping neural networks",
+            "authors": [
+                {
+                    "first": "Kiyoaki",
+                    "middle": [],
+                    "last": "Aikawa",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "IEEE Workshop on Neural Networks for Signal Processing",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A kernel multiple change-point algorithm via model selection",
+            "authors": [
+                {
+                    "first": "Alain",
+                    "middle": [],
+                    "last": "Sylvain Arlot",
+                    "suffix": ""
+                },
+                {
+                    "first": "Zaid",
+                    "middle": [],
+                    "last": "Celisse",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Harchaoui",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Journal of Machine Learning Research",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Structural breaks in time series",
+            "authors": [
+                {
+                    "first": "Alexander",
+                    "middle": [],
+                    "last": "Aue",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lajos",
+                    "middle": [],
+                    "last": "Horv\u00e1th",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Journal of Time Series Analysis",
+            "volume": "34",
+            "issn": "1",
+            "pages": "1--16",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Computation and analysis of multiple structural change models",
+            "authors": [
+                {
+                    "first": "Jushan",
+                    "middle": [],
+                    "last": "Bai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Pierre",
+                    "middle": [],
+                    "last": "Perron",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Journal of Applied Econometrics",
+            "volume": "18",
+            "issn": "1",
+            "pages": "1--22",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Detection of Abrupt Changes: Theory and Application",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Basseville",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Igor",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Nikiforov",
+                    "suffix": ""
+                }
+            ],
+            "year": 1986,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "A Change in Level of a Non-Stationary Time Series",
+            "authors": [
+                {
+                    "first": "George",
+                    "middle": [],
+                    "last": "Box",
+                    "suffix": ""
+                },
+                {
+                    "first": "George",
+                    "middle": [],
+                    "last": "Tiao",
+                    "suffix": ""
+                }
+            ],
+            "year": 1965,
+            "venue": "Biometrika",
+            "volume": "52",
+            "issn": "1",
+            "pages": "181--192",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "A Markov Model of Switching-Regime ARCH",
+            "authors": [
+                {
+                    "first": "Jun",
+                    "middle": [],
+                    "last": "Cai",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Journal of Business and Economic Statistics",
+            "volume": "12",
+            "issn": "3",
+            "pages": "309--316",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Unsupervised Neural Segmentation and Clustering for Unit Discovery in Sequential Data",
+            "authors": [
+                {
+                    "first": "Jan",
+                    "middle": [],
+                    "last": "Chorowski",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ricard",
+                    "middle": [],
+                    "last": "Marxer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Guillaume",
+                    "middle": [],
+                    "last": "Sanchez",
+                    "suffix": ""
+                },
+                {
+                    "first": "Antoine",
+                    "middle": [],
+                    "last": "Laurent",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "NeurIPS Workshop on Perception as Generative Reasoning",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "A multiresolution approach to time warping achieved by a Bayesian prior-posterior transfer fitting strategy",
+            "authors": [
+                {
+                    "first": "Gerda",
+                    "middle": [],
+                    "last": "Claeskens",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bernard",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Silverman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Leen",
+                    "middle": [],
+                    "last": "Slaets",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Journal of the Royal Statistical Society. Series B: Statistical Methodology",
+            "volume": "72",
+            "issn": "5",
+            "pages": "673--694",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Structural Break Estimation for Nonstationary Time Series Models",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Richard",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Davis",
+                    "suffix": ""
+                },
+                {
+                    "first": "C M",
+                    "middle": [],
+                    "last": "Thomas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gabriel",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rodriguez-Yam",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Journal of the American Statistical Association",
+            "volume": "101",
+            "issn": "473",
+            "pages": "223--239",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Deep Diffeomorphic Transformer Networks",
+            "authors": [
+                {
+                    "first": "Nicki",
+                    "middle": [],
+                    "last": "Skafte Detlefsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Oren",
+                    "middle": [],
+                    "last": "Freifeld",
+                    "suffix": ""
+                },
+                {
+                    "first": "Soren",
+                    "middle": [],
+                    "last": "Hauberg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "CVPR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Multiple Change Point Analysis: Fast Implementation And Strong Consistency",
+            "authors": [
+                {
+                    "first": "Jie",
+                    "middle": [],
+                    "last": "Ding",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yu",
+                    "middle": [],
+                    "last": "Xiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lu",
+                    "middle": [],
+                    "last": "Shen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Vahid",
+                    "middle": [],
+                    "last": "Tarokh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ICML Anomaly Detection Workshop",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "SOM-VAE: Interpretable discrete representation learning on time series",
+            "authors": [
+                {
+                    "first": "Matthias",
+                    "middle": [],
+                    "last": "Vincent Fortuin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Francesco",
+                    "middle": [],
+                    "last": "H\u00fcser",
+                    "suffix": ""
+                },
+                {
+                    "first": "Heiko",
+                    "middle": [],
+                    "last": "Locatello",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gunnar",
+                    "middle": [],
+                    "last": "Strathmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "R\u00e4tsch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ICLR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Highly-expressive spaces of well-behaved transformations: Keeping it simple",
+            "authors": [
+                {
+                    "first": "Oren",
+                    "middle": [],
+                    "last": "Freifeld",
+                    "suffix": ""
+                },
+                {
+                    "first": "Soren",
+                    "middle": [],
+                    "last": "Hauberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kayhan",
+                    "middle": [],
+                    "last": "Batmanghelich",
+                    "suffix": ""
+                },
+                {
+                    "first": "John",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Fisher",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "ICCV",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Joint probabilistic curve clustering and alignment",
+            "authors": [
+                {
+                    "first": "Scott",
+                    "middle": [],
+                    "last": "Gaffney",
+                    "suffix": ""
+                },
+                {
+                    "first": "Padhraic",
+                    "middle": [],
+                    "last": "Smyth",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "NIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "A survey on concept drift adaptation",
+            "authors": [
+                {
+                    "first": "Jo\u00e3o",
+                    "middle": [],
+                    "last": "Gama",
+                    "suffix": ""
+                },
+                {
+                    "first": "Indr\u0117",
+                    "middle": [],
+                    "last": "\u017dliobait\u0117",
+                    "suffix": ""
+                },
+                {
+                    "first": "Albert",
+                    "middle": [],
+                    "last": "Bifet",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mykola",
+                    "middle": [],
+                    "last": "Pechenizkiy",
+                    "suffix": ""
+                },
+                {
+                    "first": "Abdelhamid",
+                    "middle": [],
+                    "last": "Bouchachia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "ACM Computing Surveys",
+            "volume": "1",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "TIMIT Acoustic-Phonetic Continuous Speech Corpus LDC93S1",
+            "authors": [
+                {
+                    "first": "John",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Garofolo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lori",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Lamel",
+                    "suffix": ""
+                },
+                {
+                    "first": "William",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Fisher",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jonathan",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Fiscus",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Pallett",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nancy",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Dahlgren",
+                    "suffix": ""
+                },
+                {
+                    "first": "Victor",
+                    "middle": [],
+                    "last": "Zue",
+                    "suffix": ""
+                }
+            ],
+            "year": 1993,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Self-modelling warping functions",
+            "authors": [
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Gervini",
+                    "suffix": ""
+                },
+                {
+                    "first": "Theo",
+                    "middle": [],
+                    "last": "Gasser",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Journal of the Royal Statistical Society B",
+            "volume": "66",
+            "issn": "4",
+            "pages": "959--971",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Event detection from time series data",
+            "authors": [
+                {
+                    "first": "Valery",
+                    "middle": [],
+                    "last": "Guralnik",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jaideep",
+                    "middle": [],
+                    "last": "Srivastava",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "KDD",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Analysis of time series subject to changes in regime",
+            "authors": [
+                {
+                    "first": "James",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Hamilton",
+                    "suffix": ""
+                }
+            ],
+            "year": 1990,
+            "venue": "Journal of Econometrics",
+            "volume": "45",
+            "issn": "1-2",
+            "pages": "39--70",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Point Estimation of the Parameters of Piecewise Regression Models",
+            "authors": [
+                {
+                    "first": "Douglas",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hawkins",
+                    "suffix": ""
+                }
+            ],
+            "year": 1976,
+            "venue": "Journal of the Royal Statistical Society C",
+            "volume": "25",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Spatial Transformer Networks",
+            "authors": [
+                {
+                    "first": "Max",
+                    "middle": [],
+                    "last": "Jaderberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Karen",
+                    "middle": [],
+                    "last": "Simonyan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andrew",
+                    "middle": [],
+                    "last": "Zisserman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Koray",
+                    "middle": [],
+                    "last": "Kavukcuoglu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "NIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Continuous univariate distributions",
+            "authors": [
+                {
+                    "first": "Norman",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Samuel",
+                    "middle": [],
+                    "last": "Kotz",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Balakrishnan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Adam: A method for stochastic optimization",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Diederik",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jimmy",
+                    "middle": [
+                        "Lei"
+                    ],
+                    "last": "Kingma",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Ba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "ICLR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "A dynamic HMM for on-line segmentation of sequential data",
+            "authors": [
+                {
+                    "first": "Jens",
+                    "middle": [],
+                    "last": "Kohlmorgen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Steven",
+                    "middle": [],
+                    "last": "Lemm",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "NIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Segmental recurrent neural networks",
+            "authors": [
+                {
+                    "first": "Lingpeng",
+                    "middle": [],
+                    "last": "Kong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Chris",
+                    "middle": [],
+                    "last": "Dyer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Noah",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Smith",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ICLR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Beyond Beta: Other Continuous Families of Distributions with Bounded Support and Applications",
+            "authors": [
+                {
+                    "first": "Samuel",
+                    "middle": [],
+                    "last": "Kotz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Johan",
+                    "middle": [],
+                    "last": "Ren\u00e9 Van Dorp",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Pte. Ltd",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Phoneme Boundary Detection using Learnable Segmental Features",
+            "authors": [
+                {
+                    "first": "Felix",
+                    "middle": [],
+                    "last": "Kreuk",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yaniv",
+                    "middle": [],
+                    "last": "Sheena",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joseph",
+                    "middle": [],
+                    "last": "Keshet",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yossi",
+                    "middle": [],
+                    "last": "Adi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "ICASSP",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Analyse der Epidemischen Covid-19 Kurve in Bayern durch Regressionsmodelle mit Bruchpunkten",
+            "authors": [
+                {
+                    "first": "Helmut",
+                    "middle": [],
+                    "last": "K\u00fcchenhoff",
+                    "suffix": ""
+                },
+                {
+                    "first": "Felix",
+                    "middle": [],
+                    "last": "G\u00fcnther",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andreas",
+                    "middle": [],
+                    "last": "Bender",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "H\u00f6hle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Signal estimation under random time-warpings and nonlinear signal alignment",
+            "authors": [
+                {
+                    "first": "Sebastian",
+                    "middle": [],
+                    "last": "Kurtek",
+                    "suffix": ""
+                },
+                {
+                    "first": "Anuj",
+                    "middle": [],
+                    "last": "Srivastava",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wei",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "NIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Fitting Segmented Regression Models by Grid Search",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Lerman",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "Journal of the Royal Statistical Society. Series C (Applied Statistics)",
+            "volume": "29",
+            "issn": "1",
+            "pages": "77--84",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "M-Statistic for Kernel Change-Point Detection",
+            "authors": [
+                {
+                    "first": "Shuang",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yao",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hanjun",
+                    "middle": [],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Le",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "NIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Temporal Transformer Networks: Joint Learning of Invariant and Discriminative Time Warping. In CVPR",
+            "authors": [
+                {
+                    "first": "Suhas",
+                    "middle": [],
+                    "last": "Lohit",
+                    "suffix": ""
+                },
+                {
+                    "first": "Qiao",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Pavan",
+                    "middle": [],
+                    "last": "Turaga",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "A Nonparametric Approach for Multiple Change Point Analysis of Multivariate Data",
+            "authors": [
+                {
+                    "first": "David",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Matteson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nicholas",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "James",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Journal of the American Statistical Association",
+            "volume": "109",
+            "issn": "505",
+            "pages": "334--345",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Generalized Linear Models",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Mccullagh",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Nelder",
+                    "suffix": ""
+                }
+            ],
+            "year": 1989,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Piecewise regression",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Victor",
+                    "suffix": ""
+                },
+                {
+                    "first": "Willard",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Mcgee",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Carleton",
+                    "suffix": ""
+                }
+            ],
+            "year": 1970,
+            "venue": "Journal of the American Statistical Association",
+            "volume": "65",
+            "issn": "331",
+            "pages": "1109--1124",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Estimating regression models with unknown break-points",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Vito",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Muggeo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Statistics in Medicine",
+            "volume": "22",
+            "issn": "19",
+            "pages": "3055--3071",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "Modelling COVID-19 outbreak: Segmented Regression to Assess Lockdown Effectiveness",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Vito",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gianluca",
+                    "middle": [],
+                    "last": "Muggeo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mariano",
+                    "middle": [],
+                    "last": "Sottile",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Porcu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "ResearchGate",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Continuous Inspection Schemes",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Page",
+                    "suffix": ""
+                }
+            ],
+            "year": 1954,
+            "venue": "Biometrika",
+            "volume": "",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "Curve registration",
+            "authors": [
+                {
+                    "first": "James",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Ramsay",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xiaochun",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Journal of the Royal Statistical Society B",
+            "volume": "60",
+            "issn": "2",
+            "pages": "351--363",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "Non-stationary dynamic bayesian networks. NIPS",
+            "authors": [
+                {
+                    "first": "Joshua",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Robinson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alexander",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Hartemink",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "Discrete variational autoencoders",
+            "authors": [
+                {
+                    "first": "Jason",
+                    "middle": [],
+                    "last": "Tyler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rolfe",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ICLR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "The Segmented iHMM: A simple, efficient hierarchical infinite HMM",
+            "authors": [
+                {
+                    "first": "Ardavan",
+                    "middle": [],
+                    "last": "Saeedi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Matthew",
+                    "middle": [],
+                    "last": "Hoffman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Matthew",
+                    "middle": [],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ryan",
+                    "middle": [],
+                    "last": "Adams",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ICML",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "Two-Sample Testing for Event Impacts in Time Series",
+            "authors": [
+                {
+                    "first": "Erik",
+                    "middle": [],
+                    "last": "Scharw\u00e4chter",
+                    "suffix": ""
+                },
+                {
+                    "first": "Emmanuel",
+                    "middle": [],
+                    "last": "M\u00fcller",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Proceedings of the SIAM International Conference on Data Mining (SIAM SDM",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "Neural discrete representation learning",
+            "authors": [
+                {
+                    "first": "Aaron",
+                    "middle": [],
+                    "last": "Van Den",
+                    "suffix": ""
+                },
+                {
+                    "first": "Oriol",
+                    "middle": [],
+                    "last": "Oord",
+                    "suffix": ""
+                },
+                {
+                    "first": "Koray",
+                    "middle": [],
+                    "last": "Vinyals",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kavukcuoglu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "NIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "The standard two-sided power distribution and its properties: With applications in financial engineering",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ren\u00e9 Van Dorp",
+                    "suffix": ""
+                },
+                {
+                    "first": "Samuel",
+                    "middle": [],
+                    "last": "Kotz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "American Statistician",
+            "volume": "56",
+            "issn": "2",
+            "pages": "90--99",
+            "other_ids": {}
+        },
+        "BIBREF47": {
+            "ref_id": "b47",
+            "title": "Segmental Audio Word2Vec: Representing Utterances as Sequences of Vectors with Applications in Spoken Term Detection",
+            "authors": [
+                {
+                    "first": "Yu-Hsuan",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hung-Yi",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lee",
+                    "middle": [],
+                    "last": "Lin-Shan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "In ICASSP",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "All of Statistics: A Concise Course in Statistical Inference",
+            "authors": [
+                {
+                    "first": "Larry",
+                    "middle": [],
+                    "last": "Wasserman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "Diffeomorphic Temporal Alignment Nets",
+            "authors": [
+                {
+                    "first": "Ron Shapira",
+                    "middle": [],
+                    "last": "Weber",
+                    "suffix": ""
+                },
+                {
+                    "first": "Matan",
+                    "middle": [],
+                    "last": "Eyal",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nicki",
+                    "middle": [],
+                    "last": "Skafte Detlefsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Oren",
+                    "middle": [],
+                    "last": "Shriki",
+                    "suffix": ""
+                },
+                {
+                    "first": "Oren",
+                    "middle": [],
+                    "last": "Freifeld",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "NeurIPS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF50": {
+            "ref_id": "b50",
+            "title": "A new coronavirus associated with human respiratory disease in China",
+            "authors": [
+                {
+                    "first": "Fan",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Su",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bin",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yan",
+                    "middle": [
+                        "Mei"
+                    ],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wen",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Zhi Gang",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yi",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Zhao",
+                    "middle": [],
+                    "last": "Wu Tao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jun",
+                    "middle": [],
+                    "last": "Hua Tian",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yuan",
+                    "middle": [],
+                    "last": "Yuan Pei",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ming",
+                    "middle": [
+                        "Li"
+                    ],
+                    "last": "Yuan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yu",
+                    "middle": [
+                        "Ling"
+                    ],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Fa",
+                    "middle": [
+                        "Hui"
+                    ],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yi",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Min",
+                    "middle": [],
+                    "last": "Qi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jiao",
+                    "middle": [
+                        "Jiao"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lin",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Edward",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yong Zhen",
+                    "middle": [],
+                    "last": "Holmes",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature",
+            "volume": "579",
+            "issn": "7798",
+            "pages": "265--269",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms. arXiv",
+            "authors": [
+                {
+                    "first": "Han",
+                    "middle": [],
+                    "last": "Xiao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kashif",
+                    "middle": [],
+                    "last": "Rasul",
+                    "suffix": ""
+                },
+                {
+                    "first": "Roland",
+                    "middle": [],
+                    "last": "Vollgraf",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Example segmentation function \u03b6(t) and warping functions \u03b3 i (u). The shaded regions are piecewise constant in \u03b3 1 and \u03b3 2 , respectively; \u03b3 3 is strictly increasing.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Three-parameter variant of the two-sided power distribution TSP(m, w, n) on the interval [0, 1]. Dashed lines denote the modes m, arrows the widths w; shaded regions have probability zero. Top row: probability density function. Bottom row: cumulative distribution function.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The relaxed segmented model with TSP-based warping functions, parametrized by \u03b8 and \u00b5.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Convergence plots for the linear task (left block) and the sinusoidal task (right block). Segmented Poisson regression results on COVID-19 case numbers in Germany, obtained with our relaxed model formulation. Vertical lines denote the detected change points.identified effectively with gradient descent. The convergence plots inFigure 4(right block) reveal that the final losses, on average, do not drop below 0.75, with high standard deviations of 0.18-0.21. More importantly, the plots demonstrate that very expressive warping functions (NP and CPAb) may waste training epochs by fitting parametrizations with low loss under linear interpolations, but high loss under integer interpolations. Our TSP-based warping functions yield close to piecewise-constant parametrizations even with linear interpolations, and are thus more robust towards the training strategy.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "the classifier with 200 examples from the task Trouser (+1) vs. T-shirt/top (\u22121); in the second segment, we provide 500 examples of Dress (+1) vs. Trouser (\u22121); in the third, we provide 300 examples of Trouser (+1) vs. Sandal (\u22121). The raw input images of size 28 \u00d7 28 are mapped to covariates of dimension 8 by passing them through two convolutional layers with 8 filter maps (kernel size 5), each followed by ReLU, max-pooling (kernel size 2) and dropout (p = 0.3) layers, and a final fully connected layer. The model has to learn the parameters of the feature transformation and the segmented classifier, including change points. Trouser vs. T-shirt/top (segment 1) test data: Dress vs. Trouser (segment 2) test data: Trouser vs. Sandal (segment 3) Logistic regression results on Fashion-MNIST data, obtained with our relaxed model formulation. Circles mark correct predictions, crosses mark incorrect predictions, when the classification threshold is 0.5. Vertical lines denote the change points detected on the training data.We minimize the NLL loss with TSPb warping functions (K = 3) using ADAM (\u03b7 = 0.01 for the segmented model, \u03b7 = 0.001 for the feature transform, (150, 50) training strategy, 10 restarts).",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

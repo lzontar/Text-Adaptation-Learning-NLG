@@ -1,0 +1,1661 @@
+{
+    "paper_id": "002fa340aa3b7a5d54ef3aa0e535b84e9e554cd0",
+    "metadata": {
+        "title": "Versatile Internet of Things for Agriculture: An eXplainable AI Approach",
+        "authors": [
+            {
+                "first": "Nikolaos",
+                "middle": [
+                    "L"
+                ],
+                "last": "Tsakiridis",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aristotle University of Thessaloniki",
+                    "location": {
+                        "settlement": "Thessaloniki",
+                        "country": "Greece"
+                    }
+                },
+                "email": "tsakirin@ece.auth.gr"
+            },
+            {
+                "first": "Themistoklis",
+                "middle": [],
+                "last": "Diamantopoulos",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aristotle University of Thessaloniki",
+                    "location": {
+                        "settlement": "Thessaloniki",
+                        "country": "Greece"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Andreas",
+                "middle": [
+                    "L"
+                ],
+                "last": "Symeonidis",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aristotle University of Thessaloniki",
+                    "location": {
+                        "settlement": "Thessaloniki",
+                        "country": "Greece"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "John",
+                "middle": [
+                    "B"
+                ],
+                "last": "Theocharis",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aristotle University of Thessaloniki",
+                    "location": {
+                        "settlement": "Thessaloniki",
+                        "country": "Greece"
+                    }
+                },
+                "email": "theochar@eng.auth.gr"
+            },
+            {
+                "first": "Athanasios",
+                "middle": [],
+                "last": "Iossifides",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "International Hellenic University",
+                    "location": {
+                        "settlement": "Thessaloniki",
+                        "country": "Greece"
+                    }
+                },
+                "email": "aiosifidis@el.teithe.gr"
+            },
+            {
+                "first": "Periklis",
+                "middle": [],
+                "last": "Chatzimisios",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "International Hellenic University",
+                    "location": {
+                        "settlement": "Thessaloniki",
+                        "country": "Greece"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "George",
+                "middle": [],
+                "last": "Pratos",
+                "suffix": "",
+                "affiliation": {},
+                "email": "pratos@indinf.gr"
+            },
+            {
+                "first": "Dimitris",
+                "middle": [],
+                "last": "Kouvas",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The increase of the adoption of IoT devices and the contemporary problem of food production have given rise to numerous applications of IoT in agriculture. These applications typically comprise a set of sensors that are installed in open fields and measure metrics, such as temperature or humidity, which are used for irrigation control systems. Though useful, most contemporary systems have high installation and maintenance costs, and they do not offer automated control or, if they do, they are usually not interpretable, and thus cannot be trusted for such critical applications. In this work, we design Vital, a system that incorporates a set of low-cost sensors, a robust data store, and most importantly an explainable AI decision support system. Our system outputs a fuzzy rule-base, which is interpretable and allows fully automating the irrigation of the fields. Upon evaluating Vital in two pilot cases, we conclude that it can be effective for monitoring open-field installations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The number of devices connected to the Internet, known as IoT (Internet of Things) devices, has been continuously growing. Indicatively, in 2008 their number exceeded the global population, while in 2019 there were more than 26 billion connected devices 1 . This number is expected to reach 75 billion by 2025 2 . Apart from home/consumer use, IoT today is largely used in different industrial sectors, including manufacturing, security, transportation, and agriculture [20] .",
+            "cite_spans": [
+                {
+                    "start": 470,
+                    "end": 474,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "As the global population is expected to rise 3 , there is a demand for augmenting food production coupled with increased use of arable land water resources [7] . The challenge of achieving sustainable agriculture and increasing food production using technologies such as Artificial Intelligence (AI) and IoT has become evident ever since the beginning of the 21st century, when Zhang et al. [30] coined the term precision agriculture. The goal of this area is to maximize production while mitigating the relevant costs, i.e. minimizing water/energy consumption and optimizing the use of pest-control/growth chemicals.",
+            "cite_spans": [
+                {
+                    "start": 156,
+                    "end": 159,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 391,
+                    "end": 395,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Research in precision agriculture is broad, focusing on all three layers of IoT: the perception layer (i.e. sensors that are placed at fields), the network layer (i.e. communication protocols between sensors and applications), and the application layer (i.e. data storage and decision-making) [28] . Several challenges still exist: the data transfer cost, the need for uninterrupted power supply (that undermines their applicability), the lack of efficient and versatile data storage, and most importantly the need for automated control systems that are smart and can support precision agriculture with minimal human intervention.",
+            "cite_spans": [
+                {
+                    "start": 293,
+                    "end": 297,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The advent of increasingly opaque decision systems, such as deep and ensemble learning techniques, highlights a key issue: when decisions derived from such systems affect the livelihood of humans, as in agriculture, there is an increasing need to understand how the AI methods derive them. The consideration of interpretability as an additional design driver can improve the models by: i) facilitating the robustness by highlighting the potential perturbations, ii) ensuring impartiality in decision-making, and iii) guaranteeing that an underlying truthful causality (linking the cause with the effect) exists in model reasoning.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this work, we present a system overcoming the aforementioned limitations. Our system, named Vital, employs IoT devices with low installation, use, and maintenance costs, capable of supporting open-field irrigation by measuring all relevant metrics (temperature, humidity, etc.). Furthermore, our system employs a distributed and scalable data management infrastructure, and a smart fuzzy rule-based system that fully automates the irrigation of open fields. Our system lies in the broad category of eXplainable AI (XAI) [3, 9] systems, therefore it produces interpretable high-efficiency results, while enabling humans to inspect the model reasoning and thus understand, trust, and manage the AI technologies.",
+            "cite_spans": [
+                {
+                    "start": 523,
+                    "end": 526,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 527,
+                    "end": 529,
+                    "text": "9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "IoT has already been applied in several areas relevant to agriculture [28] . In this section we focus on IoT for precision agriculture and specifically on what is referred to as open-field agriculture. Open-field deployments typically comprise sensors that measure climate conditions as well as soil sensors, and their main purpose is to optimize irrigation and enhance crop production.",
+            "cite_spans": [
+                {
+                    "start": 70,
+                    "end": 74,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background and Related Work"
+        },
+        {
+            "text": "One of the first systems to support such functionality [13] is based on three nodes: one measuring soil moisture and temperature, another for weather parameters (air temperature and humidity, wind speed, and luminosity), and one for irrigation control. The first two nodes send data to a base station and the user can manually activate the valve connected to the third node to irrigate the field. A similar system was proposed in [21] , which also monitors these metrics and further integrates a solar-power node to reduce the energy needs of the system. Project SWAMP [12] takes water control one step further, by integrating not only water consumption but also water reserve and distribution metrics. All of these systems, however, are not automated, so an expert agronomist has to continuously monitor them and take any decisions concerning irrigation.",
+            "cite_spans": [
+                {
+                    "start": 55,
+                    "end": 59,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 430,
+                    "end": 434,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 569,
+                    "end": 573,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background and Related Work"
+        },
+        {
+            "text": "An interesting alternative proposed in [18] employs a set of rules to irrigate automatically based on soil moisture. These are set by the administrator (usually an agronomist) based on past data, while the farmer may override them and manually irrigate. A similar algorithm based on sensor and weather data is proposed in [16] . Though useful, these approaches still require expert monitoring. A more advanced method is proposed in [11] , employing Support Vector Regression to predict soil moisture for a range of upcoming days, which is then used to determine whether and when irrigation should start. The main drawback in this case lies with interpretability; the inability to review the underlying model is a risky practice, considering errors may prove critical for the crop.",
+            "cite_spans": [
+                {
+                    "start": 39,
+                    "end": 43,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 322,
+                    "end": 326,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 432,
+                    "end": 436,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background and Related Work"
+        },
+        {
+            "text": "As a result, several research efforts have been directed towards fuzzy rulebased systems (FRBSs), which are interpretable and generalize well in cases when data are derived from sensors and thus may be too fine-grained. The involvement of fuzzy logic is justified by the following: i) expert knowledge is fuzzy and not precise and can thus be easier integrated, ii) data from sensors in the real world are noisy and are reported with a degree of fuzziness, iii) fuzzy consequents enable a smoother output response than traditional crisp systems [3, 9] . One of the first approaches [10] includes a fuzzy logic model that receives as input soil humidity values from a sensor and determines the irrigation duration using four linguistic variables: zero, short-term, middle-term, and large-time. A more complex model is proposed in [29] , which is based on temperature (low, moderate, high), soil moisture (dry, moderate, wet), and humidity (less, medium, high) and results in a set of rules capable of determining pump operation and its duration. In [17] five triangular membership functions are used as input corresponding to sunlight intensity, wind speed, humidity, temperature, and soil moisture, while the output indicates the necessary irrigation quantity. Similarly, the model proposed in [15] uses Gaussian membership functions and receives input from ten sensors, two air sensors (for humidity and temperature) and eight ground moisture sensors placed in different parts of the area, to provide more accurate recommendations.",
+            "cite_spans": [
+                {
+                    "start": 545,
+                    "end": 548,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 549,
+                    "end": 551,
+                    "text": "9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 582,
+                    "end": 586,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 829,
+                    "end": 833,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 1048,
+                    "end": 1052,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1294,
+                    "end": 1298,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background and Related Work"
+        },
+        {
+            "text": "Although the aforementioned systems are quite effective in certain scenarios, they are usually not applicable to multiple generic precision irrigation scenarios. They usually require human intervention in order to adapt to different fields and they are largely based on specific sensors that may not be available in all cases (e.g. certain systems may require a very large number of sensors [15] ).",
+            "cite_spans": [
+                {
+                    "start": 391,
+                    "end": 395,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background and Related Work"
+        },
+        {
+            "text": "In this work, we propose a flexible IoT system operating on a set of sensors that is upgradeable and further employs a data management infrastructure able to handle large amounts of values from these sensors. We design an interpretable FRBS which functions automatically, thus not requiring any input from the farmer/agronomist. As mentioned, our system can be classified into the XAI domain. Within this domain, FRBSs have demonstrated their potential to attain both interpretability and accuracy in a variety of application areas [8, 23, 24 ].",
+            "cite_spans": [
+                {
+                    "start": 532,
+                    "end": 535,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 536,
+                    "end": 539,
+                    "text": "23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 540,
+                    "end": 542,
+                    "text": "24",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background and Related Work"
+        },
+        {
+            "text": "The Vital system comprises the following components (depicted in Fig. 1 ):",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 65,
+                    "end": 71,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Vital: An IoT System for Precision Agriculture"
+        },
+        {
+            "text": "-The slave devices (end nodes) connected physically with the devices (e.g.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Vital: An IoT System for Precision Agriculture"
+        },
+        {
+            "text": "weather stations, sensors, valves etc.); -The IoT gateway that wirelessly connects to multiple slave devices and exchanges data and other information; -The IoT platform which collects the data from multiple gateways, transmitted through 3G networks, and acts as the data focal point; -The web application acting as the front-end of the system and relaying the output of the rule-based system via SMS to the relevant gateway; and -The rule-based system which reads the data stored in the IoT platform and collected by the web application, and infers data-driven decisions. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Vital: An IoT System for Precision Agriculture"
+        },
+        {
+            "text": "The wireless slaves are ultra low-power, battery-powered end nodes in the network. The sensor nodes are frequently synchronized by the gateway in order to achieve real-time data collection with a fixed update rate of 5 min. Two types of slave devices were considered, namely ADS-200 and ADS-210. ADS-200 is the end-node used to receive input data from sensors, while ADS-210 is used to drive 12 V latching valves and relays. Their D-size Lithium Thionyl battery can provide autonomous operation for over 10 years. ADS-200 incorporates 1 configurable input (digital, pulse counter or analog), and multiple excitation options for powering transducers. The device supports acquisition of up to 16 measurement channels, based on the popular SDI-12 communication protocol and 8 channels, based on the MODBUS protocol. ADS-210 on the other hand, incorporates 2 digital inputs, 1 with counting capability, 1 analog input, and a full bridge output for driving 12 V latching valves and relays.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Wireless Slaves"
+        },
+        {
+            "text": "The IoT gateway (ADU-700) communicates wirelessly in license-free bands with the slaves and transmits their data to the IoT platform. The gateways can both receive the data (telemetry) from the slaves (upstream component) and relay the commands received through SMS text messages (downstream component), to perform specific tasks, like opening or closing a valve. Able to withstand ambient conditions, they are low-power IP66 certified and capable of securely connecting to multiple slave devices. The wireless network coverage reaches a radius of 1-6 km (line of sight), enabling the use of one gateway across multiple fields. The network uses a proprietary protocol with bidirectional communications. Modes of operation include the autonomous battery operation and an external power supply operation with uninterruptible transition to battery operation during power outage. The ADU-700 incorporates a 3G, GSM/GPRS modem and supports periodical data transmission via FTP and alerting via SMS. The data are transmitted to the IoT platform at regular intervals, configurable by the user.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IoT Gateway"
+        },
+        {
+            "text": "The IoT platform is the central datahub, i.e. where all telemetry values are securely stored. In this implementation, the Cenote platform is used [4] . Cenote is a Big Data Management System (BDMS) with analytics capabilities for the Web of Things, providing (near) real-time analytics capacities to event streams stemming from heterogeneous sources of information. Moreover, it is an open source platform following a component-based development approach. Deployed in a distributed and scalable manner, it acts as a general-scope, out-of-the-shelf, BDMS, supporting analytics out-of-the-box in many scenarios that involve event stream processing. Its overall architecture is presented in Fig. 2 .",
+            "cite_spans": [
+                {
+                    "start": 146,
+                    "end": 149,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 688,
+                    "end": 694,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "IoT Platform"
+        },
+        {
+            "text": "The web front-end of the platform was developed in Javascript and is an interface to visualize telemetry data. It further has an API connecting to an external SMS service, enabling the platform to task a gateway with actions via SMS commands (e.g. for irrigation this concerns the opening of a valve for a specified number of minutes). Moreover, it enables the management of data (e.g. translating gateway ids to actual fields, using proper units, etc.), manages the access of users, and enables users to inspect and tweak the rule-based system. This latter component is very crucial for XAI; by enabling users to visualize the inner manifestations of the rule-based system the model is transparent and thus trustworthy. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Web Application"
+        },
+        {
+            "text": "Fuzzy systems are an important tool in the domains of Computational Intelligence and Soft Computing, having been applied to a plethora of different tasks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "Most commonly, a model structure in the form of an FRBS is considered. These systems have displayed their superiority to classical decision trees and crisp rule-based systems and their robustness in different AI applications including classification [2, 6, 25] , big data analysis [6, 27] , and regression [19, 26] . FRBSs allow for the definition of simple and verbally formulated rules over imprecise domains which can be combined to generate precise yet understandable results. They are an extension to classical rule-based systems, since they involve \"IF-THEN\" type of rules, but the antecedents and consequents comprising each rule are composed of fuzzy logic statements, instead of classical ones. The use of fuzzy sets with linguistic labels is particularly noteworthy, as the output system has a significant interpretability degree for the expert to understand the reasoning mechanisms of the model and the inner details of the problem characteristics. These types of systems are called Mamdani-type FRBSs [5] and have two main components (illustrated in Fig. 3) : i) the fuzzy inference system, which implements the fuzzy reasoning process to be applied on the input to infer the output, and ii) the fuzzy knowledge base (KB), representing the knowledge about the problem being solved. The KB contains the fuzzy rules composed of linguistic variables that take values from a descriptive term set with a real-world meaning. This distinction between the fuzzy rule structures and their meaning allows us to define two different sub-components, namely the fuzzy rule base (RB) containing the collection of fuzzy rules, and the data base (DB) containing the membership functions of the fuzzy partitions associated to the linguistic variables. The Mamdani-type FRBS structure demonstrates several features that are of particular importance for the application presented herein: i) firstly, it provides a natural framework to include expert knowledge in the form of linguistic fuzzy rules; ii) secondly, the fuzzy inference mechanism makes full use of the power of fuzzy logic-based reasoning; and iii) thirdly, it composes a highly flexible means to formulate knowledge, while at the same time it remains interpretable.",
+            "cite_spans": [
+                {
+                    "start": 250,
+                    "end": 253,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 254,
+                    "end": 256,
+                    "text": "6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 257,
+                    "end": 260,
+                    "text": "25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 281,
+                    "end": 284,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 285,
+                    "end": 288,
+                    "text": "27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 306,
+                    "end": 310,
+                    "text": "[19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 311,
+                    "end": 314,
+                    "text": "26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 1014,
+                    "end": 1017,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1063,
+                    "end": 1070,
+                    "text": "Fig. 3)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "More formally, given a dataset E = {x p 1 , . . . , x p N , y p } Q p=1 , which is composed of Q patterns, with each pattern consisting of an N -dimensional predictor x and one response (or target) variable y, the FRBS models the input-output relationship using a total of R fuzzy rules of the form:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "where R k is the k-th fuzzy rule,\u00c3 k i is the set of interpretable linguistic terms for feature i, B k is the linguistic term for the output, and CF k is the certainty factor (or degree of importance) for B k .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "The input space and the output variable are partitioned using uniformly distributed triangular membership functions into in and out fuzzy sets respectively. Thus, they constitute a strong (or proper) fuzzy partition [14] , implying that in a given sample space X :",
+            "cite_spans": [
+                {
+                    "start": 216,
+                    "end": 220,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "where L q is the q-th linguistic fuzzy set of space X . The DNF (disjunctive normal form) approach [5] is used, where each input variable x i of R k takes a set of consecutive linguistic terms as a value\u00c3 k by the disjunctive operator OR. Figure 4 depicts the DNF approach in a strong fuzzy partition using triangular membership functions for a given space X .",
+            "cite_spans": [
+                {
+                    "start": 99,
+                    "end": 102,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 239,
+                    "end": 247,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "The matching degree between a pattern p and a rule R k is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "where \u03bc L q i (x p i ) is the membership grade of each linguistic term, while \u2227 and \u2228 denote the AND and OR operators, respectively. The AND operator is implemented using the minimum operator, whereas the OR operator is implemented using the bounded sum, defined as boundedSum(a, b) = min (1, a + b) . Given an input vector x p , the output of the system is calculated in the following way:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 289,
+                    "end": 299,
+                    "text": "(1, a + b)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "The DB parameters were in = 5 (i.e. five uniformly distributed triangular sets for the input variables) and out = 7. The larger granularity in the output space allows for more fine-grained irrigation control. The learning of the RB through the dataset takes place by following the learning algorithm presented in [26] . The rule-based system is continuously operating and monitoring the raw telemetry; once new data are received the rules are checked. If the conditions are met (i.e. the proper rules are activated by the input) the relevant action is determined from the output of the rule base and sent to the gateway as an SMS command. If no rules are activated, then no irrigation command is transmitted.",
+            "cite_spans": [
+                {
+                    "start": 313,
+                    "end": 317,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rule-Based System"
+        },
+        {
+            "text": "To demonstrate the efficacy of our approach we considered two independent pilot cases which are presented below.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pilot Cases"
+        },
+        {
+            "text": "In this pilot case, the goal was to demonstrate the potential of the proposed system to integrate data of existing (legacy) network stations. This demonstrates the suitability of this work to replace legacy technologies that were installed but were either malfunctioning or underfunctioning or had no web-based integration capabilities. Accordingly, a set of environmental sensors was selected that was operating in lake Koronia, located in the Mygdonian basin of the Region of Central Macedonia in Northern Greece (latitude/longitude of 40.68/23.15). The environmental sensors record the ambient temperature and relativity humidity, as well as the level of the lake in discrete and selected positions. The sensors were connected via the SDI-12 interface using three separate slave devices, while a single gateway acted as the local data collector. The integration was successful, indicating that our system can integrate and/or replace legacy installations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Integration with Existing Telemetry Network"
+        },
+        {
+            "text": "In this pilot application we focused on a pilot area of young olive trees within the premises of the Farm School the Aristotle University of Thessaloniki in Northern Greece (at a latitude/longitude of 40.54033/23.00083), with the field covering an area of 12 acres and consisting of 1780 individual trees, using a drip irrigation system. The field was then divided into 4 equal areas (hereafter referred to as plots), each controlled individually by a separate irrigation valve. One of the plots was used as control (i.e. operated manually by an expert), another was operated by the expert using remote commands (i.e. via SMS commands), while the other two were irrigated by the automated system. An all-in-one weather station (ATMOS 41) was placed in the center of the field to supply the meteorological data (i.e. solar irradiance, precipitation, wind speed and direction, temperature and humidity). In the three experimental plots a GS3 sensor by Decagon was installed in the soil that measures the soil's temperature, conductivity and dielectric permittivity. All sensors and irrigation valves were connected to the slave devices that relayed the telemetry to the gateway and thence it was transmitted to the Cenote platform over TLS. The raw telemetry data were checked for abnormal values (e.g. if the data were below or above predefined minima and maxima values) before they were stored to the database.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Precision Irrigation"
+        },
+        {
+            "text": "In addition to the raw telemetry values, the soil moisture content (calculated via the Topp equation [22] using as input the soil's dielectric permittivity) and the reference crop evapotranspiration ETo (according to the FAO Penman-Monteith equation [1] ) were calculated on-the-fly and served through the webbased platform to the FRBS as inputs. Both soil moisture content and ETo were potential inputs and could be taken into account by the FRBS in order to infer the best time to irrigate as well as the amount of irrigation necessary.",
+            "cite_spans": [
+                {
+                    "start": 101,
+                    "end": 105,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 250,
+                    "end": 253,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Precision Irrigation"
+        },
+        {
+            "text": "In the two plots controlled by the FRBS two independent courses of actions were followed. In both cases, the fuzzy KB was preselected by an expert (i.e. an agronomist) using the linguistic description of the input variables. This was done to demonstrate the ability of fuzzy systems to incorporate the expert knowledge in a straightforward way, enabling people not familiar with machine learning models to effortlessly develop an AI-based model. In one of these two plots however, the rule base was allowed to evolve to automatically tune the components of the fuzzy KB. This was deemed important as the irrigation mode of operation represents an open-loop type of control, where a decision to irrigate is sent to the gateway and thence to the relevant slave device and valve, without immediate feedback-feedback is received once the gateway synchronizes its data with the IoT platform at its predetermined time interval. The FRBS can then use this input-output relationship from prior actions and improve its structure and components by tweaking the necessary parameters, in accordance to the delayed feedback it receives, so that it can improve in the future. Additionally, and because the system automatically redefines its components to address the needs, the rule base can accordingly be more robust to perturbations and changes (e.g. in ambient conditions). Hence, this smart AI-driven system can be more precise in the management of irrigation and thus ipso facto help conserve water and resources. This is demonstrated in Fig. 5 for the month of January (which was dry and had the most irrigation needs). The crop needs are the calculated ETo minus the precipitation; the FRBS-auto is the closest to the theoretical values with an RMSE of 0.63 mm, compared to 2.10 mm for FRBS-expert and 6.47 mm for control, which was the most wasteful of all. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1530,
+                    "end": 1536,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Precision Irrigation"
+        },
+        {
+            "text": "In this paper, we have presented Vital, a system that employs IoT devices in order to monitor sensor values of fields and automate irrigation. Vital integrates a set of IoT devices (sensors) with low installation and maintenance costs, as well as a robust distributed data management infrastructure. Furthermore, we design a fuzzy-rule based system that effectively takes decisions about the irrigation of the fields. Compared to other open-field agriculture systems, our system encompasses an eXplainable AI approach, thus ensuring maximum efficiency as well as increased interpretability, by enabling humans to inspect the model, which is highly desirable in such critical applications.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "Concerning future work, one may consider further adapting our system by adding more types of sensors (e.g. for digital imaging) and/or even attaching other types of valves apart from irrigation (e.g. for pesticide control). Finally, concerning the smart system, we plan to evaluate it against scenarios with missing data and assess whether it can be used effectively in such cases, as well as perform comparisons against other approaches in this area.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Crop evapotranspiration-Guidelines for computing crop water requirements-FAO Irrigation and drainage paper 56",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Allen",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Pereira",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Raes",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Smith",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "FAO, Rome",
+            "volume": "300",
+            "issn": "9",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Multiobjective evolutionary optimization of type-2 fuzzy rule-based systems for financial data classification",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Antonelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Bernardo",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Hagras",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Marcelloni",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "IEEE Trans. Fuzzy Syst",
+            "volume": "25",
+            "issn": "2",
+            "pages": "249--264",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Explainable artificial intelligence (XAI): concepts, taxonomies, opportunities and challenges toward responsible AI",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Arrieta",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Inf. Fusion",
+            "volume": "58",
+            "issn": "",
+            "pages": "82--115",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Cenote: a big data management and analytics infrastructure for the web of things",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Chatzidimitriou",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Papamichail",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Oikonomou",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Lampoudis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Symeonidis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE/WIC/ACM International Conference on Web Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "282--285",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "A historical review of evolutionary learning methods for Mamdanitype fuzzy rule-based systems: designing interpretable genetic fuzzy systems",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Cord\u00f3n",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Int. J. Approx. Reason",
+            "volume": "52",
+            "issn": "6",
+            "pages": "894--913",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "CFM-BD: a distributed rule induction algorithm for building compact fuzzy models in big data classification problems",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Elkano",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Sanz",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Barrenechea",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bustince",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Galar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "IEEE Trans. Fuzzy Syst",
+            "volume": "28",
+            "issn": "1",
+            "pages": "163--177",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The State of Food Security and Nutrition in the World 2019. Safeguarding against economic slowdowns and downturns",
+            "authors": [
+                {
+                    "first": "Ifad",
+                    "middle": [],
+                    "last": "Fao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Unicef",
+                    "middle": [],
+                    "last": "Who",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "A view on fuzzy systems for big data: progress and opportunities",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Fern\u00e1ndez",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Carmona",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Del Jesus",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Herrera",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Int. J. Comput. Intell. Syst",
+            "volume": "9",
+            "issn": "",
+            "pages": "69--80",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Evolutionary fuzzy systems for explainable artificial intelligence: why, when, what for, and where to?",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Fernandez",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Herrera",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Cordon",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Del Jesus",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Marcelloni",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE Comput. Intell. Mag",
+            "volume": "14",
+            "issn": "1",
+            "pages": "69--81",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "An intelligent irrigation system based on wireless sensor network and fuzzy control",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "J. Netw",
+            "volume": "8",
+            "issn": "5",
+            "pages": "1080--1087",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "An IoT based smart irrigation management system using Machine learning and open source technologies",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Goap",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Sharma",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Shukla",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Krishna",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Comput. Electron. Agric",
+            "volume": "155",
+            "issn": "",
+            "pages": "41--49",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "SWAMP: an IoT-based smart water management platform for precision irrigation in agriculture",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kamienski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Global Internet of Things Summit (GIoTS)",
+            "volume": "",
+            "issn": "",
+            "pages": "1--6",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Precision irrigation based on wireless sensor network",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Khriji",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Houssaini",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Jmal",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Viehweger",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Abid",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Kanoun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "IET Sci. Meas. Technol",
+            "volume": "8",
+            "issn": "3",
+            "pages": "98--106",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Fuzzy Sets and Fuzzy Logic: Theory and Applications",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Klir",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Yuan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "A smart IoT fuzzy irrigation system",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Kokkonis",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kontogiannis",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Tomtsis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "IOSR J. Eng",
+            "volume": "07",
+            "issn": "06",
+            "pages": "15--21",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Field monitoring and automation using IOT in agriculture domain",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Mohanraj",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Ashokumar",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Naren",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Procedia Comput. Sci",
+            "volume": "93",
+            "issn": "",
+            "pages": "931--939",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Neural network pattern classification and weather dependent fuzzy logic model for irrigation control in WSN based precision agriculture",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Mohapatra",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Lenka",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Procedia Comput. Sci",
+            "volume": "78",
+            "issn": "",
+            "pages": "499--506",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "IoT and agriculture data analysis for smart farm",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Muangprathub",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Boonnam",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kajornkasirat",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Lekbangpong",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Wanichsombat",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Nillaor",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Comput. Electron. Agric",
+            "volume": "156",
+            "issn": "",
+            "pages": "467--474",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "S-FRULER: scalable fuzzy rule learning through evolution for regression. Knowl.-Based Syst",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Rodr\u00edguez-Fdez",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mucientes",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bugar\u00edn",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "110",
+            "issn": "",
+            "pages": "255--266",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "The history, present and future with IoT",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Sharma",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Shamkuwar",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Singh",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Balas",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Solanki",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kumar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Internet of Things and Big Data Analytics for Smart Generation. ISRL",
+            "volume": "154",
+            "issn": "",
+            "pages": "27--51",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-04203-5_3"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Study on farmland irrigation remote monitoring system based on ZigBee",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Shuwen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Changli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "2015 International Conference on Computer and Computational Sciences (ICCCS)",
+            "volume": "",
+            "issn": "",
+            "pages": "193--197",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Electromagnetic determination of soil water content: measurements in coaxial transmission lines",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Topp",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Davis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Annan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "Water Resour. Res",
+            "volume": "16",
+            "issn": "3",
+            "pages": "574--582",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Using interpretable fuzzy rule-based models for the estimation of soil organic carbon from VNIR/SWIR spectra and soil texture",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tsakiridis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Theocharis",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Ben-Dor",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Zalidis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Chemometr. Intell. Lab. Syst",
+            "volume": "189",
+            "issn": "",
+            "pages": "39--55",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "An evolutionary fuzzy rulebased system applied to the prediction of soil organic carbon from soil spectral libraries",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tsakiridis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Theocharis",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Panagos",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Zalidis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Appl. Soft Comput. J",
+            "volume": "81",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "DECO3R: a differential evolution-based algorithm for generating compact fuzzy rule-based classification systems",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tsakiridis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Theocharis",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Zalidis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Knowl.-Based Syst",
+            "volume": "105",
+            "issn": "",
+            "pages": "160--174",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "DECO3RUM: a differential evolution learning approach for generating compact Mamdani fuzzy rule-based models",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tsakiridis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Theocharis",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Zalidis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Expert Syst. Appl",
+            "volume": "83",
+            "issn": "",
+            "pages": "257--272",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "An evolutionary fuzzy rule-based system applied to real-world Big Data -the GEO-CRADLE and LUCAS soil spectral libraries",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tsakiridis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Theocharis",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Zalidis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IEEE International Conference on Fuzzy Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Internet of Things in agriculture, recent advances and future challenges",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tzounis",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Katsoulas",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Bartzanas",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kittas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Biosyst. Eng",
+            "volume": "164",
+            "issn": "",
+            "pages": "31--48",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Fuzzy based smart farming using wireless sensor network",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Yadav",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Daniel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "5th IEEE Uttar Pradesh Section International Conference on Electrical, Electronics and Computer Engineering (UPCON)",
+            "volume": "",
+            "issn": "",
+            "pages": "1--6",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Precision agriculture -a worldwide overview",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Comput. Electron. Agric",
+            "volume": "36",
+            "issn": "2",
+            "pages": "113--132",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Overview of the Vital system.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Overview of the Cenote IoT platform depicting its components.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The architecture of a Mamdani FRBS.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "A strong fuzzy partition of the space X using triangular membership functions. Highlighted is the fuzzy set\u00c3 = {L2 or L3} following the DNF approach.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Comparison among the different irrigation techniques for January of 2020.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgments. This research has been co-financed by the European Regional Development Fund of the European Union and Greek national funds through the Operational Program Competitiveness, Entrepreneurship and Innovation, under the call RESEARCH -CREATE -INNOVATE (project code: T1EDK-02296).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

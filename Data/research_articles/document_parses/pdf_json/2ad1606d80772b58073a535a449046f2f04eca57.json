@@ -1,0 +1,2117 @@
+{
+    "paper_id": "2ad1606d80772b58073a535a449046f2f04eca57",
+    "metadata": {
+        "title": "Tuning the overlap and the cross-layer correlations in two-layer networks: Application to a susceptible-infectious-recovered model with awareness dissemination",
+        "authors": [
+            {
+                "first": "David",
+                "middle": [],
+                "last": "Juher",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Joan",
+                "middle": [],
+                "last": "Salda\u00f1a",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "We study the properties of the potential overlap between two networks A,B sharing the same set of N nodes (a two-layer network) whose respective degree distributions p A (k),p B (k) are given. Defining the overlap coefficient \u03b1 as the Jaccard index, we prove that \u03b1 is very close to 0 when A and B are random and independently generated. We derive an upper bound \u03b1 M for the maximum overlap coefficient permitted in terms of p A (k), p B (k), and N . Then we present an algorithm based on cross rewiring of links to obtain a two-layer network with any prescribed \u03b1 inside the range (0,\u03b1 M ). A refined version of the algorithm allows us to minimize the cross-layer correlations that unavoidably appear for values of \u03b1 beyond a critical overlap \u03b1 c < \u03b1 M . Finally, we present a very simple example of a susceptible-infectious-recovered epidemic model with information dissemination and use the algorithms to determine the impact of the overlap on the final outbreak size predicted by the model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Some contagious processes interact with each other during their propagation, which can occur either through the same route of transmission or through routes that share the same set of nodes but use different types of connections. In the second case, the description of the spread uses the concept of multilayer or multiplex network, namely, a set of nodes (individuals, computers, etc.) connected by qualitatively different types of links corresponding to possible relationships among them (acquaintanceship, friendship, physical contact, social networks, etc.), each layer defined by a type of connection. Competitive viruses spreading simultaneously through different routes of transmission over the same host population, or the spread of a pathogen and awareness during an epidemic episode are examples of processes that are better described by means of multilayer networks [1] .",
+            "cite_spans": [
+                {
+                    "start": 877,
+                    "end": 880,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In the last years it has been a development of the mathematical formulation of multiplex networks and, also, of more general interconnected networks for which the set of nodes does not need to be the same at each layer [2] [3] [4] . Moreover, recent results show the importance of the interrelation between different layers in determining the fate of competitive epidemic processes [1, 5] . In other cases, however, the importance of such an interrelation is not so evident from the analytical results of the epidemic threshold [6, 7] , or even seems to be not relevant at all [8] .",
+            "cite_spans": [
+                {
+                    "start": 219,
+                    "end": 222,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 223,
+                    "end": 226,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 227,
+                    "end": 230,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 382,
+                    "end": 385,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 386,
+                    "end": 388,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 528,
+                    "end": 531,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 532,
+                    "end": 534,
+                    "text": "7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 577,
+                    "end": 580,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Only a few papers dealing with competing epidemics over multilayer networks focus on the impact of layer overlap on * david.juher@udg.edu \u2020 joan.saldana@udg.edu the epidemic dynamics [5, 9, 10] . In [5] , the authors consider a sequential propagation of two epidemics using distinct routes of transmission over a network consisting of two partly overlapped layers. Using bond percolation, it is determined the success of a second epidemic through that part of its route of transmission whose nodes have not been infected by the first epidemic. In [10] , the authors develop an analytical approach to deal with simultaneous spread of two interacting viral agents on two-layered networks. In that work, moreover, the respective effects of overlap and correlation of the degrees of nodes in each layer on the epidemic dynamics are considered.",
+            "cite_spans": [
+                {
+                    "start": 183,
+                    "end": 186,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 187,
+                    "end": 189,
+                    "text": "9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 190,
+                    "end": 193,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 199,
+                    "end": 202,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 547,
+                    "end": 551,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Here the overlap \u03b1 between two (labeled) networks A and B of N nodes is defined as the fraction of links of the union network that are common links of A and B or, equivalently, the probability that a randomly chosen link of the network A \u222a B is simultaneously a link of both A and B. In fact \u03b1 is the Jaccard index, a statistic used for comparing the similarity of two sample sets, as defined in [11] . Just to illustrate that this simple statistical parameter can play a critical role in the qualitative response of a two-layer network model, in Sec. VIII we present a mean-field model for the spread of an infectious agent on one layer (contact layer). The model implicitly assumes an information dissemination on a second layer (notification layer) about the infection status of the nodes which causes an increase in awareness and the adoption of preventive behaviors. As an interesting feature, the overlap coefficient \u03b1 between the networks embedding the respective routes of transmission is a parameter of the model. This allows us to derive a simple relationship between \u03b1 and the epidemic threshold. Provided that one wants to perform simulations to validate this (or any) model, a systematic procedure to generate couples of networks of given size and degree distributions with a prescribed value of \u03b1 would be a useful tool. We stress that this is the main focus of the paper, and that the model in Sec. VIII is just a simple example to illustrate the convenience of having such tools.",
+            "cite_spans": [
+                {
+                    "start": 396,
+                    "end": 400,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Our approach is based on the study of the potential overlap between two networks whose (finite, empirical) degree distributions are previously fixed. More precisely, in Secs. III and IV we estimate the minimum and maximum values (call them \u03b1 m and \u03b1 M ) for the overlap coefficient between two networks of size N and degree distributions p A (k) and p B (k). In particular, we show that \u03b1 m \u2248 0. The study of the maximum \u03b1 M is based on the computation of the potential overlap O pot (D A ,D B ) between two fixed degree sequences D A ,D B following p A (k), p B (k). In Sec. V we present the CR algorithm, that takes as input any two degree sequences D A ,D B and a desired overlap \u03b1 \u2208 (0,O pot (D A ,D B )) and generates a couple of networks with degree sequences D A ,D B and overlap coefficient close to \u03b1. When D A ,D B are randomly sampled from p A (k),p B (k), the potential overlap O pot (D A ,D B ) is called critical overlap. In Sec. VI we show that the CR algorithm starting with two random sequences succeeds in constructing pairs of networks having any overlap below the critical one and exhibiting some desirable statistical properties, specifically lack of in-and cross-layer degree-degree correlations. Of course the critical overlap belongs to the interval (\u03b1 m ,\u03b1 M ), and is higher than expected from intuition. In Sec. VII we show that for values between the critical overlap and \u03b1 M there is an unavoidable direct relationship between overlap and cross-layer degreedegree correlation, and propose a refined version of the crossrewiring (CR) algorithm that tries to reach values beyond the critical overlap while maintaining the cross-layer degreedegree correlation as small as possible.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "With this collection of algorithms, we are given a tool to test the analytical predictions relating overlap and epidemic thresholds. In the few previous works dealing with interacting epidemics on overlay networks [5, 9, 10] , the two-layer network over which multiple pathogens spread was characterized by the probability \u03c1(k A ,k B ,k c ) that a randomly selected node belongs to k A links unique to layer A, k B links unique to layer B, and k c common links [note that, using this language, what we are assuming here as a natural requirement is that the marginal distributions p A (k A ) and p B (k B ), that can be recovered as",
+            "cite_spans": [
+                {
+                    "start": 214,
+                    "end": 217,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 218,
+                    "end": 220,
+                    "text": "9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 221,
+                    "end": 224,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": ", are given]. Those papers put the main focus on the influence of the overlap and the degree correlations on the epidemic dynamics predicted by the model, rather than on the algorithms used to construct the two-layer network. So, the simulations to test the validity of the predictions were performed over particularly simple cases (rich enough, nevertheless, to extract valid conclusions). As an example, to test the model response to an arbitrary overlap \u03b1, the authors perform the simulations in the simplest setting p A (k) = p B (k) \u2261 p(k), that obviously admits any overlap coefficient from 0 to 1, take",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "(attach independently k A + k c = k B + k c links to a node, with a probability \u03b1 for each link to belong to both networks), and execute a \"configuration model\"-like algorithm to connect pairs of stubs sampled from \u03c1 with the obvious restrictions. As another example, the respective effects of overlap and degree correlations are isolated by considering again simple (and extremal) cases: random overlap and no degree correlation; random overlap and full degree correlation; and full overlap. In a more general setting (p A = p B ), it is not straightforward to extend the configuration model algorithm to get prescribed intermediate overlaps and/or degree correlations. In contrast, the algorithm we present here can be used to generate any permitted value of both parameters in the range forced by the marginal degree distributions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Throughout this paper, the nodes of any network will be labeled with the natural numbers {1,2, . . . ,N}. The cardinality of a finite set X will be denoted by |X|. Let V = {1,2, . . . ,N} for some N \u2208 N. Let E and E be two subsets of {{i,j } : i = j and i,j \u2208 V }. Let G and G be the undirected networks having V as the set of nodes and E and E as the respective sets of links. The union network G \u222a G is the undirected network whose sets of nodes and links are V and E \u222a E respectively. By definition, we will say that G and G are different from each other if and only if E = E . In particular, if we have a network H and we simply permute the labels of the nodes of H , then we obtain a network that is in general different from (but isomorphic to) H . Observe that the union operation is not a topological invariant: the union of two networks does not depend only on their shapes but also on the way their nodes are labeled. The overlap between G and G is defined as the fraction",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. TERMINOLOGY AND STANDING NOTATION"
+        },
+        {
+            "text": "which can be thought of as the probability that a randomly chosen link of G \u222a G is simultaneously a link of both G and G . A degree set of cardinality N is a multiset (i.e., multiple instances of each element are allowed) of N integers that is realizable as the set of degrees of a network. That is, there exist a labeling {k 1 ,k 2 , . . . ,k N } of the elements of the set and a network G of N nodes such that k i is the degree of the node i. Equivalently, k i is even and the integers k i satisfy the well-known Havel-Hakimi condition [12, 13] (a technical recursive condition that is irrelevant to our purposes). As usual, the ordered list D = (k 1 ,k 2 , . . . ,k N ) will be called the degree sequence of G. Note that rearranging the elements of D by means of a permutation \u03c3 corresponds to relabeling the nodes of G to get another network G isomorphic to G with degree sequence \u03c3 (D) (and the same degree set as G).",
+            "cite_spans": [
+                {
+                    "start": 538,
+                    "end": 542,
+                    "text": "[12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 543,
+                    "end": 546,
+                    "text": "13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. TERMINOLOGY AND STANDING NOTATION"
+        },
+        {
+            "text": "A probability distribution p(k) with bounded support will be called empirical (of N nodes) if it is realizable as the degree distribution of a network of N nodes. That is, there exists a network G of N nodes such that, if {k 1 ,k 2 , . . . ,k N } is the degree set of G, then N k := |{i : k i = k}| = p(k)N . Observe that giving an empirical distribution p(k) of N nodes is completely equivalent to specify a degree set K of cardinality N . For an ordered sequence D we will write D \u223c p(k) to indicate that D is a particular arrangement of the elements of K. For a pair of ordered sequences (D,D ) and two empirical distributions p(k),p (k), we will write (D,D ) \u223c p(k) \u00d7 p (k) to indicate that D \u223c p(k) and D \u223c p (k).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. TERMINOLOGY AND STANDING NOTATION"
+        },
+        {
+            "text": "We use the term empirical for a degree distribution to distinguish it from a (theoretical, not necessarily with bounded support) probability distribution p(k). In this case, for any N \u2208 N, one can use several standard algorithms (see Sec. III) to construct a network G N of N nodes whose empirical degree distribution p N (k) is close to p(k), in the sense that, for big enough values of N , p N (k) converges in probability to p(k) ([14] , Theorem 2.1).",
+            "cite_spans": [
+                {
+                    "start": 433,
+                    "end": 438,
+                    "text": "([14]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. TERMINOLOGY AND STANDING NOTATION"
+        },
+        {
+            "text": "Assume that we are given two empirical degree distributions p(k),p (k) of N nodes, with corresponding degree sets K and K . Let n and n be the total number of pairwise different networks having respectively K and K as degree sets, each one numbered with an integer in the range [1,n] ",
+            "cite_spans": [
+                {
+                    "start": 278,
+                    "end": 283,
+                    "text": "[1,n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. TERMINOLOGY AND STANDING NOTATION"
+        },
+        {
+            "text": "Assume that we are given two empirical degree distributions p(k),p (k) of N nodes. In this section we prove that the expected overlap between two random networks of N nodes and degree distributions p(k) and p (k) (generated, for instance, via the standard configuration model algorithm [15] [16] [17] ) is very close to zero when N is big enough, thus showing that O \u2248 0. Giving estimations for O will be the matter of Sec. IV.",
+            "cite_spans": [
+                {
+                    "start": 286,
+                    "end": 290,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 291,
+                    "end": 295,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 296,
+                    "end": 300,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "Let us recall the configuration model algorithm to generate a random network with a given degree sequence (k 1 ,k 2 , . . . ,k N ). Take a vector X of length 2L := k i containing k 1 times the integer 1 in the first k 1 entries, k 2 times the integer 2 in the following k 2 entries, etc. Each entry v of X represents a single stub (or semilink) attached at the node labeled as v. Then, take a random permutation of the entries of X to get a new array Y . Finally, read the contents of Y in order, interpreting each pair of consecutive entries v,w as a link between the nodes v and w. For an example, take N = 6 and consider the degree distribution p(k) defined by p(1) = p(3) = 1/6, p(2) = 4/6, and p(k) = 0 for k = 1,2,3. The corresponding degree set is {1,2,2,2,2,3}. Take, for instance, (1,2,2,2,2,3) as degree sequence. Then, X = (1,2,2,3,3,4,4,5,5,6,6,6). Now we permute X at random, obtaining Y = (3,4,5,1,6,3,6,2,4,5,2,6). Observe that the link {6,2} appears twice. In general, the configuration model algorithm gives multigraphs rather than graphs. It is well known, however, that the fraction of self-loops and multilinks over the total number of links goes to 0 as N \u2192 \u221e when the variance of the degree distribution is bounded [18] . See [14] for alternative implementations of the configuration model to get simple graphs.",
+            "cite_spans": [
+                {
+                    "start": 1237,
+                    "end": 1241,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1248,
+                    "end": 1252,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "It seems natural to expect that the overlap between two networks of respective degree distributions p(k),p (k) and size N generated via the configuration model algorithm is very small. When the respective mean degrees are small with respect to the total size N this turns out to be true. To prove this fact, we need to estimate the probability that two given nodes are connected in a random network generated via the configuration model algorithm. So, let G be a network of N nodes, L links, and degree distribution p(k). Assume that G has been obtained by means of the configuration model algorithm starting with a degree sequence (k 1 ,k 2 , . . . ,k N ). Take at random any pair {i,j } of nodes with k i k j . Next we estimate the probability p ij that the network G contains the link {i,j }. This probability is given by the quotient a/b, where b is the total number of rearrangements Y of the vector X (here we are using the notation introduced in the definition of the configuration model) and a is the number of such rearrangements having at least two consecutive entries i,j (or j,i) in places Y n ,Y n+1 for n = 1,3,5, . . . ,2L \u2212 1. We have that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "Let us compute a. For l = 1,2, . . . ,L, let Y l be the set of rearrangements Y containing the entries i,j (or j,i) in places",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "By the inclusionexclusion principle, a = a 1 \u2212 a 2 + \u00b7 \u00b7 \u00b7 + (\u22121) k i \u22121 a k i , where a l is the sum of the cardinalities of all intersections of l sets in Y 1 ,Y 2 , . . . ,Y L . A simple combinatorial argument yields that, for l k i ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "while a l = 0 for k i < l L. Using the previous expression and the inclusion-exclusion principle we get that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "Taking it all into account, we get that the probability that G contains the link {i,j } is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "This exact expression is too complex to be used to estimate the expected overlap between two random networks. Instead, if in the previous proof we replace a simply by a 1 , then it easily follows that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "that is in fact a standard approximation used in the literature for the probability p ij [18, 19] . The approximation (3) is good enough only when k i and k j are small with respect to L, in particular when we consider networks with bounded mean degree and large size N , which is the case for most modeling applications. However, in general (3) can significantly differ from the exact formula (2). Now let p(k),p (k) be two empirical degree distributions with respective means k and k . Let G,G be two networks of N nodes and degree distributions p(k) and p (k) generated via the configuration model algorithm starting with degree sequences (k 1 ,k 2 , . . . ,k N ) and (k 1 ,k 2 , . . . ,k N ). Assume that N is big enough with respect to k and k in such a way that the approximation (3) holds. Let L,L be the number of links of G and G respectively. Using (3) we can compute the probability p that two different nodes chosen at random are neighbors in G:",
+            "cite_spans": [
+                {
+                    "start": 89,
+                    "end": 93,
+                    "text": "[18,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 94,
+                    "end": 97,
+                    "text": "19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "where in the last expression k denotes the expected degree of a node and we have used that k N = 2L. Now the expected overlap between G and G can be computed as the probability that two different nodes are connected in both G and G over the probability that they are connected in G \u222a G which, by virtue of (4), is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "In consequence,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "telling us that, given N and any two degree distributions p(k),p (k), the minimum overlap O(N,p,p ) is very close to 0, at least when N is big with respect to the expected values k and k . Of course, for small networks this is not true in general.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. EXPECTED OVERLAP BETWEEN TWO RANDOM INDEPENDENT LAYERS"
+        },
+        {
+            "text": "We start this section by giving a computable upper bound for O(N,p,p ) in terms of the size N and the empirical distributions p(k),p (k). To do it, first we introduce the notion of potential overlap between two fixed degree sequences.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. AN UPPER BOUND FOR THE MAXIMUM OVERLAP"
+        },
+        {
+            "text": "Let G,G be two networks of N nodes and empirical degree distributions p(k),p (k), with means k and k and corresponding degree sequences D = (k 1 ,k 2 , . . . ,k N ), and D = (k 1 ,k 2 , . . . ,k N ), with k i = k N =: 2L and k i = k N =: 2L . If E and E are the sets of links of G and G , then by definition",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. AN UPPER BOUND FOR THE MAXIMUM OVERLAP"
+        },
+        {
+            "text": "In consequence, an upper bound for the overlap is obtained when replacing x by the maximum possible number of links of the intersection network. It is clear that the intersection network cannot have more than min{k i ,k i } links attached at node i. In consequence, the total number of links of the intersection network is at most",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. AN UPPER BOUND FOR THE MAXIMUM OVERLAP"
+        },
+        {
+            "text": "So, we define the potential overlap O pot (D,D ) associated to a pair (D,D ) of degree sequences as In consequence, without loss of generality we can assume that D is increasingly ordered (that is, k i k j if i < j). In this case, it is easy to check that if there is a pair of entries k i k j of D with i < j, then if we swap both entries the obtained sequence D satisfies O pot (D,D ) O pot (D,D ). So, the maximum in the previous inequality is attained precisely when both D and D are increasingly ordered. So, we have proved that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. AN UPPER BOUND FOR THE MAXIMUM OVERLAP"
+        },
+        {
+            "text": "Inequality (9) allows us to design an efficient algorithm to compute an upper bound for the maximum overlap. The algorithm takes as input the empirical distributions p(k) and p (k), sorts increasingly the elements of the respective degree sets, and finally returns the right-hand side of the inequality in (9) . Table I (second row in each box) shows the output of this algorithm for several pairs of empirical distributions, obtained by approximating the corresponding pairs of (theoretical) distributions. Here \"SF\" stands for a scale-free network with p(k) = Ck \u2212\u03b3 with \u03b3 = 3, minimum degree m, cutoff k c = mN 1/2 , and the normalization constant C = (\u03b3 \u2212 1)m \u03b3 \u22121 N/(N \u2212 1), for which k \u2248 2m [20] . \"Exponential\" corresponds to p(k) = (1/m)e 1\u2212k/m with minimum degree m, for which k = 2m. \"Poisson\" corresponds to p(k) = \u03bbe \u2212\u03bb /k! with \u03bb = k , and \"Regular\" stands for a random network for which all nodes have the same degree. In all cases, N = 10 000.",
+            "cite_spans": [
+                {
+                    "start": 306,
+                    "end": 309,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 697,
+                    "end": 701,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 312,
+                    "end": 319,
+                    "text": "Table I",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "IV. AN UPPER BOUND FOR THE MAXIMUM OVERLAP"
+        },
+        {
+            "text": "In this section we design an algorithm that takes any pair of degree sequences D,D and a value \u03b1 between 0 and O pot (D,D ) and constructs a pair of networks G,G with degree sequences D,D whose overlap is as close as possible to \u03b1 (values of \u03b1 very close to O pot (D,D ) are not attainable since O pot (D,D ) is just an upper bound).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "Assume that we have generated two random networks G(0),G (0) of N nodes using the configuration model. In view of (5), O(G(0),G (0)) \u2248 0. Thus, it seems natural to propose an algorithm that works as follows. At each time step t 0, modify the networks G(t),G (t) a little bit without modifying the degree sequences by performing a local operation (an operation involving few nodes and/or links) to obtain new networks",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "The kind of local operation that we will use in the scheme above is a cross rewiring [21] , according to the following definition. Let G(t),G (t) be two networks of N nodes. A good pair in G(t) with respect to G (t) is a pair of links {a,b}, {c,d} in G(t) satisfying the following conditions:",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 89,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "(1) {a,b} and {c,d} are not links in G (t).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "(2) {a,c} and {b,d} are not links in G(t).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "Analogously we define a good pair in G (t) with respect to G(t) by interchanging the roles of G(t) and G (t) in the previous definition. Given a good pair {a,b}, {c,d} in G(t) with respect to G (t), the associated cross-rewiring operation consists of replacing the links {a,b} and {c,d} in G(t) by {a,c} and {b,d} to get a new network G(t + 1). Observe that G(t) and G(t + 1) are in general different as nonlabeled networks. However, the degrees of the involved nodes a,b,c,d are not modified after performing the cross rewiring. In consequence, G(t) and G(t + 1) have the same degree sequences. On the other hand, set",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "by the definition of the cross-rewiring operation over a good pair, |E(t + 1)| = |E(t)|. Moreover, by the definition of a good pair, either",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "where x \u2208 {1,2} and L = |E(t)| + |E (t)|. As a consequence of (10), the overlap after performing a cross-rewiring operation in a good pair of links slightly (but strictly) increases. From now on, let 0 \u03b1 O pot (D,D ) be the desired overlap coefficient. In view of what has been said, let us (1) Use the configuration model to get two random networks G(0),G (0) of size N and degree sequences D,D . The overlap between G(0) and G (0) is close to 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "At each time step t 0:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "(2) Choose at random (if it exists) a good pair of links in G(t) with respect to G (t). Perform a cross-rewiring operation in G(t) using such a pair, obtaining a new network",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "(3) Repeat the previous step interchanging the roles of G(t) and G (t). Proceed to the next time step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "It is clear that after a finite number t 0 of steps the algorithm will stop, either because no good pairs are found or because the overlap between G(t 0 ) and G (t 0 ) has reached the value \u03b1. In any case, the output of the algorithm is the pair of networks G(t 0 ),G (t 0 ). A natural question is whether in general the algorithm may halt forced by the condition that no good pairs are found, before having reached a value of the overlap close to \u03b1, especially when \u03b1 is close to O pot (D,D ) [we stress the fact that O pot (D,D ) is just an upper bound, far from being realizable in general]. So, it makes sense to remove the stop condition given by the overlap and let the algorithm run until no more good pairs are found. In Table II we show the maximum overlap obtained in this way for several pairs of distributions, together with the upper bound O pot (D,D ). In all cases, the input degree sequences D,D are random arrangements of the degree sets associated to the respective distributions. The obtained overlap is relatively close to the upper bound, suggesting that indeed the CR algorithm is able to sweep the entire range of permitted overlaps between 0 and O pot (D,D ).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 729,
+                    "end": 737,
+                    "text": "Table II",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "V. AN ALGORITHM TO SWEEP THE RANGE OF POTENTIAL OVERLAPS BETWEEN TWO DEGREE SEQUENCES"
+        },
+        {
+            "text": "Let us introduce another relevant quantity that we will call critical overlap. It is defined as the potential overlap between two random sequences (D rand ,D rand ) \u223c p(k) \u00d7 p (k) where p(k),p (k) are empirical distributions of N nodes:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VI. BELOW THE CRITICAL OVERLAP: TWO DESIRABLE STATISTICAL FEATURES OF THE NETWORKS GENERATED BY THE CR ALGORITHM"
+        },
+        {
+            "text": "O cr (N,p,p ) := O pot (D rand ,D rand ), that for N big enough and pairs of distributions with bounded variance can be essentially considered as independent from the particular sampled sequences. Against an initial intuition, the critical overlap is not close to 0 but lies relatively close to O (see Table I ). By running the CR algorithm with sequences D rand , D rand one can get any overlap \u03b1 between 0 and (values close to) O cr (N,p,p ) . As we will see, proceeding in this way the obtained two-layer network exhibits some desirable statistical features (lack of in-and cross-layer correlations). For higher values of \u03b1, it is unavoidable to introduce correlations and deviate from what happens in a \"configuration model\" context (Sec. VII).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 302,
+                    "end": 309,
+                    "text": "Table I",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 435,
+                    "end": 443,
+                    "text": "(N,p,p )",
+                    "ref_id": null
+                }
+            ],
+            "section": "VI. BELOW THE CRITICAL OVERLAP: TWO DESIRABLE STATISTICAL FEATURES OF THE NETWORKS GENERATED BY THE CR ALGORITHM"
+        },
+        {
+            "text": "The lack of degree-degree correlations inside each layer is often a crucial requirement in the derivation of the equations governing mean-field multilayer models. In particular, this will be a basic assumption in the derivation of system (16) and (17) for the susceptible-infectious-recovered (SIR) model proposed in Sec. VIII. It is reasonable to expect that each network in a pair created via the CR algorithm with random initial sequences is uncorrelated, since:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Lack of in-layer degree-degree correlations"
+        },
+        {
+            "text": "(1) The networks G(0),G (0) are randomly generated via the configuration model algorithm, which is known to produce uncorrelated networks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Lack of in-layer degree-degree correlations"
+        },
+        {
+            "text": "(2) A cross rewiring performed over a good pair of links {a,b}, {c,d} increases (decreases) the global degree-degree correlation if the new links connect the two nodes with the smallest degrees and the two nodes with the largest degrees (respectively, if one of the new links connects the node with the largest degree to the node with lowest degree). But the rewiring criterion in the CR algorithm is intended to increase the overlap coefficient and has nothing to do with the degrees of the four involved nodes. So, some reconnections will increase the global degree-degree correlation and some will decrease it, thus expecting essentially an overall balance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Lack of in-layer degree-degree correlations"
+        },
+        {
+            "text": "To support this claim, we show in Table III the standard Pearson coefficient r for each layer, computed from the two random variables defined by the degrees of the nodes at both ends of randomly chosen links [22] . Values of r close to \u22121 (respectively 1) account for dissortative (respectively assortative) networks, while values close to 0 correspond to uncorrelated networks. As in Table II , the CR algorithm was executed taking as input two random arrangements of the corresponding degree sets.",
+            "cite_spans": [
+                {
+                    "start": 208,
+                    "end": 212,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 34,
+                    "end": 43,
+                    "text": "Table III",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 385,
+                    "end": 393,
+                    "text": "Table II",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "A. Lack of in-layer degree-degree correlations"
+        },
+        {
+            "text": "The cross-layer degree-degree correlation \u03c4 is defined as the correlation of the respective degrees k i and k i of the same node i in the two layers. In Sec. VII we will show precisely how to measure it. We note that the epidemic model proposed in Sec. VIII will be simple enough to be independent of this sort of correlation, but this may not be the case for more sophisticated models, so that the question of obtaining a given overlap controlling \u03c4 makes sense. Observe that the cross-layer degree-degree correlation between two networks G,G depends only on the respective degree sequences, not on the particular links joining the nodes in G and G . On the other hand, \u03c4 \u2248 0 for two independent random sequences D rand ,D rand . Since during the execution of the CR algorithm the respective degree sequences are not modified, the lack of degree-degree correlations follows when using the CR algorithm starting with two independent random arrangements of the degree sets of p(k),p (k).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Lack of cross-layer degree-degree correlations"
+        },
+        {
+            "text": "In view of the previous sections, there is a natural algorithm that allows us to get any prescribed overlap 0 \u03b1 O (N,p,p ) : arrange the degree sets of p(k) and p (k) to get degree sequences D,D increasingly ordered. According to (9) , D ) . Then, run the CR algorithm taking D,D and \u03b1 as input. This algorithm generates a pair of networks with maximum cross-layer degree-degree correlation. Indeed, nodes 1 and N have respectively the smallest and the largest degree in both layers, and the intermediate nodes have the same degree rank.",
+            "cite_spans": [
+                {
+                    "start": 230,
+                    "end": 233,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 114,
+                    "end": 122,
+                    "text": "(N,p,p )",
+                    "ref_id": null
+                },
+                {
+                    "start": 236,
+                    "end": 239,
+                    "text": "D )",
+                    "ref_id": null
+                }
+            ],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "As we will see, there is an unavoidable relationship between high values of the overlap and the cross-layer degree-degree correlation, but the question arises whether it is possible to get a value of the overlap close to the maximum while controlling the cross-layer correlation to some extent.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "Given two degree sequences D = (k 1 ,k 2 , . . . ,k N ) and D = (k 1 ,k 2 , . . . ,k N ), it is natural to measure the cross-layer degreedegree correlations by using the Kendall's \u03c4 -b coefficient [23] :",
+            "cite_spans": [
+                {
+                    "start": 197,
+                    "end": 201,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "Here N c is the number of concordant pairs, N d is the number of discordant pairs, N 0 = N (N \u2212 1)/2, N 1 = i t i (t i \u2212 1)/2, and N 2 = j t j (t j \u2212 1)/2, where t i is the number of tied values in the ith group of ties for D (analogously for t j and D ). A pair of indices i = j is said to be concordant",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "It is well known that if the agreement (respectively, disagreement) between the two rankings is perfect, then \u03c4 (D,D ) = 1 [respectively \u03c4 (D,D ) = \u22121], while if D and D are independent (lack of cross-layer degree-degree correlation) then \u03c4 (D,D ) is expected to be close to 0. Note also that if \u03c3 is any permutation, \u03c4 (\u03c3 (D),\u03c3 (D )) = \u03c4 (D,D ). So, in what follows we will assume without loss of generality that D is increasingly ordered:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "The cross-layer degree-degree correlation between two networks G,G depends only on the respective degree sequences D,D , not on the particular links joining the nodes in G and G . Considering a permutation \u03c3 of the elements of D corresponds to relabeling the nodes of G to get a network G isomorphic (so, equally distributed) to G , and it makes sense to study how the potential overlap O pot (D,\u03c3 (D )) and the correlation coefficient \u03c4 (D,\u03c3 (D )) vary in terms of \u03c3 with respect to O pot (D,D ) and \u03c4 (D,D ). Since any permutation decomposes in a sequence of transpositions (or swaps) of two elements, let us consider a pair of indices i < j such that k i > k j (a discordant pair). When we swap both entries in D to get a sequence D such that k i = k j , k j = k i and k l = k l for l = i,j , then \u03c4 (D,D ) > \u03c4(D,D ). On the other hand, it is trivial to check that n min{k n ,k n } \u2212 n min{k n ,k n } equals",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "is increasing as a function of n min{r n ,r n } [see (7)], it follows that the potential overlap does not decrease when performing a swap that increases the \u03c4 -b coefficient. Analogously, one can check that the \u03c4 -b coefficient does not decrease after a swap that increases the potential overlap. This remark plainly shows that, as expected, there is a direct relationship between overlap and cross-layer degree-degree correlation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "Keeping in mind that we want to find a sequence of swaps in order to increase the potential overlap while controlling in some sense the cross-layer degree-degree correlation, a crucial remark is that, together with the swaps of types (b)-(e) above, that increase both the potential overlap and the \u03c4 -b coefficient, there are two cases for which the swap k i \u2194 k j does not modify the potential overlap while it decreases the \u03c4 -b coefficient:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "Before describing what we call the LS-CR algorithm (standing for label swap-cross rewiring), we give an example of how it works. Let p(k),p (k) be two empirical distributions approximating respectively a Poisson distribution with k = 10 and a scale-free distribution with k = 12. Set N = 10 000. Let D,D two random arrangements of the degree sets. The cross-layer degree-degree correlation is expected to be close to 0. Indeed, in a particular simulation we get \u03c4 (D,D ) = 0.014 70, while O pot (D,D ) = 0.574 78 = O cr (N,p,p ) . So, since the cross-rewiring operations do not modify the crosslayer correlation, if we want a prescribed overlap \u03b1 smaller than 0.574 78, the CR algorithm suffices to construct a two-layer network with overlap close to \u03b1 and a small \u03c4 -b coefficient. But suppose that the desired overlap is significantly larger. To see how big it can be, rearrange the elements in D,D to get two sequences \u03c3 (D),\u03c1(D ) increasingly ordered and compute O pot (\u03c3 (D),\u03c1(D )) = 0.749 283, that according to (9) is an absolute upper bound for the largest permitted overlap.",
+            "cite_spans": [
+                {
+                    "start": 1018,
+                    "end": 1021,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 520,
+                    "end": 528,
+                    "text": "(N,p,p )",
+                    "ref_id": null
+                }
+            ],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "The corresponding \u03c4 -b coefficient is of course very close to 1: \u03c4 (\u03c3 (D),\u03c1(D )) = 0.949 190. Suppose now that the desired overlap is very close to O, for instance \u03b1 = 0.73. We proceed as follows. Rearrange D using the permutation \u03c3 [so \u03c3 (D) is increasingly ordered while \u03c3 (D ) is not]. Both the potential overlap and the \u03c4 -b coefficient between \u03c3 (D) and \u03c3 (D ) do not change. Now we perform a series of swaps in \u03c3 (D ) of any of types (b)-(e), that increase both the potential overlap and the \u03c4 -b coefficient, until we reach the potential overlap \u03b1. Then, we perform as many swaps of type (A)-(B) as possible in order to diminish the \u03c4 -b coefficient without modifying the potential overlap. After running this algorithm in our particular simulation, we get a sequence D such that \u03c4 (\u03c3 (D),D ) = 0.648 549. Of course the correlation is high, but significantly smaller than 1. Finally, now we can use the CR algorithm with input \u03c3 (D),D ,\u03b1 to effectively construct the two-layer network. If we repeat the previous scheme with a prescribed overlap \u03b1 = 0.65, still close to the maximum, we get a sequence D such that \u03c4 (\u03c3 (D),D ) = 0.209 785. It is instructive to visualize the evolution of both O pot and \u03c4 during the complete sequence of swaps (see Fig. 1 ).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1254,
+                    "end": 1260,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "So, let 0 \u03b1 O (N,p,p ) be the desired overlap. The following LS-CR algorithm (standing for label swap-cross rewiring) is intended to construct two networks of N nodes distributed according to p(k),p (k) with an overlap close to \u03b1 and a cross-layer degree-degree correlation as small as possible. In all cases, N = 10 000, k = 12 for the first distribution, and k = 14 for the second one. For any pair of distributions we report both the critical and the theoretical maximum overlap. For each two-layer network, we show the overlap \u03b1, the Kendall's \u03c4 -b coefficient \u03c4 for the cross-layer degree-degree correlation, and the Pearson coefficients \u03c1 1 , \u03c1 2 for the in-layer degree-degree correlations. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 14,
+                    "end": 22,
+                    "text": "(N,p,p )",
+                    "ref_id": null
+                }
+            ],
+            "section": "VII. ABOVE THE CRITICAL OVERLAP: ACCOUNTING FOR CROSS-LAYER DEGREE-DEGREE CORRELATIONS"
+        },
+        {
+            "text": "(1) Take degree sequences D rand ,D rand by rearranging at random the degree sets of p(k),p (k). Then, (N,p,p ) . ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 103,
+                    "end": 111,
+                    "text": "(N,p,p )",
+                    "ref_id": null
+                }
+            ],
+            "section": "LS-CR algorithm [input: N,p(k),p (k),\u03b1]"
+        },
+        {
+            "text": "If no pairs are found satisfying (A) or (B), set t 1 := t and go to step 6. Otherwise, proceed to the next time step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "LS-CR algorithm [input: N,p(k),p (k),\u03b1]"
+        },
+        {
+            "text": "(6) Execute the CR algorithm with input D 0 ,D t 1 ,\u03b1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "LS-CR algorithm [input: N,p(k),p (k),\u03b1]"
+        },
+        {
+            "text": "In Table IV we show some statistical features of the twolayer network obtained from the LS-CR algorithm for several pairs of distributions and different values of the prescribed overlap, all beyond the critical one. In each case we show the obtained overlap \u03b1, the Kendall's \u03c4 -b coefficient \u03c4 for the cross-layer correlation, and the Pearson coefficients \u03c1 1 , \u03c1 2 for the degree-degree correlation inside each layer. The evolution of the statistics with the overlap depends of course on the particular distributions considered, but some clear general conclusions can be extracted. In all cases, the obtained overlaps are close to the prescribed one. The \u03c4 -b coefficient approaches 1 (even relatively) only for values of the overlap beyond about 80% of the theoretical maximum. The degree-degree correlations inside each layer remain in most cases close to 0.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 11,
+                    "text": "Table IV",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "LS-CR algorithm [input: N,p(k),p (k),\u03b1]"
+        },
+        {
+            "text": "As a final remark, it is clear that the LS-CR algorithm admits a lot of variants depending on the type and order of swaps that one performs (in the \"LS\" part of the algorithm). For instance, one may be interested in inverting the roles and generate a two-layer network with a prescribed cross-layer degree-degree correlation, while getting an overlap as big as possible.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "LS-CR algorithm [input: N,p(k),p (k),\u03b1]"
+        },
+        {
+            "text": "This section aims at illustrating that, specially for meanfield models of processes that take place over a two-layer network, the qualitative response of a model may depend critically on the interlayer overlap. To do it, we present a simple example of an epidemic model with information dissemination and determine the impact of the overlap on the final outbreak size predicted by the model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Epidemic models describe the spread of infectious diseases on populations whose individuals are classified into distinct classes according to their infection state as, for instance, susceptible (S), infectious (I), and recovered (R) individuals. A closer look at the physical transmission of an infection reveals that a suitable description of populations must take into account the network layer A of physical contacts among individuals, with nodes representing individuals and links corresponding to physical contacts along which disease can propagate. On the other hand, if one assumes that the probability of getting infected through an infectious contact S-I depends on the awareness state of the susceptible individual, then a second network layer B over which information about the infection status of individuals circulates can be considered. In the context of management and control of sexually transmitted diseases (STDs), an example of this second network layer is given by the partner notification program. This service helps to reach sexual contacts of patients of STDs and inform them that they may be at risk, and hence the need of seeking medical care [24, 25] . So, in our approach, if a pair of individuals, one susceptible and the other infectious, are connected to each other in both network layers, we assume that the transmission rate \u03b2 c (here c stands for common) will be smaller than the normal transmission rate \u03b2 because the susceptible partner adopts preventive measures to diminish the risk of contagion.",
+            "cite_spans": [
+                {
+                    "start": 1168,
+                    "end": 1172,
+                    "text": "[24,",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1173,
+                    "end": 1176,
+                    "text": "25]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "According to this scenario, next we derive a mean-field SIR epidemic model which implicitly assumes spreading of information on the infection status of nodes in one layer, while explicitly modeling the transmission of an infectious agent in a second layer. Following the standard approach for STDs where the heterogeneity in the number of contacts (sexual partners) is a basic ingredient [26] , individuals are classified according to their infection state and their number of physical contacts. So, the model will take into account the network layer A of physical contacts in terms of its degree distribution p A (k) = N k /N where N k is the number of individuals having degree k. Analogously, the information or notification network (network layer B) is described by its degree distribution p B (k). For the sake of brevity, a pair of nodes connected to each other in both networks is said to share a common link, although the natures of the connections are dissimilar. Moreover, the model does not assume that links in layer B are a subset of those in layer A, as could be the case in partner notification.",
+            "cite_spans": [
+                {
+                    "start": 388,
+                    "end": 392,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Within each layer, it is assumed that there is no degreedegree correlation, i.e., neighbors in each layer are randomly sampled from the population according to the so-called proportionate mixing of individuals. This means that, in each layer, the probability P (k |k) that a node of degree k is connected to a node of degree k is independent of the degree k and it is given by the fraction of links pointing to nodes of degree k , i.e., P (k |k) = k p(k )/ k . Now, let I k (t) be the number of infectious nodes of degree k at time t in layer A. Although links are unordered pairs of connected nodes by definition, let us consider that every link {u,v} gives rise to two oriented links u \u2192 v and v \u2192 u. Then, the probability that a randomly chosen oriented link of A leads to an infectious node is given by the fraction of oriented links in A pointing to infectious nodes [26] , that is,",
+            "cite_spans": [
+                {
+                    "start": 872,
+                    "end": 876,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "where k A is the average degree in A, and i k (t) := I k (t)/N is the fraction of nodes that are both infectious and of degree k in A at time t. Finally, let L A , L B , and L A\u2229B denote the number of links of A, B, and common links, respectively. Let p B|A be the probability that a randomly chosen link of A, an A link, connects two nodes that are also connected in B, that is, p B|A = L A\u2229B L A . Similarly, p A|B = L A\u2229B L B is the probability that a randomly chosen B link is a common link to both networks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "We stress that a key assumption in the model derivation is the uniformity of the overlap between the links of each layer. More precisely: the overlap \u03b1 is a global feature of the pair of networks {A,B} that depends on the respective whole sets of links, and the equations of the model, that will account for what happens around a typical node i, will be derived using \u03b1 as a parameter. Implicitly, this corresponds to the mean-field approximation that the local overlap around the node i (fraction of links confluent to i in the union network that are common links of A and B) does not deviate significantly from \u03b1. This assumption is clearly unrealistic in general. For instance, a particular run of the LS-CR algorithm with prescribed overlap \u03b1 = 0.5 over two exponential networks of 5000 nodes and mean degrees 45 and 30 leads to a mean local overlap equal to 0.5439 and a standard deviation of 0.1790. So, it is relevant to test the goodness of this approximation by comparing the predictions of the model with simulation outputs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Taking it all into account, the epidemic spreading is described in terms of I k (t), and also of S k (t) and R k (t), the number of susceptible and recovered nodes of degree k in layer A at time t respectively, which satisfy S k (t) + I k (t) + R k (t) = N k . In particular, the differential equations for S k and I k are",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "The first term on the right-hand side of (12) is the rate of creation of new infectious nodes of degree k in A due to transmissions of the infection through links that only belong to layer A, whereas the second one is the rate of creation of new infectious nodes from transmissions across common links. The last term accounts for the recoveries of infectious nodes, which occur at a recovery rate \u03bc. Here k A p B|A is the expected number of common oriented links. Therefore, since this number is the same regardless of the network we use to compute it, the following consistency relationship must follow:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Now let us express p B|A and p A|B in terms of the overlap \u03b1 : = O(A,B) , which is defined as \u03b1 = L A\u2229B L A\u222aB where L A\u222aB is the set of links of the union network A \u222a B. Using that k N = 2L, p B|A can be expressed in terms of \u03b1 as follows:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 63,
+                    "end": 71,
+                    "text": "= O(A,B)",
+                    "ref_id": null
+                }
+            ],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "From this simple relationship it immediately follows that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Similarly,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "As expected, p B|A and p A|B fulfill relationship (13) . Introducing (15) into system (11) and (12), the overlap appears as a new parameter of the model which now, in terms of the fractions s k = S k /N and i k = I k /N of susceptible and infectious nodes of degree k, reads",
+            "cite_spans": [
+                {
+                    "start": 50,
+                    "end": 54,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 86,
+                    "end": 90,
+                    "text": "(11)",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "where \u03b2 0 (\u03b1) :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "and s k + i k + r k = p A (k). These equations correspond to the standard SIR model for heterogeneous and closed populations with proportionate mixing [26, 27] , but with an averaged transmission rate \u03b2 0 (\u03b1) that takes into account the degree of overlap between the two layers. A similar mean-field approach for modeling epidemic spreading in single heterogeneous networks was adopted in [28] using, as a state variable, the fraction \u03c1 k of nodes of degree k that are infectious. The connection between both approaches is given by the relationship between the state variables. For instance, i k = I k /N = I k /N k \u00b7 N k /N =: \u03c1 k p(k).",
+            "cite_spans": [
+                {
+                    "start": 151,
+                    "end": 155,
+                    "text": "[26,",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 156,
+                    "end": 159,
+                    "text": "27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 389,
+                    "end": 393,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Simple facts about system (16) and (17) are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "(1) Since the factor \u03b1/(1 + \u03b1) in (15) is increasing in \u03b1, and \u03b1 min{ k A , k B }/ max{ k A , k B } [see (8) ], it follows that",
+            "cite_spans": [
+                {
+                    "start": 105,
+                    "end": 108,
+                    "text": "(8)",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "So, when k A k B we get p B|A 1 while for k A > k B we get p B|A k B / k A < 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "(2) If \u03b2 c = \u03b2 or \u03b1 = 0, the system reduces to the classic SIR model, as expected, because information dissemination plays no role in the infection spread. If \u03b1 = 1, we actually have one network and again the system reduces to the SIR model but now with \u03b2 replaced by \u03b2 c .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "To determine the impact of the network overlap on the initial epidemic growth, we linearize the system (16) and (17) about the disease-free equilibrium (s * k ,i * k ) = (p A (k),0) \u2200k and obtain that the elements of the Jacobian matrix J * evaluated at this equilibrium are",
+            "cite_spans": [
+                {
+                    "start": 103,
+                    "end": 107,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "where \u03b4 kk is the Kronecker delta. Since the only non-zero eigenvalue of the matrix (kk p A (k)) is equal to",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "[with an associated eigenvector whose components v k are proportional to kp A (k)], it follows that the largest eigenvalue of J * is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "which corresponds to the initial growth rate of the epidemic. Clearly, 1 decreases with \u03b1 because \u03b2 c < \u03b2, and 1 (\u03b1) = 0 at \u03b2 0 (\u03b1)/\u03bc = k A / k 2 A , which corresponds to the epidemic threshold according to this mean-field approximation. Notice that, under proportionate mixing, the expected degree of a node reached by following a randomly chosen link in network A is k 2 A / k A . We have checked the accuracy of the model (16) and (17) by collating the predicted epidemic final size, i.e., the number of individuals ever infected, with the histogram of final outbreak sizes of an ensemble of 1500 stochastic epidemic realizations on a network of 5000 nodes and using \u03b1 as a tuning parameter. Each network layer is generated according to the configuration model, and the desired value of \u03b1 is attained using the CR algorithm to guarantee the in-layer degree-degree correlation is as close to 0 as possible. To clearly separate the dichotomy \"minor outbreak vs major outbreak\" (initial extinctions are highly feasible because only one node is randomly infected at t = 0), we chose the values of the parameters to be far enough from the epidemic threshold. This guarantees the existence of a marked distribution of final major-outbreak sizes, in addition to the one of minor-outbreak sizes around 1.",
+            "cite_spans": [
+                {
+                    "start": 425,
+                    "end": 429,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "For an acceptable prediction of the model, the final epidemic size obtained from the mean-field approximation should be relatively close to the mean value around which major outbreaks are distributed. We insist that, in addition to the well-known limitations of the mean-field approach when modeling epidemic processes on one-layer networks [29] , here the accuracy of predictions also depends on the fulfillment of the implicit hypotheses assumed in the derivation of expression (15) for p B|A . Namely, (i) there is no in-layer degree-degree correlations, and (ii) the occurrence of a common link is the same for any pair of nodes in the network. So, the value of p B|A does not depend on the degree of a node in layer A and, hence, the overlap between layers is uniformly distributed (i.e., there are no parts of the network more overlapped than others). Assumption (i) is guaranteed by the algorithms. However, assumption (ii) is not feasible when the architectures of both layers are very different from each other. Then, our simulations have been performed on networks with two different architectures reflecting two extreme cases. First, we have considered two-layer networks where each layer is in turn a regular random network. This guarantees that both hypotheses are satisfied and, moreover, a good accuracy of the mean-field approach for this type of network if the degree of each layer is high enough. Second, we have considered networks with both layers having exponential degree distributions which have a high variance. In both cases, the mean degrees are 45 (layer A) and 30 (layer B), both high enough to minimize the impact of stochastic fluctuations around infected nodes.",
+            "cite_spans": [
+                {
+                    "start": 341,
+                    "end": 345,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "To derive an analytical expression of the final epidemic size note that, for all k, S k (\u221e) = N k \u2212 R k (\u221e) since lim t\u2192\u221e I k (t) = 0 [S k (\u221e) and R k (\u221e) are the limits of S k (t) and R k (t) as t \u2192 \u221e]. From this fact, the initial condition is (s k (0),i k (0)) = (p A (k),0), and integrating from 0 to \u221e the equation resulting from the sum of Eqs. (16) and (17), we have",
+            "cite_spans": [
+                {
+                    "start": 350,
+                    "end": 354,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "Now, integrating (16) from 0 to \u221e, and using the previous expression, it follows that R k (\u221e) = N k (1 \u2212 e \u2212k\u03be ), with \u03be := \u03b2 0 (\u03b1) \u03bc k A N k kR k (\u221e). Therefore, the final epidemic size is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "with \u03be being the positive solution (if it exists) of the equation Histograms of 1500 final outbreak sizes on a two-layer network of 5000 nodes. Each layer is generated as a regular random network of degree k A = 45 and k B = 30, respectively. The size distribution of small outbreaks ranges from 1 to 9 in the three panels but only the frequency of a final size equal to 1 (the initial infected node recovers before infecting any neighbor) can be distinguished. Vertical dotted line from bottom to top shows the predicted final epidemic size according to (18) and (19) . Insets: magnified histograms of major-outbreak sizes. Parameters: \u03b2 = 0.1, \u03b2 c = 0.05, \u03bc = 1, and \u03b1 = 0.3 (a), 0.4 (b), and 0.5 (c). Histograms of 1500 final outbreak sizes on a two-layer network of 5000 nodes and exponential degree distributions on each layer with expected degrees k A = 45 and k B = 30, respectively (see Sec. IV for details). The size distribution of small outbreaks ranges from 1 to 5 in top panel, and from 1 to 7 in middle and bottom panels. Note that only the frequency of a final size equal to 1 (the initial infected node recovers before infecting any neighbor) can be perceived. Vertical dotted line from bottom to top shows the predicted final epidemic size according to (18) and (19) . Insets: magnified histograms of major-outbreak sizes. Parameters: \u03b2 = 0.1, \u03b2 c = 0.05, \u03bc = 1, and \u03b1 = 0.3 (a), 0.4 (b), and 0.5 (c).",
+            "cite_spans": [
+                {
+                    "start": 555,
+                    "end": 559,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 564,
+                    "end": 568,
+                    "text": "(19)",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1270,
+                    "end": 1274,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1279,
+                    "end": 1283,
+                    "text": "(19)",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "It is interesting to observe that, since \u03be = 0 is always a solution, this equation will have a unique positive solution \u03be * (\u03b1) if the derivative with respect to \u03be of its right-hand side is larger than 1, which is equivalent to having 1 (\u03b1) > 0, i.e., a positive initial epidemic growth (the uniqueness follows from the convexity of the function defined by this right-hand side). This derivation of the final epidemic size is presented for the sake of completeness because, indeed, it follows from the one given in Ref. [26] , Appendix E, in a more general setting. Figures 2 and 3 show the histograms of final outbreak sizes obtained from the stochastic simulations on regular random networks (RNNs) and on networks with exponential degree distributions, respectively, for three values of \u03b1. These figures also show the mean final epidemic size given by Eq. (18) after numerically solving Eq. (19) using the generated degree sequence in layer A. When the CR algorithm is applied and the distribution of major outbreaks is clearly distinguished from the one of minor outbreaks (otherwise to talk about the final size of an epidemic makes no sense), the predicted final size on RNNs is almost the same as the mean final size of the major outbreaks (4853 vs 4850, 4816 vs 4818, and 4776 vs 4775 for \u03b1 = 0.3, 0.4, 0.5, and rounded values). For the exponential networks, the predicted final epidemic size differs less than 5% from the mean final size of major outbreaks for most of the networks generated with the configuration model with different degree distributions (not shown here). In Fig. 3 , this disagreement is indeed less than 2%. Therefore, in these cases the proposed mean-field model qualitatively captures the impact of the overlap on the expected final size of an epidemic.",
+            "cite_spans": [
+                {
+                    "start": 520,
+                    "end": 524,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 859,
+                    "end": 863,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 894,
+                    "end": 898,
+                    "text": "(19)",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 566,
+                    "end": 581,
+                    "text": "Figures 2 and 3",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 1587,
+                    "end": 1593,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "VIII. A SIMPLE EXAMPLE: A MEAN-FIELD SIR EPIDEMIC MODEL ON A TWO-LAYER NETWORK"
+        },
+        {
+            "text": "The aim of this paper is to provide a toolbox of algorithms to generate two networks G,G sharing the same set of N nodes (a two-layer network) whose respective degree distributions p(k),p (k) are given, with a prescribed overlap coefficient \u03b1 defined by the Jaccard index.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IX. CONCLUSIONS"
+        },
+        {
+            "text": "First of all, we study the possible range (\u03b1 m ,\u03b1 M ) \u2282 [0,1] of permitted overlap coefficients in terms of p(k), p (k) and N. We start by proving that \u03b1 m \u2248 0 for any p(k),p (k) and N big enough. Given two fixed degree sequences D = (k i ) N i=1 and D = (k i ) N i=1 , we derive an upper bound of \u03b1 for any pair of networks sequenced as D and D , by assuming the condition (not realizable in general) that the intersection network has exactly min{k i ,k i } links attached at node i. We call this upper bound potential overlap between D and D and we denote it by O pot (D,D ). Then we prove that an estimate (more properly, an upper bound) for \u03b1 M is precisely O pot (S,S ), where S,S are degree sequences sampled from p(k),p (k) whose respective elements are increasingly arranged.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IX. CONCLUSIONS"
+        },
+        {
+            "text": "To construct the desired algorithm we proceed in three steps. First, we define a partial procedure, that we call CR algorithm, that takes any pair of degree sequences D,D and a value \u03b1 between 0 and O pot (D,D ) and constructs a pair of networks G,G sequenced as D,D whose overlap is as close as possible to \u03b1. Second, we introduce what we call the critical overlap \u03b1 m < \u03b1 c < \u03b1 M , defined as O pot (D rand ,D rand ) where D rand ,D rand are random sequences sampled from p(k),p (k). Against an initial intuition, \u03b1 c is closer to \u03b1 M than expected. We show that the CR algorithm with D rand ,D rand as input suffices to construct a pair of networks having any overlap below \u03b1 c and exhibiting some desirable statistical properties, specifically lack of in-and cross-layer degree-degree correlations. Finally, when the desired overlap is beyond \u03b1 c , we propose what we call the LS-CR algorithm, that minimizes the cross-layer degree-degree correlations that unavoidably appear for high values of \u03b1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IX. CONCLUSIONS"
+        },
+        {
+            "text": "To illustrate the impact of the network overlap, we present a simple example of an SIR epidemic model over a two-layer network (physical contacts-information dissemination) and determine the impact of \u03b1 on the initial epidemic growth and on the final epidemic size predicted by the model. The comparison of the epidemic final size with the average final size of major outbreaks obtained from stochastic simulations shows an excellent agreement on regular random networks of high degrees, and a qualitatively good agreement on exponential networks. Provided that one wants to perform simulations to validate this (or any) model where a multilayer network is involved, a systematic procedure to generate couples of networks of given size and degree distributions with a prescribed value of the overlap \u03b1 as those presented here seems to be a useful tool.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IX. CONCLUSIONS"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Competitive epidemic spreading over arbitrary multilayer networks",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Sahneh",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Scoglio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Phys. Rev. E",
+            "volume": "89",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.89.062817"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Mathematical Formulation of Multilayer Networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "De Domenico",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Sol\u00e9-Ribalta",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Cozzo",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kivel\u00e4",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Moreno",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Porter",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "G\u00f3mez",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Arenas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Phys. Rev. X",
+            "volume": "3",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevX.3.041022"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Networks of Networks: The Last Frontier of Complexity",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Agostino",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Scala",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Epidemic spreading on interconnected networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Saumell-Mendiola",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Serrano",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bogun\u00e1",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Phys. Rev. E",
+            "volume": "86",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.86.026106"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Interacting epidemics on overlay networks",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Funk",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "A A"
+                    ],
+                    "last": "Jansen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Phys. Rev. E",
+            "volume": "81",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.81.036118"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Dynamical Interplay Between Awareness and Epidemic Spreading in Multiplex Networks",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Granell",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "G\u00f3mez",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Arenas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Phys. Rev. Lett",
+            "volume": "111",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevLett.111.128701"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Competing spreading processes on multiplex networks: awareness and epidemics",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Granell",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "G\u00f3mez",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Arenas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Phys. Rev. E",
+            "volume": "90",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.90.012808"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Competing memes propagation on networks: A network science perspective",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wei",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Valler",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Prakash",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Neamtiu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Faloutsos",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Faloutsos",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IEEE J. Sel. Areas Commun",
+            "volume": "31",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/JSAC.2013.130607"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "The spread of awareness and its impact on epidemic outbreaks",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Funk",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Gilad",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Watkins",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "A A"
+                    ],
+                    "last": "Jansen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Proc. Natl. Acad. Sci. USA",
+            "volume": "106",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1073/pnas.0810762106"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Modeling the dynamical interaction between epidemics on overlay networks",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Marceau",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "No\u00ebl",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "H\u00e9bert-Dufresne",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Allard",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Dub\u00e9",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Phys. Rev. E",
+            "volume": "84",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.84.026105"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "\u00c9tude comparative de la distribution florale dans une portion des alpes et des Jura",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Jaccard",
+                    "suffix": ""
+                }
+            ],
+            "year": 1901,
+            "venue": "Bull. Soc. Vaudoise Sci. Nat",
+            "volume": "37",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "A remark on the existence of finite graphs",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Havel",
+                    "suffix": ""
+                }
+            ],
+            "year": 1955,
+            "venue": "\u010casopis P\u011bst. Mat. (in Czech)",
+            "volume": "80",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "On realizability of a set of integers as degrees of the vertices of a linear graph. I",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Hakimi",
+                    "suffix": ""
+                }
+            ],
+            "year": 1962,
+            "venue": "J. Soc. Ind. Appl. Math",
+            "volume": "10",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1137/0110037"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Generating simple random graphs with prescribed degree distribution",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Britton",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Deijfen",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Martin-L\u00f6f",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J. Stat. Phys",
+            "volume": "124",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10955-006-9168-x"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "The asymptotic number of labeled graphs with given degree sequences",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Bender",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Canfield",
+                    "suffix": ""
+                }
+            ],
+            "year": 1978,
+            "venue": "J. Comb. Theory, Ser. A",
+            "volume": "24",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/0097-3165(78)90059-6"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "A probabilistic proof of an asymptotic formula for the number of labeled regular graphs",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Bollob\u00e1s",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "Eur. J. Combin",
+            "volume": "1",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S0195-6698(80)80030-8"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "A critical point for random graphs with a given degree sequence",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Molloy",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Reed",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Random Struct. Algorithms",
+            "volume": "6",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1002/rsa.3240060204"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Random graphs with arbitrary degree distributions and their applications",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E J"
+                    ],
+                    "last": "Newman",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Strogatz",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Watts",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Phys. Rev. E",
+            "volume": "64",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.64.026118"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Critical phenomena in complex networks",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Dorogovtsev",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Goltsev",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "F F"
+                    ],
+                    "last": "Mendes",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Rev. Mod. Phys",
+            "volume": "80",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/RevModPhys.80.1275"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Generation of uncorrelated random scale-free networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Catanzaro",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bogu\u00f1\u00e1",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Phys. Rev. E",
+            "volume": "71",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.71.027103"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Changing correlations in networks: Assortativity and dissortativity",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Xulvi-Brunet",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Sokolov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Acta Phys. Pol. B",
+            "volume": "36",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Assortative Mixing in Networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E J"
+                    ],
+                    "last": "Newman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Phys. Rev. Lett",
+            "volume": "89",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevLett.89.208701"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "A new measure of rank correlation",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Kendall",
+                    "suffix": ""
+                }
+            ],
+            "year": 1938,
+            "venue": "Biometrika",
+            "volume": "30",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1093/biomet/30.1-2.81"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Partner notification for sexually transmitted infections in the modern world: A practitioner perspective on challenges and opportunities",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bell",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Potterat",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Sex. Transm. Infect",
+            "volume": "87",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1136/sextrans-2011-050229"
+                ]
+            }
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Network-centric interventions to contain the syphilis epidemic in san francisco",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Juher",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Salda\u00f1a",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kohn",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Bernstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Scoglio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Sci. Rep",
+            "volume": "7",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1038/s41598-017-06619-9"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Infectious Diseases of Humans: Dynamics and Control",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "May",
+                    "suffix": ""
+                }
+            ],
+            "year": 1992,
+            "venue": "",
+            "volume": "28",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Infection dynamics on scale-free networks",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "May",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Lloyd",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Phys. Rev. E",
+            "volume": "64",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevE.64.066112"
+                ]
+            }
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Epidemic Spreading in Scale-Free Networks",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Phys. Rev. Lett",
+            "volume": "86",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1103/PhysRevLett.86.3200"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Edge-based compartmental modeling for infectious disease spread",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Miller",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Slim",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Volz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "J. R. Soc. Interface",
+            "volume": "9",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1098/rsif.2011.0403"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "(respectively, [1,n ]). Then we can clearly consider a function of two variables O(x,y) on the grid of all pairs (x,y) of integers in [1,n] \u00d7 [1,n ], that gives the value of the overlap of the networks numbered as x and y. Observe that the function O(x,y) has a global minimum and maximum. These extremal values will be denoted by O(N,p,p ) and O(N,p,p ), or simply by O and O when no confusion seems possible.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The links of the obtained network are {3,4}, {5,1}, {6,3}, {6,2}, {4,5}, {2,6}.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "that the set of possible degree sequences associated to p(k) coincides essentially with the set of all permutations of the numbers k 1 ,k 2 , . . . ,k N . Thus, if (D,D ) \u223c p(k) \u00d7 p (k) and \u03c3,\u03c1 are two permutations of order N , then (\u03c3 (D),\u03c1(D )) \u223c p(k) \u00d7 p (k). Moreover, O pot (\u03c3 (D),\u03c3 (D )) = O pot (D,D ).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Evolution of the potential overlap (crosses) and the cross-layer degree-degree correlation (diamonds) when performing a sequence of swaps.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "If \u03b1 O cr (N,p,p ), execute the CR algorithm with input D rand ,D rand ,\u03b1 and stop. Otherwise, (3) Let \u03c3 be the permutation that rearranges D rand increasingly. Set D 0 = \u03c3 (D rand ), D 0 = \u03c3 (D rand ). Then, O pot (D 0 ,D 0 ) = O pot (D rand ,D rand ), \u03c4 (D 0 ,D 0 ) = \u03c4 (D rand ,D rand ) \u2248 0. (4) At each time step t 0: Choose at random (if it exists) a pair of indices i < j such that the four corresponding entries in D 0 and D t satisfy any of the conditions (b)-(e). Swap the entries i and j in D t to get a new sequence D t+1 . Then, O pot (D 0 ,D t+1 ) > O pot (D 0 ,D t ).If O pot (D 0 ,D t+1 ) \u03b1, set t 0 := t + 1 and go to step 5. Otherwise, proceed to the next time step.(5) At each time step t t 0 : Choose at random (if it exists) a pair of indices i < j such that the four corresponding entries in D 0 and D t satisfy either (A) or (B). Swap the entries i and j in D t to get a new sequence D t+1 . Then,",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "FIG. 2. Histograms of 1500 final outbreak sizes on a two-layer network of 5000 nodes. Each layer is generated as a regular random network of degree k A = 45 and k B = 30, respectively. The size distribution of small outbreaks ranges from 1 to 9 in the three panels but only the frequency of a final size equal to 1 (the initial infected node recovers before infecting any neighbor) can be distinguished. Vertical dotted line from bottom to top shows the predicted final epidemic size according to (18) and (19). Insets: magnified histograms of major-outbreak sizes. Parameters: \u03b2 = 0.1, \u03b2 c = 0.05, \u03bc = 1, and \u03b1 = 0.3 (a), 0.4 (b), and 0.5 (c).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "FIG. 3. Histograms of 1500 final outbreak sizes on a two-layer network of 5000 nodes and exponential degree distributions on each layer with expected degrees k A = 45 and k B = 30, respectively (see Sec. IV for details). The size distribution of small outbreaks ranges from 1 to 5 in top panel, and from 1 to 7 in middle and bottom panels. Note that only the frequency of a final size equal to 1 (the initial infected node recovers before infecting any neighbor) can be perceived. Vertical dotted line from bottom to top shows the predicted final epidemic size according to (18) and (19). Insets: magnified histograms of major-outbreak sizes. Parameters: \u03b2 = 0.1, \u03b2 c = 0.05, \u03bc = 1, and \u03b1 = 0.3 (a), 0.4 (b), and 0.5 (c).",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Critical overlap as defined in Sec. VI (first row) and the upper bound (9) for the maximum overlap permitted (second row) between pairs of empirical distributions. In all cases N = 10 000. For the left column distributions, k = 20 while, for the upper ones, k = 26.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Maximum overlap (first row) generated by the CR algorithm starting with two random arrangements D,D of the corresponding degree sets vs the upper bound O pot (D,D ) (second row). In all cases N = 10 000, k = 10.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "Pearson coefficient to measure the degree-degree correlations in each layer for several pairs of networks obtained from the CR algorithm with prescribed overlap \u03b1 = 0.15,0.3,0.45. In all cases, N = 10 000 and k = 10.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Three examples of a series of executions of the LS-CR algorithm with prescribed overlaps 0.6, 0.65, 0.7, 0.75, 0.8, and 0.85.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

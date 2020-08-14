@@ -1,0 +1,449 @@
+{
+    "paper_id": "0cff76510eb80bc066be6062c67b57abaeba30da",
+    "metadata": {
+        "title": "QISS: An Open Source Image Similarity Search Engine",
+        "authors": [
+            {
+                "first": "Maxime",
+                "middle": [],
+                "last": "Portaz",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Qwant Research",
+                    "location": {
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": "m.portaz@qwant.com"
+            },
+            {
+                "first": "Adrien",
+                "middle": [],
+                "last": "Nivaggioli",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Qwant Research",
+                    "location": {
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Hicham",
+                "middle": [],
+                "last": "Randrianarivo",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Qwant Research",
+                    "location": {
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": "h.randrianarivo@qwant.com"
+            },
+            {
+                "first": "Ilyes",
+                "middle": [],
+                "last": "Kacher",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Qwant Research",
+                    "location": {
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Sylvain",
+                "middle": [],
+                "last": "Peyronnet",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Qwant Research",
+                    "location": {
+                        "settlement": "Paris",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Qwant Image Similarity Search (QISS) is a multi-lingual image similarity search engine based on a dual path neural networks that embed texts and images into a common feature space where they are easily comparable. Our demonstrator, available at http://research. qwant.com/images, allows real-time searches in a database of approximately 100 million images.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Qwant Image Similarity Search (QISS) is a multi-lingual image search engine. It allows users to make queries both textually or by using images. QISS relies on similarity search. This means that it will compare the content of a query with the data in its index and returns the elements it considers most similar visually or semantically. In our case, we consider the index elements whose Euclidean distance from the query is closest to zero to be the most similar.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "If an image and its describing text are close to one another in the representing space, it is possible to query either one with the other. QISS aims to allow the user to use text or image to query a set of images. While other search engines are based on text surrounding images or tags, QISS evaluates the semantic similarity between the query and each element of the database.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In order to process a query, QISS projects it with a Deep Neural Network. QISS is using a dual path Neural Network, that embed different languages and images into on semantic space [5] . It relies on Nvidia TensorRT server 1 for inference. The indexation of roughly 100 millions images, all available through QISS, is done using the Facebook AI Similarity Search (FAISS) library [3] . The QISS project is open source: the code for neural network training is available at https://github.com/QwantResearch/text-image-similarity while the servers that compose QISS are available at https://hub.docker.com. All dockers are accessible at the address https://hub.docker.com/r/<docker name> and can be obtained using the command docker pull docker name. Docker names for this project are: chicham/text server, chicham/image server, chicham/ language server, chicham/index server and chicham/lmdb server. We also use nvcr.io/nvidia/tensorrtserver:19.06-py3 as the model server. ",
+            "cite_spans": [
+                {
+                    "start": 181,
+                    "end": 184,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 379,
+                    "end": 382,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "QISS can be used to query the images index by either using texts or images as queries. Also, the representation of the texts is multi-lingual. This means that words from different languages but with similar meanings will have close representations in the semantic space.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System Description"
+        },
+        {
+            "text": "One of QISS's constraints is to be available in several languages. Instead of using a translation of textual image descriptions, we propose to use multi-lingual word embeddings to cope with multiple languages. Word embeddings are used to project words into a semantic space, where distance and semantic similarity are related. Multi-lingual embeddings, such as Multilingual Unsupervised or Supervised word Embeddings (MUSE) [1] , allow for the representation of different languages into one common space. Thanks to this alignment, a neural network can extract information from the embedded words in all learned languages. This allows QISS to have only one index that contains every image, and that can answer to queries expressed into several languages. This is a strong difference with classic search engines that have one index for each language.",
+            "cite_spans": [
+                {
+                    "start": 424,
+                    "end": 427,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multi-lingual Text Representation"
+        },
+        {
+            "text": "To project both images and texts into the same space, we use two networks trained simultaneously. The image branch of the network uses a Convolutional Neural Network (CNN) followed by a fully connected layer that embed images. The second branch is a multi-layer Recurrent Neural Network (RNN) that compose a multi-lingual word embeddings list into the same space. This list corresponds to a given sentence.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model for Image and Text Representation"
+        },
+        {
+            "text": "We use two datasets to train the models used by QISS. Each dataset is composed of images and their corresponding captions. The first dataset is Common Objects in COntext (COCO) [4] . It contains 123 287 images with 5 English captions per image. The second dataset is called Multi30K [2] . It contains 31 014 images with captions in French, German, and Czech. We use 29 000 images for training and 1014 for validation and 1000 for testing.",
+            "cite_spans": [
+                {
+                    "start": 177,
+                    "end": 180,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 283,
+                    "end": 286,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Data"
+        },
+        {
+            "text": "MUSE allows for a common representation for 110 languages. Once we trained our model in English using COCO, we used MUSE to transfer the computed embeddings to any language supported by MUSE, at no cost.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data"
+        },
+        {
+            "text": "For the online demonstration, we indexed images from the Yahoo Flickr Creative Commons (YFCC) [6] image dataset. This dataset contains roughly 100 million images under Creative Commons license. As said above, QISS is a full image search engine based on similarity search. Figure 1 shows the interface, where it is possible to search using a text query or by uploading an image. The results are shown in Fig. 2 . The images that our method evaluates as the most similar to the query (either text or image) are returned.",
+            "cite_spans": [
+                {
+                    "start": 94,
+                    "end": 97,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 272,
+                    "end": 280,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 403,
+                    "end": 409,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Data"
+        },
+        {
+            "text": "The Fig. 3 shows the overview of the system. In our general system, images are taken from a Web Crawler. However, in the context of the online demonstrator research.qwant.com/images, we are using only images from the YFCC dataset. These images go through TensorRT features Extractor, to be then indexed with FAISS. At the query time, the user can:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 4,
+                    "end": 10,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Overview"
+        },
+        {
+            "text": "-Upload an Image. It is sent to the Image Handler and the inference is realized with NVidia TensorRT. -Search a text. The text goes to the language detector and the Text Features Extractor.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Query"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Word translation without parallel data",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Conneau",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lample",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ranzato",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Denoyer",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "J\u00e9gou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International Conference on Learning Representations",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1111/j.1540-4560.2007.00543.x"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Multi30K: multilingual English-German image descriptions",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Elliott",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Frank",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Sima&apos;an",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Specia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the 5th Workshop on Vision and Language",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.18653/v1/W16-3210"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Billion-scale similarity search with GPUs",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Douze",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "J\u00e9gou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1702.08734"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Microsoft COCO: common objects in context. In: Fleet",
+            "authors": [
+                {
+                    "first": "T.-Y",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "8693",
+            "issn": "",
+            "pages": "740--755",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-10602-1_48"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Image search using multilingual texts: a cross-modal learning approach between image and text",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Portaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Randrianarivo",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Nivaggioli",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Maudet",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Servan",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Peyronnet",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "One hundred million creative commons Flickr images for research",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Shamma",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "QISS homepage, where the user can query the index by uploading an image or typing a sentence.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Result page when the user search for \"a cat on a bed\", showing the images closest to this text.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Overview of the QISS system.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

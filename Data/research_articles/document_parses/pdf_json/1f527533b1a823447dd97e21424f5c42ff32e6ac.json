@@ -1,0 +1,960 @@
+{
+    "paper_id": "1f527533b1a823447dd97e21424f5c42ff32e6ac",
+    "metadata": {
+        "title": "Alignment of virus-host protein-protein interaction networks by integer linear programming: SARS-CoV-2",
+        "authors": [
+            {
+                "first": "Merc\u00e8",
+                "middle": [],
+                "last": "Llabr\u00e9s",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of the Balearic Islands",
+                    "location": {
+                        "settlement": "Palma de Mallorca",
+                        "country": "Spain"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Gabriel",
+                "middle": [],
+                "last": "Valiente",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Technical University of Catalonia",
+                    "location": {
+                        "settlement": "Barcelona",
+                        "country": "Spain"
+                    }
+                },
+                "email": "*gabriel.valiente@upc.edu"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Beside socio-economic issues, coronavirus pandemic COVID-19, the infectious disease caused by the newly discovered coronavirus SARS-CoV-2, has caused a deep impact in the scientific community, that has considerably increased its effort to discover the infection strategies of the new virus. Among the extensive and crucial research that has been carried out in the last few months, the analysis of the virus-host relationship plays an important role in drug discovery. Virus-host protein-protein interactions are the active agents in virus replication, and the analysis of virus-host protein-protein interaction networks is fundamental to the study of the virus-host relationship. We have adapted and implemented a recent integer linear programming model for protein-protein interaction network alignment to virus-host networks, and obtained a consensus alignment of the SARS-CoV-1 and SARS-CoV-2 virus-host protein-protein interaction networks. Despite the lack of shared human proteins in these virus-host networks and the low number of preserved virus-host interactions, the consensus alignment revealed aligned human proteins that share a function related to viral infection, as well as human proteins of high functional similarity that interact with SARS-CoV-1 and SARS-CoV-2 proteins, whose alignment would preserve these virus-host interactions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "July 2, 2020 1/18 1 The present outbreak of a coronavirus-associated acute respiratory disease, the 2 COVID-19 pandemic, has forced the scientific community to rapidly analyse the 3 virus-host relationships of the new coronavirus (SARS-CoV-2) human infection. Thus, 4 in less than a month, several databases as [1-3] have been created to collect all 5 SARS-CoV-2 and COVID-19 information, and the SARS-CoV-2-human protein-protein 6 interaction network was built [4]. As stated in [5], \"The Coronaviridae Study Group 7 (CSG) of the International Committee on Taxonomy of Viruses [. . . ] has assessed the 8 placement of the human pathogen, tentatively named 2019-nCoV, within the 9 Coronaviridae. Based on phylogeny, taxonomy and established practice, the CSG 10 recognizes this virus as forming a sister clade to the prototype human and bat severe 11 acute respiratory syndrome coronaviruses (SARS-CoVs) of the species Severe acute 12 respiratory syndrome-related coronavirus, and designates it as SARS-CoV-2.\" Therefore, 13 the closest known human pathogen to SARS-CoV-2 is the coronavirus SARS-CoV that 14 appeared in 2003 [6], also called SARS-CoV-1. 15 Understanding the mechanism of the SARS-CoV-2 infection is a crucial step towards 16 the discovery of antiviral drugs and vaccines. The modus operandi of every viral 17 infection is through the interaction between viral proteins and host proteins, in order to 18 use the host cells to replicate. In this line of research, virus-host protein-protein 19 interaction networks, a particular form of protein-protein interaction networks, have 20 become appropriate to analyse virus-host relationships, and information on well-known 21 and studied virus-host protein-protein interaction networks can be carried over to new 22 ones by way of protein-protein interaction network comparison and alignment. See [7, 8] 23",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "for comprehensive reviews.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "The general problem of protein-protein interaction network alignment has been 25 explored in the last two decades, and several tools have been already proposed and 26 implemented [9] [10] [11] [12] [13] [14] . However, the particular case of virus-host protein-protein 27 interaction network alignment problem has not been fully studied yet. 28 We have recently developed a compact reformulation of a quadratic programming 29 model for the protein-protein interaction network alignment problem as an integer linear 30",
+            "cite_spans": [
+                {
+                    "start": 179,
+                    "end": 182,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 183,
+                    "end": 187,
+                    "text": "[10]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 188,
+                    "end": 192,
+                    "text": "[11]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 193,
+                    "end": 197,
+                    "text": "[12]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 198,
+                    "end": 202,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 203,
+                    "end": 207,
+                    "text": "[14]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "program, which has been proven to be suitable for the alignment of virus-host 31 July 2, 2020 2/18 protein-protein interaction networks [15]. Our proposed model can be solved using 32 state-of-the-art mathematical modeling software such as AMPL [16] and integer linear 33 programming software tools such as IBM ILOG CPLEX Optimization Studio and 34 Gurobi Optimizer. In this work, we adapt and implement a modification of the 35 aforementioned alignment method to align the virus-host protein-protein interaction 36 networks of SARS-CoV-1 and SARS-CoV-2, in order to elucidate information on the 37 infection mechanism of SARS-CoV-2 based on current knowledge on the infection 38 mechanism of SARS-CoV-1. 39 2 Materials and methods 40 In the integer linear programming formulation of the protein-protein interaction 41 network alignment problem, a virus-host protein-protein interaction network is 42 represented by an undirected bipartite graph G = (U, V, E), with a node u \u2208 U for each 43 virus protein, a node v \u2208 V for each host protein, and an edge {u, v} \u2208 E for each 44 virus-host protein-protein interaction. 45 Let G = (U, V, E) and G = (U , V , E ) be the two virus-host protein-protein 46 interaction networks to be aligned, and let A = (a ij ) and B = (b k ) be their weighted 47 101 UniProt/SwissProt (332 sequences) and from the supplementary material in [4] (26 102 sequences). We have taken the global alignment score between the amino acid sequences 103 of two proteins, as implemented in BioPython [17], with a gap opening penalty of \u22127 104 and a gap extension penalty of \u22121, and normalized to [0, 1], as the similarity score 105 between the proteins. In the protein sequences of P07203 and Q9BQE4, we substituted 106 C (cysteine) for the rare amino acid U (selenocysteine). The corresponding integer 107 July 2, 2020 5/18 linear programming problem instance has 83,628 variables, half of which are binary, and 108 84,069 constraints. 109 The alignment of the virus-host protein-protein interaction networks of SARS-CoV-1 110 and SARS-CoV-2 was computed with AMPL version 2018.10.22 [16] and Gurobi 111 Optimizer version 8.1.0, using a personal computer with an Intel Core i7-8550U 112 quad-core processor at 1.80 GHz and 32 GB of memory running Ubuntu 18.04 LTS. The 113 optimal alignment was found in 517.35 seconds of AMPL time plus 3.16697 seconds of 114 solver time for SARS-CoV-1 to SARS-CoV-2, and in 538.112 seconds of AMPL time 115 plus 3.45882 seconds of solver time for SARS-CoV-2 to SARS-CoV-1. We set \u03bb = 0.5 in 116 both cases, and took the consensus between them as the alignment of the two virus-host 117 protein-protein interaction networks. 118 We considered the host proteins that interact with the viral proteins in the 119 consensus alignment, in each of the two networks. For these human proteins we 120 obtained their Gene Ontology (GO) term annotations using GOnet [18], and measured 121 the functional similarity between aligned human proteins with GOGO [19]. Tables 1 122 (structural proteins), 2-4 (non-structural proteins), and 5 (accessory proteins) show the 123 alignment of viral proteins in the consensus alignment, along with the alignment of the 124 human proteins they interact with, their molecular function ontology (MFO) score, their 125 biological process ontology (BPO) score, and their cellular component ontology (CCO) 126 score. 127 We can observe that the four structural proteins in one network were aligned with 128 the corresponding protein in the other network. Also, most of the non-structural 129 proteins and half of the accessory proteins in one network where aligned with the 130 corresponding protein in the other network. On the other hand, for each pair of aligned 131 viral proteins, the highlighted proteins in the same column of a viral protein are the 132 human proteins it interacts with. For instance, human proteins O00303 and Q9BYF1 133 interact with the SARS-CoV-1 spike protein P59594, while human protein Q7Z5G4 134 interacts with the SARS-CoV-2 spike protein P0DTC2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Table 1 shows that O00303 is 135 aligned with P48556, Q9BYF1 is aligned with Q7L8L6, and O95295 is aligned with 136",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Q7Z5G4. Missing data is due to lack of GO term annotation for the two interacting 137 proteins.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "As can be seen in these tables, most of the aligned proteins have a cellular 139 July 2, 2020 6/18 component ontology score above 0.700. This means that, despite the low number of 140 conserved interactions, the aligned proteins share their cellular location. For instance, 141 those human proteins that interact with the spike protein in SARS-CoV-1 are aligned 142 with human proteins that interact with the membrane protein in SARS-CoV-2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "However, some biological process ontology scores between aligned human proteins are 144 very low. This can be explained by the lack of biological process ontology GO term 145 annotation for one of the two interacting proteins.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "adjacency matrices, where the weight of an entry a ij \u2208 [0, 1] is the confidence score of 48 the interaction {i, j} \u2208 E, and the weight of an entry b k \u2208 [0, 1] is the confidence score 49 of the interaction {k, } \u2208 E . Let also S = (s ik ) be a similarity matrix between the 50 nodes of the two networks, with each s ik \u2208 [0, 1] the similarity score of i \u2208 U \u222a V and 51 k \u2208 U \u222a V .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Let us define a binary variable x ik for each i \u2208 U \u222a V and each k \u2208 U \u222a V , where 53 x ik = 1 if node i of the first network is aligned with node k of the second network, and 54",
+            "cite_spans": [
+                {
+                    "start": 83,
+                    "end": 85,
+                    "text": "53",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "52"
+        },
+        {
+            "text": "x ik = 0 otherwise. Then, an alignment of two virus-host protein-protein interaction 55 networks G = (U, V, E) and G = (U , V , E ) is represented by the binary matrix 56 X = (x ik ). Let us also define an integer variable y ik for each i \u2208 U \u222a V and each 57 k \u2208 U \u222a V , where each integer variable y ik is intended to represent 58 y ik = x ik j\u2208U \u222aV \u2208U \u222aV a ij b k x j July 2, 2020 3/18 for i \u2208 U \u222a V and k \u2208 U \u222a V . In this way, if x ik = 0, y ik = 0, and if x ik = 1, y ik is the 59 weight of those edges incident to node i in G that are preserved by the alignment. 60 Then, the goal of the integer linear programming model is to maximize It is easy to see that this integer linear programming formulation is equivalent to the 71 integer quadratic programming formulation of the network alignment problem given 72 in [9] . In fact, the previous constraints entail",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 87,
+                    "text": "55",
+                    "ref_id": null
+                },
+                {
+                    "start": 569,
+                    "end": 571,
+                    "text": "60",
+                    "ref_id": null
+                },
+                {
+                    "start": 820,
+                    "end": 823,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "52"
+        },
+        {
+            "text": "The objective function comes from the PathBLAST [11] idea that protein-protein 74 network alignment be based on a log-probability-like criterion, with matching terms 75 corresponding to both proteins and interactions [9] . The first sum in the objective 76 function,",
+            "cite_spans": [
+                {
+                    "start": 48,
+                    "end": 52,
+                    "text": "[11]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 217,
+                    "end": 220,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "52"
+        },
+        {
+            "text": "represents the global similarity of the aligned proteins, while the second sum,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "52"
+        },
+        {
+            "text": "July 2, 2020 4/18",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "52"
+        },
+        {
+            "text": "represents the weight of those edges that are preserved by the alignment; that is, those 79 pairs of edges (i, j) \u2208 E and (k, ) \u2208 E such that node i is aligned with node k and 80 node j is aligned with node .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "52"
+        },
+        {
+            "text": "Now, since we are aligning virus-host protein-protein interaction networks, we add 82 the constraints",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "81"
+        },
+        {
+            "text": "to ensure that viral proteins are aligned with viral proteins, and that host proteins are 86 aligned with host proteins. interactions occur at the level of physical protein-protein interactions [7] . This means 157 that a viral protein interacts with a host protein to carry out a cellular process, and this 158 pathway of virus-host interactions constitutes the infection mechanism of the virus.",
+            "cite_spans": [
+                {
+                    "start": 194,
+                    "end": 197,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "81"
+        },
+        {
+            "text": "The question then arises, when a viral protein in one network is aligned with a viral 160",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "159"
+        },
+        {
+            "text": "protein in another network, should the host proteins that interact with one viral protein 161 be aligned with those host proteins that interact with the other viral protein? Clearly 162 the answer is yes, when the viral-host protein-protein interaction is a similar infectious 163 process stage. Therefore, aligned virus-host interactions must entail conserved stages in 164 the infectious process. However, non-conserved edges do not necessarily imply incorrect 165 alignments. Indeed, when we analyze in more depth the functional description [3] in the 166",
+            "cite_spans": [
+                {
+                    "start": 544,
+                    "end": 547,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "159"
+        },
+        {
+            "text": "UniProt database of the aligned human proteins that interact with Coronavirus proteins, 167",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "159"
+        },
+        {
+            "text": "we realise that they share a function related to viral infection, although their alignment 168 introduces a non-preserved interaction. This is the case of the following pairs of proteins: 169 O14920 and Q9UHD2 The molecular function ontology score of these proteins is Nevertheless, some of these pairs of human proteins whose alignment would preserve 227",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "159"
+        },
+        {
+            "text": "virus-host interactions do show high functional similarity scores, and it could be 228 interesting to further study their role in the viral mechanism of host infection. Table 6 229 shows some of the highest ranking pairs of human proteins across biological process, they interact with, in decreasing order of average score. Missing data is due to lack of 256 GO term annotation for the two interacting proteins. Table 6 . Human proteins that interact with SARS-CoV-1 and SARS-CoV-2 structural proteins, whose alignment would preserve virus-host interactions. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 169,
+                    "end": 180,
+                    "text": "Table 6 229",
+                    "ref_id": null
+                },
+                {
+                    "start": 412,
+                    "end": 419,
+                    "text": "Table 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "159"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "VirHostNet 2.0: Surfing on the web of virus/host molecular interactions data",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Guirimand",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Delmotte",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Navratil",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Nucleic Acids Res",
+            "volume": "43",
+            "issn": "D1",
+            "pages": "583--587",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "The MIntAct project: IntAct as a common curation platform for 11 molecular interaction databases",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Orchard",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ammari",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Aranda",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Nucleic Acids Res",
+            "volume": "42",
+            "issn": "",
+            "pages": "358--363",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "UniProt: A worldwide hub of protein knowledge",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bateman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Nucleic Acids Res",
+            "volume": "47",
+            "issn": "",
+            "pages": "506--551",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "A SARS-CoV-2-Human Protein-Protein Interaction Map Reveals Drug Targets and Potential Drug-Repurposing",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Gordon",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Jang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bouhaddou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "The species Severe acute respiratory syndrome-related coronavirus: Classifying 2019-nCoV and naming it SARS-CoV-2",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Gorbalenya",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Baker",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Baric",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nat Microbiol",
+            "volume": "5",
+            "issn": "4",
+            "pages": "536--544",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "The Genome Sequence of the SARS-Associated Coronavirus",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Marra",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sjm",
+                    "middle": [],
+                    "last": "Jones",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Astell",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Science",
+            "volume": "300",
+            "issn": "5624",
+            "pages": "1399--1404",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Interactome Networks and Human Disease",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vidal",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Cusick",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Barab\u00e1si",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Cell",
+            "volume": "144",
+            "issn": "6",
+            "pages": "986--998",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Computational analysis of protein interaction networks for infectious diseases",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pan",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Lahiri",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rajendiran",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Shanmugham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Brief Bioinform",
+            "volume": "17",
+            "issn": "3",
+            "pages": "517--526",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Alignment of Protein Interaction Networks by Integer Quadratic Programming",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Proc. 28th IEEE EMBS Ann",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "PINALOG: A novel approach to align protein interaction networks",
+            "authors": [
+                {
+                    "first": "Htt",
+                    "middle": [],
+                    "last": "Phan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mje",
+                    "middle": [],
+                    "last": "Sternberg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Bioinformatics",
+            "volume": "28",
+            "issn": "9",
+            "pages": "1239--1245",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "PathBLAST: a tool for alignment of protein interaction networks",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Kelley",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Yuan",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Lewitter",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Sharan",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Stockwell",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Ideker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Nucleic Acids Res",
+            "volume": "32",
+            "issn": "",
+            "pages": "83--88",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "An accurate and efficient method for global alignment of protein-protein interaction networks",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hashemifar",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Hubalign",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Bioinformatics",
+            "volume": "30",
+            "issn": "17",
+            "pages": "438--444",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Lagrangian graphlet-based network aligner",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Malod-Dognin",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Pr\u017eulj",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "L-Graal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Bioinformatics",
+            "volume": "31",
+            "issn": "13",
+            "pages": "2182--2189",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "AligNet: Alignment of Protein-Protein Interaction Networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Alcal\u00e1",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Alberich",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Llabr\u00e9s",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Rossell\u00f3",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Valiente",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "BMC Bioinformatics",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Alignment of Biological Networks by Integer Linear Programming: Virus-Host Protein-Protein Interaction Networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Llabr\u00e9s",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Riera",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Rossell\u00f3",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Valiente",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "AMPL: A Modeling Language for Mathematical Programming",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Fourer",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Gay",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Kernighan",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "BioPython: Freely available Python tools for computational molecular biology and bioinformatics",
+            "authors": [
+                {
+                    "first": "Pja",
+                    "middle": [],
+                    "last": "Cock",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Antao",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Chang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Bioinformatics",
+            "volume": "25",
+            "issn": "11",
+            "pages": "1422--1423",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "GOnet: A tool for interactive Gene Ontology analysis",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Pomaznoy",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ha",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Peters",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "BMC Bioinformatics",
+            "volume": "19",
+            "issn": "470",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "GOGO: An improved algorithm to measure the semantic similarity between gene ontology terms",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Sci Rep",
+            "volume": "8",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "ij b k x j 66 for i \u2208 U \u222a V and k \u2208 U \u222a V ,where \u03bb is a parameter, with 0 \u03bb 1, to control the 67 balance between protein similarity scores and protein-protein interaction weights: only 68 node scores are considered when \u03bb = 1, and only edge scores are taken into account 69 when \u03bb = 0.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Let m = |U | + |V | and n = |U | + |V |. The resulting integer linear programming 88 formulation of the virus-host protein-protein network alignment problem has O(mn) 89 binary variables, integer variables, and constraints.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "130 interactions between 29 SARS-CoV-1 proteins and 109 human proteins in 92 the March 2020 release of the VirHostNet database [1], as well as 332 interactions 93 between 26 SARS-CoV-2 proteins and 332 human proteins from [4] in release 4.2.13 of 94 the IntAct database [2]. Thus, the SARS-CoV-1-Human network has 138 nodes and 130 95 edges, while the SARS-CoV-2-Human network has 358 nodes and 332 edges. Notice 96 that only 6 of these 109 and 332 human proteins (P27448, Q5JRX3, Q7KZI7, Q9BW92, 97 Q9H4F8,and Q9Y6E2) interact with both SARS-CoV-1 and SARS-CoV-2 proteins. 98 We have obtained the amino acid sequences for the SARS-CoV-1 and human 99 proteins from UniProt/SwissProt (119 sequences), UniProt/TrEMBL (2 sequences), and 100 NCBI RefSeq (14 sequences), and for the SARS-CoV-2 and human proteins from With respect to molecular function ontology, it is remarkable that we obtained high 147 scores for aligned proteins that interact with structurally different viral proteins. Indeed, 148 one of the measures used to test the correctness of a protein-protein interaction network 149 alignment is the edge correctness score, which measures the ratio of conserved edges in a 150given alignment. Edge correctness assumes that one of the aims of the alignment is to 151 find similar regions between the two aligned networks, in terms of network topology. In 152 the context of protein-protein interaction networks, it is also assumed that two proteins 153 interact when they together carry out some biological function. For virus-host 154 protein-protein interaction networks, viral proteins interact with host proteins to 155 perturb the intracellular networks of their hosts to their advantage, and many virus-host 156",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "O14920: Serine kinase that plays an essential role in the NF-kappa-B 177 signaling pathway which is activated by multiple stimuli such as 178 inflammatory cytokines, bacterial or viral products. Q9UHD2: Serine/threonine kinase that plays an essential role in regulating 180 inflammatory responses to foreign agents. Following activation of toll-like 181 receptors by viral or bacterial components, associates with TRAF3 and 182 TANK and phosphorylates interferon regulatory factors (IRFs) IRF3 and 183 IRF7 as well as DDX3X. 184 Q92499 and Q9NR30 The molecular function ontology score of these proteins is 185 0.850. Human protein Q9NR30 interacts with viral protein P0DTC9 186 (nucleocapsid) of SARS-CoV-2, which is aligned with protein P59595 187 (nucleocapsid) of SARS-CoV-1. On the other hand, human protein Q92499 188 interacts with viral protein P0C6X7-PRO 0000037320 (proofreading 189 exoribonuclease in replicase polyprotein 1ab) of SARS-CoV-1. The functional 190 description of the aligned human proteins is: Q92499: Helicase required for Coronavirus IBV replication. Antiviral defense. 192 \u2022 Q9NR30: Component of a multi-helicase-TICAM1 complex that acts as a 193 cytoplasmic sensor of viral double-stranded RNA (dsRNA) and plays a role 194 in the activation of a cascade of antiviral responses including the induction of 195 proinflammatory cytokines via the adapter molecule TICAM1. 196 P49703 and P62330 The molecular function ontology score of these proteins is 0.850. 197 Both are GTP-binding proteins. Human protein P49703 interacts with viral 198 protein NP 828865 (nsp7) of SARS-CoV-1. Human protein P62330 interacts with 199 viral protein P0DTD1-PRO0000449632 (nsp15) of SARS-CoV-2, which, as viral RNA synthesis,\" with the endoU domain being \"one of the most 202 conserved proteins among CoVs and related viruses, suggesting important 203 functions in the viral replicative cycle.\" The functional description of the aligned 204 human proteins is: P49703: Small GTP-binding protein which cycles between an inactive 206 GDP-bound and an active GTP-bound form, and the rate of cycling is 207 regulated by guanine nucleotide exchange factors (GEF) and 208 GTPase-activating proteins (GAP). P62330: GTP-binding protein involved in protein trafficking that regulates 210 endocytic recycling and cytoskeleton remodeling. Activation is generally 211 mediated by a guanine exchange factor (GEF), while inactivation through 212 hydrolysis of bound GTP is catalyzed by a GTPase activating protein (GAP). 213 Therefore, it is not clear whether or not edge preservation should always be required 214 in a correct alignment of virus-host protein-protein interaction networks. To reinforce 215 this idea, we considered the functional similarity of all pairs of human proteins whose 216 alignment would preserve edges, given the consensus alignment of 24 viral proteins. For 217 each pair of aligned viral proteins (say, membrane proteins) we considered the biological 218 process, the cell component, and the molecular function ontology scores of all pairs of 219 human proteins that interact with the aligned viral proteins (say, all pairs of human 220 proteins such that the first protein interacts with viral membrane protein P59596 of 221 SARS-CoV-1 and the second protein interacts with viral membrane protein P0DTC5 of 222 SARS-CoV-2). The cell component ontology score is above 0.800 for most of the aligned 223 human proteins, but the highest molecular function ontology score is 0.852, while it is 224 1.000 in the consensus alignment, and the highest biological process ontology score of 225 the aligned human proteins is 0.670, while it is 0.863 in the consensus alignment.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "cellular component, and molecular function ontology scores for the structural viral only 6 human proteins in their virus-host protein-protein interaction networks. On the 235 one hand, aligned viral proteins in the consensus alignment obtained with our method 236 show a sequence similarity of over 75% on the average, and most of the SARS-CoV-1 237 proteins are aligned with SARS-CoV-2 proteins that belong to the same category (spike, 238 envelope, membrane, nucleocapsid, and the various non-structural and accessory 239 proteins) in the genome organization of the viruses. On the other hand, the proposed 240 alignment method does not preserve the virus-host interactions. This suggests that 241 these viruses, despite their classification as human pathogens within the Coronaviridae 242 family, do not follow the same detailed mechanism of host infection. We believe that 243 further research on these aligned human proteins with high molecular function ontology 244 scores, will help to elucidate the viral mechanism of infection and replication that is 245 necessary to accomplish the goal of antiviral drug or vaccine discovery. 246 Acknowledgments 247 We thank Francesc Rossell\u00f3 for comments on an earlier version of this manuscript. Appendix. Human proteins that interact with SARS-CoV-1 and 250 SARS-CoV-2 structural proteins, whose alignment would preserve 251 virus-host interactions. For each pair of viral protein in the consensus alignment of 252 the virus-host protein-protein interaction networks for SARS-CoV-1 and SARS-CoV-2, 253 we show the molecular function ontology (MFO) score, the biological process ontology 254 (BPO) score, and the cellular component ontology (CCO) score of the human proteins 255",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Alignment of structural proteins in SARS-CoV-1 and SARS-CoV-2.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Alignment Table 5. Alignment of accessory proteins in SARS-CoV-1 and SARS-CoV-2.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Appendix for more details.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "annex"
+        }
+    ]
+}

@@ -1,0 +1,1584 @@
+{
+    "paper_id": "1fae298a7c4e9ac81063358a55cb87366b16afce",
+    "metadata": {
+        "title": "Approximating Euclidean by Imprecise Markov Decision Processes",
+        "authors": [
+            {
+                "first": "Manfred",
+                "middle": [],
+                "last": "Jaeger",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aalborg University",
+                    "location": {
+                        "country": "Denmark"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Giorgio",
+                "middle": [],
+                "last": "Bacci",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aalborg University",
+                    "location": {
+                        "country": "Denmark"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Giovanni",
+                "middle": [],
+                "last": "Bacci",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aalborg University",
+                    "location": {
+                        "country": "Denmark"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Kim",
+                "middle": [
+                    "Guldstrand"
+                ],
+                "last": "Larsen",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aalborg University",
+                    "location": {
+                        "country": "Denmark"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Peter",
+                "middle": [
+                    "Gj\u00f8l"
+                ],
+                "last": "Jensen",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Aalborg University",
+                    "location": {
+                        "country": "Denmark"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Euclidean Markov decision processes are a powerful tool for modeling control problems under uncertainty over continuous domains. Finite state imprecise, Markov decision processes can be used to approximate the behavior of these infinite models. In this paper we address two questions: first, we investigate what kind of approximation guarantees are obtained when the Euclidean process is approximated by finite state approximations induced by increasingly fine partitions of the continuous state space. We show that for cost functions over finite time horizons the approximations become arbitrarily precise. Second, we use imprecise Markov decision process approximations as a tool to analyse and validate cost functions and strategies obtained by reinforcement learning. We find that, on the one hand, our new theoretical results validate basic design choices of a previously proposed reinforcement learning approach. On the other hand, the imprecise Markov decision process approximations reveal some inaccuracies in the learned cost functions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Markov Decision Processes (MDP) [12] provide a unifying framework for modeling decision making in situations where outcomes are partly random and partly under the control of a decision maker. MDPs are useful for studying optimization problems solved via dynamic programming and reinforcement learning. They are used in several areas, including economics, control, robotics and autonomous systems. In its simplest form, an MDP comprises a finite set of states S, a finite set of control actions Act, which for each state s and action a specifies the transition probabilities P a (s, s ) to successor states s . In addition, transitioning from a state s an action a has an immediate cost C(s, a) 1 . The overall problem is to find a strategy \u03c3 that specifies the action \u03c3(s) to be made in state s in order to optimize some objective (e.g. the expected cost of reaching a goal state).",
+            "cite_spans": [
+                {
+                    "start": 32,
+                    "end": 36,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 694,
+                    "end": 695,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "For many applications, however, such as queuing systems, epidemic processes (e.g. COVID19), and population processes the restriction to a finite state-space is inadequate. Rather, the underlying system has an infinite state-space and the decision making process must take into account the continuous dynamics of the system. In this paper, we consider a particular class of infinite-state MDPs, namely Euclidean Markov Decision Processes [9] , where the state space S is given by a (measurable) subset of R K for some fixed dimension K.",
+            "cite_spans": [
+                {
+                    "start": 437,
+                    "end": 440,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "As an example, consider the semi-random walk illustrated on the left of Fig. 1 with state-space S = [0, x max ]\u00d7[0, t max ] (one dimensional space, and time). Here the goal is to cross the x = 1 finishing line before t = 1. The decision maker has two actions at her disposal: to move fast and expensive (cost 3), or to move slow and cheap (cost 1). Both actions have uncertainty about distance traveled and time taken. This uncertainty is modeled by a uniform distribution over a successor state square: given current state (x, t) and action a \u2208 {slow , fast}, the distribution over possible successor states is the uniform distribution over [x+\u03b4(a)\u2212\u03b5, x+\u03b4(a) +\u03b5]\u00d7[t+\u03c4 (a)\u2212\u03b5, t+\u03c4 (a) +\u03b5], where (\u03b4(a), \u03c4 (a)) represents the direction of the movement in space and time which depends on the action a, while the parameter \u03b5 models the uncertainty. Now, the question is to find the strategy \u03c3 : S \u2192 Act that will minimize the expected cost of reaching a goal state. In [9] , we proposed two reinforcement learning algorithms implemented in UPPAAL STRATEGO [5] , using online partition refinement techniques. In that work we experimentally demonstrated its improved convergence tendencies on a range of models. For the semi-random walk example, the online learning algorithm returns the strategy illustrated on the right of Fig. 1 .",
+            "cite_spans": [
+                {
+                    "start": 965,
+                    "end": 968,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1052,
+                    "end": 1055,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 72,
+                    "end": 78,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1319,
+                    "end": 1325,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "However, despite its efficiency and experimentally demonstrated convergence properties, the learning approach of [9] provides no hard guarantees as to how far away the expected cost of the learned strategy is from the optimal one. In this pa-per we propose a step-wise partition refinement process, where each partitioning induces a finite-state imprecise MDP (IMDP). From the induced IMDP we can derive upper and lower bounds on the expected cost of the original infinite-state Euclidean MDP. As a crucial result, we prove the correctness of these bounds, i.e., that they are always guaranteed to contain the true expected cost. Also, we provide value iteration procedures for computing lower and upper expected costs of IMDPs. Figure 2 shows upper and lower bounds on the expected cost over the regions shown in Figure 1 . Applying the IMDP value iteration procedures to the partition learned by UPPAAL STRATEGO therefore allows us to compute guaranteed lower and upper bounds on the expected cost, and thereby validate the results of reinforcement learning. The main contributions of this paper can by summarized as follows:",
+            "cite_spans": [
+                {
+                    "start": 113,
+                    "end": 116,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 729,
+                    "end": 737,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 814,
+                    "end": 822,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "-We define IMDP abstractions of infinite state Euclidean MDPs, and establish as key theoretical properties: the correctness of value iteration to compute upper and lower expected cost functions, the correctness of the upper and lower cost functions as bounds on the cost function of the original Euclidean MDP, and, under a restriction to finite time horizons, the convergence of upper and lower bounds to the actual cost values. -We demonstrate the applicability of the general framework to analyze the accuracy of strategies learned by reinforcement learning.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Related Work. Our work is closely related to various types of MDP models proposed in different areas. Imprecise Markov Chains and Imprecise Markov Decision processes have been considered in areas such as operations research and artificial intelligence [15, 4, 14] . The focus here typically is on approximating optimal policies for fixed, finite state spaces. In the same spirit, but from a verification point of view, [2] focuses on reachability probabilities.",
+            "cite_spans": [
+                {
+                    "start": 252,
+                    "end": 256,
+                    "text": "[15,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 257,
+                    "end": 259,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 260,
+                    "end": 263,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 419,
+                    "end": 422,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Lumped Markov chains are obtained by aggregating sets of states of a Markov Chain into a single state. Much work is devoted to the question of when and how the resulting process again is a Markov chain (it rarely is) [13, 6] . The interplay of lumping and imprecision is considered in [7] Most work in this area is concerned with finite state spaces. Abstraction by state space partitioning (lumping) can be understood as a special form of partial observability (one only observes which partition element the current state belongs to). A combination or partial observability with imprecise probabilities is considered in [8] [10] introduce abstractions of finite state MDPs by partitioning the state space. Upper and lower bounds for reachability probabilities are obtained from the abstract MDP, which is formalized as a two player stochastic game. [11] is concerned with obtaining accurate specifications of an abstraction obtained by state space partitioning. The underlying state space is finite, and a fixed partition is given.",
+            "cite_spans": [
+                {
+                    "start": 217,
+                    "end": 221,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 222,
+                    "end": 224,
+                    "text": "6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 285,
+                    "end": 288,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 621,
+                    "end": 624,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 850,
+                    "end": 854,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Thus, while there is a large amount of closely related work on abstracting MDPs by state space partitioning, and imprecise MDPs that can result from such an abstraction, to the best of our knowledge, our work is distinguished from previous work by: the consideration of infinite continuous state spaces for the underlying models of primary interest, and the focus on the properties of refinement sequences induced by partitions of increasing granularity. -S \u2286 R K is a measurable subset of the K-dimensional Euclidean space equipped with the Borel \u03c3-algebra B K . -G \u2286 S is a measurable set of goal states, -Act is a finite set of actions, -T : S \u00d7 Act \u00d7 B K \u2192 [0, 1] defines for every a \u2208 Act a transition kernel on (S, B K ), i.e., T (s, a, \u00b7) is a probability distribution on B K for all s \u2208 S, and T (\u00b7, a, B) is measurable for all B \u2208 B K . Furthermore, the set of goal states is absorbing, i.e. for all s \u2208 G and all a \u2208 Act: T (s, a, G) = 1. -C : S \u00d7 Act \u2192 R \u22650 is a cost-function for state-action pairs, such that for all a \u2208 Act: C(\u00b7, a) is measurable, and C(s, a) = 0 for all s \u2208 G.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "A run \u03c0 of an MDP is a sequence of alternating states and actions s 1 a 1 s 2 a 2 \u00b7 \u00b7 \u00b7 . We denote the set of all runs of an EMDP M as \u03a0 M . We use \u03c0 i to denote (s i , a i ), \u03c0 \u2264i for the prefix s 1 a 1 s 2 a 2 \u00b7 \u00b7 \u00b7 s i a i , and \u03c0 >i for the tail s i+1 a i+1 s i+2 a i+2 \u00b7 \u00b7 \u00b7 of a run. The cost of a run is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "The set \u03a0 M is equipped with the product \u03c3-algebra (B K \u2297 2 Act ) \u221e generated by the cylinder sets B 1 \u00d7 {a 1 } \u00d7 \u00b7 \u00b7 \u00b7 \u00d7 B n \u00d7 {a n } \u00d7 (S \u00d7 Act) \u221e (n \u2265 1, B i \u2208 B K , a i \u2208 Act). We denote with B + the Borel \u03c3-algebra restricted to the non-negative reals, and withB + the standard extension toR \u22650 := R \u22650 \u222a {\u221e}, i.e. the sets of the form B and B \u222a {\u221e}, where B \u2208 B + .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "Due to space constraints proofs are only included in the extended online version of this paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "We next consider strategies for EMDPs. We limit ourselves to memoryless and stationary strategies, noting that on the rich Euclidean state space S this is less of a limitation than on finite state spaces, since a non-stationary, time dependent strategy can here be turned into a stationary strategy by adding one real-valued dimension representing time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "Definition 2 (Strategy). A (memoryless,stationary) strategy for an MDP M is a function \u03c3 : S \u2192 (Act \u2192 [0, 1]), mapping states to probability distributions over Act, such that for every a \u2208 Act the function s \u2208 S \u2192 \u03c3(s)(a) is measurable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "The following lemma is mostly a technicality that needs to be established in order to ensure that an MDP in conjunction with a strategy and an initial state distribution defines a Markov process on S \u00d7 Act, and hence a probability distribution on \u03a0 M . Lemma 2. If \u03c3 is a strategy, then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "is a transition kernel on (S \u00d7 Act, B K \u00d7 2 Act ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "Usually, an initial state distribution will be given by a fixed initial state s = s 1 . We then denote the resulting distribution over \u03a0 M by P s,\u03c3 (this also depends on the underlying M; to avoid notational clutter, we do not always make this dependence explicitly in the notation).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "Definition 3 (Expected Cost). Let s \u2208 S. The expected cost at s under strategy \u03c3 is the expectation of C \u221e under the distribution P s,\u03c3 , denoted E \u03c3 (C, s). The expected cost at initial state s then is defined as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "Example 1. If s \u2208 G, then for any strategy \u03c3: P s,\u03c3 ( i\u22651 {s i \u2208 G}) = 1, and hence E(C, s) = 0. However, E(C, s) = 0 can also hold for s \u2208 G, since C(s, a) = 0 also is allowed for non-goal states s.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "Note that, for any strategy \u03c3, the functions E \u03c3 (C, \u00b7) and E(C, \u00b7) are [0, \u221e]valued measurable functions on S. This follows by measurability of C(\u00b7, a) and \u03c3(\u00b7)(a), for all a \u2208 Act, and [1, Theorem 13.4].",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Euclidean MDP and Expected Cost"
+        },
+        {
+            "text": "We next show that expected costs in EMDPs can be computed by value iteration. Our results are closely related to Theorem 7.3.10 in [12] . However, our scenario differs from the one treated by Puterman [12] in that we deal with uncountable state spaces, and in that we want to permit infinite cost values. Adapting Puterman's notation [12] , we introduce two operators, L and L \u03c3 , on [0, \u221e]-valued measurable functions E on S, defined as follows:",
+            "cite_spans": [
+                {
+                    "start": 131,
+                    "end": 135,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 201,
+                    "end": 205,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 334,
+                    "end": 338,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Value Iteration for EMDPs"
+        },
+        {
+            "text": "The operators above are well-defined: Since the set of actions Act is finite, for every E we can define a deterministic strategy d, such that LE = L d E. We can establish an even stronger relation:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for EMDPs"
+        },
+        {
+            "text": "As a first main step we can show that the expected cost under the strategy \u03c3 is a fixed point for the operator L \u03c3 :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for EMDPs"
+        },
+        {
+            "text": "As a corollary of Lemma 4 and Proposition 1, E(C, \u00b7) is a pre-fixpoint of the L operator. Moreover, we can show that it is the least pre-fixpoint of L.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for EMDPs"
+        },
+        {
+            "text": "By Proposition 2 and Tarski fixed point theorem, E(C, \u00b7) is the least fixed point of L. The following theorem, provides us with a stronger result, namely, that E(C, \u00b7) is the supremum of the point-wise increasing chain",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for EMDPs"
+        },
+        {
+            "text": "L n := L n \u22a5 (n \u2265 1), and L := sup n\u22650 L n",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "We denote"
+        },
+        {
+            "text": "The following theorem then states that value iteration converges to E(C, \u00b7).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "We denote"
+        },
+        {
+            "text": "The value iteration of Theorem 1 is a mathematical process, not an algorithmic one, as it is defined pointwise on the uncountable state space S. Our goal, therefore, is to approximate the expected cost function E(C, \u00b7) of an EMDP by expected cost functions on finite state spaces consisting of partitions of S. In order to retain sufficient information of the original EMDP to be able to derive provable upper and lower bounds for E(C, \u00b7), we approximate the EMDP by an Imprecise Markov Decision Processes (IMDPs) [15] .",
+            "cite_spans": [
+                {
+                    "start": 514,
+                    "end": 518,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "-S is a finite set of states -G \u2286 S is the set of goal states, -Act is a finite set of actions, -T * : S \u00d7 Act \u2192 2 (S\u2192R \u22650 ) assigns to state-action pairs a closed set of probability distributions over S; the set of goal states is absorbing, i.e., for all s \u2208 G and all T (s, a) \u2208 T * (s, a): t\u2208G T (s, a)(t) = 1, -C * : S \u00d7 Act \u2192 2 R \u22650 assigns to state-action pairs a closed set of costs, such that for all s \u2208 G, a \u2208 Act: C * (s, a) = {0}.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "Memoryless, stationary strategies \u03c3 are defined as before. In order to turn an IMDP into a fully probabilistic model, one also needs to resolve the choice of a transition probability distribution and cost value.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "Definition 5 (Adversary, Lower/Upper expected cost). An adversary \u03b1 for an IMDP consists of two functions",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "A strategy \u03c3, an adversary \u03b1, and an initial state s together define a probability distribution P s,\u03c3,\u03b1 over runs \u03c0 with s 1 = s, and hence the expected cost E \u03c3,\u03b1 (C * (\u03c0), s). We then define the lower and upper expected cost as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "Since T * (s, a) and C * (s, a) are required to be closed sets, we can here write min \u03b1 and max \u03b1 rather than inf \u03b1 , sup \u03b1 . Furthermore, the closure conditions are needed to justify a restriction to stationary adversaries, as the following example shows (cf. also Example 7.3.2 in [12] ).",
+            "cite_spans": [
+                {
+                    "start": 283,
+                    "end": 287,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "Since there is only one action, there is only one strategy \u03c3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "Then, if the adversary at the i'th step selects transition probabilities ( i , 1 \u2212 i , 0) one obtains E min (C * (\u03c0), s 1 ) = 1 \u2212 \u03b4. For every stationary adversary the transition from s 1 to s 2 will be taken eventually with probability 1, so that here E min (C * (\u03c0), s 1 ) = 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "We note that only in the case of E max does \u03b1 act as an \"adversary\" to the strategy \u03c3. In the case of E min , \u03c3 and \u03b1 represent co-operative strategies. In other definitions of imprecise MDPs only the transition probabilities are setvalued [15] . Here we also allow an imprecise cost function. Note, however, that for the definition of E min (C * , s) and E max (C * , s) the adversary's strategy \u03b1 C will simply be to select the minimal (respectively maximal) possible costs, and that we can also obtain E min , E max as the expected lower/upper costs on IMDPs with point-valued cost functions",
+            "cite_spans": [
+                {
+                    "start": 240,
+                    "end": 244,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "where then the adversary has no choice for the strategy \u03b1 C .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Imprecise MDP"
+        },
+        {
+            "text": "We now characterize E min , E max as limits of value iteration, again following the strategy of the proof of Theorem 7.3.10 of [12] . In this case, the proof has to be adapted to accommodate the additional optimization of the adversary, and, as in Section 2.1, to allow for infinite costs. We again start by defining suitable operators L min , L max on [0, \u221e]-valued functions C defined on S:",
+            "cite_spans": [
+                {
+                    "start": 127,
+                    "end": 131,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Value Iteration for IMDPs"
+        },
+        {
+            "text": "where opt \u2208 {min, max}. The mapping",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for IMDPs"
+        },
+        {
+            "text": "defines the \u03b1 T of an adversary. Similarly",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for IMDPs"
+        },
+        {
+            "text": "defines a strategy. Let \u22a5 be the function that is constant 0 on S. Denote L opt,n := (L opt ) n \u22a5, and L opt := sup n\u22650 L opt,n",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for IMDPs"
+        },
+        {
+            "text": "We can now state the applicability of value iteration for IMDPs as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for IMDPs"
+        },
+        {
+            "text": "We note that even though L opt , in contrast to the L operator for EMDPs, now only needs to be computed over a finite state space, we do not obtain from Theorem 2 a fully specified algorithmic procedure for the computation of E opt , because the optimization over T * (s, a) contained in (5) will require customized solutions that depend on the structure of the T * (s, a).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Value Iteration for IMDPs"
+        },
+        {
+            "text": "From now on we only consider EMDPs whose state space S is a compact subset of R K . We approximate such a Euclidean MDP by IMDPs constructed from finite partitions of S. In the following, we denote with A = {\u03bd 1 , . . . , \u03bd |A| } \u2282 2 S a finite partition of S. We call an element \u03bd \u2208 A a region and shall assume that each such \u03bd is Borel measurable. For s \u2208 S we denote by [s] A the unique region \u03bd \u2208 A such that s \u2208 \u03bd. The diameter of a region is \u03b4(\u03bd) := sup s,s \u2208\u03bd s \u2212 s , and the granularity of a A is defined as \u03b4(A) := max \u03bd\u2208A \u03b4(\u03bd). We say that a partition B refines a partition A if for any \u03bd \u2208 B there exist \u00b5 \u2208 A with \u03bd \u2286 \u00b5. We write A B in this case.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "A Euclidean MDP M = (S, G, Act, T , C) and a partition A of S induces an abstracting IMDP [10, 11] according to the following definition.",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 94,
+                    "text": "[10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 95,
+                    "end": 98,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "Definition 6 (Induced IMDP). Let M = (S, Act, s init , T , C, G) be an MDP, and let A be a finite partition of S consistent with G in the sense that for any \u03bd \u2208 A either \u03bd \u2286 G or \u03bd \u2229 G = \u2205. The IMDP defined by M and A then is a) is the marginal of T (s, a, \u00b7) on A, i.e. T A (s, a)(\u03bd ) = \u03bd T (s, a, dt), and cl denotes topological closure.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 226,
+                    "end": 228,
+                    "text": "a)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "-C * A (\u03bd, a) = cl ({C(s, a)|s \u2208 \u03bd}) The following theorem states how an induced IMDP approximates the underlying Euclidean MDP. In the following, we use sub-scripts on expectation operators to identify the (I)MDPs that define the expectations. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "If A B, then B improves the bounds in the sense that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "Our goal now is to establish conditions under which the approximation (10) becomes arbitrarily tight for partitions of sufficiently high granularity. This will require certain continuity conditions for M as spelled out in the following definition. In the following, d tv stands for the total variation distance between distributions. Note that we will be using d tv both for discrete distributions on partitions A, and for continuous distributions on S. We observe that due to the assumed compactness of S, the first condition of Definition 7 is satisfied if T is defined as a function T (s, a, t) on S \u00d7 Act \u00d7 S that for each a as a function of s, t is continuous on S \u00d7 S, and such that T (s, a, \u00b7) is for all s, a a density function relative to Lebesgue measure. We next introduce some notation for N -step expectations and distributions. In the following, we use \u03c4 to denote strategies for induced IMDPs defined on partitions A, whereas \u03c3 is reserved for strategies defined on Euclidean state spaces S. For a given partition A and strategy \u03c4 for M A let \u03b1 + , \u03b1 \u2212 denote two strategies for the adversary (to be interpreted as strategies that are close to achieving sup \u03b1 E \u03c4 ,\u03b1 (C * (\u03c0), \u00b7) and inf \u03b1 E \u03c4 ,\u03b1 (C * (\u03c0), \u00b7), respectively, even though we will not explicitly require properties that derive from this interpretation). We then denote with P N \u03c4 ,\u03b1 + , P N \u03c4 ,\u03b1 \u2212 the distributions defined by \u03c4 , \u03b1 + and \u03c4 , \u03b1 \u2212 on run prefixes of length N , and with E N \u03c4 ,\u03b1 + , E N \u03c4 ,\u03b1 \u2212 the corresponding expectations for the sum of the first N costs",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "The P N and E N also depend on the initial state \u03bd 1 . To avoid notational clutter, we do not make this explicit in the notation. We then obtain the following approximation guarantee: ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "and",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "Theorem 4 is a strengthening of Theorem 2 in [9] . The latter applied to processes that are guaranteed to terminate within N steps. Our new theorem applies to the expected cost of the first N steps in a process of unbounded length. When the process has a bounded time horizon of no more than N steps, and if we let \u03c4 , \u03b1 + , \u03b1 \u2212 be the strategy and the adversaries that achieve the optima in (3), respectively (4), then (13) becomes",
+            "cite_spans": [
+                {
+                    "start": 45,
+                    "end": 48,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "We conjecture that this actually also holds true for arbitrary EMDPs:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Approximation by Partitioning"
+        },
+        {
+            "text": "A 1 \u00b7 \u00b7 \u00b7 A i \u00b7 \u00b7 \u00b7 be a sequence of partitions consistent with G such that lim i\u2192\u221e \u03b4(A i ) = 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conjecture 1. Let M be a continuous Euclidean MDP. Let A 0"
+        },
+        {
+            "text": "Then for all s \u2208 S:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conjecture 1. Let M be a continuous Euclidean MDP. Let A 0"
+        },
+        {
+            "text": "The approximation guarantees given by Theorems 3 and 4 have two important implications: first, they guarantee the correctness and asymptotic accuracy of upper/lower bounds computed by value iteration in IMDP abstractions of the underlying EMDP. Second, they show that the hypothesis space of strategies defined over finite partitions that underlies the reinforcement learning approach of [9] is adequate in the sense that it contains strategy representations that approximate the optimal strategy for the underlying continuous domain arbitrarily well.",
+            "cite_spans": [
+                {
+                    "start": 388,
+                    "end": 391,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conjecture 1. Let M be a continuous Euclidean MDP. Let A 0"
+        },
+        {
+            "text": "We now use our semi-random walker example to illustrate the theory presented in the preceding sections, and to demonstrate its applicability to the validation of machine learning models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Examples and Experiments"
+        },
+        {
+            "text": "We first illustrate experimentally the bounds and convergence properties ex- Figure 3 shows the upper and lower expected costs that we obtain from the induced IMDPs. One can see how the intervals narrow with successive partition refinements. The bounds on the section S 0 are closer and converge more uniformly than on S 0.7 . This shows that in the upper left region of the state space (x < 0.5, t \u2265 0.7) the adversary has a greater influence on the process than at the lower part of the state space (x \u223c 0), and the difference between a cooperative and a non-cooperative adversary is more pronounced. Ultimately, induced strategies are of greater interest than the concrete cost functions. Once upper and lower expectations define the same strategy, further refinement may not be necessary. Figure 4 illustrates for the whole state space S the strategies \u03c3 obtained from the lower (Equation (3)) and upper (Equation (4)) approximations. On regions colored blue and yellow, both strategies agree to take the fast and slow actions, respectively. The regions colored light green are those where the lower bound strategy chooses the fast action, and the upper bound strategy the slow action. Conversely for the regions colored light red. One can observe how the blue and yellow areas increase in size with successive partition refinements. However, this growth is not entirely monotonic: for example, some regions in the upper left that for \u2206 = 0.1 are yellow are sub-divided in successive refinements \u2206 = 0.05, 0.025 into regions that are partly yellow, partly light green.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 77,
+                    "end": 85,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 793,
+                    "end": 801,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF6"
+                }
+            ],
+            "section": "IMDP Value Iteration"
+        },
+        {
+            "text": "We now turn to partitions computed by the reinforcement learning method developed in [9] , and a comparison of the learned cost functions and strategies with those obtained from the induced IMDPs. We have implemented the semirandom walker in UPPAAL STRATEGO and used reinforcement learning to learn partitions, cost functions and strategies. Our learning framework produces a sequence of refinements, based on sampling 100 additional runs for each refinement. In the following we consider the models learned after k = 27 and k = 205 refinements. Figure 5 illustrates expected costs functions for the partition learned at k = 205. One can observe a strong correlation between the bounds and the learned costs. Nevertheless, the learned cost function sometimes lies outside the given bounds. This is to be expected, since the random sampling process may produce data that is not sufficiently representative to estimate costs for some regions. Turning again to the strategies obtained on the whole state space, we first note that the learned strategy at k = 205, which is shown in Figure 1 (right) exhibits an overall similarity with the strategies illustrated in Figure 4 , with the fast action preferred along a diagonal region in the middle of the state space. To understand the differences between the learning and IMDP results, it is important to note that in the learning setting s 0 = (0, 0) is taken to be the initial state of interest, and all sampling starts there. As a result, regions that are unlikely to be reached (under any choice of actions) from this initial state will obtain very little relevant data, and therefore unreliable cost estimates. This is not necessarily a disadvantage, if we want to learn an optimal control strategy for processes starting at s 0 . The value iteration process does not take into account the distinguished nature of s 0 . Figure 6 provides a detailed picture of the consistency of the strategies learned at k = 27 and k = 205 with the strategies obtained from value iteration over the same partitions. Drawn in blue/yellow are those regions where the learned strategy picks the fast/slow action, and at least one of upper or lower bound strategies selects the same action. Light blue are those regions where the learned strategy chooses the fast action, but both IMDP strategies select slow. In a single region in the k = 205 partition (drawn in light yellow) the learned strategy chooses the slow, while both IMDP strategies select fast. As Figure 6 shows, the areas of greatest discrepancies (light blue) are those in the top left and bottom right, which are unlikely to be reached from initial state (0, 0).",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 88,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 546,
+                    "end": 554,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF10"
+                },
+                {
+                    "start": 1078,
+                    "end": 1086,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1161,
+                    "end": 1169,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF6"
+                },
+                {
+                    "start": 1869,
+                    "end": 1877,
+                    "text": "Figure 6",
+                    "ref_id": "FIGREF11"
+                },
+                {
+                    "start": 2489,
+                    "end": 2497,
+                    "text": "Figure 6",
+                    "ref_id": "FIGREF11"
+                }
+            ],
+            "section": "Analysis of learned strategies"
+        },
+        {
+            "text": "In this paper we have developed theoretical foundations for the approximation of Euclidean MDPs by finite state space imprecise MDPs. We have shown that bounds on the cost function computed on the basis of the IMDP abstractions are correct, and that for bounded time horizons they converge to the exact costs when the IMDP abstractions are refined. We conjecture that this convergence also holds for the total cost of (potentially) infinite runs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "The results we here obtained provide theoretical underpinnings for the learning approach developed in [9] . Upper and lower bounds computed from induced IMDPs can be used to check the accuracy of learned value functions. As we have seen, data sparsity and sampling variance can make the learned cost functions fall outside computed bounds. One can also use value iteration on IMDP approximations directly as a tool for computing cost functions and strategies, which then would come with stronger guarantees than what we obtain through learning. However, compared to the learning approach, this has important limitations: first, we will usually only obtain a partial strategy that is uniquely defined only where upper and lower bounds lead to the same actions. Second, we will require a full model of the underlying EMDP, from which IMDP abstractions then can be derived, and the optimization problem over adversaries that is part of the value iteration process must be tractable. Reinforcement learning, on the other hand, can also be applied to black box systems, and its computational complexity is essentially independent of the complexities of the underlying dynamic system.",
+            "cite_spans": [
+                {
+                    "start": 102,
+                    "end": 105,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "The following lemma collects some basic facts about total variation distance:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "Lemma 5. Let A be a finite set, and P , P be distributions on A with d tv (P , P ) \u2264 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "A Let f , f functions on A with values in R \u22650 and |f (\u03bd) \u2212 f (\u03bd)| \u2264 for all \u03bd.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "Then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "where E, E denote expectation under P and P , respectively. B For each \u03bd \u2208 A let Q \u03bd , Q \u03bd be distributions on a space S (discrete or continuous), such that d tv (Q \u03bd , Q \u03bd ) \u2264 for all \u03bd. Then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "Proof. For A we write",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "and",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "then (16) follows. The proof for B is very similar:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "Using the definition of total variation as d tv (P , P ) = sup S\u2286S |P (S) \u2212 P (S)| the first term on the right can be bounded by , and the second by 2 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Total Variation Distance"
+        },
+        {
+            "text": "Proof. For each i, \u03c0 \u2192 C(\u03c0 i ) is (B K \u2297 2 Act ) \u221e \u2212 B + measurable according to the measurability condition on C. It follows that also C (N ) (\u03c0) :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Lemma 2. If \u03c3 is a strategy, then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "is a transition kernel on (S \u00d7 Act, B K \u00d7 2 Act ). ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "From the above, measurability of LE follows from the measurability of C(\u00b7, a), for all a \u2208 Act, and of minima of measurable functions [1, Theorem 13.4] . Measurability of L \u03c3 E follows similarly by additionally noticing that for any strategy \u03c3, the [0, 1]-valued function \u03c3(\u00b7)(a) is measurable, for all a \u2208 Act.",
+            "cite_spans": [
+                {
+                    "start": 134,
+                    "end": 137,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 138,
+                    "end": 151,
+                    "text": "Theorem 13.4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Proof. inf \u03c3 L \u03c3 \u2264 L follows by noticing that L = inf d L d , where d ranges only over deterministic strategies. To establish the reverse equality, notice that, for all \u03c3 and s \u2208 S, a\u2208Act \u03c3(s)(a) = 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Thus, L \u2264 L \u03c3 , for all strategies \u03c3. From this we obtain inf \u03c3 L \u03c3 \u2265 L.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Proposition 1. For any strategy \u03c3, E \u03c3 (C, \u00b7) = L \u03c3 E \u03c3 (C, \u00b7).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Proof. We have to show that the following holds for all states s \u2208 S:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "By monotone convergence theorem and linearity of the integral, we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "By definition, the first expectation in (19) is just \u03c0\u2208\u03a0 C(\u03c0 1 ) P s,\u03c3 (d\u03c0) = a\u2208Act C(s, a) \u00b7 \u03c3(s)(a) .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "and by a change of variable in the integral, the second expectation in (19) is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Thus, (18) follows. Proof. By Lemma 4, Proposition 1 and monotonicity of L \u03c3 we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Next we prove that if E \u2265 LE, then E \u2265 E(C, \u00b7). By induction on n \u2265 1, we prove that, for all s \u2208 S and strategies \u03c3",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "The base case n = 1 follows by definition of P s,\u03c3 (d\u03c0) and because E is positive:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "As for the inductive step, assume (20) holds for n \u2265 1. Then Let d be the deterministic strategy such that LE = L d E. By hypothesis, E \u2265 LE, and by monotonicity of L d , we obtain E \u2265 (L d ) n E, for all n \u2265 1. Thus, by (20) and monotone convergence theorem, for all s \u2208 S",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Since E(C, s) = inf \u03c3 E \u03c3 (C, s), from the above we have E(s) \u2265 E(C, s). Proof. The chain \u22a5 \u2264 L 1 \u2264 L 2 \u2264 . . . is monotonically increasing. This is immediate from \u22a5 \u2264 L\u22a5 and monotonicity of the operator L.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Next we show that L is a fixed point of the L operator. Clearly, \u22a5 \u2264 LL, and by monotonicity of L, for all n \u2265 1, L n \u2264 LL. Hence L \u2264 LL. Now we establish LL \u2264 L. If L(s) = \u221e, the inequality holds trivially on s. Assume L(s) < \u221e. Then there exist a sequence (a n ) n\u22650 \u2208 Act such that L(s) = sup = sup n\u22650 C(s, a n ) + t\u2208S L n (t) T (s, a n , dt) .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Let S \u221e = {t \u2208 S | L(t) = \u221e}. In the following we show that \u2203N \u2265 0 such that, \u2200n \u2265 N . T (s, a n , S \u221e ) = 0 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "If S \u221e = \u2205, (21) holds trivially. Let S \u221e = \u2205. Assume by contradiction that for all N \u2265 0 there exists n \u2265 N such that T (s, a n , S \u221e ) > 0. This is equivalent to the existence of a subsequence (a k ) such that for all a k , T (s, a k , S \u221e ) > 0. For b \u2208 R and n \u2265 0, denote by E n b the set {t \u2208 S | L n (t) \u2265 b}. Then,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Moreover, for all b, b \u2208 R and n \u2265 0, if b \u2265 b then E n b \u2286 E n b and by monotonicity of the operator L,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": ". Thus, by [1, Theorem 10.2], for all a k and b \u2208 R",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "T (s, a k ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Since T (s, a k , S \u221e ) > 0, by (22), , for all a k , T (s, a k , n\u22650 E n b ) > 0. Consequently, by (23), for all b \u2208 R, exist k such that T (s, a k , E k b ) \u2265 0. Thus, by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "and the fact that b can assume arbitrarily large values, L(s) = \u221e. This contradicts our initial assumption that L(s) < \u221e. Therefore (21) must hold. By (21), for all n \u2265 N , t\u2208S L n (t) T (s, a n , dt) = t\u2208S (L(t)\u2212L(t))L n (t) T (s, a n , dt). Thus the following hold: L(s) = sup n\u2265N C(s, a n ) + t\u2208S L n (t) T (s, a n , dt) = sup n\u2265N C(s, a n ) + t\u2208S L(t) T (s, a n , dt) + \u2206(s) Hence, if \u2206(s) = 0, we get L(s) \u2265 LL(s).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "The finiteness of Act ensures the existence of an action a \u2208 Act repeating infinitely often in (a n ) n\u2265N . Thus exists a subsequence (n k ) such that, for all n k t\u2208S L n k (t) \u2212 L(t) T (s, a n k , dt) = Finally, we show that L = E(C, \u00b7). By monotonicity of L, for all n \u2265 0, we have L n \u2264 E(C, \u00b7). Hence L \u2264 E(C, \u00b7). The reverse inequality L \u2265 E(C, \u00b7) follows by Proposition 2 since L \u2265 LL.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Theorem 2. Let opt \u2208 {min, max}. Then E opt (C * (\u03c0), \u00b7) = L opt (9) Proof.",
+            "cite_spans": [
+                {
+                    "start": 65,
+                    "end": 68,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Step 1: The sequence L opt,k is monotonically increasing: this is immediate from the facts that L opt,1 \u2265 \u22a5 because C opt \u2265 0, and C \u2265 C \u21d2 L opt C \u2265 L opt C .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Step 2: We show that L opt is a fixed point of the L operator. Let By monotonicity, for s \u2208 S opt,\u221e we have L opt L opt (s) = \u221e. Now let s \u2208 S opt,<\u221e . We define separately for the two cases of opt: The set Act opt,<\u221e (s) is non-empty (the closedness of T * is again required here), and we can limit the optimization to actions that after the adversary's choice do not lead to infinite cost states: Moreover, the restriction of the minimization to actions from Act opt,<\u221e also already is valid for the definition of L opt L opt,n (s) for all sufficiently large n. We have that L opt,n \u2192 L opt uniformly on the (finite) set S opt,<\u221e . It follows that for all s \u2208 S opt,<\u221e and a \u2208 Act opt,<\u221e : Step 3: E opt is the least fixed-point of the L opt -operator. That E opt is a fixedpoint follows immediately from our restriction to stationary and memoryless strategies.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "Let C \u2265 0 be an arbitrary fixed-point of L opt . Recalling (7), we can then write C(s) = opt such that for all \u03bd with \u03b4(\u03bd) \u2264 \u03b4 and all a \u2208 Act: C max (\u03bd, a) \u2212 C min (\u03bd, a) \u2264 , and d tv (T (s, a), T (s , a) ) \u2264 for all s, s \u2208 \u03bd. Let A have granularity \u2264 \u03b4. We then have",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 185,
+                    "end": 205,
+                    "text": "(T (s, a), T (s , a)",
+                    "ref_id": null
+                }
+            ],
+            "section": "B Proofs"
+        },
+        {
+            "text": "By induction hypothesis, the left term is bounded by < /2. According to Lemma 5 A, the right term is bounded by /2, thus yielding (13) .",
+            "cite_spans": [
+                {
+                    "start": 130,
+                    "end": 134,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B Proofs"
+        },
+        {
+            "text": "The bound (14) directly follows from Lemma 5 B.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Proofs"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Probability and Measure",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Billingsley",
+                    "suffix": ""
+                }
+            ],
+            "year": 1986,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "On the complexity of model checking interval-valued discrete time markov chains",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Han",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kwiatkowska",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Information Processing Letters",
+            "volume": "113",
+            "issn": "7",
+            "pages": "210--216",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Measure Theory. Birkh\u00e4user",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Cohn",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Imprecise markov chains with an absorbing state",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Crossman",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Coolen-Schrijner",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "\u0160kulj",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Coolen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Proceedings of the Sixth International Symposium on Imprecise Probability: Theories and Applications (ISIPTA)",
+            "volume": "",
+            "issn": "",
+            "pages": "119--128",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Uppaal Stratego",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "David",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Jensen",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Larsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Miku\u010dionis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Taankvist",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "TACAS 2015",
+            "volume": "",
+            "issn": "",
+            "pages": "206--211",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Optimal state-space lumping in markov chains",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Derisavi",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Hermanns",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Sanders",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Information Processing Letters",
+            "volume": "87",
+            "issn": "6",
+            "pages": "309--315",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Computing inferences for large-scale continuous-time markov chains by combining lumping with imprecision",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Erreygers",
+                    "suffix": ""
+                },
+                {
+                    "first": "J. De",
+                    "middle": [],
+                    "last": "Bock",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International Conference Series on Soft Methods in Probability and Statistics",
+            "volume": "",
+            "issn": "",
+            "pages": "78--86",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Partially observable markov decision processes with imprecise parameters",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Itoh",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Nakamura",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Artificial Intelligence",
+            "volume": "171",
+            "issn": "8-9",
+            "pages": "453--490",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Teaching stratego to play ball: Optimal synthesis for continuous space mdps",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Jaeger",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Jensen",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Larsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Legay",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Sedwards",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Taankvist",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "International Symposium on Automated Technology for Verification and Analysis",
+            "volume": "",
+            "issn": "",
+            "pages": "81--97",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Game-based abstraction for markov decision processes",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "Z"
+                    ],
+                    "last": "Kwiatkowska",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Norman",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Parker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "QEST 2006)",
+            "volume": "",
+            "issn": "",
+            "pages": "157--166",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/QEST.2006.19"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Approximate abstractions of markov chains with interval decision processes",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [
+                        "Z"
+                    ],
+                    "last": "Lun",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wheatley",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "D&apos;innocenzo",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Abate",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IFAC-PapersOnLine",
+            "volume": "51",
+            "issn": "",
+            "pages": "91--96",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ifacol.2018.08.016"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Markov Decision Processes",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Puterman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "A finite characterization of weak lumpable markov processes. part i: The discrete time case",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Rubino",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Sericola",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Stochastic processes and their applications",
+            "volume": "38",
+            "issn": "",
+            "pages": "195--204",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Using imprecise continuous time markov chains for assessing the reliability of power networks with common cause failure and non-immediate repair",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Troffaes",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gledhill",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "\u0160kulj",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Blake",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "SIPTA",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Markov decision processes with imprecise transition probabilities",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "White",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Eldeib",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Operations Research",
+            "volume": "42",
+            "issn": "4",
+            "pages": "739--749",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Left: a Semi-Random Walk on S = [0, 1.2] \u00d7 [0, 1.2]. Green: goal area, red: failure area, blue dot: current state, yellow/blue squares: successor state squares for fast (blue) and slow (yellow) actions. Right: partition of [0, 1] \u00d7 [0, 1] and strategy learned by UPPAAL STRATEGO; partition regions colored according to actions prescribed by the strategy.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Lower and upper cost bounds for the learned partition.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Euclidean Markov Decision Processes). A Euclidean Markov decision process (EMDP) is a tuple M = (S, G, Act, T , C) where:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The set of [0, \u221e]-valued measurable functions on S forms a complete partial order under the point wise order E \u2264 E iff E(s) \u2264 E (s), for all s \u2208 S. The top and bottom \u22a5 are respectively given by the constant functions (s) := \u221e, \u22a5(s) := 0, for s \u2208 S. Meet and join are the point-wise infimum and point-wise supremum, respectively. By their definition, it is easy to see that both L and L \u03c3 are monotone operators.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Let M and A as in Definition 6. Then for all s \u2208 S:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Continuous Euclidean MDP). A Euclidean MDP M is continuous if -For each > 0 there exists \u03b4 > 0, such that: for all partitions A, if \u03b4(A) \u2264 \u03b4,then for all \u03bd \u2208 A, s, s \u2208 \u03bd, a \u2208 Act: d tv(T (s, a), T (s , a)) \u2264 . -C is continuous on S for all a \u2208 Act.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Let M be a continuous EMDP. For all N , > 0 there exists \u03b4 > 0, such that for all partitions A with \u03b4(A) \u2264 \u03b4, and all strategies \u03c4 defined on A:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "pressed by Theorems 3 and 4. For this we consider a nested sequence of partitions of the continuous state space S = [0, x max ] \u00d7 [0, t max ] consisting of regular grid partitions A = A(\u2206) defined by a width parameter \u2206 for the regions. We run value iteration to compute E min M A (\u2206) and E max M A (\u2206) for the values \u2206 \u2208 {0.1, 0.05, 0.025}. For illustration purposes, we plot expected cost functions along one-dimensional sections S t = [0, x max ] \u00d7 {t} for the two fixed time points t = 0 and t = 0.7.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Upper (yellow) and lower (blue) expected cost functions of IMDPs M A (\u2206) for \u2206 \u2208 {0.1, 0.05, 0.025} on S 0 (left) and S 0.7 (right).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Strategies obtained from lower and upper expected cost approximations for M A (\u2206) for \u2206 = 0.1, 0.05, 0.025 (left to right).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF10": {
+            "text": "Expected cost functions along S 0 (left) and S 0.7 (right). Green: learned cost function; yellow/blue: upper/lower expected cost function obtained from IMDP.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF11": {
+            "text": "Comparison of the strategies obtained for the IMDP induced by the partition A(27) (left) and A(205) (right).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF12": {
+            "text": "For fixed (s, a), T \u03c3 is a probability measure on B K \u00d7 2 Act by construction. To show that for fixed (B, A) the function (s, a) \u2192 T \u03c3 ((s, a), (B, A)) is measurable, we only need to consider the case of singletons A = {a }. By the measurability of \u03c3(\u00b7)(a ) we can express \u03c3(\u00b7)(a ) as the supremum of a monotone increasing sequence of simple measurable functions \u03c3 (k) (\u00b7)(a ) 2 [1, Theorem 13.5]. For each \u03c3 (k) the integral B \u03c3 (k) (s )({a })T (s, a, ds ) then decomposes into a weighted sum of integrals of the form B\u2229Ci T (s, a, ds ) = T (s, a, B \u2229 C i ), which are measurable in s according to Definition 1. Finally, B sup k \u03c3 (k) (s )({a })T (s, a, ds ) = sup k B \u03c3 (k) (s )({a })T (s, a, ds ) by the monotone convergence theorem [1, Theorem 16.2], and measurability follows from the measurability of the supremum of measurable functions [1, Theorem 13.4].Lemma 3. If E is measurable, so are LE and L \u03c3 E.Proof. By [1, Theorem 13.5] we can express E as the supremum of a monotone increasing sequence of simple measurable functions E (k) . For each E (k) the integral t\u2208S E (k) (t) T (s, a, dt) then decomposes into a weighted sum of integrals of the form t\u2208Ci T (s, a, dt) = T (s, a, C i ), for some measurable set C i \u2286 S, which are measurable according to Definition 1. Since E = sup k E (k) , by the monotone convergence theorem [1, Theorem 16.2],",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF13": {
+            "text": "E(C, \u00b7) \u2265 LE(C, \u00b7). Moreover, if E \u2265 LE, then E \u2265 E(C, \u00b7).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF14": {
+            "text": "(\u03c0 i ) P t,\u03c3 (d\u03c0) T (s, a, dt) \u2264 a\u2208Act \u03c3(s)(a) \u00b7 C(s, a) + t\u2208S (L \u03c3 ) n E(t) T (s, a, dt) = (L \u03c3 ) n+1 E(s) .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF15": {
+            "text": "E(C, \u00b7) = L.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF16": {
+            "text": "(t) T (s, a, dt)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF17": {
+            "text": "(t) \u2212 L(t) T (s, a n , dt) .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF18": {
+            "text": "t\u2208S L n k (t) \u2212 L(t) T (s, a , dt) . Therefore \u2206(s) = sup n\u2208(n k ) t\u2208S L n (t) \u2212 L(t) T (s, a , dt), and, by monotone convergence theorem, \u2206(s) = 0.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF19": {
+            "text": "opt,\u221e := {s \u2208 S : L opt (s) = \u221e} and S opt,<\u221e := S \\ S opt,\u221e .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF20": {
+            "text": "Act min,<\u221e (s) := {a \u2208 Act|\u2203T \u2208 T * (s, a) s.t. T (S min,\u221e ) = 0}, Act max,<\u221e (s) := {a \u2208 Act|\u2200T \u2208 T * (s, a) : T (S max,\u221e ) = 0}.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF21": {
+            "text": "opt L opt (s) = min a\u2208Act opt,<\u221e (s) C opt (s, a) + opt T \u2208T * (s,a) s \u2208S opt,<\u221e T (s )L opt (s ) . (24)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF22": {
+            "text": "opt T \u2208T * (s,a) s \u2208S opt,<\u221e T (s )L opt (s ) = lim n\u2192\u221e opt T \u2208T * (s,a) s \u2208S opt,<\u221e T (s )L opt,n (s ). (25) With (24) it then follows that L opt L opt (s) = lim n\u2192\u221e L opt L opt,n (s) = L opt (s).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF23": {
+            "text": "\u03c3 opt (C),\u03b1 T (C opt (s k , \u03c3 opt (C)(s k ))) + E",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

@@ -1,0 +1,3643 @@
+{
+    "paper_id": "0ad95c7b1ad6f923d80105aee84c29f68bf92c3b",
+    "metadata": {
+        "title": "Optimal time frequency analysis for biological data -pyBOAT",
+        "authors": [
+            {
+                "first": "Gregor",
+                "middle": [],
+                "last": "M\u00f6nke",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "European Molecular Biology Laboratory",
+                    "institution": "",
+                    "location": {
+                        "addrLine": "Meyerhofstra\u00ffe 1",
+                        "postCode": "69117",
+                        "settlement": "Heidelberg",
+                        "country": "Germany"
+                    }
+                },
+                "email": "gregor.moenke@embl.de"
+            },
+            {
+                "first": "Frieda",
+                "middle": [
+                    "A"
+                ],
+                "last": "Sorgenfrei",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "NAWI Graz",
+                    "location": {
+                        "addrLine": "BioTechMed Graz, Heinrichstrasse 28",
+                        "postCode": "8010",
+                        "settlement": "Graz",
+                        "country": "Austria"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Christoph",
+                "middle": [],
+                "last": "Schmal",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Humboldt Universit\u00e4t zu Berlin",
+                    "location": {
+                        "addrLine": "Philippstra\u00ffe 13",
+                        "postCode": "10115",
+                        "settlement": "Berlin",
+                        "country": "Germany"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Adri\u00e1n",
+                "middle": [
+                    "E"
+                ],
+                "last": "Granada",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Charit\u00e9 Universit\u00e4tsmedizin Berlin",
+                    "location": {
+                        "addrLine": "Charit\u00e9platz 1",
+                        "postCode": "10117",
+                        "settlement": "Berlin",
+                        "country": "Germany"
+                    }
+                },
+                "email": "adrian.granada@charite.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Methods for the quantication of rhythmic biological signals have been essential for the discovery of function and design of biological oscillators. Advances in live measurements have allowed recordings of unprecedented resolution revealing a new world of complex heterogeneous oscillations with multiple noisy non-stationary features. However, our understanding of the underlying mechanisms regulating these oscillations has been lagging behind, partially due to the lack of simple tools to reliably quantify these complex non-stationary features. With this challenge in mind, we have developed pyBOAT, a Python-based fully automatic stand-alone software that integrates multiple steps of non-stationary oscillatory time series analysis into an easy-to-use graphical user interface. pyBOAT implements continuous wavelet analysis which is specically designed to reveal time-dependent features. In this work we illustrate the advantages of our tool by analyzing complex non-stationary time-series proles. Our approach integrates data-visualization, optimized sinc-lter detrending, amplitude envelope removal and a subsequent continuous-wavelet based timefrequency analysis. Finally, using analytical considerations and numerical simulations we discuss unexpected pitfalls in commonly used smoothing and detrending operations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Oscillatory dynamics are ubiquitous in biological systems. From transcriptional to behavioral level these oscillations can range from milliseconds in case of neuronal ring patterns, up to years for the seasonal growth of trees or migration of 1 birds (Goldbeter et al. [2012] , Gwinner [2003] , Rohde and Bhalerao [2007] ). To gain biological insight from these rhythms, it is often necessary to implement time-series analysis methods to detect and accurately measure key features of the oscillatory signal. Computational methods that enable analysis of periods, amplitudes and phases of rhythmic time series data have been essential to unravel function and design principles of biological clocks (Lauschke et al. [2013] , Ono et al. [2017] , Soroldoni et al. [2014] ). Here we present pyBOAT, a framework and software package with a focus on usability and generality of such analysis.",
+            "cite_spans": [
+                {
+                    "start": 251,
+                    "end": 275,
+                    "text": "(Goldbeter et al. [2012]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 278,
+                    "end": 292,
+                    "text": "Gwinner [2003]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 295,
+                    "end": 320,
+                    "text": "Rohde and Bhalerao [2007]",
+                    "ref_id": "BIBREF39"
+                },
+                {
+                    "start": 697,
+                    "end": 720,
+                    "text": "(Lauschke et al. [2013]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 723,
+                    "end": 740,
+                    "text": "Ono et al. [2017]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 743,
+                    "end": 766,
+                    "text": "Soroldoni et al. [2014]",
+                    "ref_id": "BIBREF48"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Many time series analysis methods readily available for the practitioner rely on the assumption of stationary oscillatory features, i.e. that oscillation properties such as the period remain stable over time. A plethora of methods based on the assumption of stationarity have been proposed which can be divided into those working in the frequency domain such as Fast Fourier transforms (FFT) or Lomb-Scargle periodograms (Lomb [1976] , Ruf [1999] ) and those working in the time domain such as autocorrelations (Westermark et al. [2009] ), peak picking (Abraham et al. [2018] ) or harmonic regressions (Edwards et al. [2010] , Halberg et al. [1967] , Naitoh et al. [1985] , Straume et al. [1991] ). In low noise systems with robust and stable oscillations, these stationary methods suce to reliably characterize oscillatory signals. Recordings of biological oscillations frequently exhibit noisy and time-dependent features such as drifting period, uctuating amplitude and trend. Animal vocalization (Fitch et al. [2002] ), temporal changes in the activatory pathways of somitogenesis (Tsiairis and Aulehla [2016] ) or reversible and irreversible labilities of properties in the circadian system due to aging or environmental factors (Pittendrigh and Daan [1974] , Scheer et al. [2007] ) are typical examples where systematic, often non-linear changes in oscillation periods occur. In such cases, the assumption of stationarity is unclear and often not valid, thus the need to use nonstationary-based methods that capture time-dependent oscillatory features. Recently, the biological data analysis community has developed tools that implement powerful methods tailored to specic steps of time-series analysis such as rhythmicity detection (Hughes et al. [2010] , Thaben and Westermark [2014] ), de-noising and detrending, and the characterization of nonstationary oscillatory components (Leise [2013] , Price et al. [2008] ).",
+            "cite_spans": [
+                {
+                    "start": 421,
+                    "end": 433,
+                    "text": "(Lomb [1976]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 436,
+                    "end": 446,
+                    "text": "Ruf [1999]",
+                    "ref_id": "BIBREF41"
+                },
+                {
+                    "start": 511,
+                    "end": 536,
+                    "text": "(Westermark et al. [2009]",
+                    "ref_id": "BIBREF59"
+                },
+                {
+                    "start": 553,
+                    "end": 575,
+                    "text": "(Abraham et al. [2018]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 602,
+                    "end": 624,
+                    "text": "(Edwards et al. [2010]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 627,
+                    "end": 648,
+                    "text": "Halberg et al. [1967]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 651,
+                    "end": 671,
+                    "text": "Naitoh et al. [1985]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 674,
+                    "end": 695,
+                    "text": "Straume et al. [1991]",
+                    "ref_id": "BIBREF50"
+                },
+                {
+                    "start": 1000,
+                    "end": 1020,
+                    "text": "(Fitch et al. [2002]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1085,
+                    "end": 1113,
+                    "text": "(Tsiairis and Aulehla [2016]",
+                    "ref_id": "BIBREF56"
+                },
+                {
+                    "start": 1234,
+                    "end": 1262,
+                    "text": "(Pittendrigh and Daan [1974]",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 1265,
+                    "end": 1285,
+                    "text": "Scheer et al. [2007]",
+                    "ref_id": "BIBREF43"
+                },
+                {
+                    "start": 1739,
+                    "end": 1760,
+                    "text": "(Hughes et al. [2010]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1763,
+                    "end": 1791,
+                    "text": "Thaben and Westermark [2014]",
+                    "ref_id": "BIBREF51"
+                },
+                {
+                    "start": 1887,
+                    "end": 1900,
+                    "text": "(Leise [2013]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1903,
+                    "end": 1922,
+                    "text": "Price et al. [2008]",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To extract time-dependent features of non-stationary oscillatory signals, methods can be broadly divided into those that rely on operations using a moving time-window (e.g. wavelet transform) and those that embeds the whole time series into a phase space representation (e.g. Hilbert transform). These two families are complementary, having application-specic advantages and disadvantages, and in many cases both are able to provide equivalent information about the signal (Quiroga et al. [2002] ). Due to the inherent robustness in handling noisy oscillatory data and its interpretability advantages, we implemented at the core of pyBOAT a continuous-wavelet-transform approach.",
+            "cite_spans": [
+                {
+                    "start": 473,
+                    "end": 495,
+                    "text": "(Quiroga et al. [2002]",
+                    "ref_id": "BIBREF36"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "As a software package pyBOAT combines multiple steps in the analysis of oscillatory time series in an easy-to-use graphical user interface that requires no prior programming knowledge. With only two user-dened parameters, pyBOAT is able to proceed without further intervention with optimized detrending, amplitude envelope removal, spectral analysis, detection of main oscillatory components (ridge detection), oscillatory parameters readout and visualization plots (Figure 1A) . pyBOAT is developed under an open-source license, is freely available for download and can be installed on multiple operatings systems.",
+            "cite_spans": [
+                {
+                    "start": 466,
+                    "end": 477,
+                    "text": "(Figure 1A)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In the rst section of this work we lay out the mathematical foundations at the core of pyBOAT. In the subsequent section 3 we describe artifacts generated by the widely used smoothing and detrending techniques and how they are resolved within pyBOAT. In section 4 we describe the theory behind spectral readouts in the special case of complex amplitude envelopes. We nalize this manuscript with a short description of the user interface and software capabilities. shown together with a sweeping signal whose instantaneous period coincides with the Morlet of scale s = 1 exactly at \u03c4 2 . Bottom panel:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Result of the convolution with the sliding Morlet \u03a8 1,\u03c4 (t) along signal f (t). The power quickly decreases away from \u03c4 2 . The curve corresponds to one row in the Wavelet power spectrum of panel D). C) Synthetic signal with periods sweeping from T 1 = 30s (f 1 \u2248 0.033Hz) to T 2 = 70s (f 2 \u2248 0.014Hz). D) Wavelet power spectrum shows timeresolved (instantaneous) periods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this section we aim to lay down the basic principles of wavelet analysis as employed in our signal analysis tool, albeit the more mathematical subtleties are moved to the Appendix.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Basic Wavelet Theory"
+        },
+        {
+            "text": "The classic approach to do frequency analysis of periodic signals is the wellknown Fourier analysis. Its working principle is the decomposition of a signal f (t) into Sines and Cosines, known as basis functions. These harmonic components have no localization in time but are sharply localized in frequency: each harmonic component carries exactly one frequency eective everywhere in time. Thus, the straighforward Fourier analysis underperforms in cases of time-dependent oscillatory features, such as when the period of the oscillation changes in time ( Figure 1C ). The goal behind wavelets is to reach an optimal compromise between time and frequency localization (Gabor [1946] ). Gabor introduced a Gaussian modulated harmonic component, also known as Morlet wavelet:",
+            "cite_spans": [
+                {
+                    "start": 667,
+                    "end": 680,
+                    "text": "(Gabor [1946]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 555,
+                    "end": 564,
+                    "text": "Figure 1C",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction to the Wavelet transform"
+        },
+        {
+            "text": "The basis harmonic functions for time-frequency analysis are then generated from the mother wavelet by scaling and translation:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction to the Wavelet transform"
+        },
+        {
+            "text": "Varying the time localization \u03c4 slides the wavelet left and right on the time axis. Scale s changes the center frequency of the Morlet wavelet according to \u03c9 center (s) = \u03c9 0 /s (see also Appendix equation (8)). Higher scales therefore generate wavelets with lower center frequency. The Gaussian envelope suppresses the harmonic component with frequency \u03c9 center farther away from \u03c4 , therewith localizing the wavelet in time ( Figure 1B top panel). This frequency \u03c9 center (s) is conventionally taken as the Fourier equivalent (or pseudo-) frequency of a Morlet wavelet with scale s. It is noteworthy to state that wavelets are in general not as sharply localized in frequency as their harmonic counterparts ( Figure S1 ). This is a trade-o imposed by the uncertainty principle to gain localization in time (Gr\u00f6chenig [2013] ). The wavelet transform of a signal f (t) is given by the following integral expression:",
+            "cite_spans": [
+                {
+                    "start": 808,
+                    "end": 825,
+                    "text": "(Gr\u00f6chenig [2013]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 428,
+                    "end": 437,
+                    "text": "Figure 1B",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 711,
+                    "end": 720,
+                    "text": "Figure S1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction to the Wavelet transform"
+        },
+        {
+            "text": "For a xed scale, this equation has the form of a convolution as denoted by 4 the ' * ' operator, where\u03a8 denotes the complex conjugate of \u03a8. For an intuitive understanding it is helpful to consider above expression as the cross-correlation between the signal and the wavelet of scale s (or center frequency \u03c9 center (s)).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction to the Wavelet transform"
+        },
+        {
+            "text": "The translation variable \u03c4 slides the wavelet along the signal. Since the wavelet decays fastly away from \u03c4 , only the instantaneous correlation of the wavelet with center frequency \u03c9 center and the signal around \u03c4 signicantly contributes to the integral ( Figure 1B middle and lower panel). By using an array of wavelets with dierent frequencies (or periods), this allows to scan for multiple frequencies in the signal in a time-resolved manner. The result of the transform: W : f (t) \u2192 f (t, \u03c9) is a complex valued function of two variables, frequency \u03c9 and time localization \u03c4 . In the following, we implicitly convert scales to frequency via the corresponding central frequencies \u03c9 center (s) of the Morlet wavelets. To obtain a physically meaningful quantity, one denes the wavelet power spectrum:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 257,
+                    "end": 266,
+                    "text": "Figure 1B",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction to the Wavelet transform"
+        },
+        {
+            "text": "We adopted the normalization with the variance of the signal \u03c3 2 from Torrence and Compo [1998] as it allows for a natural and statistical interpretation of the wavelet power. By stacking the transformations in a frequency order, one constructs a two-dimensional time-frequency representation of the signal, where the power itself is usually color coded ( Figure 1D ), using a dense set of frequencies to scan for approximates of the continuous Wavelet transform.",
+            "cite_spans": [
+                {
+                    "start": 70,
+                    "end": 95,
+                    "text": "Torrence and Compo [1998]",
+                    "ref_id": "BIBREF55"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 356,
+                    "end": 365,
+                    "text": "Figure 1D",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction to the Wavelet transform"
+        },
+        {
+            "text": "It is important to note that the time averaged wavelet power spectrum",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Wavelet Power Interpretation"
+        },
+        {
+            "text": "is an unbiased estimator for the true Fourier power spectrum P F f of a signal f (Percival [1995] ).",
+            "cite_spans": [
+                {
+                    "start": 81,
+                    "end": 97,
+                    "text": "(Percival [1995]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Wavelet Power Interpretation"
+        },
+        {
+            "text": "This allows to directly compare Fourier power spectra to the wavelet power. White noise is the simplest noise process which may serve as a null hypothesis. Normalized by variance white noise has a at mean Fourier power of one for all frequencies. Hence, also the variance normalized Wavelet power of one corresponds to the mean expected power for white noise: P F W N (\u03c9) = 1 ( Figure 2C ). This serves as a universal unit to compare dierent empirical power spectra.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 378,
+                    "end": 387,
+                    "text": "Figure 2C",
+                    "ref_id": null
+                }
+            ],
+            "section": "Wavelet Power Interpretation"
+        },
+        {
+            "text": "Extending these arguments to random uctuations of the Fourier spectrum allows for the calculation of condence intervals on wavelet spectra. If a background spectrum P F 0 (\u03c9) is available, the condence power levels can be easily calculated as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Wavelet Power Interpretation"
+        },
+        {
+            "text": "Assuming normality for the distribution of the complex Fourier components of the background spectrum, one can derive that the power itself is chi-square dis-tributed (Chateld [1995] ). Thus, picking a desired condence (e.g. \u03c7 2 (95%) \u2248 6) gives the scaling factor for the background spectrum. Only Wavelet powers greater than this condence level are then considered to indicate oscillations with the chosen condence. The interested reader may nd more details in section 4 of Torrence and Compo [1998] . A wavelet power of C = 3 corresponds to the 95% condence interval in case of white noise ( Figure 2B ), which is frequency independent. For the practitioner, this should be considered the absolute minimum power, required to report 'oscillations' in a signal. It should be noted that especially for biological time series, due to correlations present also in non-oscillatory signals, white noise often is a poor choice for a null model (see also supplementary information A.3). A possible solution is to estimate the background spectrum from the data itself, this however is beyond the scope of this work.",
+            "cite_spans": [
+                {
+                    "start": 166,
+                    "end": 181,
+                    "text": "(Chateld [1995]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 475,
+                    "end": 500,
+                    "text": "Torrence and Compo [1998]",
+                    "ref_id": "BIBREF55"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 594,
+                    "end": 603,
+                    "text": "Figure 2B",
+                    "ref_id": null
+                }
+            ],
+            "section": "Wavelet Power Interpretation"
+        },
+        {
+            "text": "3 Optimal Filtering -Do's and Dont's A biological recording can be decomposed into components of interest and those elements which blur and challenge their analysis, most commonly noise and trends. Various techniques for smoothing and detrending have been developed to deal with these issues. Often overlooked is the fact that both, smoothing and detrending operations can introduce spectral biases, i.e. attenuation and amplication of certain frequencies. In this section we lay out a mathematical framework to understand and compare the eects of these two operations, showing examples of the potential pitfalls and at the same time providing a practical guide to avoid these issues. Finally, we discuss how pyBOAT minimizes most of these common artifacts.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Wavelet Power Interpretation"
+        },
+        {
+            "text": "The operation which removes the fast, high-frequency (low period) components of a signal is colloquially called smoothing. This is most commonly done as a sliding time window operation (convolution). In general terms we can refer to a window function w(t) such that the smoothed signal is given as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Smoothing"
+        },
+        {
+            "text": "By employing the convolution theorem, it turns out that the Fourier transformation of the smoothed signal",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Smoothing"
+        },
+        {
+            "text": "is simply given by the product of the individual Fourier transforms.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Smoothing"
+        },
+        {
+            "text": "6 It follows that the Fourier power spectrum of the smoothed signal reads as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Smoothing"
+        },
+        {
+            "text": "Applying a few steps of Fourier algebra shows that the original power spectrum P F f gets modied by the low pass response of the window function | w| 2 scaled by the ratio of variances \u03c3 2 f /\u03c3 2 f S . Also without resorting to mathematical formulas, smoothing and its eect on the time-frequency analysis can be easily grasped visually. A broad class of ltering methods falls into the category of convolutional ltering, meaning that there is some operation in a sliding window done to the data, e.g. for moving average and LOESS or Savitzky-Golay ltering (Savitzky and Golay [1964] ). Moving average lter is a widely used smoothing technique, dened simply by a box-shaped window that slides in the time domain. In Figure 2 we summarize the spurious eects that this lter can have on noisy biological signals. White noise, commonly used as descriptor for uctuations in biological systems, is a random signal with no dominant period. The lack of dominant period can be seen from a raw white noise signal ( Figure 2A ) and more clearly from the almost at landscape on the power spectrum ( Figure  2B ). Applying to raw white noise signal a moving average lter of size 5-times the signal's sampling interval (M = 5\u2206t) leads to a smoothed noise signal (Figure 2C ) that now has multiple dominant periods, as seen by the emergence of high power islands in Figure 2D . Comparing the original spectrum ( Figure 2B ) with the white noise smoothed spectrum ( Figure 2D ), it becomes evident that smoothing introduces a strong increase in Wavelet power for longer periods. In other words, smoothing perturbs the original signal by creating multiple highpower islands of long periods, also referred as spurious oscillations. To better capture the statistics behind these smoothing-induced spurious oscillations, it is best to look at the time averaged Wavelet spectrum. Figure 2E shows the mean expected power after smoothing white noise with a moving average lter. A zone of attenuated small periods become visible, the sloppy stopband for periods around 7\u2206t. These are the fast, high-frequency components which get removed from the signal. However, for larger periods 10 the Wavelet power gets amplied up to 5-fold. It is this gain, given by \u03c3 2 f /\u03c3 2 f S , which leads to spurious results in the analysis.",
+            "cite_spans": [
+                {
+                    "start": 555,
+                    "end": 581,
+                    "text": "(Savitzky and Golay [1964]",
+                    "ref_id": "BIBREF42"
+                },
+                {
+                    "start": 1246,
+                    "end": 1256,
+                    "text": "(Figure 2C",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 714,
+                    "end": 722,
+                    "text": "Figure 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 1003,
+                    "end": 1012,
+                    "text": "Figure 2A",
+                    "ref_id": null
+                },
+                {
+                    "start": 1085,
+                    "end": 1095,
+                    "text": "Figure  2B",
+                    "ref_id": null
+                },
+                {
+                    "start": 1349,
+                    "end": 1358,
+                    "text": "Figure 2D",
+                    "ref_id": null
+                },
+                {
+                    "start": 1395,
+                    "end": 1404,
+                    "text": "Figure 2B",
+                    "ref_id": null
+                },
+                {
+                    "start": 1448,
+                    "end": 1457,
+                    "text": "Figure 2D",
+                    "ref_id": null
+                },
+                {
+                    "start": 1857,
+                    "end": 1866,
+                    "text": "Figure 2E",
+                    "ref_id": null
+                }
+            ],
+            "section": "Smoothing"
+        },
+        {
+            "text": "As stated before, variance normalized white noise has a mean power of 1 for all frequencies or periods (P F W N (\u03c9) = 1). This allows to use a straightforward numerical method to estimate a lter response | w(\u03c9)| 2 , i.e. applying the smoothing operation to simulated white noise and time averaging the Wavelet spectra. This Monte Carlo approach works for every (also non-convolutional) smoothing method. Results for the Savitzky-Golay lter applied to white noise signals can be found in Supplementary Figure S2 . Convolutional lters will in general produce more gain and hence more spurious oscillations with increasing window sizes in the time domain.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 501,
+                    "end": 510,
+                    "text": "Figure S2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Smoothing"
+        },
+        {
+            "text": "If smoothing, even with a rather small window (M = 5\u2206t), already potentially introduces false positive oscillations, what does that mean for practical time-frequency analysis? For Wavelet analysis the answer is plain and clear: smoothing is simply not needed at all. A close inspection of the unaltered white noise Wavelet spectrum shown in Figure 2B , shows the same structures for higher periods as in the spectrum of the smoothed signal ( Figure 2D ). The big dierence is, that even though these random apparent oscillations get picked up by the Wavelets, their low power directly indicates their low signicance. As Wavelet analysis (see previous section) is based on convolutions, it already has power preserving smoothing built in. As illustration, we show in Figure 2F a raw noisy signal with lengthening period (noisy chirp) and the corresponding power spectrum ( Figure 2F lower panel). Without any smoothing the main periodic signal can be clearly identied in the power spectrum. Thus, Wavelet analysis does not require smoothing for the detection of oscillations in very noisy signals. For all other spectrum analysis methods which rely on explicit smoothing, characteristics of the background noise and the signal to noise ratio are crucial to avoid detecting spurious oscillations. These are usually both quantities not readily available a priori or in practice.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 341,
+                    "end": 350,
+                    "text": "Figure 2B",
+                    "ref_id": null
+                },
+                {
+                    "start": 442,
+                    "end": 451,
+                    "text": "Figure 2D",
+                    "ref_id": null
+                },
+                {
+                    "start": 765,
+                    "end": 774,
+                    "text": "Figure 2F",
+                    "ref_id": null
+                },
+                {
+                    "start": 871,
+                    "end": 880,
+                    "text": "Figure 2F",
+                    "ref_id": null
+                }
+            ],
+            "section": "Smoothing"
+        },
+        {
+            "text": "Complementary to smoothing, an operation which removes the slow, low frequency components of a signal is generally called detrending. Strong trends can dominate a signal by eectively carrying most of the variance and power. There are at least two broad classes of detrending techniques: parametric tting and convolution based. Both aim to estimate the trend as a function over time to be subtracted from the original signal. A parametric t always is the best choice, if the deterministic processes leading to the trend are known and well understood. An example is the so called photobleaching encountered in time-lapse uorescent imaging experiments, here an exponential trend can often be well tted to the data based on rst principle deliberations (Song et al. [1995] ). However, there are often other slow processes, like cell viability or cells drifting in and out of focus, which usually can't be readily described parametrically. For all these cases convolutional detrending with a window function w(t) is a good option and can be written as:",
+            "cite_spans": [
+                {
+                    "start": 748,
+                    "end": 767,
+                    "text": "(Song et al. [1995]",
+                    "ref_id": "BIBREF47"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Detrending"
+        },
+        {
+            "text": "The trend here is nothing less than the smoothed original signal, i.e. f (t) * w(t).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Detrending"
+        },
+        {
+            "text": "However with the signal itself falling into the stop-band of the low-pass lter, with the aim to not capture and subtract any signal components. Using basic algebra in the frequency domain we obtain an expression relating 8 the window w(t) to the power spectrum of the original signal f (t):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Detrending"
+        },
+        {
+            "text": "As in the case of smoothing, the so called high-pass response of the window function is given by (1 \u2212 | w|) 2 and scaled with the ratio of variances \u03c3 2 f /\u03c3 2 f D . In strong contrast to smoothing, there is no overall gain in power in the range of the periods, passing through the lter (called passband). There is however, in case of moving average and other time-domain lters (see also Figure S2 ), no simple passband region. Instead, there are rippling artifacts in the frequency domain, meaning some periods getting amplied to up to 150% and others attenuated by up to 25%. To showcase why this can be problematic, we constructed a synthetic chirp signal sweeping through a range of periods T 1 \u2212 T 2 , however, this time modied by a linear and an oscillatory trend ( Figure 3A ). The oscillatory component of the trend was chosen for clarity with a specic time scale given by its period T trend , which is three times the longest period found in the chirp signal. Strongly depending on the specic window size chosen for the moving average lter, there are various eects on both, the time and frequency domain (shaded area in Figure 3B ) such as the introduction of amplitude envelopes and/or incomplete trend removal ( Figure 3C ). A larger window size is better to reduce the eect of the ripples inside the passband. However, the lter decay (roll-o ) towards larger periods becomes very slow. That in turn means that trends can not be fully eliminated. Smaller window sizes perform better in detrending, but their passband can be dominated by ripples (see also supplementary Figure S3 ). In practice, sticking to lters originally designed for the time-domain without having oscillatory signals in mind, can easily lead to biased results of a time-frequency analysis. However, given the moderate gains of the detrending lter response, there is a much smaller chance to mistakenly detect spurious oscillations compared to the case of smoothing.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 388,
+                    "end": 397,
+                    "text": "Figure S2",
+                    "ref_id": null
+                },
+                {
+                    "start": 772,
+                    "end": 781,
+                    "text": "Figure 3A",
+                    "ref_id": null
+                },
+                {
+                    "start": 1129,
+                    "end": 1138,
+                    "text": "Figure 3B",
+                    "ref_id": null
+                },
+                {
+                    "start": 1223,
+                    "end": 1232,
+                    "text": "Figure 3C",
+                    "ref_id": null
+                },
+                {
+                    "start": 1580,
+                    "end": 1589,
+                    "text": "Figure S3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Detrending"
+        },
+        {
+            "text": "The Sinc lter, also known as the optimal lter in the frequency domain, is a function with a constant value of one in the passband. In other words, frequencies which pass through are neither amplied nor attenuated. Accordingly, this lter also should be constantly zero in the stop-band, the frequencies (or periods) which should be ltered out. This optimal low-pass response can be formulated in the frequency domain simply as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Sinc lter"
+        },
+        {
+            "text": "Here \u03c9 c is the cut o frequency, an innitely sharp transition band dividing the frequency range into pass-and stop-band. It is eectively a box in the frequency domain (dashed lines in Figure 3D ). Note that the optimal high-pass or detrending response simply and exactly swaps the pass-and stop-band. In the time domain via the inverse Fourier transform, this can be written as:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 184,
+                    "end": 193,
+                    "text": "Figure 3D",
+                    "ref_id": null
+                }
+            ],
+            "section": "The Sinc lter"
+        },
+        {
+            "text": "This function is known as the sinc function and hence the name sinc lter. An alternative name used in electrical engineering is brick-wall lter. In practice, this optimal lter has a nonzero roll-o as shown for two dierent cut-o periods (T c = 2\u03c0 \u03c9c ) in Figure 3D . The sinc function mathematically requires the signal to be of innite length. Therefore, every practical implementation implements windowed sinc lters (Smith et al. [1997] ), see also supplementary information S3) about possible implementations. Strikingly still, there are no ripples or other artifacts in the frequency-response of the windowed sinc lter. And hence also the 'real world' version allows for a bias free time-frequency analysis. As shown in Figure 3E , the original signal can be exactly recovered via detrending. To showcase the performance of the sinc lter, we numerically compared its performance against two other common methods, the Hodrick-Prescott and moving average lter ( Figure 3F ). The stop-and passband separation of the sinc lter clearly is the best, although the Hodrick-Prescott lter with a parameterization as given by Ravn and Uhlig [2002] also gives acceptable results (see also supplementary Figure S5 ). The moving average is generally inadvisable, due to its amplication right at the start of the passband.",
+            "cite_spans": [
+                {
+                    "start": 416,
+                    "end": 436,
+                    "text": "(Smith et al. [1997]",
+                    "ref_id": "BIBREF46"
+                },
+                {
+                    "start": 1117,
+                    "end": 1138,
+                    "text": "Ravn and Uhlig [2002]",
+                    "ref_id": "BIBREF37"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 254,
+                    "end": 263,
+                    "text": "Figure 3D",
+                    "ref_id": null
+                },
+                {
+                    "start": 722,
+                    "end": 731,
+                    "text": "Figure 3E",
+                    "ref_id": null
+                },
+                {
+                    "start": 962,
+                    "end": 971,
+                    "text": "Figure 3F",
+                    "ref_id": null
+                },
+                {
+                    "start": 1193,
+                    "end": 1202,
+                    "text": "Figure S5",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "The Sinc lter"
+        },
+        {
+            "text": "In addition to its advantages in practical signal analysis, the Sinc lter also allows to analytically calculate the gains from ltering pure noise (see also supplementary information A.3). The gain, and therefore the probability to detect spurious oscillations, introduced from smoothing is typically much larger compared to detrending. However, if a lot of energy of the noise is concentrated in the slow low frequency bands, also detrending with small cut-o periods alone can yield substantial gains (see Figure S6 and Figure S7 ). Importantly, when using the Sinc lter, the background spectrum of the noise will always be uniformly scaled by a constant factor in the pass-band. There is no mixing of attenuation and amplication as for time-domain lters like moving average ( Figure 3B and C). If the spectrum of the noise can be estimated, or an empirical background spectrum is available, the theory presented in A.3 allows to directly calculate the correct condence intervals. extraction of the instantaneous period, amplitude and phase of that component is of prime interest for the practitioner. In this section we show how to obtain these important features using wavelet transforms as implemented in pyBOAT.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 506,
+                    "end": 515,
+                    "text": "Figure S6",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 520,
+                    "end": 529,
+                    "text": "Figure S7",
+                    "ref_id": null
+                },
+                {
+                    "start": 777,
+                    "end": 786,
+                    "text": "Figure 3B",
+                    "ref_id": null
+                }
+            ],
+            "section": "The Sinc lter"
+        },
+        {
+            "text": "From the perspective of Wavelet power spectra, such main oscillatory components are characterized by concentrated and time-connected regions of high power. Wavelet ridges are a means to trace these regions on the time-period plane. For the vast majority of practical applications a simple maximum ridge extraction is sucient. This maximum ridge can be dened as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Tracking the main oscillatory components"
+        },
+        {
+            "text": "with n being the number of sample points in the signal. Thus, the ridge r(t k ) maps every time point t k to a row of the power spectrum, and therewith to a specic instantaneous period T k ( Figure 4C and D). Evaluating the power spectrum along a ridge, gives a time series of powers: P W f (t k , r(t k )). Setting a power threshold value is recommended to avoid evaluating the ridge in regions of the spectrum where the noise dominates (In Figure 4C threshold is set to 5). Alternatively to simple maximum ridge detection, more elaborated strategies for ridge extraction have been proposed (Carmona et al. [1995] ).",
+            "cite_spans": [
+                {
+                    "start": 592,
+                    "end": 614,
+                    "text": "(Carmona et al. [1995]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 191,
+                    "end": 200,
+                    "text": "Figure 4C",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 442,
+                    "end": 451,
+                    "text": "Figure 4C",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Tracking the main oscillatory components"
+        },
+        {
+            "text": "A problem often encountered when dealing with biological data is a general time-dependent amplitude envelope ( Figure 4A ). Under our wavelet approach, the power spectrum is normalized with the overall variance of the signal. Consequently, regions with low signal amplitudes but robust oscillations are nevertheless represented as very low power blurring them with the spectral oor ( Figure 4C ). This leads to the impractical situation, where even a noise free signal with an amplitude decay will show very low power at the end ( Figure 4E ,F and S8), defeating its statistical purpose. A practical solution in this case is to estimate an amplitude envelope and subsequently normalize the signal with this envelope ( Figure 4A and B). We specically show here non-periodic envelopes, estimated by a sliding window (see also methods). After normalization, lower amplitudes are no longer penalized and an eective power-thresholding of the ridge is possible (Figure 4D and F) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 111,
+                    "end": 120,
+                    "text": "Figure 4A",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 384,
+                    "end": 393,
+                    "text": "Figure 4C",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 531,
+                    "end": 540,
+                    "text": "Figure 4E",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 718,
+                    "end": 727,
+                    "text": "Figure 4A",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 955,
+                    "end": 972,
+                    "text": "(Figure 4D and F)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "A limitation of convolutional methods, including Wavelet-based approaches, are edge eects. At the edges of the signal, the Wavelets only partially overlap with the signal leading to a so-called cone of inuence (COI) (Figure 4C and D). Even though the periods are still close to the actual values, phases and especially the power should not be trusted inside the COI (see discussion and supplementary Figure S9 ). Once the trace of consecutive Wavelet power maxima has been determined and thresholded, evaluating the transform along it yields the instantaneous envelope amplitude, normalized amplitude and phases (see Figure 4E ,F and G). To obtain 14 Applications After introducing the dierent time series analysis steps using synthetic data for clarity, in this paragraph, we discuss examples of pyBOAT applications to real data. To showcase the versatility of our approach, we chose datasets obtained from dierent scientic elds.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 216,
+                    "end": 226,
+                    "text": "(Figure 4C",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 400,
+                    "end": 409,
+                    "text": "Figure S9",
+                    "ref_id": null
+                },
+                {
+                    "start": 617,
+                    "end": 626,
+                    "text": "Figure 4E",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "In Figure 5A we display COVID-19 infections in Italy as reported by the Disease Prevention and Control (ECDC). A Sinc-lter trend identication with a cut-o period of 14 days reveals a steep increase in newly reported infections at the beginning of March and a steady decline after the beginning of April. Subtracting this non-linear trend clearly exposes oscillations with a stable period of one week ( Figure 5B , and see Supplementary Figure S10A for power spectrum analysis). Similar ndings were recently reported in Ricon-Becker et al. [2020] .",
+            "cite_spans": [
+                {
+                    "start": 519,
+                    "end": 545,
+                    "text": "Ricon-Becker et al. [2020]",
+                    "ref_id": "BIBREF38"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 12,
+                    "text": "Figure 5A",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 402,
+                    "end": 411,
+                    "text": "Figure 5B",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 436,
+                    "end": 447,
+                    "text": "Figure S10A",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "The signals shown in Figure 5C show cycles in Hare-Lynx population sizes as inferred from the yearly number of pelts, trapped by the Hudson Bay Company. Data has been taken from Odum and Barrett [1971] . The corresponding power spectra are shown in the supplement ( Figure S10B ), and reveal a fairly stable 10 year periodicity. After extracting the instantaneous phases with pyBOAT, we calculated the time-dependent phase dierences as shown in Figure 5B . Interestingly, the phase dierence slowly varies between being almost perfectly out of phase and being in phase for a few years around 1885.",
+            "cite_spans": [
+                {
+                    "start": 178,
+                    "end": 201,
+                    "text": "Odum and Barrett [1971]",
+                    "ref_id": "BIBREF30"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 21,
+                    "end": 30,
+                    "text": "Figure 5C",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 266,
+                    "end": 277,
+                    "text": "Figure S10B",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 445,
+                    "end": 454,
+                    "text": "Figure 5B",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "The next example signal shows a single-cell trajectory of a U2OS cell carrying a Geminin-CFP uorescent reporter (Granada et al. [2020] ). Geminin is a cell cycle reporter, accumulating in the G2 phase and then steeply declining during mitosis. Applying pyBOAT on this non-sinusoidal oscillations reveals the cellcycle length over time ( Figure 5F ), showing a slowing down of the cell cycle progression for this cell. Ensemble dynamics for a control and a cisplatin treated population are shown in the Supplementary Figure S10C .",
+            "cite_spans": [
+                {
+                    "start": 112,
+                    "end": 134,
+                    "text": "(Granada et al. [2020]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 337,
+                    "end": 346,
+                    "text": "Figure 5F",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 516,
+                    "end": 527,
+                    "text": "Figure S10C",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "The nal example data set is taken from M\u00f6nke et al. [2017] , here populations of MCF7 cells where treated with dierent dosages of the DNA damaging agent NCS. This in turn elicits a dose-dependent and heterogeneous p53 response, tracked in the individual cells for each condition ( Figure 5G ). pyBOAT also features readouts of the ensemble dynamics: Figure 5H shows the time-dependent period distribution in each population, Figure 5I the phase coherence over time. The latter is calculated as R(t) = j e i\u03c6 j (t) . It ranges from zero to one and is a classical measure of synchronicity in an ensemble of oscillators Kuramoto [1984] . The strongly stimulated cells (400ng NCS) show stable oscillations with a period of around 240min, and retain more phase coherent after an initial drop in synchronicity. The medium stimulated cells (100ng NCS) start to slow down on average already after the rst pulse, both the spread of the period distribution and the low phase coherence indicate a much more heterogeneous response. Two individual cells and their wavelet analysis are shown in Supplementary Figure S10D . Graphical interface",
+            "cite_spans": [
+                {
+                    "start": 39,
+                    "end": 58,
+                    "text": "M\u00f6nke et al. [2017]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 617,
+                    "end": 632,
+                    "text": "Kuramoto [1984]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 281,
+                    "end": 290,
+                    "text": "Figure 5G",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 350,
+                    "end": 359,
+                    "text": "Figure 5H",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 425,
+                    "end": 434,
+                    "text": "Figure 5I",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1095,
+                    "end": 1106,
+                    "text": "Figure S10D",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "The extraction of period, amplitude and phase is the nal step of our proposed analysis workow, which is outlined in the screen-captures of Figure 6 . The user interface is separated into several sections. First, the 'DataViewer' allows to visualize the individual raw signals, the trend determined by the Sinc lter, the detrended time series and the amplitude envelope. Once satisfactory parameters have been found, the actual Wavelet transform together with the ridge are shown in the 'Wavelet Spectrum' window. After ridge extraction, it is possible to plot the instantaneous observables in a 'Readout' window. Each plot produced from the interface can be panned, zoomed in and saved separately if needed.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 139,
+                    "end": 147,
+                    "text": "Figure 6",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "Once the delity of the analysis has been checked for individual signals, it is also possible to run the entire analysis as a 'batch process' for all signals imported. One aggregated result which we found quite useful is to determine the 'rhythmicity' of a population by creating a histogram of time-averaged powers of the individual ridges. A classication of signals into 'oscillatory' and 'nonoscillatory' based on this distribution, e.g. by using classical thresholds (Otsu [1979] ) is a potential application. Examples of the provided ensemble readouts are shown in Figure 5H and I and Supplementary Figure S10C .",
+            "cite_spans": [
+                {
+                    "start": 470,
+                    "end": 482,
+                    "text": "(Otsu [1979]",
+                    "ref_id": "BIBREF32"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 569,
+                    "end": 578,
+                    "text": "Figure 5H",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 603,
+                    "end": 614,
+                    "text": "Figure S10C",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "Finally, pyBOAT also features a synthetic signal generator, allowing to quickly explore its capabilities also without having a suitable dataset at hand. A synthetic signal can be composed of up to two dierent chirps, and AR1-noise and an exponential envelope can be added to simulate possible challenges often present in real data (see also Material and Methods and Supplementary Figure  S11 ).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 380,
+                    "end": 391,
+                    "text": "Figure  S11",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "Installation and user guidelines of pyBOAT can be found in the github repository. gets detrended with a cut-o period of 90h, and an amplitude envelope is estimated via a window of size 50h. See labels and main text for further explanations. The example trajectory displays a circadian rhythm of 24h and is taken from the data set published in Abel et al. [2016] .",
+            "cite_spans": [
+                {
+                    "start": 343,
+                    "end": 361,
+                    "text": "Abel et al. [2016]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Amplitude normalization"
+        },
+        {
+            "text": "Recordings of biological oscillatory signals can be conceptualized as an aggregate of multiple components, those coming from the underlying system of interest and additional confounding factors such as noise, modulations and trends that can disguise the underlying oscillations. In cases of variable period with noisy amplitude modulation and non-stationary trends the detection and analysis of oscillatory processes is a non-trivial endeavour. Here we introduced pyBOAT, a novel software package that uses a statistically rigorous method to handle non-stationary rhythmic data. pyBOAT integrates pre-and post-processing steps without making a priori assumptions about the sources of noise and periodicity of the underlying oscillations. We showed how the signal processing steps of smoothing, detrending, amplitude envelope removal, signal detection and spectral analysis can be resolved by our hands-o standalone software (Figure 1 and 5).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 924,
+                    "end": 933,
+                    "text": "(Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "Artifacts introduced by the time series analysis methods itself are a common problem that inadvertently disturbs results of the time-frequency analysis of periodic components (Wilden et al. [1998] ). Here we rst analyzed the eects of data-smoothing on a rhythmic noisy signal and showed how common smoothing approaches disturb the original recordings by introducing non-linear attenuations and gains to the signal (Figures 2, S6 and S7 ). These gains easily lead to spurious oscillations that were not present in the original raw data. These artifacts have been characterized since long for the commonly used moving-average smoothing method, known as the Slutzky-Yule eect (Slutzky [1937] ). Using an analytical framework, we describe the smoothing process as a lter operation in frequency domain. This allows us to quantify and directly compare the eects of diverse smoothing methods by means of response curves. Importantly, we show here how any choice of smoothing unavoidably transforms the original signal in a non-trivial manner. One potential reason for its prevalence is that practitioners often implement a smoothing algorithm without quantitatively comparing the spectral components before versus after smoothing. pyBOAT avoids this problem by implementing a wavelet-based approach that per se evades the need to smooth the signal.",
+            "cite_spans": [
+                {
+                    "start": 175,
+                    "end": 196,
+                    "text": "(Wilden et al. [1998]",
+                    "ref_id": "BIBREF60"
+                },
+                {
+                    "start": 673,
+                    "end": 688,
+                    "text": "(Slutzky [1937]",
+                    "ref_id": "BIBREF45"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 414,
+                    "end": 435,
+                    "text": "(Figures 2, S6 and S7",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "Another source of artifacts are detrending operations. Thus, we next studied the spectral eects that signal detrending has on rhythmic components. Our analytical and numerical approaches allowed us to compare the spectral eects of dierent detrending methods in terms of their response curves (see Figure  3 ). Our results show that detrending also introduces non-trivial boosts and attenuations to the oscillatory components of the signal, strongly depending on the background noise ( Figures S6 and S7 ). In general there is no universal approach and optimally a detrending model is based on information about the sources generating the trend. In cases without prior information to formulate a parametric detrending in the time domain, we suggest that the safest method is the convolution based sinc lter , as it is an \"ideal\" (step-function) lter in the frequency domain ( Figures 3C and S3 ). Furthermore we compared the performance of the sinc lter with two other commonly applied methods to remove non-linear trends in data ( Figure 3F ), i.e. the moving average (D\u00edez-Noguera [2013] ) and Hodrick-Prescott (Myung et al. [2012] , Schmal et al. [2018] , St. John and Doyle [2015] ) lter.",
+            "cite_spans": [
+                {
+                    "start": 1068,
+                    "end": 1088,
+                    "text": "(D\u00edez-Noguera [2013]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1112,
+                    "end": 1132,
+                    "text": "(Myung et al. [2012]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 1135,
+                    "end": 1155,
+                    "text": "Schmal et al. [2018]",
+                    "ref_id": "BIBREF44"
+                },
+                {
+                    "start": 1158,
+                    "end": 1183,
+                    "text": "St. John and Doyle [2015]",
+                    "ref_id": "BIBREF49"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 297,
+                    "end": 306,
+                    "text": "Figure  3",
+                    "ref_id": null
+                },
+                {
+                    "start": 485,
+                    "end": 502,
+                    "text": "Figures S6 and S7",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 875,
+                    "end": 892,
+                    "text": "Figures 3C and S3",
+                    "ref_id": null
+                },
+                {
+                    "start": 1031,
+                    "end": 1040,
+                    "text": "Figure 3F",
+                    "ref_id": null
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "In addition to smoothing and detrending, amplitude-normalization by means of the amplitude envelope removal is another commonly used data processing step that pyBOAT is able to perform. Here we further show how that for decaying signals amplitude normalization grants that the main oscillatory component of interest can be properly identied in the power spectrum ( Figure 4A to D). This main component is identied by a ridge-tracking approach that can be then used to extract instantaneous signal parameters such as amplitudes, power and phase ( Figure 4E to G).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 365,
+                    "end": 374,
+                    "text": "Figure 4A",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 546,
+                    "end": 555,
+                    "text": "Figure 4E",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "Rhythmic time series can be categorized into those showing stationary oscillatory properties and the non-stationary ones where periods, amplitudes and phases change over time. Many currently available tools for the analysis of biological rhythms rely on methods aimed at stationary oscillatory data, using either a standalone software environment such as BRASS (Edwards et al. [2010] , Locke et al. [2005] ), ChronoStar (Klemz et al. [2017] ) and CIRCADA (Cenek et al. [2020] ) or an online interfaces such as BioDare , Zielinski et al. [2014] ).",
+            "cite_spans": [
+                {
+                    "start": 361,
+                    "end": 383,
+                    "text": "(Edwards et al. [2010]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 386,
+                    "end": 405,
+                    "text": "Locke et al. [2005]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 420,
+                    "end": 440,
+                    "text": "(Klemz et al. [2017]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 455,
+                    "end": 475,
+                    "text": "(Cenek et al. [2020]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 520,
+                    "end": 543,
+                    "text": "Zielinski et al. [2014]",
+                    "ref_id": "BIBREF63"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Continuous wavelet analysis allows to reveal non-stationary period, amplitude and phase dynamics and to identify multiple frequency components across dierent scales within a single oscillatory signal (Leise [2013] , Leise et al. [2012] , Rojas et al. [2019] ) and is thus complementary to approaches that are designed to analyze stationary data. In contrast to the R-based waveclock package (Price et al. [2008] ), pyBOAT can be operated as a standalone software tool that requires no prior programming knowledge as it can be fully operated using its graphical user interface (GUI). An integrated batch processing option allows the analysis of large data sets within a few \"clicks\". For the programming interested user, pyBOAT can also be easily scripted without using the GUI, making it simple to integrate it into individual analysis pipelines. pyBOAT also distinguishes itself from other wavelet-based packages (e.g. Harang et al. [2012] ) by adding a robust sinc lter-based detrending and a statistically rigorous framework, providing the interpretation of results by statistical condence considerations.",
+            "cite_spans": [
+                {
+                    "start": 200,
+                    "end": 213,
+                    "text": "(Leise [2013]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 216,
+                    "end": 235,
+                    "text": "Leise et al. [2012]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 238,
+                    "end": 257,
+                    "text": "Rojas et al. [2019]",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 391,
+                    "end": 411,
+                    "text": "(Price et al. [2008]",
+                    "ref_id": "BIBREF35"
+                },
+                {
+                    "start": 920,
+                    "end": 940,
+                    "text": "Harang et al. [2012]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "pyBOAT is not specically designed to analyze oscillations in high-throughput \"omics\" data. For such sake, specialized algorithms such as ARSER (Yang and Su [2010] ), JTK-cycle (Hughes et al. [2010] ), MetaCycle (Wu et al. [2016] ) or RAIN (Thaben and Westermark [2014] ) are more appropriate. Its analysis reveals basic oscillatory properties such as the time-dependent (instantaneous) rhythmicity, period, amplitude and phase but is not aimed at more specic statistical tests such as, e.g., tests for dierential rhythmicity as implemented in DODR (Thaben and Westermark, 2016) . The continous-wavelet analysis underlying pyBOAT requires equidistant time series sampling with no gaps. Methods such as Lomb-Scargle periodograms or harmonic regressions are more robust or even specically designed with respect to unevenly-sampled data (Lomb [1976] , Ruf [1999] ). Being beyond the scope of this manuscript, it will be interesting in future work to integrate the ability to analyze unevenly sampled data into the pyBOAT software, either by the imputation of missing values (e.g. by linear interpolation) or the usage of wavelet functions specically designed for this purpose (Thiebaut and Roques [2005] ).",
+            "cite_spans": [
+                {
+                    "start": 143,
+                    "end": 162,
+                    "text": "(Yang and Su [2010]",
+                    "ref_id": "BIBREF62"
+                },
+                {
+                    "start": 176,
+                    "end": 197,
+                    "text": "(Hughes et al. [2010]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 211,
+                    "end": 228,
+                    "text": "(Wu et al. [2016]",
+                    "ref_id": "BIBREF61"
+                },
+                {
+                    "start": 239,
+                    "end": 268,
+                    "text": "(Thaben and Westermark [2014]",
+                    "ref_id": "BIBREF51"
+                },
+                {
+                    "start": 548,
+                    "end": 577,
+                    "text": "(Thaben and Westermark, 2016)",
+                    "ref_id": "BIBREF52"
+                },
+                {
+                    "start": 833,
+                    "end": 845,
+                    "text": "(Lomb [1976]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 848,
+                    "end": 858,
+                    "text": "Ruf [1999]",
+                    "ref_id": "BIBREF41"
+                },
+                {
+                    "start": 1172,
+                    "end": 1199,
+                    "text": "(Thiebaut and Roques [2005]",
+                    "ref_id": "BIBREF53"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "pyBOAT is fast, easy too use and statistically robust analysis routine designed to complement existing methods and advance the ecient time series analysis of biological rhythms research. In order to make it publicly available, pyBOAT is a free and open-source, multi-platform software based on the popular Python (Van Rossum and Drake [2009] ) programming language. It can be downloaded using the following link : https://github.com/tensionhead/pyBOAT, and is available on the Anaconda distribution (via the conda-forge channel).",
+            "cite_spans": [
+                {
+                    "start": 335,
+                    "end": 341,
+                    "text": "[2009]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Software pyBOAT is written in the Python programming language (Van Rossum and Drake [2009] ). It makes extensive use of Python's core scientic libraries numpy and scipy (Virtanen et al. [2020] ) for the numerics. Additionally we use matplotlib (Hunter [2007] for visualization, and pandas (McKinney [2010] ) for data management. pyBOAT is released under the open source GPL-3.0 license, and its code is freely available from https://github.com/tensionhead/pyBOAT. The readme on this repository contains further information and installation instructions. pyBOAT is also hosted on the popular Anaconda distribution, as part of the conda-forge community https://conda-forge.org/.",
+            "cite_spans": [
+                {
+                    "start": 84,
+                    "end": 90,
+                    "text": "[2009]",
+                    "ref_id": null
+                },
+                {
+                    "start": 169,
+                    "end": 192,
+                    "text": "(Virtanen et al. [2020]",
+                    "ref_id": null
+                },
+                {
+                    "start": 244,
+                    "end": 258,
+                    "text": "(Hunter [2007]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 289,
+                    "end": 305,
+                    "text": "(McKinney [2010]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "6 Methods"
+        },
+        {
+            "text": "To estimate the amplitude envelope in the time domain, we employ a moving window of size L and determine the minimum and maximum of the signal inside the window for each time point t. The amplitude at that time point is then given by a(t) = 1 2 (max(t) \u2212 min(t)). This works very well for envelopes with no periodic components, like an exponential decay. However, this simple method is not suited for oscillatory amplitude modulations. It is also recommended to sinc-detrend the signal before estimating the amplitude envelope. Note that L should always be larger then the maximal expected period in the signal, as otherwise the signal itself gets distorted.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Amplitude envelope"
+        },
+        {
+            "text": "A noisy chirp signal can be written as: f (t i ) = a cos(\u03c6(t i )) + d x(t i ), where \u03c6(t i ) is the instantaneous phase and the x(t i ) are samples from a stationary stochastic process (the background noise). The increments of the t i are the sampling interval: t i+1 \u2212 t i = \u2206t, with i = 0, 1, ..., N samples. Starting from a linear sweep through angular frequencies: \u03c9(0) = \u03c9 1 and \u03c9(t N ) = \u03c9 2 , we have \u03c9(t) = \u03c9 2 \u2212\u03c9 1 t N t + \u03c9 1 . The instantaneous phase is then given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Synthetic signals"
+        },
+        {
+            "text": "Sampling N times from a gaussian distribution with standard deviation equal to one corresponds to gaussian white noise \u03be(t i ). With x(t i ) = \u03be(t i ) the signal to noise ration (SNR) then is a 2 /d 2 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Synthetic signals"
+        },
+        {
+            "text": "A realization of an AR1 process can be simulated by a simple generative procedure: the inital x(t 0 ) is a sample from the standard normal distribution. Then the next sample is given by: x(t i ) = \u03b1x(t i\u22121 ) + \u03be(t i ), with \u03b1 < 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Synthetic signals"
+        },
+        {
+            "text": "Simulating pink noise is less straightforward, and we use the Python package colorednoise from https://pypi.org/project/colorednoise for the simulations. Its implementation is based on Timmer and Koenig [1995] .",
+            "cite_spans": [
+                {
+                    "start": 185,
+                    "end": 209,
+                    "text": "Timmer and Koenig [1995]",
+                    "ref_id": "BIBREF54"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Synthetic signals"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Functional network inference of the suprachiasmatic nucleus",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Abel",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Meeker",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Granados-Fuentes",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "C S"
+                    ],
+                    "last": "John",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Bales",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Doyle",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Herzog",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Petzold",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the National Academy of Sciences",
+            "volume": "113",
+            "issn": "16",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Quantitative analysis of circadian single cell oscillations in response to temperature",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Abraham",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Schlichting",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kramer",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "PLOS ONE",
+            "volume": "13",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Identication of chirps with continuous wavelet transform",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Carmona",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Hwang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Torr\u00e9sani",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Wavelets and Statistics",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Circada: Shiny apps for exploration of experimental and synthetic circadian time series with an educational emphasis",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Cenek",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Klindziuk",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Lopez",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Mccartney",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Burgos",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Tir",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Harrington",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Leise",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Biological Rhythms",
+            "volume": "35",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Problem solving: a statistician's guide",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Chateld",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Methods for serial analysis of long time series in the study of biological rhythms",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "D\u00edez-Noguera",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "J Circadian Rhythms",
+            "volume": "1",
+            "issn": "11",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Quantitative analysis of regulatory exibility under changing environmental conditions",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Edwards",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Akman",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Knox",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Lumsden",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Thomson",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Brown",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pokhilko",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kozma-Bognar",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Nagy",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Rand",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Millar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Molecular Systems Biology",
+            "volume": "6",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Calls out of chaos: the adaptive signicance of nonlinear phenomena in mammalian vocal production",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Fitch",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Neubauer",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Animal Behaviour",
+            "volume": "63",
+            "issn": "3",
+            "pages": "407--418",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Theory of communication. part 1: The analysis of information",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Gabor",
+                    "suffix": ""
+                }
+            ],
+            "year": 1946,
+            "venue": "Journal of the Institution of Electrical Engineers-Part III: Radio and Communication Engineering",
+            "volume": "93",
+            "issn": "26",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Systems biology of cellular rhythms",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Goldbeter",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Gerard",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Gonze",
+                    "suffix": ""
+                },
+                {
+                    "first": "J.-C",
+                    "middle": [],
+                    "last": "Leloup",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Dupont",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "FEBS Letters",
+            "volume": "586",
+            "issn": "18",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "The eects of proliferation status and cell cycle phase on the responses of single cells to chemotherapy",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Granada",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Jim\u00e9nez",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Stewart-Ornstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bl\u00fcthgen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Reber",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Jambhekar",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lahav",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Molecular Biology of the Cell",
+            "volume": "31",
+            "issn": "8",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Foundations of time-frequency analysis",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Gr\u00f6chenig",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Circannual rhythms in birds",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Gwinner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Current Opinion in Neurobiology",
+            "volume": "13",
+            "issn": "6",
+            "pages": "770--778",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Circadian System Phase An Aspect of Temporal Morphology; Procedures and Illustrative Examples",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Halberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Tong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Johnson",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 1967,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Wavos: a matlab toolkit for wavelet analysis and visualization of oscillatory systems",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Harang",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bonnet",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Petzold",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "BMC research notes",
+            "volume": "5",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Jtk_cycle: An ecient nonparametric algorithm for detecting rhythmic components in genomescale data sets",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hughes",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Hogenesch",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kornacker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Journal of Biological Rhythms",
+            "volume": "25",
+            "issn": "5",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Matplotlib: A 2d graphics environment",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Hunter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Computing in science & engineering",
+            "volume": "9",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Hilbert transformer and time delay: statistical comparison in the presence of gaussian noise",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hussain",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Boashash",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "IEEE transactions on signal processing",
+            "volume": "50",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Reciprocal regulation of carbon monoxide metabolism and the circadian clock",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Klemz",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Reischl",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Wallach",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Witte",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "J\u00fcrchott",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Klemz",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Lang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lorenzen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Knauer",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Heidenreich",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Ripperger",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Schupp",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Stanewsky",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kramer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Nature Structural & Molecular Biology",
+            "volume": "24",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Chemical turbulence",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Kuramoto",
+                    "suffix": ""
+                }
+            ],
+            "year": 1984,
+            "venue": "Chemical Oscillations, Waves, and Turbulence",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Scaling of embryonic patterning based on phase-gradient encoding",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Lauschke",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Tsiairis",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fran\u00e7ois",
+                    "suffix": ""
+                },
+                {
+                    "first": "Aulehla",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Nature",
+            "volume": "493",
+            "issn": "7430",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Wavelet analysis of circadian and ultradian behavioral rhythms",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Leise",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Journal of circadian rhythms",
+            "volume": "11",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Persistent cellautonomous circadian oscillations in broblasts revealed by six-week singlecell imaging of per2::luc bioluminescence",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Leise",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Gitis",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Welsh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "PLOS ONE",
+            "volume": "7",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Extension of a genetic network model by iterative experimentation and mathematical analysis",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "C W"
+                    ],
+                    "last": "Locke",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Southern",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kozma-Bogn\u00e3\u00bdr",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Hibberd",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Brown",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Turner",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Millar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Molecular Systems Biology",
+            "volume": "1",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Least-squares frequency analysis of unequally spaced data",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Lomb",
+                    "suffix": ""
+                }
+            ],
+            "year": 1976,
+            "venue": "Astrophysics and space science",
+            "volume": "39",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Mckinney, wes. \"data structures for statistical computing in python",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Mckinney",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Proceedings of the 9th Python in Science Conference",
+            "volume": "445",
+            "issn": "",
+            "pages": "51--56",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Excitability in the p53 network mediates robust signaling with tunable activation thresholds in single cells",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "M\u00f6nke",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Cristiano",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Finzel",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Friedrich",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Falcke",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Loewer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Scientic reports",
+            "volume": "7",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Online period estimation and determination of rhythmicity in circadian data, using the biodare data infrastructure",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Moore",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Zielinski",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Millar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Methods in molecular biology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Period Coding of Bmal1 Oscillators in the Suprachiasmatic Nucleus",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Myung",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hong",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hatanaka",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Nakajima",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Schutter",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Takumi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "The Journal of Neuroscience",
+            "volume": "32",
+            "issn": "26",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Circadian rhythms determined by cosine curve tting: analysis of continuous work and sleep-loss data",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Naitoh",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Englund",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Ryman",
+                    "suffix": ""
+                }
+            ],
+            "year": 1985,
+            "venue": "Behavior Research Methods, Instruments, & Computers",
+            "volume": "17",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Fundamentals of ecology",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Odum",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Barrett",
+                    "suffix": ""
+                }
+            ],
+            "year": 1971,
+            "venue": "",
+            "volume": "3",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Dissociation of per1 and bmal1 circadian rhythms in the suprachiasmatic nucleus in parallel with behavioral outputs",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Ono",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Honma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Nakajima",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kuroda",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Enoki",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Honma",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the National Academy of Sciences",
+            "volume": "114",
+            "issn": "18",
+            "pages": "3699--3708",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "A threshold selection method from gray-level histograms",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Otsu",
+                    "suffix": ""
+                }
+            ],
+            "year": 1979,
+            "venue": "IEEE transactions on systems, man, and cybernetics",
+            "volume": "9",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "On estimation of the wavelet variance",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Percival",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Biometrika",
+            "volume": "82",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Circadian oscillations in rodents: A systematic increase of their frequency with age",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Pittendrigh",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Daan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1974,
+            "venue": "Science",
+            "volume": "186",
+            "issn": "4163",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "WAVECLOCK: wavelet analysis of circadian oscillation",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Price",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Baggs",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Curtis",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Fitzgerald",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Hogenesch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Bioinformatics",
+            "volume": "24",
+            "issn": "23",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Performance of dierent synchronization measures in real data: a case study on electroencephalographic signals",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "Q"
+                    ],
+                    "last": "Quiroga",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kraskov",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kreuz",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Grassberger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Physical Review E",
+            "volume": "65",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "On adjusting the hodrick-prescott lter for the frequency of observations",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Ravn",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Uhlig",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Review of economics and statistics",
+            "volume": "84",
+            "issn": "2",
+            "pages": "371--376",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "A sevenday cycle in covid-19 infection and mortality rates: Are inter-generational social interactions on the weekends killing susceptible people? medRxiv",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Ricon-Becker",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Tarrasch",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Blinder",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ben-Eliyahu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Plant dormancy in the perennial context",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rohde",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Bhalerao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Trends in Plant Science",
+            "volume": "12",
+            "issn": "5",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "Beyond spikes: Multiscale computational analysis of in vivo long-term recordings in the cockroach circadian clock",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Rojas",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Plath",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gestrich",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ananthasubramaniam",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Garcia",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Stengl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Network Neuroscience",
+            "volume": "3",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "The lomb-scargle periodogram in biological rhythm research: Analysis of incomplete and unequally spaced time-series",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Ruf",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Biological Rhythm Research",
+            "volume": "30",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "Smoothing and dierentiation of data by simplied least squares procedures",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Savitzky",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Golay",
+                    "suffix": ""
+                }
+            ],
+            "year": 1964,
+            "venue": "Analytical chemistry",
+            "volume": "36",
+            "issn": "8",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "Plasticity of the intrinsic period of the human circadian timing system",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [
+                        "A J L"
+                    ],
+                    "last": "Scheer",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Wright",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Kronauer",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Czeisler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "PLOS ONE",
+            "volume": "2",
+            "issn": "8",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "Measuring relative coupling strength in circadian systems",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Schmal",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Herzog",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Journal of Biological Rhythms",
+            "volume": "33",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "The summation of random causes as the source of cyclic processes",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Slutzky",
+                    "suffix": ""
+                }
+            ],
+            "year": 1937,
+            "venue": "Econometrica",
+            "volume": "5",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "The scientist and engineer's guide to digital signal processing",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Smith",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF47": {
+            "ref_id": "b47",
+            "title": "Photobleaching kinetics of uorescein in quantitative uorescence microscopy",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Hennink",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Young",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Tanke",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Biophysical journal",
+            "volume": "68",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "A doppler eect in embryonic pattern formation",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Soroldoni",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "J\u00f6rg",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Morelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Richmond",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Schindelin",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "J\u00fclicher",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Oates",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Science",
+            "volume": "345",
+            "issn": "6193",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "Quantifying Stochastic Noise in Cultured Circadian Reporter Cells",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "St",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "John",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Doyle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "PLoS Computational Biology",
+            "volume": "",
+            "issn": "11",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF50": {
+            "ref_id": "b50",
+            "title": "Least squares analysis of uorescence data",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Straume",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Frasier-Cadoret",
+                    "suffix": ""
+                },
+                {
+                    "first": "Johnson",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Topics in Fluorescence Spectros-copy",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "Detecting rhythms in time series with rain",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Thaben",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Westermark",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Journal of Biological Rhythms",
+            "volume": "29",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF52": {
+            "ref_id": "b52",
+            "title": "Dierential rhythmicity: detecting altered rhythmicity in biological data",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Thaben",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Westermark",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Bioinformatics",
+            "volume": "32",
+            "issn": "18",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF53": {
+            "ref_id": "b53",
+            "title": "Time-Scale and Time-Frequency Analyses of Irregularly Sampled Astronomical Time Series",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Thiebaut",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Roques",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "EURASIP Journal on Advances in Signal Processing",
+            "volume": "",
+            "issn": "15",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF54": {
+            "ref_id": "b54",
+            "title": "On generating power law noise",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Timmer",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Koenig",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Astronomy and Astrophysics",
+            "volume": "300",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF55": {
+            "ref_id": "b55",
+            "title": "A practical guide to wavelet analysis",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Torrence",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Compo",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Bulletin of the American Meteorological society",
+            "volume": "79",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF56": {
+            "ref_id": "b56",
+            "title": "Self-organization of embryonic genetic oscillators into spatiotemporal wave patterns",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tsiairis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Aulehla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Cell",
+            "volume": "164",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF57": {
+            "ref_id": "b57",
+            "title": "Python 3 Reference Manual. Cre-ateSpace",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Van Rossum",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Drake",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF59": {
+            "ref_id": "b59",
+            "title": "Quantication of circadian rhythms in single cells",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Westermark",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Welsh",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Okamura",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "PLoS computational biology",
+            "volume": "5",
+            "issn": "11",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF60": {
+            "ref_id": "b60",
+            "title": "Subharmonics, biphonation, and deterministic chaos in mammal vocalization",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Wilden",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Herzel",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Peters",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Tembrock",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Bioacoustics",
+            "volume": "9",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF61": {
+            "ref_id": "b61",
+            "title": "MetaCycle: an integrated R package to evaluate periodicity in large scale data",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Ana",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hughes",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kornacker",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Hogenesch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Bioinformatics",
+            "volume": "32",
+            "issn": "21",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF62": {
+            "ref_id": "b62",
+            "title": "Analyzing circadian expression data by harmonic regression based on autoregressive spectral estimation",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Su",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Bioinformatics",
+            "volume": "26",
+            "issn": "12",
+            "pages": "168--174",
+            "other_ids": {}
+        },
+        "BIBREF63": {
+            "ref_id": "b63",
+            "title": "Strengths and limitations of period estimation methods for circadian data",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Zielinski",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Moore",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Troup",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Halliday",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Millar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "PLOS ONE",
+            "volume": "9",
+            "issn": "5",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Overview of the workow implemented in pyBOAT A) Schematic showing the proposed and implemented analysis steps. B) Top panel: A cosine function (dotted gray line) multiplied by a Gaussian envelope (bold black line) denes the Morlet Wavelet (orange line), here depicted for scale s = 1 and localized at \u03c4 = t 2 . Middle panel: The same Morlet Wavelet, translated in time with \u03c4 = t 1 , is",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Smoothing inevitably introduces signal artefacts A) Raw nonsmoothed white noise time-series. B) Wavelet power spectrum of the raw white noise signal shown in A. 95% (white line) and and 99% (orange line) condence contour levels are indicated. C) Moving average smoothed white noise signal (red line) from panel A. D) Wavelet power spectrum of the smoothed signal shown in C. Note the highly signicant islands of high power (P W f \u2248 15) for periods greater than around 10 sampling intervals, the largest one is in the T \u2248 20\u2206t band, marked by ( ). The ( * ) marks the end of the eective stop-band region of the lter. E) Attenuations and gain eects of smoothing with a moving average lter, (quartiles in blue). Low periods (high frequencies) are suppressed while higher periods are amplied up to 5-fold in average power. The dashed black line denotes the theoretically calculated Fourier spectrum of the moving average lter, scaled with 1/\u03c3 2 f S \u2248 5, coinciding with the numerical results (blue shaded area). The gray dotted line depicts the mean power of a white noise signal. F) Top:Noisy slowing oscillation (chirp) time-series with a signal-to-noise ratio of 1. Bottom: Corresponding wavelet power spectrum, obtained from the raw unsmoothed signal as processed by pyBOAT. In panel E, the averaged wavelet power distribution was calculated using 50 time series with 25.000 sample points each and smoothed with a window size M = 5\u2206t. Detrending: moving average vs. optimal sinc (A) Synthetic signal sweeping through the periods T 1 = 30\u2206t to T 2 = 70\u2206t within 600 sampling intervals (\u2206t). This signal has an oscillatory and a linear trend: sin(2\u03c0/T trend t) \u2212 0.0066t + 1.5, with T trend = 210\u2206t. (B) Detrending (or high-pass) response of the moving average lter with three dierent window sizes. The period range of the signal and the timescale of the trend are marked by shaded grey and violet regions respectively. (C) Time-domain eects of the moving average lters shown in B. A decreasing amplitude trend for M = 45\u2206t (top), a best compromise case M = 71\u2206t, and an incomplete trend removal for M = 141\u2206t (bottom) can be observed. (D) Detrending response of the optimal sinc lter for two dierent cut-o periods as indicated. (E) Time-domain result for the sinc lters shown in C, indicating no amplitude eects while the trend is removed. (F) Parameter-dependent performance test of three common detrending lters, namely the sinc (left), Hodrick-Prescott (middle) and moving average (right), respectively. The sinc lter provides the clearest separation between passand stop-band. The reference value for the Hodrick-Prescott lter \u03bb 0 = 0.05 * T \u2206t 4 for T = 24\u2206t is taken fromRavn and Uhlig [2002].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Ridge detection and amplitude normalization (A) A noisy synthetic signal with a decaying amplitude envelope (orange line). (B) Signal from panel A after amplitude normalization. (C) Wavelet power spectrum of the signal in panel A. The decaying amplitudes lead to very low powers towards the end of the signal. The extracted maximum power ridge (red line) reaches the lower threshold of 5 in the middle part of the signal (indicated by the light red line transition). As a reference, the (expected) analytic ridge is depicted by a black line. The cone of inuence is indicated by gray dashed lines. (D) Wavelet power spectrum of the normalized signal in panel B. The oscillations are well captured, indicated by the high power during at all times. Hence, the thresholded maximum ridge traces the whole signal. (E) The deterministic parts of the synthetic signal shown in A. (F) Median and quartiles of the power along non-thresholded ridges of the signals as indicated (N trial = 50). Signals with amplitude decay have only very low powers towards the end. The amplitude normalized signals do not have a constant signal-to-noise ratio even after normalization, and therefore still have higher power on average in the beginning as compared to the signal without envelope. (G) Instantaneous phase extracted from the amplitude normalized signal. The COI extent is marked by dashed lines.the amplitudes, we derive a simple scaling rule for the power time series to be converted into amplitudes (see derivations in A.4).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Time-dependent analysis of oscillations using pyBOAT A) Daily conrmed COVID-19 infections in Italy (gray line; dots represent single data points) from 19th Feb to May 25th 2020. Non-linear baseline trend as determined by the Sinc-lter, using a cut-o period of 14 days (purple line). B) Daily oscillatory variation of Covid-19 new cases. Plot in B) was obtained by removing the trend from the data on panel A. C) Population number of snowshoe hares (blue) and lynx (orange). D) Dierence between the instantaneous (i.e. time-dependent) phases of the hare and lynx oscillations as extracted from the waveletspectra ridges. In the inset, instantaneous phases of the hare and the lynx are plotted against each other. E) Single-cell trajectory of a U2OS cell carrying a Geminin-CFP uorescent reporter. F) Wavelet analysis reveals a strong main periodic component (ridge in red). G) Single-cell trajectories of MCF7 cells carrying a p53-venus uorescent reporter under low 100ng NCS and high 400ng NCS DNA damage. 10 randomly selected traces by condition. H) Median and quartiles of the detected periods over time. I) Phase-coherence over time as a measure for synchronicity for each condition.16",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Screen captures of the elements of pyBOAT in action The signal",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We gratefully thank Bharath Ananthasubramaniam, Hanspeter Herzel, Pedro Pablo Rojas and Shaon Chakrabarti for fruitful discussions and comments on the manuscript. We further thank Jelle Scholtalbers and the GBCS unit at the EMBL in Heidelberg for technical support. We thank members of the Aulehla and Leptin labs for comments, support and helpful advice. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgments"
+        }
+    ]
+}

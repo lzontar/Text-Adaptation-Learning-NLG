@@ -1,0 +1,3801 @@
+{
+    "paper_id": "1eed2b953b4f2fa64c2779b98f6e7b8cb92278de",
+    "metadata": {
+        "title": "predCOVID-19: A Systematic Study of Clinical Predictive Models for Coronavirus Disease 2019",
+        "authors": [
+            {
+                "first": "Patrick",
+                "middle": [],
+                "last": "Schwab",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "August",
+                "middle": [
+                    "Dumont"
+                ],
+                "last": "Sch\u00fctte",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Benedikt",
+                "middle": [],
+                "last": "Dietz",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Stefan",
+                "middle": [],
+                "last": "Bauer",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "is a rapidly emerging respiratory disease caused by the severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2). Due to the rapid human-to-human transmission of SARS-CoV-2, many healthcare systems are at risk of exceeding their healthcare capacities, in particular in terms of SARS-CoV-2 tests, hospital and intensive care unit (ICU) beds and mechanical ventilators. Predictive algorithms could potentially ease the strain on healthcare systems by identifying those who are most likely to receive a positive SARS-CoV-2 test, be hospitalised or admitted to the ICU. Here, we study clinical predictive models that estimate, using machine learning and based on routinely collected clinical data, which patients are likely to receive a positive SARS-CoV-2 test, require hospitalisation or intensive care. To evaluate the predictive performance of our models, we perform a retrospective evaluation on clinical and blood analysis data from a cohort of 5644 patients. Our experimental results indicate that our predictive models identify (i) patients that test positive for SARS-CoV-2 a priori at a sensitivity of 75% (95% CI: 67%, 81%) and a specificity of 49% (95% CI: 46%, 51%), (ii) SARS-CoV-2 positive patients that require hospitalisation with 0.92 AUC (95% CI: 0.81, 0.98), and (iii) SARS-CoV-2 positive patients that require critical care with 0.98 AUC (95% CI: 0.95, 1.00). In addition, we determine which clinical features are predictive to what degree for each of the aforementioned clinical tasks. Our results indicate that predictive models trained on routinely collected clinical data could be used to predict clinical pathways for COVID-19, and therefore help inform care and prioritise resources.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "-2, COVID-19, Machine Learning, Artificial Intelligence, Interpretability arXiv:2005.08302v1 [cs.LG] 17 May 2020 XGB 0.66 (0.63, 0.70) 0.21 (0.15, 0.28) 0.75 (0.67, 0.81) 0.49 (0.46, 0.51) 0.23 (0.07, 0.32) RF \u2020 0.65 (0.62, 0.69) \u2020 0.19 (0.14, 0.24) \u2020 0.69 (0.61, 0.74) \u2020 0.54 (0.51, 0.57) \u2020 0.19 (0.10, 0.25) NN \u2020 0.62 (0.57, 0.65) \u2020 0.22 (0.15, 0.28) \u2020 0.60 (0.52, 0.67) \u2020 0.55 (0.53, 0.58) \u2020 0.17 (0.14, 0.28) LR \u2020 0.61 (0.57, 0.65) \u2020 0.17 (0.13, 0.24) \u2020 0.58 (0.51, 0.65) \u2020 0.55 (0.52, 0.57) \u2020 0.19 (0.16, 0.25) SVM \u2020 0.61 (0.57, 0.65) 0.21 (0.15, 0.27) \u2020 0.57 (0.51, 0.64) \u2020 0.59 (0.56, 0.61) \u2020 0.14 (0.06, 0.16) \uf0f8 (ii) Hospital Admission for SARS-CoV-2 Positive Patients Model AUC AUPR Sensitivity Specificity Spec.@95% Sens. RF 0.92 (0.81, 0.98) 0.43 (0.19, 0.81) 0.55 (0.19, 0.85) 0.96 (0.92, 0.98) 0.34 (0.29, 0.97) XGB 0.91 (0.80, 0.98) \u2020 0.52 (0.28, 0.84) \u2020 0.64 (0.43, 0.95) \u2020 0.94 (0.90, 0.97) \u2020 0.00 (0.00, 0.94) LR \u2020 0.88 (0.70, 0.98) 0.44 (0.18, 0.83) \u2020 0.82 (0.52, 1.00) \u2020 0.85 (0.79, 0.90) \u2020 0.13 (0.08, 0.93) NN \u2020 0.85 (0.68, 0.97) \u2020 0.31 (0.13, 0.66) \u2020 0.64 (0.33, 1.00) \u2020 0.95 (0.91, 0.97) \u2020 0.11 (0.06, 0.93) SVM \u2020 0.85 (0.70, 0.98) \u2020 0.35 (0.17, 0.77) \u2020 0.64 (0.30, 1.00) \u2020 0.95 (0.91, 0.97) \u2020 0.21 (0.15, 0.96) \uf487 (iii) Critical Care Admission for SARS-CoV-2 Positive Patients Model AUC AUPR Sensitivity Specificity Spec.@95% Sens. SVM 0.98 (0.95, 1.00) 0.53 (0.14, 1.00) 0.80 (0.36, 1.00) 0.96 (0.92, 0.98) 0.95 (0.91, 1.00) LR 0.98 (0.93, 1.00) \u2020 0.67 (0.09, 1.00) 0.80 (0.29, 1.00) \u2020 0.93 (0.89, 0.96) \u2020 0.91 (0.87, 1.00) NN \u2020 0.97 (0.94, 0.99) \u2020 0.35 (0.10, 0.88) 0.80 (0.36, 1.00) \u2020 0.95 (0.91, 0.99) 0.94 (0.90, 0.99) RF 0.97 (0.92, 1.00) \u2020 0.56 (0.13, 1.00) \u2020 0.60 (0.15, 1.00) \u2020 0.98 (0.96, 1.00) \u2020 0.90 (0.86, 1.00) XGB \u2020 0.67 (0.53, 0.98) \u2020 0.29 (0.01, 0.68) \u2020 0.40 (0.00, 1.00) \u2020 0.94 (0.91, 0.97) \u2020 0.00 (0.00, 0.96)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "C ORONAVIRUS Disease 2019 (COVID- 19) was first discovered in December 2019 in China, and has since rapidly spread to over 200 countries [1] . The COVID-19 pandemic challenges healthcare systems worldwide as a high peak capacity for testing and hospitalisation is necessary to diagnose and treat affected patients, particularly if the spread of SARS-CoV-2 is not mitigated. To avoid exceeding the available healthcare capacities, many countries have adopted social distancing policies, imposed travel restrictions, and postponed non-essential care and surgeries in order to reduce peak demand on their healthcare systems [2] , [3] , [4] . We study the use of predictive models (light purple) to estimate whether patients are likely (i) to be SARS-CoV-2 positive, and whether SARS-CoV-2 positive patients are likely (ii) to be admitted to the hospital and (iii) to require critical care based on clinical, demographic and blood analysis data. Accurate clinical predictive models stratify patients according to individual risk, and, in this manner, help prioritise healthcare resources, such as testing, hospital and critical care capacity.",
+            "cite_spans": [
+                {
+                    "start": 34,
+                    "end": 37,
+                    "text": "19)",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 137,
+                    "end": 140,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 621,
+                    "end": 624,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 627,
+                    "end": 630,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 633,
+                    "end": 636,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "The adoption of clinical predictive models that accurately predict who is likely to require testing, hospitalisation and intensive care from routinely collected clinical data could potentially further reduce peak demand by ensuring resources are prioritised to those individuals with the highest risk ( Figure  1 ). For example, a clinical predictive model that accurately identifies patients that are likely to test positive for SARS-CoV-2 a priori could help prioritise limited SARS-CoV-2 testing capacity. However, developing accurate clinical prediction models for SARS-CoV-2 is difficult as relationships between clinical data, hospitalisation, and intensive care unit (ICU) admission have not yet been established conclusively due to the recent emergence of SARS-CoV-2.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 303,
+                    "end": 312,
+                    "text": "Figure  1",
+                    "ref_id": null
+                }
+            ],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In this systematic study, we develop and evaluate clinical predictive models that use routinely collected clinical data to identify (i) patients that are likely to receive a positive SARS-CoV-2 test, (ii) SARS-CoV-2 positive patients that are likely to require hospitalisation, and (iii) SARS-CoV-2 positive patients that are likely to require intensive care. Using the developed predictive models, we additionally determine which clinical features are most predictive for each of the aforementioned clinical tasks. Our results indicate that predictive models could be used to predict clinical pathways for COVID-19 patients. Such predictive models may be of significant utility for healthcare systems as preserving healthcare capacity has been linked to successfully combating SARS-CoV-2 [5] , [6] . This work contains the following contributions:",
+            "cite_spans": [
+                {
+                    "start": 789,
+                    "end": 792,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 795,
+                    "end": 798,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "\u2022 We develop and systematically study predictive models for estimating the likelihoods of (i) a positive SARS-CoV-2 test in patients presenting at hospitals, (ii) hospital admission in SARS-CoV-2 positive patients, and (iii) critical care admission in SARS-CoV-2 positive patients. \u2022 We validate the performance of the developed clinical predictive models in a retrospective evaluation using realworld data from a cohort of 5644 patients. \u2022 We determine and quantify the predictive power of routinely-collected clinical, demographic, and blood analysis data for the aforementioned clinical prediction tasks.",
+            "cite_spans": [
+                {
+                    "start": 282,
+                    "end": 283,
+                    "text": "\u2022",
+                    "ref_id": null
+                },
+                {
+                    "start": 439,
+                    "end": 440,
+                    "text": "\u2022",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "A substantial body of work is dedicated to the study, validation and implementation of predictive models for clinical tasks. Clinical predictive models have, for example, been used to predict risk of septic shock [7] , [8] , risk of heart failure [9] , readmission following heart failure [10] , [11] , [12] , false alarms in critical care [13] , risk scores [14] , outcomes [15] and mortality in pneumonia [16] , [17] , and mortality risk in critical care [18] , [19] , [20] . Predicting clinical outcomes for individual patients is difficult because a large number of confounding factors may influence patient outcomes, and collecting and accounting for these factors in an unbiased way remains an open challenge in clinical practice [21] . Systematic studies, such as the one presented in this work, enable medical practitioners to better understand, assess and potentially overcome these issues by systematically evaluating generalisation ability, expected predictive performance, and influential predictors of various clinical predictive models. Beyond the need for systematic evaluation, missingness [22] , [23] , [24] , [25] , noise [26] , [27] , multivariate input data [13] , [28] , [29] , [30] , and the need for interpretability [31] , [32] , [33] , [34] have been highlighted as particularly important considerations in healthcare settings. In this work, we build on recent methodological advances to develop and systematically study clinical predictive models that may aid in prioritising healthcare resources [35] for COVID-19, and thereby help prevent a potential overextension of healthcare system capacity.",
+            "cite_spans": [
+                {
+                    "start": 213,
+                    "end": 216,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 219,
+                    "end": 222,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 247,
+                    "end": 250,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 289,
+                    "end": 293,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 296,
+                    "end": 300,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 303,
+                    "end": 307,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 340,
+                    "end": 344,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 359,
+                    "end": 363,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 375,
+                    "end": 379,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 407,
+                    "end": 411,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 414,
+                    "end": 418,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 457,
+                    "end": 461,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 464,
+                    "end": 468,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 471,
+                    "end": 475,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 736,
+                    "end": 740,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 1106,
+                    "end": 1110,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1113,
+                    "end": 1117,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 1120,
+                    "end": 1124,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1127,
+                    "end": 1131,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1140,
+                    "end": 1144,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 1147,
+                    "end": 1151,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 1178,
+                    "end": 1182,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1185,
+                    "end": 1189,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 1192,
+                    "end": 1196,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 1199,
+                    "end": 1203,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 1240,
+                    "end": 1244,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 1247,
+                    "end": 1251,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 1254,
+                    "end": 1258,
+                    "text": "[33]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 1261,
+                    "end": 1265,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 1523,
+                    "end": 1527,
+                    "text": "[35]",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. RELATED WORK"
+        },
+        {
+            "text": "Several clinical predictive models have recently been proposed for COVID-19, for example, for predicting potential COVID-19 diagnoses using data from emergency care admission exams [36] and chest imaging data [37] , [38] , [39] , [40] , [41] , [42] , for predicting COVID-19 related mortality from clinical risk factors [43] , [44] , and for predicting which patients will develop acute respiratory distress syndrome (ARDS) from patients' clinical characteristics [45] . [46] presented a review of epidemiology and clinical features associated with COVID-19, and [47] a critical review that assessed limitations and risk of bias in diagnostic and prognostic models for COVID-19. In addition, [48] performed a cohort study for clinical and laboratory predictors of COVID-19 related inhospital mortality that identified baseline neutrophil count, age Fig. 2 : The presented multistage machine-learning pipeline consists of preprocessing (light purple) the input data x, developing multiple candidate models using the given dataset (orange), selecting the best candidate model for evaluation (blue), and evaluating the selected best model's outputs\u0177.",
+            "cite_spans": [
+                {
+                    "start": 181,
+                    "end": 185,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                },
+                {
+                    "start": 209,
+                    "end": 213,
+                    "text": "[37]",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 216,
+                    "end": 220,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 223,
+                    "end": 227,
+                    "text": "[39]",
+                    "ref_id": "BIBREF38"
+                },
+                {
+                    "start": 230,
+                    "end": 234,
+                    "text": "[40]",
+                    "ref_id": "BIBREF39"
+                },
+                {
+                    "start": 237,
+                    "end": 241,
+                    "text": "[41]",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 244,
+                    "end": 248,
+                    "text": "[42]",
+                    "ref_id": "BIBREF41"
+                },
+                {
+                    "start": 320,
+                    "end": 324,
+                    "text": "[43]",
+                    "ref_id": "BIBREF42"
+                },
+                {
+                    "start": 327,
+                    "end": 331,
+                    "text": "[44]",
+                    "ref_id": "BIBREF43"
+                },
+                {
+                    "start": 464,
+                    "end": 468,
+                    "text": "[45]",
+                    "ref_id": "BIBREF44"
+                },
+                {
+                    "start": 471,
+                    "end": 475,
+                    "text": "[46]",
+                    "ref_id": "BIBREF45"
+                },
+                {
+                    "start": 563,
+                    "end": 567,
+                    "text": "[47]",
+                    "ref_id": "BIBREF46"
+                },
+                {
+                    "start": 692,
+                    "end": 696,
+                    "text": "[48]",
+                    "ref_id": "BIBREF47"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 849,
+                    "end": 855,
+                    "text": "Fig. 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "A. Clinical Predictive Models for COVID-19"
+        },
+        {
+            "text": "and several other clinical features as top predictors of mortality. Beyond prediction, [49] have argued for the responsible use of data in tackling the challenges posed by SARS-CoV-2.",
+            "cite_spans": [
+                {
+                    "start": 87,
+                    "end": 91,
+                    "text": "[49]",
+                    "ref_id": "BIBREF48"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Clinical Predictive Models for COVID-19"
+        },
+        {
+            "text": "Owing to the recent emergence of SARS-CoV-2, there currently exists, to the best of our knowledge, no prior systematic study on clinical predictive models that predict likelihood of a positive SARS-CoV-2 test, hospital and intensive care unit admission from clinical, demographic and blood analysis data that accounts for the missingness that is characteristic for the clinical setting. We additionally assess the influence of various clinical, demographic, and blood analysis measurements on the predictions of the developed clinical predictive models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Clinical Predictive Models for COVID-19"
+        },
+        {
+            "text": "1) Problem Setting: In the given setting, we are given 106 routine clinical, laboratory and demographic measurements, or features, x i \u2208 x for presenting patients. Features may be discrete or continuous, and some features may be missing as not all tests are necessarily performed on all patients. The clinical predictive tasks consist of utilising the routine clinical features x i to predict, for a newly presenting patient, (i) the likelihood\u0177 SARS-CoV-2 of receiving a positive SARS-CoV-2 test result, (ii) the likelihood\u0177 admission of requiring hospital admission, and the (iii) likelihood\u0177 ICU of requiring intensive care. In addition, we are given a development dataset consisting of N patients, their corresponding observed routine clinical features x i , SARS-CoV-2 test results y SARS-CoV-2 \u2208 {0, 1}, hospital admissions y admission \u2208 {0, 1}, and ICU admissions y ICU \u2208 {0, 1}, where 1 indicates the presence of an outcome. Using this development dataset, our goal is to derive clinical predictive modelsf SARS-CoV-2 ,f admission andf ICU for the respective before-mentioned tasks in order to inform care and help prioritise scarce healthcare resources.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. METHODS AND MATERIALS"
+        },
+        {
+            "text": "2) Methodology: To derive the clinical predictive model\u015d f SARS-CoV-2 ,f admission andf ICU from the given development dataset, we set up a systematic model development, validation, and evaluation pipeline (Fig. 2) . To evaluate the generalisation ability of the developed clinical predictive models and to rule out overfitting to patients in the evaluation cohort, the development data is initially split into independent and stratified training, validation, and test folds without any patient overlap. Concretely, the multistage pipeline consists of (i) preprocessing, (ii) model development, (iii) model selection, and (iv) model evaluation stages. For preprocessing and model development, only the training fold is used, and only the validation and test folds of the development data are used for model selection and model evaluation, respectively. We outline the pipeline stages in detail in the following paragraphs.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 206,
+                    "end": 214,
+                    "text": "(Fig. 2)",
+                    "ref_id": null
+                }
+            ],
+            "section": "III. METHODS AND MATERIALS"
+        },
+        {
+            "text": "3) Preprocessing: In the preprocessing stage, we first drop all input features that are missing for more than 99.8% of all training set patients to ensure we have a minimal amount of data for each feature. This removes a total of 9 features from the original 106 routine clinical, laboratory and demographic features. We then transform all discrete features for each patient into their one-hot encoded representation with one out of p indicator variables set to 1 to indicate the discrete value for this patient, and all others set to 0 with p being the number of unique values for the discrete feature. We defined those features as discrete that have fewer than 6 unique values across all patients in the training fold. For discrete features, missing features were counted as a separate category in the one hot representation. Next, we standardised all continuous features to have zero mean and unit standard deviation across the training fold data. Lastly, we performed multiple imputation by chained equations (MICE) to impute all missing values of every continuous feature from the respective other features in an iterative fashion [50] . We additionally added a missing indicator that indicates 1 if the feature was imputed by MICE and 0 if it was originally present in order to preserve missingness information in the data after imputation. After the preprocessing stage, continuous input features are standardised and fully imputed, and discrete input features are one-hot encoded. All preprocessing operations are derived only from the training fold, and na\u00efvely applied without adjustment to validation and test folds in order to avoid information leakage. 4) Model Development: In the model development stage, we train candidate clinical predictive modelsf SARS-CoV-2 ,f admission andf ICU using supervised learning on the training fold of the preprocessed data. To derive the models from the preprocessed training fold data, we optimise various types of predictive models, and perform a hyperparameter search with m runs for each of them. The model development process yields m candidate models with different hyperparameter choices and predictive performances for each model category.",
+            "cite_spans": [
+                {
+                    "start": 1136,
+                    "end": 1140,
+                    "text": "[50]",
+                    "ref_id": "BIBREF49"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. METHODS AND MATERIALS"
+        },
+        {
+            "text": "5) Model Selection: In order to select the best model amongst the set of candidate models, we evaluate their predictive performance against the held-out validation fold that had not been used for model development. We choose the top candidate model by ranking all models by their evaluated predictive performance. The model selection stage using the independent validation fold enables us to optimise hyperparameters without utilising test fold data. 6) Model Evaluation: In the model evaluation stage, we evaluate the selected best clinical predictive model against the held-out test fold that had not been used neither for training nor model selection in order to estimate the expected generalisation error of the models on previously unseen data.",
+            "cite_spans": [
+                {
+                    "start": 451,
+                    "end": 453,
+                    "text": "6)",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. METHODS AND MATERIALS"
+        },
+        {
+            "text": "Using this approach, every selected best model from the model selection stage is evaluated exactly once against the test fold.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. METHODS AND MATERIALS"
+        },
+        {
+            "text": "Using the presented standardised model development, selection and evaluation pipeline, we compare various types of clinical predictive models in the same test setting, with exactly the same amount of hyperparameter optimisation and input features against the same test fold. This process enables us to systematically study the expected generalisation ability, predictive performance and influential features of clinical predictive models for predicting SARS-CoV-2 test results, hospital admission for SARS-CoV-2 positive patients, and ICU admission for SARS-CoV-2 positive patients.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. METHODS AND MATERIALS"
+        },
+        {
+            "text": "We conducted retrospective experiments to evaluate the predictive performance of a number of clinical predictive models on each of the presented clinical prediction tasks using the standardised development, validation and evaluation pipeline. Concretely, our experiments aimed to answer the following questions:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. EXPERIMENTS"
+        },
+        {
+            "text": "1 What is the expected predictive performance of the various clinical predictive models in predicting (i) SARS-CoV-2 test results for presenting patients, (ii) hospital admission for SARS-CoV-2 positive patients, and (iii) ICU admission for SARS-CoV-2 positive patients? 2 Which clinical, demographic and blood analysis features were most important for the respective best encountered predictive models for each clinical prediction task? The following subsections describe the conducted experimental evaluation in detail.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. EXPERIMENTS"
+        },
+        {
+            "text": "We used anonymised data from a cohort of 5644 patients seen at the Hospital Israelita Albert Einstein in S\u00e3o Paulo, Brazil in the early months of 2020 1 . Over the data collection time frame, the rate of SARS-CoV-2 positive patients at the hospital was around 10% of which around 6.5% and 2.5% required hospitalisation and critical care, respectively (Table I) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 351,
+                    "end": 360,
+                    "text": "(Table I)",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "A. Dataset and Study Cohort"
+        },
+        {
+            "text": "Notably, younger patients were underrepresented in the SARS-CoV-2 positive group relative to the general patient population which may have been caused by the reportedly more severe disease progression in older patients [51] . Information on patient sex was not included in our dataset. We randomly split the entire available patient cohort into training (50%), validation (20%) and test folds (30%) within strata of patient age, SARS-CoV-2 test result, hospital admission status, and ICU admission status. After stratification, the three folds were approximately balanced across the stratification dimensions.",
+            "cite_spans": [
+                {
+                    "start": 219,
+                    "end": 223,
+                    "text": "[51]",
+                    "ref_id": "BIBREF50"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Dataset and Study Cohort"
+        },
+        {
+            "text": "Using the presented systematic evaluation methodology, we trained five different model types: Logistic Regression (LR), Neural Network (NN), Random Forest (RF), Support Vector Machine (SVM), and Gradient Boosting (XGB) [52] . The NN was a multi-layer perceptron (MLP) consisting of L hidden layers with N hidden units each followed by a non-linear activation function (ReLU [53] , SELU [54] , or ELU [55] ) and batch normalisation [56] , and was trained using the Adam optimiser [57] for up to 300 epochs with an early stopping patience of 12 epochs on the validation set loss.",
+            "cite_spans": [
+                {
+                    "start": 219,
+                    "end": 223,
+                    "text": "[52]",
+                    "ref_id": "BIBREF51"
+                },
+                {
+                    "start": 374,
+                    "end": 378,
+                    "text": "[53]",
+                    "ref_id": "BIBREF52"
+                },
+                {
+                    "start": 386,
+                    "end": 390,
+                    "text": "[54]",
+                    "ref_id": "BIBREF53"
+                },
+                {
+                    "start": 400,
+                    "end": 404,
+                    "text": "[55]",
+                    "ref_id": "BIBREF54"
+                },
+                {
+                    "start": 431,
+                    "end": 435,
+                    "text": "[56]",
+                    "ref_id": "BIBREF55"
+                },
+                {
+                    "start": 479,
+                    "end": 483,
+                    "text": "[57]",
+                    "ref_id": "BIBREF56"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Models"
+        },
+        {
+            "text": "We followed an unbiased, systematic approach to hyperparameter selection and optimisation. For each type of clinical predictive model, we performed a maximum of 30 hyperparameter optimisation runs with hyperparameters chosen from predefined ranges (Table II) . The performance of each hyperparameter optimisation run was evaluated against the validation cohort. After computing the validation set performance, we selected the best candidate predictive model across the 30 hyperparameter optimisation runs by area under the receiver operator curve for further evaluation against the test set.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 248,
+                    "end": 258,
+                    "text": "(Table II)",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "C. Hyperparameters"
+        },
+        {
+            "text": "D. Metrics 1) Predictive Performance: To assess the predictive performance of each of the developed clinical predictive models, we evaluated their performance in terms of area under the receiver operator curve (AUC), area under the precision recall curve (AUPR), sensitivity, specificity, and specificity at greater than 95% sensitivity (Spec.@95%Sens.) on the held-out test set cohorts for each task (Table I) . After model development and hyperparameter optimisation, we evaluated each model type exactly once against the test set to calculate the final performance metrics. Operating thresholds for each model were the operating points on the receiver operator characteristic curve closest to the top left coordinate as calculated for the validation cohort. We chose a variety of complementary evaluation metrics in order to give a comprehensive picture of the expected performance of each clinical predictive model on the evaluated tasks. For each of the performance metrics, we additionally computed 95% confidence intervals (CIs) using bootstrap resampling with 100 bootstrap samples on the test set cohort in order to quantify the uncertainty of our analysis results. We also assessed whether differences between clinical predictive models were statistically significant at significance level \u03b1 = 0.05 using pairwise t-tests with the respective best models for each task as measured by AUC.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 401,
+                    "end": 410,
+                    "text": "(Table I)",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "C. Hyperparameters"
+        },
+        {
+            "text": "2) Importance of Test Types: To quantify the importance of specific clinical, demographic and blood analysis features on each of the predicted outcomes, we utilised causal explanation (CXPlain) models [34] . CXPlain provides standardised relative feature importance attributions for any predictive model by computing the marginal contribution of each input feature towards the predictive performance of a model [58] , and is therefore particularly well-suited for assessing feature importance in our diverse set of models. We used the test fold's ground truth labels to compute the exact marginal contribution of each input feature without any estimation uncertainty.",
+            "cite_spans": [
+                {
+                    "start": 201,
+                    "end": 205,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 411,
+                    "end": 415,
+                    "text": "[58]",
+                    "ref_id": "BIBREF57"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Hyperparameters"
+        },
+        {
+            "text": "In terms of predictive performance (Table III) , we found that the overall best identified models by AUC were XGB for predicting SARS-CoV-2 test results, RF for predicting hospital admissions for SARS-CoV-2 positive patients, and SVM for predicting ICU admission for SARS-CoV-2 positive patients . Notably, we found that predicting positive SARS-CoV-2 results from routinely collected clinical measurements was a considerably more difficult task for clinical predictive models than predicting hospitalisation and ICU admission. Nonetheless, the best encountered clinical predictive model for predicting SARS-CoV-2 test results (XGB) achieved a respectable sensitivity of 75% (95% CI: 67%, 81%) and specificity of 49% (95% CI: 46%, 51%). After fixing the operating threshold of the model to meet a sensitivity level of at least 95% (Spec.@95% Sens.), the best XGB model for predicting SARS-CoV-2 test results would achieve a specificity of 23% (95% CI: 7%, 32%). We additionally found that the differences in predictive performance between the best XGB model for predicting SARS-CoV-2 test results and the other predictive models was significant at a pre-specified significance level of \u03b1 = 0.05 (ttest) for all but the AUPR metric, where NN achieved a significantly better AUPR of 0.22 and the difference to SVM was not significant at the pre-specified significance level. On the task of predicting hospital admissions for SARS-CoV-2 positive patients, the best encountered RF model achieved a sensitivity of 55% (95% CI: 19%, 85%), a high specificity of 96% (95% CI: 92%, 98%), and a specificity at a fixed sensitivity of at least 95% (Spec.@95% Sens.) of 34% (95% CI: 29%, 97%).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 35,
+                    "end": 46,
+                    "text": "(Table III)",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "A. Predictive Performance"
+        },
+        {
+            "text": "Owing to the lower sample size due to the smaller cohort of SARS-CoV-2 positive patients, the performance results for predicting hospital admission generally had wider uncertainty bounds but were nonetheless significantly better for RF than the other predictive models at the pre-specified significance level of \u03b1 = 0.05 (t-test) for most performance metrics with the exception of AUC where XGB achieved an AUC of 0.91 and AUPR where LR achieved an AUPR of 0.44. On the task of predicting ICU admission for SARS-CoV-2 positive patients, SVM had a sensitivity of 80% (95% CI: 36%, 100%), a specificity of 96% (95% CI: 92%, 98%), and a specificity at a fixed sensitivity of at least 95% (Spec.@95% Sens.) of 95% (95% CI: 91%, 100%). Due to the small percentage of around 3% of SARS-CoV-2 positive patients that were admitted to the ICU (Table I) , uncertainty bounds were wider than for the models predicting hospital admissions, and the results of the best encountered SVM were found to be not significantly better than LR and RF in terms of AUC, LR and NN in terms of sensitivity, and NN in terms of Spec.@95% Sens. at the pre-specified significance level of \u03b1 = 0.05 (t-test).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 834,
+                    "end": 843,
+                    "text": "(Table I)",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "A. Predictive Performance"
+        },
+        {
+            "text": "In terms of feature importance, we found that importance scores were distributed highly unequally, relatively uniform and highly uniform for the best models encountered for predicting SARS-CoV-2 test results, for predicting hospital admissions for SARS-CoV-2 positive patients, and for predicting ICU admission, respectively (Figure 4 ). Most notably, we found that 71.7% of the importance for the best XGB model for predicting SARS-CoV-2 test results was assigned to the missing indicator corresponding to the Arterial Lactic Acid measurement, i.e. much of the marginal predictive performance gain of the XGB model was attributed to whether or not the Arterial Lactic Acid test had been ordered. Beyond Arterial Lactic Acid being missing, age, leukocyte count, platelet count, and creatinine were implied to be associated with a positive SARS-CoV-2 test result by the best encountered predictive model, which further substantiates recent independent reports of those factors being potentially associated with SARS-CoV-2 [59] , [60] , [61] , [62] , [48] . Similarly to the best encountered XGB model for predicting SARS-CoV-2 test results, the top encountered predictive models for hospital admission and ICU admission for SARS-CoV-2 positive patients assigned a considerable degree of importance to missingness patterns associated with a number of measurements. A possible explanation for missingness appearing as a top predictor across the different tasks is that decisions whether or not to order a certain test to be performed for a given patient were influenced by patient characteristics that were not captured in the set of clinical measurements that were available to the predictive models. A controlled setting with standardised testing guidelines would be required to determine which confounding factors are behind the predictive power of the missingness patterns that have been implied to be associated with COVID-19 by the predictive models. Beyond missingness patterns, top predictors for predicting hospital admission were lactate dehydrogenase [63] , gammaglutamyltransferase, which through abnormal liver function has been reported to be implicated in COVID-19 severity [64] , and HCO 3 [65] . For predicting ICU admission in SARS-CoV-2 positive patients, pCO 2 and pH [48] were top predictors. Blood pH, and in particular respiratory alkalosis, has been reported to be associated with severe COVID-19 [66] .",
+            "cite_spans": [
+                {
+                    "start": 1021,
+                    "end": 1025,
+                    "text": "[59]",
+                    "ref_id": "BIBREF58"
+                },
+                {
+                    "start": 1028,
+                    "end": 1032,
+                    "text": "[60]",
+                    "ref_id": "BIBREF59"
+                },
+                {
+                    "start": 1035,
+                    "end": 1039,
+                    "text": "[61]",
+                    "ref_id": "BIBREF60"
+                },
+                {
+                    "start": 1042,
+                    "end": 1046,
+                    "text": "[62]",
+                    "ref_id": "BIBREF61"
+                },
+                {
+                    "start": 1049,
+                    "end": 1053,
+                    "text": "[48]",
+                    "ref_id": "BIBREF47"
+                },
+                {
+                    "start": 2059,
+                    "end": 2063,
+                    "text": "[63]",
+                    "ref_id": "BIBREF62"
+                },
+                {
+                    "start": 2186,
+                    "end": 2190,
+                    "text": "[64]",
+                    "ref_id": "BIBREF63"
+                },
+                {
+                    "start": 2203,
+                    "end": 2207,
+                    "text": "[65]",
+                    "ref_id": "BIBREF64"
+                },
+                {
+                    "start": 2285,
+                    "end": 2289,
+                    "text": "[48]",
+                    "ref_id": "BIBREF47"
+                },
+                {
+                    "start": 2418,
+                    "end": 2422,
+                    "text": "[66]",
+                    "ref_id": "BIBREF65"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 325,
+                    "end": 334,
+                    "text": "(Figure 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "B. Feature Importance"
+        },
+        {
+            "text": "We presented a systematic study of predictive models that predict SARS-CoV-2 test results, hospital admission for SARS-CoV-2 positive patients, and ICU admission for SARS-CoV-2 positive patients using routinely collected clinical measurements. Models that predict SARS-CoV-2 test results could help prioritise scarce testing capacity by identifying those individuals that are more likely to receive a positive result. Similarly, predictive models that predict which SARS-CoV-2 positive patients would be most likely to require hospital and critical care beds could help better utilise existing hospital capacity by prioritising those patients that have the highest risk of deterioration. Facilitating the efficient utilisation of scarce healthcare resources is particularly important in dealing with SARS-CoV-2 as its rapid transmission significantly increases demand for healthcare services worldwide. The main limitation of the presented study is that its experimental evaluation was based on data collected from a single study site, and its results may therefore not generalise to settings with significantly different patient populations, admission criteria, patterns of missingness, and testing guidelines. In addition, we did not have access to mortality data for the analysed cohort, and we were therefore not able to correlate our predicted individual risk scores with patient mortality, which is another related prediction task that may be of clinical importance. Future studies should include a broader set of clinical measurements and outcomes, cohorts from multiple distinct geographical sites and under varying patterns of missingness in order to determine the robustness of the clinical predictive models to these confounding factors. Finally, we believe that the inclusion of data from other modalities, such as genomic profiling and medical imaging, and data on co-morbidities, symptoms and treatment histories could potentially further improve predictive performance of clinical predictive models across the presented prediction tasks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VI. DISCUSSION"
+        },
+        {
+            "text": "We presented a systematic study in which we developed and evaluated clinical predictive models for COVID-19 that estimate (i) the likelihood of a positive SARS-CoV-2 test in patients presenting at hospitals, (ii) the likelihood of hospital admission and (iii) intensive care unit admission in SARS-CoV-2 positive patients. We evaluated our developed clinical predictive models in a retrospective evaluation using a cohort of 5644 hospital patients seen in S\u00e3o Paulo, Brazil. In addition, we determined the clinical, demographic and blood analysis measurements that were most important for accurately predicting SARS-CoV-2 status, hospital admissions, and ICU admissions. Our experimental results indicate that clinical predictive models may in the future potentially be used to inform care and help prioritise scarce healthcare resources by assigning personalised risk scores for individual patients using routinely collected clinical, demographic and blood analysis data. Furthermore, our findings on the importance of routine clinical measurements towards predicting clinical pathways for patients increase our understanding of the interrelations of individual risk profiles and outcomes in SARS-CoV-2. Based on our study's results, we conclude that healthcare systems should explore the use of predictive models that assess individual COVID-19 risk in order to improve healthcare resource prioritisation and inform patient care.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. CONCLUSION"
+        },
+        {
+            "text": "The anonymised data used in this manuscript were generously contributed by patients at Hospital Israelita Albert Einstein in S\u00e3o Paulo, Brazil, and are freely available at https://www.kaggle.com/einsteindata4u/covid19.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "ACKNOWLEDGMENTS"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Coronavirus disease (COVID-19) Pandemic",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Organisation",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "The effect of travel restrictions on the spread of the 2019 novel coronavirus",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Chinazzi",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Davis",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ajelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Gioannini",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Litvinova",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Merler",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Piontti",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Mu",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Rossi",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Update: Public health response to the coronavirus disease 2019 outbreak -United States",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Jernigan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Morbidity and mortality weekly report",
+            "volume": "69",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "A conceptual model for the coronavirus disease 2019 (COVID-19) outbreak in Wuhan, China with individual reaction and governmental action",
+            "authors": [
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lou",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Musa",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Cai",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "International Journal of Infectious Diseases",
+            "volume": "93",
+            "issn": "",
+            "pages": "211--216",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Response to COVID-19 in Taiwan: Big data analytics, new technology, and proactive testing",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Ng",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Brook",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "323",
+            "issn": "",
+            "pages": "1341--1342",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Interrupting transmission of COVID-19: Lessons from containment efforts in Singapore",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Chiew",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "X"
+                    ],
+                    "last": "Khong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Travel Medicine",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "A targeted real-time early warning score (TREWScore) for septic shock",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Henry",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Hager",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Pronovost",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Saria",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Science Tanslational Medicine",
+            "volume": "7",
+            "issn": "299",
+            "pages": "299--122",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Creating an automated trigger for sepsis clinical decision support at emergency department triage using machine learning",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Horng",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Sontag",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Halpern",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Jernite",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Shapiro",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Nathanson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "PloS one",
+            "volume": "12",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Prediction modeling using EHR data: Challenges, strategies, and a comparison of machine learning approaches",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Roy",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Stewart",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Medical Care",
+            "volume": "",
+            "issn": "",
+            "pages": "106--113",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Prediction of 30-day all-cause readmissions in patients hospitalized for heart failure: Comparison of machine learning and other statistical approaches",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Frizzell",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Schulte",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Yancy",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Heidenreich",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Hernandez",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Bhatt",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Fonarow",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Laskey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "JAMA Cardiology",
+            "volume": "2",
+            "issn": "2",
+            "pages": "204--209",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Predictive modeling of hospital readmission rates using electronic medical recordwide machine learning: A case-study using Mount Sinai heart failure cohort",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Shameer",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Yahi",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Miotto",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Ricks",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Jebakaran",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Kovatch",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Sengupta",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Gelijns",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Pacific Symposium on Biocomputing",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "A machine learning model to predict the risk of 30-day readmissions in patients with heart failure: A retrospective analysis of electronic medical records data",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Golas",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Shibahara",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Agboola",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Otaki",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sato",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Nakae",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Hisamitsu",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Kojima",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Felsted",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kakarmath",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "BMC Medical Informatics and Decision Making",
+            "volume": "18",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Not to cry wolf: Distantly supervised multitask learning in critical care",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schwab",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Keller",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Muroi",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Mack",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Str\u00e4ssle",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International Conference on Machine Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Intelligible models for healthcare: Predicting pneumonia risk and hospital 30-day readmission",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Caruana",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lou",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gehrke",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Koch",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sturm",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Elhadad",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "1721--1730",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Patient-specific models for predicting the outcomes of patients with community acquired pneumonia",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Visweswaran",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Cooper",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "AMIA Annual Symposium Proceedings",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "An evaluation of machine-learning methods for predicting pneumonia mortality",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Cooper",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Aliferis",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Ambrosino",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Aronis",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Buchanan",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Caruana",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Fine",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Glymour",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Gordon",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Hanusa",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "Artificial Intelligence in Medicine",
+            "volume": "9",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Using data-driven rules to predict mortality in severe community acquired pneumonia",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rosenfeld",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Clermont",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "PLoS One",
+            "volume": "9",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Predicting hospital mortality for patients in the intensive care unit: A comparison of artificial neural networks with logistic regression models",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Clermont",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Angus",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Dirusso",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Griffin",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Linde-Zwirble",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Critical Care Medicine",
+            "volume": "29",
+            "issn": "2",
+            "pages": "291--296",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Unfolding physiological state: Mortality modelling in intensive care units",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ghassemi",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Naumann",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Doshi-Velez",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Brimmer",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Joshi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rumshisky",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Szolovits",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Reproducibility in critical care: A mortality prediction case study",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Pollard",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Mark",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Machine Learning for Healthcare Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "361--376",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Predicting the future\u00e2\u0202\u0164big data, machine learning, and clinical medicine",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Obermeyer",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Emanuel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "The New England Journal of Medicine",
+            "volume": "375",
+            "issn": "13",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Multiple imputation versus data enhancement for dealing with missing data in observational health care outcome analyses",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Faris",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Ghali",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Brant",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Norris",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Galbraith",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Knudtson",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Investigators",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Journal of Clinical Epidemiology",
+            "volume": "55",
+            "issn": "2",
+            "pages": "184--191",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Strategies for handling missing data in electronic health record derived data",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Wells",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Chagin",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Nowacki",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Kattan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "1",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Directly modeling missing data in sequences with RNNs: Improved classification of clinical time series",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Lipton",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Kale",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Wetzel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Machine Learning for Healthcare Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Recurrent neural networks for multivariate time series with missing values",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Che",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Purushotham",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Cho",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Sontag",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Scientific reports",
+            "volume": "8",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Computational phenotype discovery using unsupervised feature learning over noisy, sparse, and irregular clinical data",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Lasko",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Denny",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Levy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "PloS one",
+            "volume": "8",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Beat by beat: Classifying cardiac arrhythmias with recurrent neural networks",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schwab",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Scebba",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Delai",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "PhoneMD: Learning to diagnose Parkinson's disease from smartphone data",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schwab",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "AAAI Conference on Artificial Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "A multivariate timeseries modeling approach to severity of illness assessment and forecasting in ICU with sparse, heterogeneous clinical data",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ghassemi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Pimentel",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Naumann",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Brennan",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Clifton",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Szolovits",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Feng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "AAAI Conference on Artificial Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "A Deep Learning Approach to Diagnosing Multiple Sclerosis from Smartphone Data",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schwab",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2001.09748"
+                ]
+            }
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Retain: An interpretable predictive model for healthcare using reverse time attention mechanism",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Choi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Bahadori",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kulas",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Schuetz",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Stewart",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "3504--3512",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Towards a rigorous science of interpretable machine learning",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Doshi-Velez",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1702.08608"
+                ]
+            }
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Right for the right reasons: Training differentiable models by constraining their explanations",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Ross",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Hughes",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Doshi-Velez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1703.03717"
+                ]
+            }
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "CXPlain: Causal Explanations for Model Interpretation under Uncertainty",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schwab",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Machine learning and prediction in medicine\u00e2\u0202\u0164beyond the peak of inflated expectations",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Asch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "The New England Journal of Medicine",
+            "volume": "376",
+            "issn": "26",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "COVID-19 diagnosis prediction in emergency care patients: A machine learning approach",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "De Moraes",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Batista",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "H R"
+                    ],
+                    "last": "Miraglia",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "D P"
+                    ],
+                    "last": "Donato",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Chiavegatto Filho",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Covid-net: A tailored deep convolutional neural network design for detection of COVID-19 cases from chest radiography images",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Wong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.09871"
+                ]
+            }
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Automatic detection of coronavirus disease (COVID-19) using x-ray images and deep convolutional neural networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Narin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kaya",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Pamuk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.10849"
+                ]
+            }
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "Artificial intelligence distinguishes COVID-19 from community acquired pneumonia on chest CT",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Qin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Yin",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Kong",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Bai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Fang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Radiology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Artificial intelligence applied on chest X-ray can aid in the diagnosis of COVID-19 infection: A first experience from Lombardy",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Castiglioni",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Ippolito",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Interlenghi",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Monti",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Salvatore",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Schiaffino",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Polidori",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Gandola",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Messa",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Sardanelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "A deep learning algorithm using CT images to screen for Corona Virus Disease (COVID-19)",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Kang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zeng",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Xiao",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Cai",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Meng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "Deep learning system to screen coronavirus disease 2019 pneumonia",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Jiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Du",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lv",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Su",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2002.09334"
+                ]
+            }
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "A Machine Learning Model Reveals Older Age and Delayed Hospitalization as Predictors of Mortality in Patients with COVID-19",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sarkar",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Chakrabarti",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "Prediction of criticality in patients with severe COVID-19 infection using three clinical features: a machine learning-based prognostic model with clinical data in Wuhan",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yan",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Xiao",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Xiao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "Towards an artificial intelligence framework for data-driven prediction of coronavirus clinical severity",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Jiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Coffee",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bari",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Jiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Shi",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cai",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Computers, Materials & Continua",
+            "volume": "63",
+            "issn": "1",
+            "pages": "537--51",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "Epidemiology and Clinical Features of COVID-19: A Review of Current Literature",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Siordia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Clinical Virology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "Prediction models for diagnosis and prognosis of COVID-19 infection: Systematic review and critical appraisal",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Wynants",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Van Calster",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Bonten",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Collins",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Debray",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "De",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Vos",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Haller",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Heinze",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Moons",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Riley",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "bmj",
+            "volume": "369",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF47": {
+            "ref_id": "b47",
+            "title": "Clinical and Laboratory Predictors of In-Hospital Mortality in 305 Patients with COVID-19: A Cohort Study in Wuhan, China",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Zuo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "On the responsible use of digital data to tackle the COVID-19 pandemic",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ienca",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Vayena",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature Medicine",
+            "volume": "",
+            "issn": "",
+            "pages": "1--2",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "Multiple imputation using chained equations: Issues and guidance for practice",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "White",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Royston",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wood",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Statistics in Medicine",
+            "volume": "30",
+            "issn": "4",
+            "pages": "377--399",
+            "other_ids": {}
+        },
+        "BIBREF50": {
+            "ref_id": "b50",
+            "title": "COVID-19 and Italy: what next",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Remuzzi",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Remuzzi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "Xgboost: A scalable tree boosting system",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Guestrin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "785--794",
+            "other_ids": {}
+        },
+        "BIBREF52": {
+            "ref_id": "b52",
+            "title": "Rectified linear units improve restricted Boltzmann machines",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Nair",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hinton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "International Conference on Machine Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "807--814",
+            "other_ids": {}
+        },
+        "BIBREF53": {
+            "ref_id": "b53",
+            "title": "Selfnormalizing neural networks",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Klambauer",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Unterthiner",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mayr",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hochreiter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "971--980",
+            "other_ids": {}
+        },
+        "BIBREF54": {
+            "ref_id": "b54",
+            "title": "Fast and accurate deep network learning by exponential linear units (ELUs)",
+            "authors": [
+                {
+                    "first": "D.-A",
+                    "middle": [],
+                    "last": "Clevert",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Unterthiner",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hochreiter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1511.07289"
+                ]
+            }
+        },
+        "BIBREF55": {
+            "ref_id": "b55",
+            "title": "Batch normalization: Accelerating deep network training by reducing internal covariate shift",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ioffe",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Szegedy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "International Conference on Machine Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "448--456",
+            "other_ids": {}
+        },
+        "BIBREF56": {
+            "ref_id": "b56",
+            "title": "Adam: A method for stochastic optimization",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kingma",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "International Conference on Learning Representations",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF57": {
+            "ref_id": "b57",
+            "title": "Granger-causal attentive mixtures of experts: Learning important features with neural networks",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schwab",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Miladinovic",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "AAAI Conference on Artificial Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF58": {
+            "ref_id": "b58",
+            "title": "Severe outcomes among patients with coronavirus disease 2019 (COVID-19) -United States",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "For Disease",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Control",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Morbidity and mortality weekly report",
+            "volume": "69",
+            "issn": "12",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF59": {
+            "ref_id": "b59",
+            "title": "The epidemiology and pathogenesis of coronavirus disease (COVID-19) outbreak",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Rothan",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Byrareddy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Autoimmunity",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF60": {
+            "ref_id": "b60",
+            "title": "Thrombocytopenia is associated with severe coronavirus disease 2019 (COVID-19) infections: A metaanalysis",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lippi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Plebani",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Henry",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Clinica Chimica Acta",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF61": {
+            "ref_id": "b61",
+            "title": "Kidney disease is associated with in-hospital death of patients with COVID-19",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Luo",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Dong",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Yao",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ge",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Kidney International",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF62": {
+            "ref_id": "b62",
+            "title": "Clinical course and risk factors for mortality of adult inpatients with COVID-19 in Wuhan, China: A retrospective cohort study",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Du",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Fan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Xiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Gu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF63": {
+            "ref_id": "b63",
+            "title": "Clinical features of COVID-19-related liver damage",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Fan",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tian",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Clinical Gastroenterology and Hepatology",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF64": {
+            "ref_id": "b64",
+            "title": "Respiratory Support in Novel Coronavirus Disease (COVID-19) Patients, with a Focus on Resource-Limited Settings",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Dondorp",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hayat",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Aryal",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Beane",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Schultz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The American Journal of Tropical Medicine and Hygiene",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF65": {
+            "ref_id": "b65",
+            "title": "COVID-19 in Iran, a comprehensive investigation from exposure to treatment outcomes",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Ashraf",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Shokouhi",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Shirali",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Davari-Tanha",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Memar",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kamalipour",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Azarnoush",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mabadi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ossareh",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sanginabadi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "P. Schwab is with F. Hoffmann-La Roche Ltd, Basel, Switzerland, A. DuMont Sch\u00fctte and B. Dietz are with ETH Zurich, Switzerland, and S. Bauer is with the Max Planck Institute of Intelligent Systems, T\u00fcbingen, Germany (correspondence to: patrick.schwab@roche.com).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Fig. 1: We study the use of predictive models (light purple) to estimate whether patients are likely (i) to be SARS-CoV-2 positive, and whether SARS-CoV-2 positive patients are likely (ii) to be admitted to the hospital and (iii) to require critical care based on clinical, demographic and blood analysis data. Accurate clinical predictive models stratify patients according to individual risk, and, in this manner, help prioritise healthcare resources, such as testing, hospital and critical care capacity.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "A comparison of the top-10 features ranked by relative feature importance scores for the best encountered model for predicting SARS-CoV-2 test results (XGB, top), hospital admission for SARS-CoV-2 positive patients (RF, middle), and critical care admission for SARS-CoV-2 positive patients (SVM, bottom), respectively. The bar length corresponds to the relative marginal importance (in %) of the displayed features towards the predictive performance of the respective model. Features names that include an all-caps \"MISSING\" indicate that the given marginal contribution refers to the importance of the absence or presence of that feature, not the feature itself.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Receiver operator characteristic (ROC) curves for the best encountered model for predicting SARS-CoV-2 test results (XGB, left), hospital admissions for SARS-CoV-2 positive patients (RF, top right), and critical care admissions for SARS-CoV-2 positive patients (SVM, bottom right). Numbers in the bottom right of each subgraph show the respective model's area under the curve (AUC). Solid dots on the curves indicate operating thresholds selected on the validation fold.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF1": {
+            "text": "Population Statistics. Training, validation, and test fold statistics for all patients (top) and SARS-CoV-2 positive patients (bottom). Age is specified in 20-quantiles (10% and 90% quantiles in parentheses).",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "Hyperparameters. Hyperparameter ranges used for hyperparameter optimisation of Logistic Regression (LR), Neural Network (NN), Random Forest (RF), Support Vector Machine (SVM), and Gradient Boosting (XGB) models for all tasks. Parentheses indicate continuous ranges within the indicated limits sampled uniformly. Comma-delimited lists indicate discrete choices with equal selection probability.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Predictive Performance. Comparison of Logistic Regression (LR), Neural Network (NN), Random Forest (RF), Support Vector Machine (SVM), and Gradient Boosting (XGB) models in terms of AUC, AUPR, sensitivity, specificity, and specificity at greater than 95% sensitivity (Spec.@95%Sens.) for predicting (i) SARS-CoV-2 test results, (ii) hospital admission for SARS-CoV-2 positive patients, and (iii) ICU admission for SARS-CoV-2 positive patients on the test set cohort. Best results in bold. In parentheses are the 95% confidence intervals (CIs) obtained via bootstrap resampling with 100 samples. \u2020 = significant at p < 0.05 (t-test) to the model with the highest predictive performance in terms of AUC.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

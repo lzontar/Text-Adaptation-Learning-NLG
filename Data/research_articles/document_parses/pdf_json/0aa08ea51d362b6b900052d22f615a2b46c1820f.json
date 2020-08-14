@@ -1,0 +1,2525 @@
+{
+    "paper_id": "0aa08ea51d362b6b900052d22f615a2b46c1820f",
+    "metadata": {
+        "title": "How does this interaction affect me? Interpretable attribution for feature interactions",
+        "authors": [
+            {
+                "first": "Michael",
+                "middle": [],
+                "last": "Tsang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Southern California",
+                    "location": {}
+                },
+                "email": "tsangm@usc.edu"
+            },
+            {
+                "first": "Sirisha",
+                "middle": [],
+                "last": "Rambhatla",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Southern California",
+                    "location": {}
+                },
+                "email": "sirishar@usc.edu"
+            },
+            {
+                "first": "Yan",
+                "middle": [],
+                "last": "Liu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Southern California",
+                    "location": {}
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Machine learning transparency calls for interpretable explanations of how inputs relate to predictions. Feature attribution is a way to analyze the impact of features on predictions. Feature interactions are the contextual dependence between features that jointly impact predictions. There are a number of methods that extract feature interactions in prediction models; however, the methods that assign attributions to interactions are either uninterpretable, model-specific, or non-axiomatic. We propose an interaction attribution and detection framework called Archipelago which addresses these problems and is also scalable in real-world settings. Our experiments on standard annotation labels indicate our approach provides significantly more interpretable explanations than comparable methods, which is important for analyzing the impact of interactions on predictions. We also provide accompanying visualizations of our approach that give new insights into deep neural networks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "To this end, we propose a novel framework called Archipelago, which consists of an interaction attribution method, ArchAttribute, and a corresponding interaction detector, ArchDetect, to address the challenges of being interpretable, axiomatic, and scalable. Archipelago is named after its ability to provide explanations by isolating feature interactions, or feature \"islands\". The inputs to Archipelago are a black-box model f and data instance x , and its outputs are a set of interactions and individual features {I} as well as an attribution score \u03c6(I) for each of the feature sets I.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "ArchAttribute satisfies attribution axioms by making relatively mild assumptions: a) disjointness of interaction sets, which is easily obtainable, and b) the availability of a generalized additive Preprint. Under review.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The success of state-of-the-art prediction models such as neural networks is driven by their capability to learn complex feature interactions. When such models are used to make predictions for users, we may want to know how they personalize to us. Such model behaviors can be explained via interaction detection and attribution, i.e. if features influence each other and how these interactions contribute to predictions, respectively. Interaction explanations are useful for applications such as sentiment analysis [35] , image classification [47] , and recommendation tasks [21, 47] .",
+            "cite_spans": [
+                {
+                    "start": 515,
+                    "end": 519,
+                    "text": "[35]",
+                    "ref_id": null
+                },
+                {
+                    "start": 543,
+                    "end": 547,
+                    "text": "[47]",
+                    "ref_id": null
+                },
+                {
+                    "start": 575,
+                    "end": 579,
+                    "text": "[21,",
+                    "ref_id": null
+                },
+                {
+                    "start": 580,
+                    "end": 583,
+                    "text": "47]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Relevant methods for attributing predictions to feature interactions are black-box explanation methods based on axioms (or principles), but these methods lack interpretability. One of the core issues is that an interaction's importance is not the same as its attribution. Techniques like Shapley Taylor Interaction Index (STI) [14] and Integrated Hessians (IH) [25] combine these concepts in order to be axiomatic. Specifically, they base an interaction's attribution on non-additivity, i.e. the degree that features non-additively affect an outcome. While non-additivity can be used for interaction detection, it is not interpretable as an attribution measure as we see in Fig. 1 . In addition, neither STI nor IH is tractable for higher-order feature interactions [14, 45] . Hence, there is a need for interpretable, axiomatic, and scalable methods for interaction attribution and corresponding interaction detection. Shapley Taylor Interaction Index [14] Our Method function which is a good approximator to any function, as is leveraged in earlier works [48] [49] [50] . On the other hand, ArchDetect circumvents intractability issues of higher-order interaction detection by removing certain uninterpretable higher-order interactions and leveraging a property of feature interactions that allows pairwise interactions to merge for disjoint arbitrary-order interaction detection.",
+            "cite_spans": [
+                {
+                    "start": 327,
+                    "end": 331,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 361,
+                    "end": 365,
+                    "text": "[25]",
+                    "ref_id": null
+                },
+                {
+                    "start": 766,
+                    "end": 770,
+                    "text": "[14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 771,
+                    "end": 774,
+                    "text": "45]",
+                    "ref_id": null
+                },
+                {
+                    "start": 953,
+                    "end": 957,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1057,
+                    "end": 1061,
+                    "text": "[48]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1062,
+                    "end": 1066,
+                    "text": "[49]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1067,
+                    "end": 1071,
+                    "text": "[50]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 674,
+                    "end": 680,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "In practice, where any assumptions may not hold in real-world settings, Archipelago still performs well. In particular, Archipelago effectively detects relevant interactions and is more interpretable than state-of-the-art methods [14, 20, 25, 26, 46 , 50] when evaluated on annotation labels in sentiment analysis and image classification. We visualize Archipelago explanations on sentiment analysis, COVID-19 prediction on chest X-rays, and ad-recommendation.",
+            "cite_spans": [
+                {
+                    "start": 230,
+                    "end": 234,
+                    "text": "[14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 235,
+                    "end": 238,
+                    "text": "20,",
+                    "ref_id": null
+                },
+                {
+                    "start": 239,
+                    "end": 242,
+                    "text": "25,",
+                    "ref_id": null
+                },
+                {
+                    "start": 243,
+                    "end": 246,
+                    "text": "26,",
+                    "ref_id": null
+                },
+                {
+                    "start": 247,
+                    "end": 249,
+                    "text": "46",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our main contributions are summarized below.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "\u2022 Interaction Attribution: We propose ArchAttribute, a feature attribution measure that leverages feature interactions. It has advantages of being model-agnostic, interpretable, and runtime-efficient as compared to other state-of-the-art interaction attribution methods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "\u2022 Principled Attribution: ArchAttribute obeys standard attribution axioms [46] that are generalized to work for feature sets, and we also propose a new axiom for interaction attribution to respect the additive structure of a function.",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 78,
+                    "text": "[46]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "\u2022 Interaction Detection: We propose a complementary feature interaction detector, ArchDetect, that is also model-agnostic and O(p 2 )-efficient for pairwise and disjoint arbitrary-order interaction detection (p is number of features).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our empirical studies on ArchDetect and ArchAttribute demonstrate their superior properties as compared to state-of-the-art methods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We first introduce preliminaries that serve as a basis for our discussions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Notations and Background"
+        },
+        {
+            "text": "Notations: We use boldface lowercase symbols, such as x, to represent vectors. The i-th entry of a vector x is denoted by x i . For a set S, its cardinality is denoted by |S|, and the operation \\S means all except S. For p features in a dataset, let I be a subset of feature indices: I \u2286 {1, 2, . . . , p}. For a vector x \u2208 R p , let x I \u2208 R p be defined element-wise in (1) . In our discussions, a context means x \\I .",
+            "cite_spans": [
+                {
+                    "start": 371,
+                    "end": 374,
+                    "text": "(1)",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Notations and Background"
+        },
+        {
+            "text": "Problem Setup: Let f denote a black-box model with scalar output. For multi-class classification, f is assumed to be a class logit. We use a target vector x \u2208 R p to denote the data instance where we wish to explain f , and x \u2208 R p to denote a neutral baseline. Here, the baseline is a reference vector for x and conveys an \"absence of signal\" as per [46] . These vectors form the space of X \u2282 R p , where each element comes from either x i or x i , i.e. X = {(x 1 , . . . , x p ) | x i \u2208 {x i , x i }, \u2200i = 1, . . . , p}.",
+            "cite_spans": [
+                {
+                    "start": 351,
+                    "end": 355,
+                    "text": "[46]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Notations and Background"
+        },
+        {
+            "text": "Feature Interaction: The definition of the feature interaction of interest is formalized as follows. For example, this means that the function ReLU(x 1 + x 2 ) creates a feature interaction because it cannot be represented as an addition of univariate functions, i.e., ReLU(x 1 + x 2 ) = f 1 (x 2 ) + f 2 (x 1 ) (Fig. 2b) . We refer to individual feature effects which do not interact with other features as main effect. Higher-order feature interactions are captured by |I| > 2, i.e. interactions larger than pairs. Additionally, if a higher-order interaction exists, all of its subsets also exist as interactions [45, 48] .",
+            "cite_spans": [
+                {
+                    "start": 615,
+                    "end": 619,
+                    "text": "[45,",
+                    "ref_id": null
+                },
+                {
+                    "start": 620,
+                    "end": 623,
+                    "text": "48]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 312,
+                    "end": 321,
+                    "text": "(Fig. 2b)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Notations and Background"
+        },
+        {
+            "text": "We begin by presenting our feature attribution measure. Our feature attribution analyzes and assigns scores to detected feature interactions. Our corresponding interaction detector is presented in \u00a74.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Archipelago Interaction Attribution"
+        },
+        {
+            "text": "Let I be the set of feature indices that correspond to a desired attribution score. Our proposed attribution measure, called ArchAttribute, is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "ArchAttribute"
+        },
+        {
+            "text": "ArchAttribute essentially isolates the attribution of x I from the surrounding baseline context while also satisfying axioms ( \u00a73.2). We call this isolation an \"island effect\", where the target features {x i } i\u2208I do not specifically interact with the baseline features x j j\u2208\\I . For example, consider sentiment analysis on a phrase x = \"not very bad\" with a baseline x = \"_ _ _\" . Suppose that we want to examine the attribution of an interaction I that corresponds to {very, bad} in isolation. In this case, the contextual word \"not\" also interacts with I, which becomes apparent when small perturbations to the word \"not\" causes large changes to prediction probabilities. However, as we move further away from the word \"not\" towards the empty-word \"_\" in the word-embedding space, small perturbations no longer result in large prediction changes, meaning that \"_\" does not specifically interact with {very, bad}. This intuition motivates our use of the baseline context x \\I in (2).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "ArchAttribute"
+        },
+        {
+            "text": "We now show how ArchAttribute obeys standard feature attribution axioms [46] . Since ArchAttribute operates on feature sets, we generalize the notion of standard axioms to feature sets.",
+            "cite_spans": [
+                {
+                    "start": 72,
+                    "end": 76,
+                    "text": "[46]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Axioms"
+        },
+        {
+            "text": "To this end, we also propose a new axiom, Set Attribution, which allows us to work with feature sets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Axioms"
+        },
+        {
+            "text": "be all k feature interactions and main effects of f in the space X (defined in \u00a72), where we take the union of overlapping sets in S. Later in \u00a74, we explain how to obtain S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Axioms"
+        },
+        {
+            "text": "We consider a generalization of the completeness axiom for which the sum of all attributions equals f (x ) \u2212 f (x ). The axiom tells us how much feature(s) impact a prediction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "Lemma 2 (Completeness on S). The sum of all attributions by ArchAttribute for the disjoint sets in S equals the difference of f between x and the baseline x :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "The proof is in Appendix C. We can easily see ArchAttribute satisfying this axiom in the limiting case where k = 1, [14] do.",
+            "cite_spans": [
+                {
+                    "start": 116,
+                    "end": 120,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "Set Attribution: We propose an axiom for interaction attribution called Set Attribution to work with feature sets as opposed to individual features and follow the additive structure of a function.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "have roots, then an interaction attribution method admits an attribution for feature set I i as \u03d5 i (x Ii ) \u2200i = 1, . . . , k.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "For example, if we consider a function y = x 1 x 2 + x 3 ; it makes sense for the attribution of the x 1 x 2 interaction to be the value of x 1 x 2 and the attribution for the x 3 main effect to be the value of x 3 . Lemma 4 (Set Attribution on S). For x = x and a baseline x such that \u03d5 i (x Ii ) = 0 \u2200i = 1, . . . , k, ArchAttribute satisfies the Set Attribution axiom and provides attribution \u03d5 i (x Ii ) for set I i \u2200i.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "The proof is in Appendix E, which follows from Lemma 2. Neither SCD, CD, SOC, SI, IH, nor STI satisfy Set Attribution (shown in Appendix E.1). We can enable Integrated Gradients (IG) [46] to satisfy our axiom by summing its attributions within each feature set of S. ArchAttribute differs from IG by its \"island effect\" ( \u00a73.1) and model-agnostic properties.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "Other Axioms: ArchAttribute also satisfies the remaining axioms: Sensitivity, Implementation Invariance, Linearity, and Symmetry-Preserving, which we show via Lemmas 7-11 in Appendix F.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Completeness:"
+        },
+        {
+            "text": "Discussion: Several axioms required disjoint interaction and main effect sets in S. Though interactions are not necessarily disjoint by definition (Def. 1), it is reasonable to merge overlapping interactions to obtain compact visualizations, as shown in Fig. 1 ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 254,
+                    "end": 260,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Completeness:"
+        },
+        {
+            "text": "Our axiomatic analysis of ArchAttribute relied on S, which contains interaction sets of f on the space X (defined in \u00a72). To develop an interaction detection method that works in tandem with ArchAttribute, we draw inspiration from the discrete interpretation of mixed partial derivatives.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Archipelago Interaction Detection"
+        },
+        {
+            "text": "Consider the plots in Fig. 2 , which consist of points a, b, c, and d that each contain two features. From a top-down view of each plot, the points form the corners of a rectangle, whose side lengths are",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 22,
+                    "end": 28,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Discrete Interpretation of Mixed Partial Derivatives"
+        },
+        {
+            "text": "When h 1 and h 2 are small, the mixed partial derivative w.r.t variables x 1 and x 2 is computed as follows.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discrete Interpretation of Mixed Partial Derivatives"
+        },
+        {
+            "text": ". Similarly, the mixed partial derivative is approximated as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discrete Interpretation of Mixed Partial Derivatives"
+        },
+        {
+            "text": "When h 1 and h 2 become large, (3) tells us if a plane can fit through all four points a,b,c, d (Fig. 2a) , which occurs when (3) is zero. In this domain where x 1 and x 2 only take two possible values each, a plane in the linear form f (x) = w 1 x 1 + w 2 x 2 + b is functionally equivalent to all functions of the form f (x) = f 1 (x 1 ) + f 2 (x 2 ) + b, so any deviation from the plane, e.g. Fig. 2b , becomes non-additive. Consequently, a non-zero value of (3) identifies a non-additive interaction by the definition of statistical interaction (Def. 1). What's more, the magnitude of (3) tells us the degree of deviation from the plane, or the degree of non-additivity. (Additional details in Appendix G)",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 96,
+                    "end": 105,
+                    "text": "(Fig. 2a)",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 396,
+                    "end": 403,
+                    "text": "Fig. 2b",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Discrete Interpretation of Mixed Partial Derivatives"
+        },
+        {
+            "text": "Leveraging these insights about mixed partial derivatives, we now discuss the two components of our proposed interaction detection technique -ArchDetect.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "ArchDetect"
+        },
+        {
+            "text": "As defined in \u00a73.2 and \u00a74, our problem is how to identify interactions of p features in X for our target data instance x and baseline x . If p = 2, then we can almost directly use (3), where a = (x 1 , x 2 ), b = (x 1 , x 2 ), c = (x 1 , x 2 ), and d = (x 1 , x 2 ). However if p > 2, all possible combinations of features in X would need to be examined to thoroughly identify just one pairwise interaction. To see this, we first rewrite (3) to accommodate p features, and square the result to measure interaction strength and be consistent with previous interaction detectors [18, 19] . The interaction strength between features i and j for a context x \\{i,j} is then defined as",
+            "cite_spans": [
+                {
+                    "start": 577,
+                    "end": 581,
+                    "text": "[18,",
+                    "ref_id": null
+                },
+                {
+                    "start": 582,
+                    "end": 585,
+                    "text": "19]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "where each element of x \\{i,j} is Bernoulli (0.5). This expectation is intractable because X has an exponential search space, so we propose the first component of ArchDetect for efficient pairwise interaction detection:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "Here, we estimate the expectation by leveraging the physical meaning of the interactions and ArchAttribute's axioms via the different contexts of x in (5) as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "\u2022 Context of x : An important interaction is one due to multiple x features. As a concrete example, consider an image representation of a cat which acts as our target data instance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "The following higher-order interaction, if x ear = x ear and x nose = x nose and x f ur = x f ur then f (x) = high cat probability, is responsible for classifying \"cat\". We can detect any pairwise subset {i, j} of this interaction by setting the context as x \\{i,j} using \u03c9 i,j (x ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "\u2022 Context of x : Next, we consider x \\{i,j} to detect interactions via \u03c9 i,j (x ), which helps us establish ArchAttribute's completeness (Lemma 2). This also separates out effects of any higher-order baseline interactions from f (x ) in (8) (Appendix C) and recombine their effects in (11) . From an interpretability standpoint, the x \\{i,j} context ranks pairwise interactions w.r.t. a standard baseline. This context is also used by ArchAttribute (2). \u2022 Other Contexts: The first two contexts accounted for any-order interactions created by either target or baseline features and a few interactions created by a mix of baseline and target features. The remaining interactions specifically require a mix of > 3 target and baseline features. This case is unlikely and is excluded, as we discuss next.",
+            "cite_spans": [
+                {
+                    "start": 285,
+                    "end": 289,
+                    "text": "(11)",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "The following assumption formalizes our intuition for the Other Contexts setting where there is a mix of higher-order (> 3) target and baseline feature interactions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "Assumption 5 (Higher-Order Mixed-Interaction). For any feature set I where |I| > 3 and any pair of non-empty disjoint sets A and B where A \u222a B = I, the instances x \u2208 X such that x i = x i \u2200i \u2208 A and x j = x j \u2200j \u2208 B do not cause a higher-order interaction of all features {x k } k\u2208I via f .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "Assumption 5 has a similar intuition as ArchAttribute in \u00a73.1 that target features do not specifically interact with baseline features. To understand this assumption, consider the original sentiment analysis example in Fig. 1 simplified as x = \"bad terrible awful horrible movie\" where x = \"_ _ _ _ _\". It is reasonable to assume that there is no special interaction created by token sets such as {bad, terrible, _ , horrible} or {_ , _ , _ , horrible} due to the meaningless nature of the \"_\" token.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 219,
+                    "end": 225,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "Efficiency: In (5), ArchDetect attains interaction detection over all pairs {i, j} in O(p 2 ) calls of f . Note that in (4), most function calls are reusable during pairwise interaction detection.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Handling Context:"
+        },
+        {
+            "text": "In this section, the aim here is to recover arbitrary size and disjoint non-additive feature sets S = {I i } (not just pairs). ArchDetect looks at the union of overlapping pairwise interactions to obtain disjoint feature sets. Merging these pairwise interactions captures any existing higher-order interactions automatically since the existence of a higher-order interaction automatically means all its subset interactions exist ( \u00a72). In addition, ArchDetect merges these overlapped pairwise interactions with all individual feature effects to account for all features. The time complexity of this merging process is also O(p 2 ). ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Detecting Disjoint Interaction Sets:"
+        },
+        {
+            "text": "Pairwise Interaction Ranking AUC. The baseline methods fail to detect interactions suited for the desired contexts in \u00a74.2.1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Detecting Disjoint Interaction Sets:"
+        },
+        {
+            "text": "Method",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Detecting Disjoint Interaction Sets:"
+        },
+        {
+            "text": "Two-way ANOVA (5) . \"fixed\" at n = 2 (ArchDetect) already shows good stability.",
+            "cite_spans": [
+                {
+                    "start": 14,
+                    "end": 17,
+                    "text": "(5)",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Detecting Disjoint Interaction Sets:"
+        },
+        {
+            "text": "We conduct experiments first on ArchDetect in \u00a75.2 then on ArchAttribute in \u00a75.3. We then visualize their combined form as Archipelago in \u00a75.3. Throughout our experiments, we commonly study BERT [13, 55] on text-based sentiment analysis and ResNet152 [24] on image classification. BERT was fine-tuned on the SST dataset [43] , and ResNet152 was pretrained on ImageNet [12] .",
+            "cite_spans": [
+                {
+                    "start": 195,
+                    "end": 199,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 200,
+                    "end": 203,
+                    "text": "55]",
+                    "ref_id": null
+                },
+                {
+                    "start": 320,
+                    "end": 324,
+                    "text": "[43]",
+                    "ref_id": null
+                },
+                {
+                    "start": 368,
+                    "end": 372,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Setup"
+        },
+        {
+            "text": "For sentiment analysis, we set the baseline vector x to be the tokens \"_\", in place of each word-token from x . For image classification, we set x to be an all-zero image, and use the Quickshift superpixel segmenter [52] as per the need for input dimensionality reduction [47] (details in Appendix B). We set h 1 = h 2 = 1 for both domains. Several methods we compare to are common across experiments, in particular IG, IH, (disjoint) MAHE, SI, STI, and Difference, defined as \u03c6 d (I) = f (x )\u2212f (x I +x \\I ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Setup"
+        },
+        {
+            "text": "We validate ArchDetect's performance via synthetic ground truth and redundancy experiments. Interaction Redundancy: The purpose of the next experiments is to see if ArchDetect can omit certain higher-order interactions. We study the form of (5) by examining the redundancy of interactions as new contexts are added to (5) , which we now write as\u03c9 i,j (C) = 1 C C c=1 \u03c9 i,j (x c ). Let n be the number of contexts considered, and k be the number of top pairwise interactions selected after running pairwise interaction detection via\u03c9 i,j for all {i, j} pairs. Interaction redundancy is the overlap ratio of two sets of top-k pairwise interactions, one generated via\u03c9 i,j (n) and the other one via\u03c9 i,j (n \u2212 1) for some integer n \u2265 2. We generally expect the redundancy to increase as n increases, which we initially observe in Fig. 3 . Here, \"fixed\" and \"random\" correspond to different context sequences x 1 , x 2 , . . . , x N . The \"random\" sequence uses random samples from X for all {x i } N i=1 , whereas the \"fixed\" sequence is fixed in the sense that x 1 = x , x 2 = x , and the remaining {x i } N i=3 are random samples. Experiments are done on the SST test set for BERT and 100 random test images in ImageNet for ResNet152. Notably, the \"fixed\" setting has very low redundancy at n = 2 (ArchDetect) versus \"random\". As soon as n = 3, the redundancy jumps and stabilizes quickly. These experiments support Assumption 5 and (5) to omit specified higher-order interactions. ",
+            "cite_spans": [
+                {
+                    "start": 318,
+                    "end": 321,
+                    "text": "(5)",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 826,
+                    "end": 832,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "ArchDetect"
+        },
+        {
+            "text": "We study the interpetability of ArchAttribute by comparing its attribution scores to ground truth annotation labels on subsets of features. For fair comparison, we look at extreme attributions (top and bottom 10%) for each baseline method. We then visualize the combined Archipelago framework. Additional comparisons on attributions, runtime, and visualizations are shown in Appendices I, J, K.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "ArchAttribute & Archipelago"
+        },
+        {
+            "text": "Sentiment Analysis: For this task, we compare ArchAttribute to other explanation methods on two metrics: phrase correlation (Phrase \u03c1) and word correlation (Word \u03c1) on the SST test set (metrics are from [26]). Phrase \u03c1 is the Pearson correlation between estimated phrase attributions and SST phrase labels (excluding prediction labels) on a 5-point sentiment scale. Word \u03c1 is unlike our labelbased evaluations by computing the Pearson correlation between estimated word attributions and the corresponding coefficients of a global bag-of-words linear model, which is also trained on the SST dataset. In addition to the aforementioned baseline methods in \u00a75.1, we include the state-of-the-art SCD and SOC methods for sequence models [26] in our evaluation. In Table 2 , ArchAttribute compares favorably to all methods where we consider the top and bottom 10% of the attribution scores for each method. We obtain similar performance across all other percentiles in Appendix I.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 758,
+                    "end": 765,
+                    "text": "Table 2",
+                    "ref_id": "TABREF4"
+                }
+            ],
+            "section": "ArchAttribute & Archipelago"
+        },
+        {
+            "text": "We visualize Archipelago explanations on S generated by top-3 pairwise interactions ( \u00a74.2.2) in Fig. 4 . The sentence examples are randomly selected from the SST test set. The visualizations show interactions and individual feature effects which all have reasonable polarity and intensity. Interestingly, some of the interactions, e.g. between \"lou-sy\" and \"un\", are long range.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 97,
+                    "end": 103,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "ArchAttribute & Archipelago"
+        },
+        {
+            "text": "Image Classification: On image classification, we compare ArchAttribute to relevant baseline methods on a \"Segment AUC\" metric, which computes the agreement between the estimated attribution of an image segment and that segment's label. We obtain segment labels from the MS COCO dataset [29] and match them to the label space of ImageNet. All explanation attributions are computed relative to ResNet152's top-classification in the joint label space. The segment label thus becomes whether or not the segment belongs to the same class as the top-classification. Evaluation is positive attribution rank 1 2 3 4 Figure 5 : Our explanations of a COVID-19 classifier (COVID-Net) [53] on randomly selected test X-rays [9, 10] classified as COVID positive. COVID-Net accurately distinguishes COVID from pneumonia and normal X-rays. Colored outlines indicate detected feature sets with positive attribution. The explanations tend to detect on the \"great vessels\" outlined in green, which are mostly interactions.",
+            "cite_spans": [
+                {
+                    "start": 287,
+                    "end": 291,
+                    "text": "[29]",
+                    "ref_id": null
+                },
+                {
+                    "start": 712,
+                    "end": 715,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 716,
+                    "end": 719,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 609,
+                    "end": 617,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "ArchAttribute & Archipelago"
+        },
+        {
+            "text": "conducted on all segments with valid labels in the MS COCO dev set. ArchAttribute performs especially well on extreme attributions in Table 2 , as well as all attributions (in Appendix I). : Online ad-targeting: \"banner_pos\" is used to target ads to a user per their \"device_id\".",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 134,
+                    "end": 141,
+                    "text": "Table 2",
+                    "ref_id": "TABREF4"
+                }
+            ],
+            "section": "ArchAttribute & Archipelago"
+        },
+        {
+            "text": "Recommendation Task: Fig. 6 shows Archipelago's result for this task using a state-of-the-art AutoInt model [44] for adrecommendation. Here, our approach finds a positive interaction between\"device_id\" and \"banner_pos\" in the Avazu dataset [1] , meaning that the online advertisement model decides the banner position based on user device_id. Note that for this task, there are no ground truth annotations.",
+            "cite_spans": [
+                {
+                    "start": 240,
+                    "end": 243,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 21,
+                    "end": 27,
+                    "text": "Fig. 6",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "ArchAttribute & Archipelago"
+        },
+        {
+            "text": "Attribution: Individual feature attribution methods distill any interactions of a data instance as attribution scores for each feature. Many methods require the scores to sum to equal the output [7, 32, 38, 40, 46] , such as LIME and SHAP, which train surrogate linear explainer models on feature perturbations, and IG which invokes the fundamental theorem of calculus. Other methods compute attributions from an information theoretic perspective [8] or strictly from model gradients [4, 39, 41] . These methods interpret feature importance but not feature interactions.",
+            "cite_spans": [
+                {
+                    "start": 195,
+                    "end": 198,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 199,
+                    "end": 202,
+                    "text": "32,",
+                    "ref_id": null
+                },
+                {
+                    "start": 203,
+                    "end": 206,
+                    "text": "38,",
+                    "ref_id": null
+                },
+                {
+                    "start": 207,
+                    "end": 210,
+                    "text": "40,",
+                    "ref_id": null
+                },
+                {
+                    "start": 211,
+                    "end": 214,
+                    "text": "46]",
+                    "ref_id": null
+                },
+                {
+                    "start": 447,
+                    "end": 450,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 484,
+                    "end": 487,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 488,
+                    "end": 491,
+                    "text": "39,",
+                    "ref_id": null
+                },
+                {
+                    "start": 492,
+                    "end": 495,
+                    "text": "41]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "Feature Interaction: Feature interaction explanation methods tend to either perform interaction detection [2, 6, 16, 18, 19, 45, 48] or combined interaction detection and attribution [14, 25, 30, 31, 37, 50] . Relevant black-box interaction explainers are STI [14] which uses random feature orderings to identify contexts for a variant of (4) so that interaction scores satisfy completeness, IH [25] which extends IG with path integration for hessian computations, and MAHE [50], which trains surrogate explainer models for interaction detection and attribution. STI and IH are axiomatic and satisfy completeness but their attributions are uninterpretable ( ",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 109,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 110,
+                    "end": 112,
+                    "text": "6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 113,
+                    "end": 116,
+                    "text": "16,",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 117,
+                    "end": 120,
+                    "text": "18,",
+                    "ref_id": null
+                },
+                {
+                    "start": 121,
+                    "end": 124,
+                    "text": "19,",
+                    "ref_id": null
+                },
+                {
+                    "start": 125,
+                    "end": 128,
+                    "text": "45,",
+                    "ref_id": null
+                },
+                {
+                    "start": 129,
+                    "end": 132,
+                    "text": "48]",
+                    "ref_id": null
+                },
+                {
+                    "start": 183,
+                    "end": 187,
+                    "text": "[14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 188,
+                    "end": 191,
+                    "text": "25,",
+                    "ref_id": null
+                },
+                {
+                    "start": 192,
+                    "end": 195,
+                    "text": "30,",
+                    "ref_id": null
+                },
+                {
+                    "start": 196,
+                    "end": 199,
+                    "text": "31,",
+                    "ref_id": null
+                },
+                {
+                    "start": 200,
+                    "end": 203,
+                    "text": "37,",
+                    "ref_id": null
+                },
+                {
+                    "start": 204,
+                    "end": 207,
+                    "text": "50]",
+                    "ref_id": null
+                },
+                {
+                    "start": 260,
+                    "end": 264,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "Understandable and accessible explanations are cornerstones of interpretability which informed our isolation and disjoint designs of ArchAttribute and ArchDetect, respectively. Here, we develop an interpretable, model-agnostic, axiomatic, and efficient interaction explainer which achieves state-of-the-art results on multiple attribution tasks. In addition, we introduce a new axiom and generalize existing axioms to higher-order interaction settings. This provides guidance on how to design interaction attribution methods. To be able to solve the transparency issue, we need to understand feature attribution better. This work proposes interpretable and axiomatic feature interaction explanations to motivate future explorations in this area.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "The purpose of this work is to provide new insights into existing and future prediction models. The explanations from Archipelago can be used by both machine learning practitioners and audiences without background expertise. The societal risk of this work is any overdependence on Archipelago.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Broader Impact"
+        },
+        {
+            "text": "Users of this explanation method should consider the merits of not only this method but also other explanation methods for their use cases. For example, users may want fine-grained pixel-level explanations of image classifications whereas our explanations may require superpixel segmentation. Nevertheless, we believe this work can help reveal biases in prediction models, assist in scientific discovery, and stimulate discussions on how to debug models based on feature interactions. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Broader Impact"
+        },
+        {
+            "text": "For a black-box model f : R p \u2192 R which takes as input a vector with p dimensions (e.g. an image, input embedding, etc.) and maps it to a scalar output (e.g. a class logit), we can make ArchDetect more efficient by operating on a lower dimensional input encoding x \u2208 R p with p dimensions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "To match the dimensionality p of the input argument of f , we define a transformation function \u03be : R p \u2192 R p which takes the input encoding x in the lower dimensional space p and brings it back to the input space of f with dimensionality p . In other words, (4) becomes",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "Examples of input encodings are discussed for the following data types:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "\u2022 For an image, we use a superpixel segmenter, which selects regions on the image. The selection is covered by the vector x \u2208 {0, 1} p , which encodes which image segments have been selected. Note that wherever x is 0 corresponds to a baseline feature value (e.g. zeroed image pixels).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "\u2022 For text, we use the natural correspondence between an input embedding and a word token. The selection of input embedding vectors is also covered by the vector x \u2208 {0, 1} p .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "\u2022 For recommendation data, we use the same type of correspondence between an input embedding and a feature field.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "Similar notions of input encodings have also been used in [38, 47] .",
+            "cite_spans": [
+                {
+                    "start": 58,
+                    "end": 62,
+                    "text": "[38,",
+                    "ref_id": null
+                },
+                {
+                    "start": 63,
+                    "end": 66,
+                    "text": "47]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "B Input Dimensionality Reduction"
+        },
+        {
+            "text": "Lemma 2 (Completeness on S). The sum of all attributions by ArchAttribute for the disjoint sets in S equals the difference of f between x and the baseline x :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "Proof. Based on the definition of non-additive statistical interaction (Def. 1), a function f can be represented as a generalized additive function [48-50], here on the domain of X :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "where q i (x I u i ) is a function of each interaction I u i on X \u2200i = 1, . . . , \u03b7 interactions, q j (x j ) is a function for each feature \u2200j = 1, . . . , p, and b is a bias. The u in I u stands for \"unmerged\".",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "The disjoint sets of S = {I i } k i=1 are the result of merging overlapping interaction sets and main effect sets, so we can merge the subfunctions q(\u00b7) and q (\u00b7) of (6) whose input sets overlap to write f (x) as a sum of new functions g i (x Ii ) \u2200i = 1, . . . , k:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "For some {g i } k i=1 of the form of (7), we rewrite (2) by separating out the effect of index i:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "Since all I \u2208 S are disjoint, g j (x Ij ) can be canceled in (8) \u2200j, leading to (9) . The result at (9) can also be obtained with an alternative attribution approach, as shown in Corollary 6.",
+            "cite_spans": [
+                {
+                    "start": 61,
+                    "end": 64,
+                    "text": "(8)",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 80,
+                    "end": 83,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "Next, we compute the sum of attributions:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C Completeness Axiom"
+        },
+        {
+            "text": "Corollary 6 (Completeness of a Complement). An attribution approach:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D Completeness of a Complementary Attribution Method"
+        },
+        {
+            "text": ", similar to what is mentioned in [26, 28] , also satisfies the completeness axiom.",
+            "cite_spans": [
+                {
+                    "start": 34,
+                    "end": 38,
+                    "text": "[26,",
+                    "ref_id": null
+                },
+                {
+                    "start": 39,
+                    "end": 42,
+                    "text": "28]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "D Completeness of a Complementary Attribution Method"
+        },
+        {
+            "text": "Proof. Based on Eqs. 7 -9 of Lemma 2:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D Completeness of a Complementary Attribution Method"
+        },
+        {
+            "text": "We can then resume with (10) of Lemma 2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D Completeness of a Complementary Attribution Method"
+        },
+        {
+            "text": "have roots, then an interaction attribution method admits an attribution for feature set I i as \u03d5 i (x Ii ) \u2200i = 1, . . . , k. Lemma 4 (Set Attribution on S). For x = x and a baseline x such that \u03d5 i (x Ii ) = 0 \u2200i = 1, . . . , k, ArchAttribute satisfies the Set Attribution axiom and provides attribution \u03d5 i (x Ii ) for set I i \u2200i.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E Set Attribution Axiom"
+        },
+        {
+            "text": "Proof. From (9) in Lemma 2, ArchAttribute can be written as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E Set Attribution Axiom"
+        },
+        {
+            "text": "are disjoint feature sets for the same function f in Axiom 3, g i (\u00b7) and \u03d5 i (\u00b7) are related by a constant bias b i :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E Set Attribution Axiom"
+        },
+        {
+            "text": "Adding g i (x Ii ) to both sides,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E Set Attribution Axiom"
+        },
+        {
+            "text": "We now provide counterexamples to identify situations in which the related methods do not satisfy the Set Attribution axiom.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Let f (x) = ReLU(x 1 + x 3 + 1) + ReLU(x 2 ) + 1. f (x) can be written as f (x) = \u03d5 1 (x {1,3} ) + \u03d5 2 (x {2} ) where \u03d5 1 (x) = ReLU(x 1 + x 3 + 1), and \u03d5 2 (x) = ReLU(x 2 ) + 1. According to the Set Attribution axiom, an interaction attribution method admits attributions as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "The above setting serves as counterexamples to the related methods as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "\u2022 CD always assigns \u03b1 + \u03b1 \u03b1+\u03b2 to I 1 and \u03b2 + \u03b2 \u03b1+\u03b2 to I 2 , where \u03b1 = ReLU(x 1 + x 3 + 1) and \u03b2 = ReLU(x 2 ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "\u2022 SCD uses an expectation over an activation decomposition, which does not guarantee admission of ReLU(x 1 + x 3 + 1) for I 1 and ReLU(x 2 ) for I 2 through their respective decompositions. In the ideal case SCD becomes CD, which still does not satisfy Set Attribution from above. \u2022 IH always assigns a zero attribution to I 2 from hessian computations. IH also does not assign attributions to general sets of features. \u2022 SOC does not assign attributions to general feature sets, only contiguous feature sequences.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "\u2022 Both SI and STI assign the following attribution score to I 1 :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "ReLU(x 1 + x 3 + 1) \u2212 ReLU(x 1 + x 3 + 1) \u2212 ReLU(x 1 + x 3 + 1) + ReLU(x 1 + x 3 + 1).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "There do not exist a selection of x 1 and x 3 such that this attribution becomes ReLU(x 1 + x 3 + 1) for all values of x 1 and x 3 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Proof. We prove via case-by-case contradiction. Only the ReLU(x 1 + x 3 + 1) term can create an interaction between x 1 and x 3 , and this term is also the target result, so any nonzero deviation from this term via independent x 1 or x 3 effects in (12) must be countered. These independent effects manifest as the ReLU(x 1 + x 3 + 1) or ReLU(x 1 + x 3 + 1) terms respectively. Since ReLU is always non-negative, the only way either of these terms is nonzero is if it is positive, which implies that ReLU(x 1 + x 3 + 1) = x 1 + x 3 + 1 or ReLU(x 1 + x 3 + 1) = x 1 + x 3 + 1. If both terms are positive, their substitution into (12) yields ReLU(",
+            "cite_spans": [
+                {
+                    "start": 628,
+                    "end": 632,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "If only one of the independent effects was positive, we also cannot assert 0 through similar simplifications. Now consider the remaining case where ReLU(x 1 + x 3 + 1) = ReLU(x 1 + x 3 + 1) = ReLU(x 1 + x 3 + 1) = 0. For any real-valued x 1 or x 3 , there can also be a negative realvalued x 3 or x 1 respectively. From either terms ReLU(x 1 + x 3 + 1) or ReLU(x 1 + x 3 + 1), we obtain ReLU(1) = 0, which is a contradiction. Proof. Since x and x only differ at I, the following is true: x \\I = x \\I . We can therefore write x as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Substituting this equivalence in (2), we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Since f (x ) \u2212 f (x ) = 0, we directly obtain \u03c6(I) = 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Lemma 8 (Sensitivity (b) ). If f does not functionally depend on I, then \u03c6(I) is always zero.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 8,
+                    "end": 24,
+                    "text": "(Sensitivity (b)",
+                    "ref_id": null
+                }
+            ],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Proof. Since f does not functionally depend on I,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Therefore,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E.1 Set Attribution Counterexamples"
+        },
+        {
+            "text": "Lemma 9 (Implementation Invariance). For functionally equivalent models (with the same inputoutput mapping), \u03c6(\u00b7) are the same.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.2 Implementation Invariance"
+        },
+        {
+            "text": "The definition of (2) only relies on function calls to f , which implies Implementation Invariance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.2 Implementation Invariance"
+        },
+        {
+            "text": "Lemma 10 (Linearity on S). If two models f 1 , f 2 have the same disjoint feature sets S and f = c 1 f 1 + c 2 f 2 where c 1 , c 2 are constants, then \u03c6(I) = c 1 \u03c6 1 (I) + c 2 \u03c6 2 (I) \u2200I \u2208 S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "Proof. Since f 1 and f 2 have the same S = {I i } k i=1 , we can write f 1 and f 2 as follows via (7) in Lemma 2:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "i (x Ii ) + b (2) .",
+            "cite_spans": [
+                {
+                    "start": 14,
+                    "end": 17,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "By grouping terms as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "From the form of (14), we can invoke (9): \u03c6(I i ) = g i (x Ii ) \u2212 g i (x Ii ) via Lemma 2. This equation is rewritten as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "i (x Ii ) \u2212 g (2) i (x Ii ) = c 1 \u03c6 1 (I i ) + c 2 \u03c6 2 (I i ).",
+            "cite_spans": [
+                {
+                    "start": 14,
+                    "end": 17,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "By noting that S = {I i } k i=1 , this concludes the proof.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.3 Linearity"
+        },
+        {
+            "text": "We first define symmetric feature sets as a generalization of \"symmetric variables\" from [46]. Feature index sets I 1 and I 2 are symmetric with respect to function f if swapping features in I 1 with the features in I 2 does not change the function, This implies that for symmetric I 1 and I 2 , their cardinalities are the same |I 1 | = |I 2 |, and they are disjoint sets in order to swap the features to any valid set index. Lemma 11 (Symmetry-Preserving). For x and x that each have identical feature values between symmetric feature sets with respect to f , the symmetric feature sets receive identical attributions \u03c6(\u00b7).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.4 Symmetry-Preserving"
+        },
+        {
+            "text": "Proof. Since x and x each have identical feature values between the symmetric feature sets,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.4 Symmetry-Preserving"
+        },
+        {
+            "text": "Therefore, the symmetry implies the following for any x in the domain of f .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.4 Symmetry-Preserving"
+        },
+        {
+            "text": "Setting x = x , we rewrite (15) as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.4 Symmetry-Preserving"
+        },
+        {
+            "text": "Therefore, \u03c6(I 1 ) = \u03c6(I 2 ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "F.4 Symmetry-Preserving"
+        },
+        {
+            "text": "A generalized additive model f g is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "where g i (\u00b7) can be any function of individual features x i and b is a bias. Since each x i of x \u2208 X only takes on two values, a line can connect all valid points in each feature. Therefore, (16) is equivalent to",
+            "cite_spans": [
+                {
+                    "start": 192,
+                    "end": 196,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "for weights w i \u2208 R and the function domain being X .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "For the case where p = 2, the discrete mixed partial derivative is given by (3) or",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "where h 1 = |x 1 \u2212 x 1 | and h 2 = |x 2 \u2212 x 2 |. Since any three points (not on the same line) define a plane of the form (17) (p = 2), we can write the fourth point as having a function value with deviation \u03b4 from the plane.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "(18)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "If (18) is 0, then \u03b4 = 0, which implies that f can be written as (17) . \u03b4 = 0 implies the opposite, that f cannot be written in linear form (by definition). Since (17) is equivalent to (16) in the domain of X , this implies that \u03b4 = 0 if and only if f (x) = g 1 (x 1 ) + g 2 (x 2 ) + b.",
+            "cite_spans": [
+                {
+                    "start": 65,
+                    "end": 69,
+                    "text": "(17)",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 163,
+                    "end": 167,
+                    "text": "(17)",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 185,
+                    "end": 189,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "Based on Def. 1, we can conclude that a nonzero discrete mixed partial derivative w.r.t. x 1 and x 2 in the space X at p = 2 detects a non-additive statistical interaction between the two features. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "G Discrete Mixed Partial Derivatives Detect Non-Additive Statistical Interactions"
+        },
+        {
+            "text": "We discuss early works on feature interaction interpretation and provide a timeline for this research history in Table 4 . We also discuss mixed partial derivatives on dichotomous variables in H.3.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 113,
+                    "end": 120,
+                    "text": "Table 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "H Early Works on Feature Interaction Interpretation"
+        },
+        {
+            "text": "The notion of a feature interaction has been studied at least since the 19th century when John Lawes and Joseph Gilbert used factorial designs in agricultural research at the Rothamsted Experimental Station [11] . A factorial design is an experiment that includes observations at all combinations of categories of each factor or feature. However, the \"advantages [of factorial design] had never been clearly recognised, and many research workers believed that the best course was the conceptually simple one of investigating one question at a time\" [57] . In the early 20th century, Fisher et al. (1926) [17] emphasized the importance of factorial designs as being the only way to obtain information about feature interactions. Near the same time, Fisher (1921) [15] also developed one of the foundations of statistical analysis called Analysis of Variance (ANOVA) including twoway ANOVA [16] , which is a factorial method to detect pairwise feature interactions based on differences among group means in a dataset. Tukey (1949) [51] extended two-way ANOVA to test if two categorical features are non-additively related to the expected value of a outcome variable. This work set a precedent for later research on detecting feature interactions based on their nonadditive definition. Soon after, experimental designs were generalized to study feature interactions, in particular the generalized randomized block design [54] , which assigns test subjects to different categories (or blocks) between features in a way where cross-categories between features serve as interaction terms in linear regression.",
+            "cite_spans": [
+                {
+                    "start": 207,
+                    "end": 211,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 549,
+                    "end": 553,
+                    "text": "[57]",
+                    "ref_id": null
+                },
+                {
+                    "start": 597,
+                    "end": 603,
+                    "text": "(1926)",
+                    "ref_id": null
+                },
+                {
+                    "start": 604,
+                    "end": 608,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 762,
+                    "end": 766,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 888,
+                    "end": 892,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1016,
+                    "end": 1028,
+                    "text": "Tukey (1949)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1418,
+                    "end": 1422,
+                    "text": "[54]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "H.1 Origins"
+        },
+        {
+            "text": "There was a surge of interest in improving the analysis of feature interactions after the mid 20th century. Belsion (1959) [5] and Morgan & Sonquist (1963) [34] proposed Automatic Interaction Detection (AID) originally under a different name. AID detects interactions by subdividing data into disjoint exhaustive subsets to model an outcome based on categorical features. Based on AID, Kass (1980) [27] developed Chi-square Automatic Interaction Detection (CHAID), which determines how categorical features best combine in decision trees via a chi-square test. AID and CHAID were precursors to modern decision tree prediction models. Concurrently, Nelder (1977) [36] introduced the \"Principle of Marginality\" arguing that a feature interaction and its marginal variables should not be considered separately, for example in linear regression. Hamada & Wu (1992) [22] provided a contrasting view that an interaction is only important if one or both of its marginal variables are important. Around the same time, an influential book on interpreting feature interactions was published on how to test, plot, and understand interactions of two or three continuous or categorical features [3] .",
+            "cite_spans": [
+                {
+                    "start": 123,
+                    "end": 126,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 131,
+                    "end": 155,
+                    "text": "Morgan & Sonquist (1963)",
+                    "ref_id": null
+                },
+                {
+                    "start": 386,
+                    "end": 397,
+                    "text": "Kass (1980)",
+                    "ref_id": null
+                },
+                {
+                    "start": 634,
+                    "end": 661,
+                    "text": "Concurrently, Nelder (1977)",
+                    "ref_id": null
+                },
+                {
+                    "start": 842,
+                    "end": 860,
+                    "text": "Hamada & Wu (1992)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1182,
+                    "end": 1185,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "H.1 Origins"
+        },
+        {
+            "text": "At the start of the 21st century, efforts began to focus on interpreting interactions in accurate prediction models. Ai & Norton (2003) [2] proposed extracting interactions from logit and probit models via mixed partial derivatives. Gevrey ",
+            "cite_spans": [
+                {
+                    "start": 117,
+                    "end": 135,
+                    "text": "Ai & Norton (2003)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 136,
+                    "end": 139,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "H.2 Early 21st Century Works"
+        },
+        {
+            "text": "To our knowledge, the usage of mixed partial derivatives for interaction detection on dichotomous variables (features that only take two possible values) originated at the turn of the 21st century [2, 20] , but existing methods rely on single contexts [2] or random contexts [14, 20] . Furthermore, these methods do not consider the union of overlapping pairwise interactions for disjoint higher-order interaction detection. Our choice of contexts and our disjoint interaction detection are both important to the Archipelago framework, as we discussed in \u00a74.2 and showed through axiomatic analysis ( \u00a73.2) and experiments ( \u00a75.2). Table 2 . ",
+            "cite_spans": [
+                {
+                    "start": 197,
+                    "end": 200,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 201,
+                    "end": 204,
+                    "text": "20]",
+                    "ref_id": null
+                },
+                {
+                    "start": 252,
+                    "end": 255,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 275,
+                    "end": 279,
+                    "text": "[14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 280,
+                    "end": 283,
+                    "text": "20]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 631,
+                    "end": 638,
+                    "text": "Table 2",
+                    "ref_id": "TABREF4"
+                }
+            ],
+            "section": "H.3 Note on Mixed Partial Derivatives on Dichotomous Variables"
+        },
+        {
+            "text": "We run an ablation study removing the x \\{i,j} baseline context from (5) for disjoint interaction detection and examine its effect on visualizations. The visualizations are shown in Fig. 21 for sentiment analysis and Figs. 22 and 23 for image classification. Top-3 and top-5 pairwise interactions are used in sentiment analysis and image classification respectively before merging the interactions.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 182,
+                    "end": 189,
+                    "text": "Fig. 21",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"I regret to report that these ops are just not extreme enough .\" Classification: neg Archipelago i regret to report that these ops are just not extreme enough . neg pos Difference + ArchDetect i regret to report that these ops are just not extreme enough .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "IG i regret to report that these ops are just not extreme enough .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "IG + ArchDetect i regret to report that these ops are just not extreme enough . Figure 11 : Text Viz. Comparison A. In the first text example, \"regret, not extreme enough\" is a meaningful and strongly negative interaction. In the second example, \"when you begin to\" interacts to diminish its overall attribution magnitude. Text input: \"A lousy movie that 's not merely unwatchable , but also unlistenable .\" Classification: neg Archipelago a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 80,
+                    "end": 89,
+                    "text": "Figure 11",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Difference + ArchDetect a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "IG a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "IG + ArchDetect a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble . Figure 12 : Text Viz. Comparison B. In the first text example, \"thought provoking\" is a meaningful and strongly positive interaction. In the second example, the \"lousy, un\" interaction factors in a large context to make a negative text classification. Figure 13 : Text Viz. Comparison C. In the first text example, \"refined, to a crystalline\" is a meaningful and strongly positive interaction. In the second example, \"is aptly named\" is also a meaningful and strongly positive interaction. Figure 14 : Text Viz. Comparison D. In the first text example, \"the ending, out\" is a meaningful and negative interaction. In the second example, \"a feel good, best\" is a meaningful and strongly positive interaction. Figure 15 : Text Viz. Comparison E. In the first text example, \"film should be, buried\" is a meaningful and strongly negative interaction. In the second example, \"-oherent\" belongs to a negative word \"incohorent\". Figure 16 : Image Viz. Comparison A. In the first image example, the dog's eyes are a meaningful interaction supporting the classification. In the second example, the monkey's head is also a positive interaction. Figure 17 : Image Viz. Comparison B. In the first image example, the obelisk tip is a meaningful interaction supporting the classification. In the second example, the leopard's face is also a positive interaction. Figure 18 : Image Viz. Comparison C. In the first image example, different patches of the apron are interactions supporting the classification. In the second example, the stork's body is an interaction that strongly supports the classification. Figure 19 : Image Viz. Comparison D. In the first image example, certain small patches of the waffle iron interact, one of which supports the classification. In the second example, the leopard's face is the primary positive interaction. Figure 20 : Image Viz. Comparison E. In the first image example, different parts of the polaroid camera are interactions that positively support the classification. In the second example, the dogs' heads and body are also positive interactions.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 100,
+                    "end": 109,
+                    "text": "Figure 12",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 352,
+                    "end": 361,
+                    "text": "Figure 13",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 590,
+                    "end": 599,
+                    "text": "Figure 14",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 807,
+                    "end": 816,
+                    "text": "Figure 15",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1021,
+                    "end": 1030,
+                    "text": "Figure 16",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1234,
+                    "end": 1243,
+                    "text": "Figure 17",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1448,
+                    "end": 1457,
+                    "text": "Figure 18",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1693,
+                    "end": 1702,
+                    "text": "Figure 19",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1930,
+                    "end": 1939,
+                    "text": "Figure 20",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"I regret to report that these ops are just not extreme enough .\" Classification: neg w/ Baseline Context i regret to report that these ops are just not extreme enough . neg pos w/o Baseline Context i regret to report that these ops are just not extreme enough .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"It 's a worse sign when you begin to envy her condition .\" Classification: neg w/ Baseline Context it ' s a worse sign when you begin to envy her condition .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context it ' s a worse sign when you begin to envy her condition .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"It 's solid and affecting and exactly as thought-provoking as it should be .\" Classification: pos w/ Baseline Context it ' s solid and affecting and exactly as thought -pro -voking as it should be .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context it ' s solid and affecting and exactly as thought -pro -voking as it should be .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"A lousy movie that 's not merely unwatchable , but also unlistenable .\" Classification: neg w/ Baseline Context a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"Tsai Ming-liang has taken his trademark style and refined it to a crystalline point .\" Classification: pos w/ Baseline Context ts -ai ming -liang has taken his trademark style and refined it to a crystalline point .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context ts -ai ming -liang has taken his trademark style and refined it to a crystalline point .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"As an actor , The Rock is aptly named .\" Classification: pos w/ Baseline Context as an actor , the rock is apt -ly named .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context as an actor , the rock is apt -ly named .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"The ending is a cop-out .\" Classification: neg w/ Baseline Context the ending is a cop -out .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context the ending is a cop -out .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"A feel-good picture in the best sense of the term .\" Classification: pos w/ Baseline Context a feel -good picture in the best sense of the term .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context a feel -good picture in the best sense of the term .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"All prints of this film should be sent to and buried on Pluto .\" Classification: neg w/ Baseline Context all prints of this film should be sent to and buried on pluto .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context all prints of this film should be sent to and buried on pluto .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "Text input: \"Arguably the year 's silliest and most incoherent movie .\" Classification: neg w/ Baseline Context arguably the year ' s si -llie -st and most inc -oh -ere -nt movie .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "L ArchDetect Ablation Visualizations"
+        },
+        {
+            "text": "w/o Baseline Context arguably the year ' s si -llie -st and most inc -oh -ere -nt movie . Figure 21 : Text Viz. with ArchDetect Ablation. The interactions tend to use more salient words when including the baseline context, which is proposed in ArchDetect. Figure 22 : Image Viz. with ArchDetect Ablation A. The interactions tend to focus more on salient patches of the images when including the baseline context, which is proposed in ArchDetect. Figure 23 : Image Viz. with ArchDetect Ablation B. The interactions tend to focus on salient patches of the images when including the baseline context.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 90,
+                    "end": 99,
+                    "text": "Figure 21",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 256,
+                    "end": 265,
+                    "text": "Figure 22",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 446,
+                    "end": 455,
+                    "text": "Figure 23",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "L ArchDetect Ablation Visualizations"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Avazu click-through-rate prediction",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "2020--2024",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Interaction terms in logit and probit models",
+            "authors": [
+                {
+                    "first": "Chunrong",
+                    "middle": [],
+                    "last": "Ai",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Edward",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Norton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Economics letters",
+            "volume": "80",
+            "issn": "1",
+            "pages": "123--129",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Multiple regression: Testing and interpreting interactions",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Leona S Aiken",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Stephen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Raymond R",
+                    "middle": [],
+                    "last": "West",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Reno",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Sage",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Towards better understanding of gradient-based attribution methods for deep neural networks",
+            "authors": [
+                {
+                    "first": "Marco",
+                    "middle": [],
+                    "last": "Ancona",
+                    "suffix": ""
+                },
+                {
+                    "first": "Enea",
+                    "middle": [],
+                    "last": "Ceolini",
+                    "suffix": ""
+                },
+                {
+                    "first": "Cengiz",
+                    "middle": [],
+                    "last": "Oztireli",
+                    "suffix": ""
+                },
+                {
+                    "first": "Markus",
+                    "middle": [],
+                    "last": "Gross",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "6th International Conference on Learning Representations",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Matching and prediction on the principle of biological classification",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "William",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Belson",
+                    "suffix": ""
+                }
+            ],
+            "year": 1959,
+            "venue": "Journal of the Royal Statistical Society: Series C (Applied Statistics)",
+            "volume": "8",
+            "issn": "2",
+            "pages": "65--75",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "A lasso for hierarchical interactions",
+            "authors": [
+                {
+                    "first": "Jacob",
+                    "middle": [],
+                    "last": "Bien",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jonathan",
+                    "middle": [],
+                    "last": "Taylor",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert",
+                    "middle": [],
+                    "last": "Tibshirani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Annals of statistics",
+            "volume": "41",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Layer-wise relevance propagation for neural networks with local renormalization layers",
+            "authors": [
+                {
+                    "first": "Alexander",
+                    "middle": [],
+                    "last": "Binder",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gr\u00e9goire",
+                    "middle": [],
+                    "last": "Montavon",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sebastian",
+                    "middle": [],
+                    "last": "Lapuschkin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Klaus-Robert",
+                    "middle": [],
+                    "last": "M\u00fcller",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wojciech",
+                    "middle": [],
+                    "last": "Samek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "International Conference on Artificial Neural Networks",
+            "volume": "",
+            "issn": "",
+            "pages": "63--71",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Learning to explain: An information-theoretic perspective on model interpretation",
+            "authors": [
+                {
+                    "first": "Jianbo",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Le",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "Martin",
+                    "middle": [],
+                    "last": "Wainwright",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Jordan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International Conference on Machine Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "883--892",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Can ai help in screening viral and covid-19 pneumonia?",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Muhammad",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tawsifur",
+                    "middle": [],
+                    "last": "Chowdhury",
+                    "suffix": ""
+                },
+                {
+                    "first": "Amith",
+                    "middle": [],
+                    "last": "Rahman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rashid",
+                    "middle": [],
+                    "last": "Khandakar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Muhammad",
+                    "middle": [
+                        "Abdul"
+                    ],
+                    "last": "Mazhar",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kadir",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Zaid Bin Mahbub",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Khandakar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Muhammad",
+                    "middle": [
+                        "Salman"
+                    ],
+                    "last": "Islam",
+                    "suffix": ""
+                },
+                {
+                    "first": "Atif",
+                    "middle": [],
+                    "last": "Khan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nasser",
+                    "middle": [],
+                    "last": "Iqbal",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Al-Emadi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.13145"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Covid-19 image data collection",
+            "authors": [
+                {
+                    "first": "Joseph",
+                    "middle": [],
+                    "last": "Paul Cohen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Paul",
+                    "middle": [],
+                    "last": "Morrison",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lan",
+                    "middle": [],
+                    "last": "Dao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Handbook of design and analysis of experiments",
+            "authors": [
+                {
+                    "first": "Angela",
+                    "middle": [],
+                    "last": "Dean",
+                    "suffix": ""
+                },
+                {
+                    "first": "Max",
+                    "middle": [],
+                    "last": "Morris",
+                    "suffix": ""
+                },
+                {
+                    "first": "John",
+                    "middle": [],
+                    "last": "Stufken",
+                    "suffix": ""
+                },
+                {
+                    "first": "Derek",
+                    "middle": [],
+                    "last": "Bingham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "7",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "ImageNet: A Large-Scale Hierarchical Image Database",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Deng",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Dong",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Socher",
+                    "suffix": ""
+                },
+                {
+                    "first": "L.-J",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Fei-Fei",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "CVPR09",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Bert: Pre-training of deep bidirectional transformers for language understanding",
+            "authors": [
+                {
+                    "first": "Jacob",
+                    "middle": [],
+                    "last": "Devlin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ming-Wei",
+                    "middle": [],
+                    "last": "Chang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kenton",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kristina",
+                    "middle": [],
+                    "last": "Toutanova",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+            "volume": "1",
+            "issn": "",
+            "pages": "4171--4186",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "The shapley taylor interaction index",
+            "authors": [
+                {
+                    "first": "Kedar",
+                    "middle": [],
+                    "last": "Dhamdhere",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ashish",
+                    "middle": [],
+                    "last": "Agarwal",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mukund",
+                    "middle": [],
+                    "last": "Sundararajan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1902.05622"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "On the'probable error'of a coefficient of correlation deduced from a small sample",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ronald",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Fisher",
+                    "suffix": ""
+                }
+            ],
+            "year": 1921,
+            "venue": "Metron",
+            "volume": "1",
+            "issn": "",
+            "pages": "1--32",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Statistical methods for research workers",
+            "authors": [
+                {
+                    "first": "Aylmer",
+                    "middle": [],
+                    "last": "Ronald",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Fisher",
+                    "suffix": ""
+                }
+            ],
+            "year": 1925,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "048: The arrangement of field experiments",
+            "authors": [
+                {
+                    "first": "Aylmer",
+                    "middle": [],
+                    "last": "Ronald",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Fisher",
+                    "suffix": ""
+                }
+            ],
+            "year": 1926,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF1": {
+            "text": "Our explanation for the sentiment analysis example of[25]. Colors indicate sentiment, and arrows indicate interactions. Compared to other axiomatic interaction explainers, only our work corroborates our intuition by showing negative attribution among top-ranked interactions.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": ") \u03b4 vs. \u03c6 on a text example(Fig. 1) Non-additive interaction for p = 2 features: The corner points are used to determine if x 1 and x 2 interact based on their non-additivity on f , i.e. they interact if\u03b4 \u221d (f (a) \u2212 f (b)) \u2212 (f (c) \u2212 f (d)) = 0 ( \u00a74.1). In (c), the attribution of (bad, awful) should be negative via \u03c6 (2), but Shapley Taylor Interaction Index uses the positive \u03b4. Note that \u03c6 depends on a and d whereas \u03b4 depends on a, b, c, and d. Also, Integrated Hessians is not relevant here since it does not apply to ReLU functions.Definition 1 (Statistical Non-Additive Interaction). A function f contains a statistical non-additive interaction of multiple features indexed in set I if and only if f cannot be decomposed into a sum of |I| subfunctions f i , each excluding the i-th interaction variable: f (x) = i\u2208I f i (x \\{i} ). Def. 1 identifies a non-additive effect among all features I on the output of function f [18, 45, 48].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Interaction detection overlap (redundancy) with added contexts to",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Validation: We set x = [1, 1, . . . , 1] \u2208 R 40 and x = [\u22121, \u22121, . . . , \u22121] \u2208 R 40 . Let z[\u00b7] be a key-value pair function such that z[i] = x i for key i \u2208 z.keys and value x i , so we can define (x; z) := 1, if x i = z[i] \u2200i \u2208 z.keys \u22121 for all other cases.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "s a worse sign when you begin to envy her condition . pos it ' s solid and affecting and exactly as thought -pro -voking as it should be . neg a lou -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Our BERT visualizations on random test sentences from SST under BERT tokenization. Arrows indicate interactions, and colors indicate attribution strength. f c is the sentiment classification. The interactions point to salient and sometimes long-range sets of words, and the colors are sensible.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Archipelago on an accurate COVID-19 classifier for chest X-rays [53], where S is generated by top-5 pairwise interactions ( \u00a74.2.2). Shown is a random selection of test X-rays[9,10] that are classified COVID-positive. The explanations tend to detect the \"great vessels\" near the heart.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Figure 6: Online ad-targeting: \"banner_pos\" is used to target ads to a user per their \"device_id\".",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF10": {
+            "text": "Sensitivity (a)). If x and x only differ at features indexed in I and f (x ) = f (x ), then \u03c6(I) (2) yields a nonzero attribution.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF11": {
+            "text": "the case where p > 2, Def. 1 states that a pairwise interaction {i, j} exists in f if and only if f (x) = f i (x \\{i} ) + f j (x \\{j} ) for functions f i (\u00b7) and f j (\u00b7). This means that {i, j} is declared to be an interaction if a local {i, j} interaction occurs at any x \\{i,j} , x \u2208 X . Therefore, we can detect non-additive statistical interactions {i, j} for general p the definition of pairwise interaction for real-valued x in [18].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF12": {
+            "text": "(2006) [19] followed up by proposing mixed partial derivatives to extract interactions from multilayer perceptrons with sigmoid activations when at the time, only shallow neural networks were studied. Friedman & Popescu (2008) [18] proposed using hybrid models to capture interactions with decision trees and univariate effects with linear regression. Sorokina et al. (2008) [45] proposed to use high-performance additive trees to detect feature interactions based on their non-additive definition. At the turn of the decade, we saw Bien et al. [6] capture interactions with different heredity conditions using a hierarchical lasso on linear regression models. Then, Hao & Zhang (2014) [23] drew attention towards interaction screening in high dimensional data. This summarizes feature interaction research before 2015.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF13": {
+            "text": "4 Timeline of research on feature interaction interpretation (Pre-2015) Lawes & Gilbert -factorial design in agricultural research at the Rothamsted ExperiKass -Chi-square Automatic Interaction Detection by combining features in decision trees via chi-square tests 1991 \u2022 Aiken & West -book on interpreting interaction effects Hamada & Wu -heredity conditions 1992 \u2022 Ai & Norton -interactions in logit and probit models 2003 \u2022 2006 \u2022 Gevry et al. -interactions in sigmoid neural networks Friedman & Popescu -RuleFit to detect interactions by mixing linear regression and trees 2008 \u2022 Sorokina et al. -Additive Groves to detect non-additive interactions Bien et al.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF14": {
+            "text": "Text explanation metrics ((a) Word \u03c1 and (b) Phrase \u03c1) versus top and bottom % of attributions retained for different attribution methods on BERT over the SST test set. These plots expand the analysis of",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF16": {
+            "text": "Image explanation metric (segment AUC) versus top and bottom % of attributions retained for different attribution methods on ResNet152 over the MS COCO test set. These plots expand the analysis of",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF17": {
+            "text": "Serial runtime comparison of relevant explainer methods for (a) BERT sentiment analysis on SST and (b) ResNet152 image classification on ImageNet. Runtimes are averaged across 100 random data samples from respective test sets. These experiments were done on a server with 32 Intel Xeon E5-2640 v2 CPUs @ 2.00GHz and 2 Nvidia 1080 Ti GPUs.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF18": {
+            "text": "of different attribution methods on BERT are shown in Figs. 11-15 for random test sentences from SST. The visualization format is the same as Fig. 4. Note that all individual feature attributions that correspond to stop words (from [33]) are omitted in these comparisons and Figs. Our ResNet152 visualizations on random test images from ImageNet. Colored outlines indicate interactions with positive attribution. f c is the image classification result. To our knowledge, only this work shows interactions that support the image classification via interaction attribution. In Fig. 10, we visualize Archipelago explanations on S via top-5 pairwise interactions ( \u00a74.2.2), where positive attribution interactions are shown for clarity. The images are randomly selected from the ImageNet test set. It is interesting to see which image parts interact, such as the eyes of the \"great dane\" image. Visualization comparisons of different attribution methods on ResNet152 are shown in Figs.[16][17][18][19][20] for the same random test images from ImageNet.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF19": {
+            "text": ": \"It 's a worse sign when you begin to envy her condition .\" Classification: neg Archipelago it ' s a worse sign when you begin to envy her condition .Difference + ArchDetect it ' s a worse sign when you begin to envy her condition .IG it ' s a worse sign when you begin to envy her condition .IG + ArchDetect it ' s a worse sign when you begin to envy her condition .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF20": {
+            "text": "and affecting and exactly as thought -pro -voking as it should be .IGit ' s solid and affecting and exactly as thought -pro -voking as it should be .IG + ArchDetect it ' s solid and affecting and exactly as thought -pro -voking as it should be . ' s solid and affecting and exactly as thought -pro -voking as it should be . ' s solid and affecting and exactly as thought -pro -voking as it should be .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF21": {
+            "text": "-sy movie that ' s not merely un -watch -able , but also un -list -ena -ble . -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble . -sy movie that ' s not merely un -watch -able , but also un -list -ena -ble .",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "). Existing interaction / group attribution methods: Sampling Contextual Decomposition (SCD) [26], its variant (CD) [35,42], Sampling Occlusion (SOC) [26], and Shapley Interaction Index (SI) [20] do not satisfy completeness, whereas Integrated Hessians (IH) [25] and Shapley Taylor Interaction Index (STI)",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "and later experiments ( \u00a75.3). The disjoint sets also allow ArchAttribute to yield identifiable non-additive attributions in the sense that it can identify the attribution given a feature set in S. This contrasts with Model-Agnostic Hierarchical Explanations (MAHE) [50], which yields unidentifiable attributions [56].",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Comparison of attribution methods on BERT for sentiment analysis and ResNet152 for image classification. Performance is measured by the correlation (\u03c1) or AUC of the top and bottom 10% of attributions for each method with respect to reference scores defined in \u00a75.3. Methods that cannot tractably run for arbitrary feature set sizes are only run for pairwise feature sets.* SCD and SOC are specifically for sequence models and contiguous words.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF5": {
+            "text": "and inefficient. MAHE's attributions are unidentifiable by training additive attribution models on overlapping feature sets. Several methods compute attributions on feature sequences or sets, such as SOC [26], SCD [26], and CD [35, 42], but they do not obey basic axioms. Finally, many methods are not model-agnostic, such as SCD, CD, IG, IH, GA2M [30], and Tree-SHAP [31]. Additional earlier works are discussed in Appendix H.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF6": {
+            "text": "Jerome H Friedman, Bogdan E Popescu, et al. Predictive learning via rule ensembles. The Annals of Applied Statistics, 2(3):916-954, 2008. [19] Muriel Gevrey, Ioannis Dimopoulos, and Sovan Lek. Two-way interaction of input variables in the sensitivity analysis of neural network models. Ecological modelling, 195(1-2):43-50, 2006.[20] Michel Grabisch and Marc Roubens. An axiomatic approach to the concept of interaction among players in cooperative games. International Journal of game theory, 28(4):547-565, 1999.[21] Huifeng Guo, RuimingTang, Yunming Ye, Zhenguo Li, and Xiuqiang He. Deepfm: a factorization-machine based neural network for ctr prediction. In Proceedings of the 26th International Joint Conference on Artificial Intelligence, pages 1725-1731. AAAI Press, 2017. [22] Michael Hamada and CF Jeff Wu. Analysis of designed experiments with complex aliasing. Journal of Quality Technology, 24(3):130-137, 1992. [23] Ning Hao and Hao Helen Zhang. Interaction screening for ultrahigh-dimensional data. Journal of the American Statistical Association, 109(507):1285-1301, 2014. [24] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In Proceedings of the IEEE conference on computer vision and pattern recognition, pages 770-778, 2016. [25] Joseph D Janizek, Pascal Sturmfels, and Su-In Lee. Explaining explanations: Axiomatic feature interactions for deep networks. arXiv preprint arXiv:2002.04138, 2020. [26] Xisen Jin, Junyi Du, Zhongyu Wei, Xiangyang Xue, and Xiang Ren. Towards hierarchical importance attribution: Explaining compositional semantics for neural sequence models. arXiv preprint arXiv:1911.06194, 2019. [27] Gordon V Kass. An exploratory technique for investigating large quantities of categorical data. Journal of the Royal Statistical Society: Series C (Applied Statistics), 29(2):119-127, 1980. [28] Jiwei Li, Will Monroe, and Dan Jurafsky. Understanding neural networks through representation erasure. arXiv preprint arXiv:1612.08220, 2016. [29] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll\u00e1r, and C Lawrence Zitnick. Microsoft coco: Common objects in context. In European conference on computer vision, pages 740-755. Springer, 2014. [30] Yin Lou, Rich Caruana, Johannes Gehrke, and Giles Hooker. Accurate intelligible models with pairwise interactions. In Proceedings of the 19th ACM SIGKDD international conference on Knowledge discovery and data mining, pages 623-631. ACM, 2013. [31] Scott M Lundberg, Gabriel G Erion, and Su-In Lee. Consistent individualized feature attribution for tree ensembles. arXiv preprint arXiv:1802.03888, 2018. [32] Scott M Lundberg and Su-In Lee. A unified approach to interpreting model predictions. In Advances in neural information processing systems, pages 4765-4774, 2017. [33] Christopher D. Manning, Prabhakar Raghavan, and Hinrich Sch\u00fctze. Introduction to Information Retrieval. Cambridge University Press, New York, NY, USA, 2008. [34] James N Morgan and John A Sonquist. Problems in the analysis of survey data, and a proposal. Journal of the American statistical association, 58(302):415-434, 1963. [35] W James Murdoch, Peter J Liu, and Bin Yu. Beyond word importance: Contextual decomposition to extract interactions from lstms. International Conference on Learning Representations, 2018. [36] JA Nelder. A reformulation of linear models. Journal of the Royal Statistical Society: Series A (General), 140(1):48-63, 1977. [37] Sanjay Purushotham, Martin Renqiang Min, C-C Jay Kuo, and Rachel Ostroff. Factorized sparse learning models with interpretable high order feature interactions. In Proceedings of the 20th ACM SIGKDD international conference on Knowledge discovery and data mining, pages 552-561, 2014. [38] Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin. Why should i trust you?: Explaining the predictions of any classifier. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pages 1135-1144. ACM, 2016. [39] Ramprasaath R Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. Grad-cam: Visual explanations from deep networks via gradient-based localization. In Proceedings of the IEEE international conference on computer vision, pages 618-626, 2017. [40] Avanti Shrikumar, Peyton Greenside, and Anshul Kundaje. Learning important features through propagating activation differences. In Proceedings of the 34th International Conference on Machine Learning-Volume 70, pages 3145-3153. JMLR. org, 2017. [41] Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman. Deep inside convolutional networks: Visualising image classification models and saliency maps. arXiv preprint arXiv:1312.6034, 2013. [42] Chandan Singh, W James Murdoch, and Bin Yu. Hierarchical interpretations for neural network predictions. International Conference on Learning Representations, 2019. [43] Richard Socher, Alex Perelygin, Jean Wu, Jason Chuang, Christopher D Manning, Andrew Ng, and Christopher Potts. Recursive deep models for semantic compositionality over a sentiment treebank. In Proceedings of the 2013 conference on empirical methods in natural language processing, pages 1631-1642, 2013. [44] Weiping Song, Chence Shi, Zhiping Xiao, Zhijian Duan, Yewen Xu, Ming Zhang, and Jian Tang. Autoint: Automatic feature interaction learning via self-attentive neural networks. Mukund Sundararajan, Ankur Taly, and Qiqi Yan. Axiomatic attribution for deep networks. In Proceedings of the 34th International Conference on Machine Learning-Volume 70, pages 3319-3328. JMLR. org, 2017. [47] Michael Tsang, Dehua Cheng, Hanpeng Liu, Xue Feng, Eric Zhou, and Yan Liu. Feature interaction interpretability: A case for explaining ad-recommendation systems via neural interaction detection. In International Conference on Learning Representations, 2020. [48] Michael Tsang, Dehua Cheng, and Yan Liu. Detecting statistical interactions from neural network weights. International Conference on Learning Representations, 2018. [49] Michael Tsang, Hanpeng Liu, Sanjay Purushotham, Pavankumar Murali, and Yan Liu. Neural interaction transparency (nit): Disentangling learned interactions for improved interpretability. In Advances in Neural Information Processing Systems, pages 5804-5813, 2018. [50] Michael Tsang, Youbang Sun, Dongxu Ren, and Yan Liu. Can i trust you more? model-agnostic hierarchical explanations. arXiv preprint arXiv:1812.04801, 2018. [51] John W Tukey. One degree of freedom for non-additivity. Biometrics, 5(3):232-242, 1949. [52] Andrea Vedaldi and Stefano Soatto. Quick shift and kernel methods for mode seeking. In Simon N Wood. Generalized additive models: an introduction with R. CRC press, 2017. [57] Frank Yates. Sir ronald fisher and the design of experiments. Biometrics, 20(2):307-321, 1964.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF7": {
+            "text": "Acronym Definitions",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF8": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF9": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF12": {
+            "text": "Text input: \"The ending is a cop-out .\" Classification: neg",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF13": {
+            "text": "Text input: \"All prints of this film should be sent to and buried on Pluto .\" Classification: neg Archipelago all prints of this film should be sent to and buried on pluto . SI all prints of this film should be sent to and buried on pluto .STI all prints of this film should be sent to and buried on pluto .Text input: \"Arguably the year 's silliest and most incoherent movie .\" Classification: neg Archipelago arguably the year ' s si -llie -st and most inc -oh -ere -nt movie .Difference + ArchDetect arguably the year ' s si -llie -st and most inc -oh -ere -nt movie .IGarguably the year ' s si -llie -st and most inc -oh -ere -nt movie .IG + ArchDetectarguably the year ' s si -llie -st and most inc -oh -ere -nt movie .LIMEarguably the year ' s si -llie -st and most inc -oh -ere -nt movie .SIarguably the year ' s si -llie -st and most inc -oh -ere -nt movie .STIarguably the year ' s si -llie -st and most inc -oh -ere -nt movie .",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF18": {
+            "text": "Classification: Polaroid camera, Polaroid Land camera",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

@@ -1,0 +1,804 @@
+{
+    "paper_id": "0e551eb62b3ea4479494dee8e1b12d0acbfccd34",
+    "metadata": {
+        "title": "Incremental Approach for Automatic Generation of Domain-Specific Sentiment Lexicon",
+        "authors": [
+            {
+                "first": "Shamsuddeen",
+                "middle": [
+                    "Hassan"
+                ],
+                "last": "Muhammad",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "LIAAD -INESC TEC",
+                    "location": {
+                        "settlement": "Porto",
+                        "country": "Portugal"
+                    }
+                },
+                "email": "shamsuddeen.muhammad@inesctec.pt"
+            },
+            {
+                "first": "Pavel",
+                "middle": [],
+                "last": "Brazdil",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "LIAAD -INESC TEC",
+                    "location": {
+                        "settlement": "Porto",
+                        "country": "Portugal"
+                    }
+                },
+                "email": "pbrazdil@inesctec.pt"
+            },
+            {
+                "first": "Al\u00edpio",
+                "middle": [],
+                "last": "Jorge",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "LIAAD -INESC TEC",
+                    "location": {
+                        "settlement": "Porto",
+                        "country": "Portugal"
+                    }
+                },
+                "email": "alipio.jorge@inesctec.pt"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Sentiment lexicon plays a vital role in lexicon-based sentiment analysis. The lexicon-based method is often preferred because it leads to more explainable answers in comparison with many machine learning-based methods. But, semantic orientation of a word depends on its domain. Hence, a general-purpose sentiment lexicon may gives sub-optimal performance compare with a domain-specific lexicon. However, it is challenging to manually generate a domain-specific sentiment lexicon for each domain. Still, it is impractical to generate complete sentiment lexicon for a domain from a single corpus. To this end, we propose an approach to automatically generate a domain-specific sentiment lexicon using a vector model enriched by weights. Importantly, we propose an incremental approach for updating an existing lexicon to either the same domain or different domain (domain-adaptation). Finally, we discuss how to incorporate sentiment lexicons information in neural models (word embedding) for better performance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Sentiment lexicon is a dictionary of a lexical item with the corresponding semantic orientation. Recently, with the issue of growing concern about interpretable and explainable artificial intelligence, domains that require high explainability in sentiment analysis task (eg., health domain and financial domain), lexicon-based sentiment analysis approaches are often preferred over machine-learning-based approaches [12, 13] . However, sentiment lexicons are domain-dependent, a word may convey two different connotations in a different domain. For example, the word high may have a positive connotation in economics (e.g., he has a high salary), and negative connotation in medicine (e.g., he has a high blood pressure). Therefore, general-purpose sentiment lexicon may not give the expected predictive accuracy across different domains. Thus, a lexicon-based approach with domain-specific lexicons are used to achieve better performance [1, 4] .",
+            "cite_spans": [
+                {
+                    "start": 416,
+                    "end": 420,
+                    "text": "[12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 421,
+                    "end": 424,
+                    "text": "13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 939,
+                    "end": 942,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 943,
+                    "end": 945,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Motivation"
+        },
+        {
+            "text": "Although research has been carried out on corpus-based approaches for automatic generation of a domain-specific lexicon [1, 4, 5, 7, 9, 10, 14] , existing approaches focused on creation of a lexicon from a single corpus [4] . Afterwards, one cannot automatically update the lexicon with a new corpus. There are many reasons one would want to update an existing lexicon: (i) the existing lexicon may not contain sufficient number of sentiment-bearing words (i.e., it is limited) and it needs to be extended with a corpus from the same domain with a source corpus; (ii) the language may have evolved (new words and meaning changes) and it is necessary to update the existing lexicon with a new corpus. The new corpus may not be large to enable generation of a new lexicon from scratch. Thus, it is better to update the existing lexicon with the new corpus; and (iii) we need to update an existing lexicon to another domain (domainadaptation) with a corpus from different domain with the source corpus. To this end, this work proposes an incremental approach for the automatic generation of a domain-specific sentiment lexicon.",
+            "cite_spans": [
+                {
+                    "start": 120,
+                    "end": 123,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 124,
+                    "end": 126,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 127,
+                    "end": 129,
+                    "text": "5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 130,
+                    "end": 132,
+                    "text": "7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 133,
+                    "end": 135,
+                    "text": "9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 136,
+                    "end": 139,
+                    "text": "10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 140,
+                    "end": 143,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 220,
+                    "end": 223,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Motivation"
+        },
+        {
+            "text": "We aim to investigate an incremental technique for automatically generating domain-specific sentiment lexicon from a corpus. Specifically, we aim to answer the following three research questions:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Research Questions and Methodology"
+        },
+        {
+            "text": "Can we automatically generate a sentiment lexicon from a corpus and improves the existing approaches? RQ2: Can we automatically update an existing sentiment lexicon given a new corpus from the same domain (i.e., to extend an existing lexicon to have more entries) or from a different domain (i.e., to adapt the existing lexicon to a new domain -domain adaptation)? RQ3: How can we enrich the existing sentiment lexicons using information obtained from neural models (word embedding)?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RQ1:"
+        },
+        {
+            "text": "To the best of our knowledge, no one attempted to design an approach for automatic construction of a sentiment lexicon in an incremental fashion. But, incremental approaches are common in the area of data streaming [15] ; thus, our work could fill this gap and represent a novel contribution. The research plan is structured as follows: Sect. 2.1 attempts to answer RQ1, Sect. 2.2 attempts to answer RQ2, and Sect. 2.3 attempts to answer RQ3.",
+            "cite_spans": [
+                {
+                    "start": 215,
+                    "end": 219,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "RQ1:"
+        },
+        {
+            "text": "Sattam et al. [4] introduced a novel domain agnostic sentiment lexicon-generation approach from a review corpus annotated with star-ratings. We propose an extended approach that includes the use of weight vector. Also, our approach includes verbs and nouns in the lexicon as studies show they contain sentiment [7, 11] . The process includes the following four steps: (i) gathering data annotated with star-ratings; (ii) pre-processing the data; (iii) obtaining wordtag rating distribution, as shown in Fig. 1 from the corpus introduced in [16] ; and (iv) generation of sentiment value for each word-tag pair using the equation:",
+            "cite_spans": [
+                {
+                    "start": 14,
+                    "end": 17,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 311,
+                    "end": 314,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 315,
+                    "end": 318,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 540,
+                    "end": 544,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 503,
+                    "end": 509,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Sentiment Lexicon Generation Using Weight Vector Model (non-Incremental)"
+        },
+        {
+            "text": "Where F R w\u2212T represents the frequency of word-tag pair and W is a weight vector. If the result is positive, the word is categorize as positive, otherwise it is negative. This basic approach of sentiment lexicon generation forms the basis of the incremental approach proposes in Sect. 2.2. We propose an incremental approach for sentiment lexicon expansion to either the same domain or different domain (domain-adaptation). To illustrate the approaches, assume we have a sentiment lexicon L i generated from a corpus C i (using the approach described in Sect. 2.1). Then, we receive a new batch of corpus C i+1 (of the same or different domain with C i ). The incremental approach aims to generate an updated sentiment lexicon L i+1 that would improve the accuracy of the lexicon L i .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Sentiment Lexicon Generation Using Weight Vector Model (non-Incremental)"
+        },
+        {
+            "text": "Assume we receive C i+1 and we want to update L i . Assume we have the distributions of all the words in the previous corpus (C i ) saved. A naive approach would involve generating distributions of all the words in the new batch (C i+1 ) without creating a new lexicon from it. Such a distribution represents the so-called \"sufficient statistics\" [15] and we can construct lexicon from each set of the distributions. To update L i , the two sets of distributions (from C i and C i+1 ) are first merged and updated lexicon (L i+1 ) is generated using the approach described in Sect. 2.1. However, this approach may be inefficient since we update all the words in the existing lexicon. An enhanced and more efficient approach aims to update only subset of the words in L i whose orientation may have changed. This approach use L i to predict the user's sentiment rating scores on the new labelled corpus C i+1 sentences. If the predicted rating scores are the same with the user's sentiment ratings, we can skip those sentences and only consider those sentences where the predicted rating is significantly different from the user's sentiment rating scores. We extract the words from these sentences (reviews), elaborate the corresponding distribution of sentiment values, merge the distribution with the corresponding subset in the L i and generate a new sentiment lexicon L i+1 .",
+            "cite_spans": [
+                {
+                    "start": 347,
+                    "end": 351,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Updating Lexicon Using a Corpus in the Same Domain:"
+        },
+        {
+            "text": "Assume we receive C i+1 and we want to update L i to a new domain. Firstly, we propose to detect if C i+1 and C i are from different domain. To do this, we generate the distribution of C i+1 and compare it with the distribution of C i . If the distributions of the two corpora differ significantly, it indicates a domain shift. Alternatively, we can use L i to predict the user's sentiment rating scores on the new labelled corpus C i+1 sentences. If the prediction accuracy is below some predefined threshold, we can conclude there is a domain shift. After detecting the domain shift, we merge the distribution using a similar approach discussed (in updating using the same corpus) and generate the lexicon. However, in this case, we give different weight to the two distributions by taking into consideration not only their size, but also recency. More recent batches will be given more weight than the previous ones.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Updating Lexicon Using a Corpus from Different Domain:"
+        },
+        {
+            "text": "The idea of word embedding have been widely used for generation of sentiment lexicon because of their advantage for giving semantic representation of words [9] . If two words appear in similar contexts, they will have similar embedding. We propose to use word embedding in the following way. Suppose we have seed words with their sentiment values, and we encounter some word, say Wx, for which we do not have a sentiment value (SVal) yet. But if we have its embedding, we can look for the most similar embedding in the embedding space and retrieve the corresponding word, Wy, retrieve its SVal and use it as a SVal of Wx. As reported in [11] , neural models performance can increase by including lexicon information. We aim to further study litreture and find how to exploit combination of an existing sentiment lexicon (more explainable) and neural models performance.",
+            "cite_spans": [
+                {
+                    "start": 156,
+                    "end": 159,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 637,
+                    "end": 641,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Word Embedding"
+        },
+        {
+            "text": "We plan to evaluate our system and compare it with other five existing lexicons: SentiWords, SPLM, SO-CAL, Bing Liu's Opinion Lexicon, and SentiWord-Net [14] . The evaluation task will be on three sentiment analysis tasks (movie review, polarity of tweets and hotel review). In these comparisons we will compare (1) the precision of the predictions of sentiment values and (2) runtime to carry out updates of the lexicon.",
+            "cite_spans": [
+                {
+                    "start": 153,
+                    "end": 157,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "We seek suggestions on how our proposal can be improved. More importantly, discussion on how to exploit combination of word embedding with sentiment lexicon. We also welcome comments.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Research Issues for Discussion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Cognitive-inspired domain adaptation of sentiment lexicons",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [
+                        "Z"
+                    ],
+                    "last": "Xing",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Pallucchini",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Cambria",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Inf. Process. Manag",
+            "volume": "11",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ipm.2018.11.002"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Sentiment Lexicon Generation",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Sentiment Analysis: Mining Opinions, Sentiments, and Emotions",
+            "volume": "",
+            "issn": "",
+            "pages": "189--201",
+            "other_ids": {
+                "DOI": [
+                    "10.1017/CBO9781139084789.008"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Constructing automatic domainspecific sentiment lexicon using KNN search via terms discrimination vectors",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Alqasemi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Abdelwahab",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Abdelkader",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Int. J. Comput. Appl",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/1206212X.2017.1409477"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Automatic construction of domain-specific sentiment lexicons for polarity classification",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Almatarneh",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Gamallo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Advances in Intelligent Systems and Computing",
+            "volume": "",
+            "issn": "",
+            "pages": "175--182",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-61578-3_17"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Inducing domain-specific sentiment lexicons from unlabeled corpora",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Hamilton",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Clark",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Leskovec",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Jurafsky",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.18653/v1/D16-1057"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Determining the level of clients' dissatisfaction from their commentaries",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Forte",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Brazdil",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of PROPOR-2015",
+            "volume": "9727",
+            "issn": "",
+            "pages": "74--85",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-41552-9_7"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Lexicon-based methods for sentiment analysis",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Taboada",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Brooke",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tofiloski",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Voll",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Stede",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Comput. Linguist",
+            "volume": "37",
+            "issn": "",
+            "pages": "267--307",
+            "other_ids": {
+                "DOI": [
+                    "10.1162/COLI_a_00049"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Automatic domain adaptation outperforms manual domain adaptation for predicting financial outcomes",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sedinkina",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Breitkopf",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Sch\u00fctze",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.18653/v1/p19-1034"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Word embeddings for sentiment analysis: a comprehensive empirical survey",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Ano",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Morisio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1902.00753"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Sentiment lexicon construction with representation learning based on hierarchical sentiment supervision",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Xia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of EMNLP 2017 -Conference on Empirical Methods in Natural Language Processing",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.18653/v1/d17-1052"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Lexicon information in neural sentiment analysis: a multi-task learning approach",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Barnes",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Touileb",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "\u00d8vrelid",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Velldal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the 22nd Nordic Conference on Computational Linguistics",
+            "volume": "",
+            "issn": "",
+            "pages": "175--186",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Explainable sentiment analysis with applications in medicine",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zucco",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Fatta",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Cannataro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings -2018 IEEE International Conference on Bioinformatics and Biomedicine, BIBM 2018",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/BIBM.2018.8621359"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Explainable artificial intelligence: a survey",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Dosilovic",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Brcic",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Hlupic",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "2018 41st International Convention on Information and Communication Technology, Electronics and Microelectronics",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.23919/MIPRO.2018.8400040"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "An overview of sentiment analysis approaches",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Muhammad",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "MAP-i Seminar Proceedings",
+            "volume": "",
+            "issn": "",
+            "pages": "65--70",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Knowledge Discovery From Data Streams",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gama",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1201/EBK1439826119"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "On the negativity of negation",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Potts",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Semant. Linguist. Theory",
+            "volume": "20",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.3765/salt.v0i20.2565"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Distribution of the word-tag pair(excellent, a)",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgement. This project was partially financed by the Portuguese funding agency, FCT -Funda\u00e7\u00e3o para a Ci\u00eancia e a Tecnologia, through national funds, and co-funded by the FEDER.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

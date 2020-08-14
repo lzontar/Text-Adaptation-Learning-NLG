@@ -1,0 +1,1339 @@
+{
+    "paper_id": "1b97f772ca73cdfe217258c13636c5423a2a21b5",
+    "metadata": {
+        "title": "A New Property of Choice-Free Petri Net Systems",
+        "authors": [
+            {
+                "first": "Eike",
+                "middle": [],
+                "last": "Best",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Carl von Ossietzky Universit\u00e4t Oldenburg",
+                    "location": {
+                        "postCode": "26111",
+                        "settlement": "Oldenburg",
+                        "country": "Germany"
+                    }
+                },
+                "email": "eike.best@uni-oldenburg.de"
+            },
+            {
+                "first": "Raymond",
+                "middle": [],
+                "last": "Devillers",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universit\u00e9 Libre de Bruxelles",
+                    "location": {
+                        "postCode": "1050",
+                        "settlement": "Brussels",
+                        "country": "Belgium"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Evgeny",
+                "middle": [],
+                "last": "Erofeev",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Carl von Ossietzky Universit\u00e4t Oldenburg",
+                    "location": {
+                        "postCode": "26111",
+                        "settlement": "Oldenburg",
+                        "country": "Germany"
+                    }
+                },
+                "email": "evgeny.erofeev@uni-oldenburg.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "When a Petri net system of some class is synthesised from a labelled transition system, it may be interesting to derive structural properties of the corresponding reachability graphs and to use them in a pre-synthesis phase in order to quickly reject inadequate transition systems, and provide fruitful error messages. The same is true for simultaneous syntheses problems. This was exploited for the synthesis of choicefree nets for instance, for which several interesting properties have been derived. We exhibit here a new property for this class, and analyse if this gets us closer to a full characterisation of choice-free synthesizable transition systems.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "A transition needs some number (possibly zero) of tokens of each kind in order to be able to function, and then produces some (other) tokens. As such, those nets allow to model complex intertwined mixtures of sequences, exclusive choices and concurrency, hence exhibit an interesting expressive power.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "But they may also serve as static specifications of systems to build. And a (finite) labelled transition system may serve as a behavioural specification, from which a (bounded) synthesised net system of some class may be built and then serves itself as a structural specification. However, here we may encounter some problems. Since those models allow to represent a concurrency feature between transition firings, a natural implementation strategy would be to build a system composed of data structures to model places and tokens, and parallel agents, one for each transition, interacting only through their competition to access their needed resources, one place at a time to obtain a fully distributed realisation. Note that, since memory resources are finite, we need to restrict our attention to bounded net systems and finite transition systems.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "The structure of each implemented transition could then be sketched as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "repeat check availability of needed resources if some are missing, retry after some time otherwise, collect the needed tokens process the action of the transition (possibly using the hidden information of the black tokens) produce the output tokens (possibly with adequate hidden information, depending on the one of the used tokens.)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "There are variants of this schema however; for instance, the production of the output tokens may be performed one by one during the action process, and not all together at the end of the processing. However there is potentially a big problem with this procedure: between the checking phase and the collection phase, the situation may have changed, due to the parallel action of other transitions, and it may happen that the tokens which were available during the checking phase are no longer there! It may even be possible that this is only discovered in the middle of the collection phase, and that we need to \"give back\" the tokens that were absorbed during the beginning of the phase. This is illustrated by the system in Fig. 1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 725,
+                    "end": 731,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": ""
+        },
+        {
+            "text": "We may partly avoid this problem by absorbing the remainder of the needed tokens whenever the transition discovers they have been produced, but it may still be necessary to give back the absorbed tokens if we observe that it takes too long to get the remaining ones, possibly meaning that we reached a deadlock.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "It is possible to avoid this kind of problem by blocking in a critical section all the data structures implementing the places and tokens, in order to check and absorb the needed tokens without being bothered by the other transitions, relaxing the critical section to wait a bit if not all the needed tokens were present, or to start the process and produce phase. However, this seriously reduces the parallelism of the implementation, may lead to starvation problems, and is certainly not distributed in the way we searched for.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "We may also slightly alleviate this technique by only blocking together the input places of the transition, by protecting each place separately by a critical section and nesting them while following a predefined ordering in order to avoid deadlocks. However, this still reduces the parallelism of the implementation, may still lead to starvation problems, needs that the transitions first agree on a common ordering of the places, and is again not distributed as expected. 1 . A Petri net system, where transition u may see that all its needed tokens are present, but when it decides to take them, conflicting transitions t1 and/or t2 may have taken them before. If u takes a token from p1 and then sees that the token in p2 has disappeared, u must give back the token to p1.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 473,
+                    "end": 474,
+                    "text": "1",
+                    "ref_id": null
+                }
+            ],
+            "section": ""
+        },
+        {
+            "text": "These problems underpin the difficulties encountered when one tries to realise a distributed hardware implementation of Petri nets, as in [13, 18] .",
+            "cite_spans": [
+                {
+                    "start": 138,
+                    "end": 142,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 143,
+                    "end": 146,
+                    "text": "18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PNS"
+        },
+        {
+            "text": "The problem we described disappears, whatever the marking, if the places are not shared, that is if each place has (at most) a single output transition (for instance, in Fig. 1 , if transition u is dropped, or t 1 and t 2 ), which is the definition of choice-free nets (see also Fig. 2 left, Fig. 5 right, and many others in the following).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 170,
+                    "end": 176,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 279,
+                    "end": 298,
+                    "text": "Fig. 2 left, Fig. 5",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "PNS"
+        },
+        {
+            "text": "In that case, it is never necessary to give back some absorbed token(s), and it is even possible to fuse the check and collect phases, leading for each transition to a (parallel) procedure of the kind:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PNS"
+        },
+        {
+            "text": "repeat for each input place do while the needed tokens are not present do wait for some time grab the needed tokens process the action of the transition and produce the output tokens Of course, it is necessary to protect the data structures representing places, by semaphore-like devices [11] or monitor-like devices [12] , in order to ensure that if many producers or the consumer and some producer(s) access the place, the result may be serialised (for instance, if two producers add one token in some common place, the result will be to add two tokens, and not a single one, the last addition wiping out the first one as it can happen in a -badly implementedparallel system).",
+            "cite_spans": [
+                {
+                    "start": 288,
+                    "end": 292,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 317,
+                    "end": 321,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PNS"
+        },
+        {
+            "text": "There is another class of nets, however, where a distributed implementation may be obtained whatever the initial marking: the join-free nets, where each transition has at most a single input place (called a simple-choice place), as illustrated on the right of Fig. 2 . This is in some sense the reverse-dual of the choice-free case, since we have \u2200t : In an implementation, each transition simply has to check the number of tokens in its unique input place and grab the needed ones in one access 2 if present (otherwise, one waits for some time before retrying). If the acquisition succeeded, one then processes the transition action and produces the output tokens, before retrying the whole cycle.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 260,
+                    "end": 266,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "PNS"
+        },
+        {
+            "text": "Let us now consider the case of free-choice nets [10] , or their extended and weighted version called equal conflict nets [17] (see Appendix A.2 and Fig. 3 left) .",
+            "cite_spans": [
+                {
+                    "start": 49,
+                    "end": 53,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 122,
+                    "end": 126,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 149,
+                    "end": 161,
+                    "text": "Fig. 3 left)",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "PNS"
+        },
+        {
+            "text": "Here, there possibly are conflicts but they may be solved freely. We may then define an equivalence t \u223c u \u21d0\u21d2 \u2022 t \u2229 \u2022 u = \u2205 between transitions, and consider its equivalence classes, called clusters, i.e., the sets of transitions sharing their input places. In a distributed implementation, for each cluster, we may introduce a new process to check the availability of the needed resources (it behaves like in a choice-free net since its input places are not shared); when it works, it produces a single token in an intermediate place (with all the hidden information of the absorbed tokens, if any) which is simply shared by the transitions in the cluster, hence may be implemented as in a join-free net. We thus have a mixture of a choice-free net and a join-free one. This is illustrated in Fig. 3 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 793,
+                    "end": 799,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "PNS"
+        },
+        {
+            "text": "A well-known [16] feature of CF-systems is the persistence of their reachability graph, meaning that a label, once firable, remains firable forever till fired (see In a Petri net, a choice between a and b is indicated structurally by the presence of a place having both a and b as output transitions. In a transition system, on the other hand, a choice may be indicated by a branching state with two or more successor states. These two notions do not coincide however, as illustrated by Fig. 4 . However, we may have a Petri net system with choice-places which nevertheless yields a persistent reachability graph. This is illustrated by Fig. 5 . In the plain Petri net system P NS 3 , place p 3 is a choice place between a and b. However, its reachability graph is isomorphic to T S 3 , which is persistent (in a trivial way: there is no choice at all). This is due to the fact that, when a is enabled, b is not, and when b is enabled a is not. P NS 3 is not the only Petri net solving T S 3 : P NS 3 is also a solution, and this one is a (non-plain) choice-free net system (it may happen alas, that a persistent transition system is solved by a non-choice-free Petri net system but by no choice-free one: see for instance Figs. 12 and 13 below). There is a difference between these two solutions as to persistence however. If we add an initial token in p 1 , a and b are initially enabled, but a disables b and b disables a, so that P NS 3 loses its persistence: its persistence is due to a very specific choice of the initial marking. On the contrary, P NS 3 remains persistent, whatever its initial marking: its persistence is due to the underlying net, which is choice-free. This remark may be related to a rather general property.",
+            "cite_spans": [
+                {
+                    "start": 13,
+                    "end": 17,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 487,
+                    "end": 493,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 637,
+                    "end": 643,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Introduction: Persistence Issue"
+        },
+        {
+            "text": "If a pure Petri net presents a choice-place, then there is an initial marking generating a non-persistent reachability graph. This is never the case for a choice-free net.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1."
+        },
+        {
+            "text": "Proof. Let p be a choice-place in the considered Petri net and let w = max t\u2208p \u2022 {F (p, t)}. Assume we put initially w tokens in p. Initially, all the output transitions of p are enabled, but if F (p, t) = w, t is no longer enabled after another output transition of p is fired since the net is assumed to be pure. Hence the claim. If there is no choice-place, the argument given above is valid and all the reachable markings yield diamonds if they enable more than one transition.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1."
+        },
+        {
+            "text": "If a choice-place presents side-conditions, the previous proposition may be wrong, as shown in Fig. 6 : PN 4 is plain but has a choice place p 1 and side conditions between the latter and a, b. If p 1 gets a token, a and b will permanently be enabled, forming (a degenerate kind of) diamonds. However, this does not resist to a splitting of the conflicting transitions into a \"check and gather\" phase and a \"process and produce\" phase, as detailed in the previous section and illustrated by the pure Petri net PN 4 in the same figure. This does not happen with choice-free nets, where the split transforms the net into a pure one, still choice-free (or does not modify the net if we only apply the splitting to conflicting transitions). ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 95,
+                    "end": 101,
+                    "text": "Fig. 6",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Proposition 1."
+        },
+        {
+            "text": "A generalisation of the synthesis problem, called the simultaneous synthesis problem, has been introduced in [9] . It consists in considering several transition systems {TS 1 , . . . , TS m } simultaneously, and in search for a single Petri net N (of some class) together with m initial markings {M 0,1 , . . . , M 0,m } such that the reachability graph of (N, M 0,i ) is isomorphic to TS i for each i \u2208 {1, . . . , m}. The classic synthesis corresponds to the case m = 1, and an example with m = 2 is shown in Fig. 7 . With a single token on p, PN 5 solves TS 5,1 . Without tokens on p, PN 5 solves TS 5,2 . By contrast, TS 5,1 and T S 5,2 can be CF-solved individually, but not simultaneously.",
+            "cite_spans": [
+                {
+                    "start": 109,
+                    "end": 112,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 511,
+                    "end": 517,
+                    "text": "Fig. 7",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Simultaneous Choice-Free Synthesis: Preliminary Phase"
+        },
+        {
+            "text": "The simultaneous solvability of m transition systems can be reduced to the solvability of a single one by adding a single artificial initial state with m arcs with fresh labels to the m given initial states \u0131 1 , . . . , \u0131 m . Solving the augmented transition system and dropping the added auxiliary transitions yields a simultaneous solution, with the various initial markings provided by the markings corresponding to the \u0131 i 's; and conversely, if there is a simultaneous solution, it may be obtained that way.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simultaneous Choice-Free Synthesis: Preliminary Phase"
+        },
+        {
+            "text": "Such a straightforward approach amounts, however, to consider a large input lts, and we already mentioned that the performance of synthesis procedures is very sensitive to the size of the state space, hence this is not very effective. Also, it fails to preserve the choice-freeness of the underlying unmarked Petri net if m \u2265 2, and cannot, therefore, be applied to CF-solvability.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simultaneous Choice-Free Synthesis: Preliminary Phase"
+        },
+        {
+            "text": "Fortunately, the simultaneous choice-free synthesis may be related to m separate standard but slightly augmented choice-free syntheses.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simultaneous Choice-Free Synthesis: Preliminary Phase"
+        },
+        {
+            "text": "Let T be the set of all the labels occurring in the various TS i 's; this will be the set of transitions in any solution to the simultaneous synthesis. Let also G i be the set of (T -)Parikh vectors of all the small cycles occurring in TS i , and G = \u222a i G i . An augmented synthesis is a synthesis of some TS i which is compatible with all the members of G, i.e., which reproduces the markings of all places along all the (small) cycles (not only the ones present in TS i ; this only depends on G). We then have:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simultaneous Choice-Free Synthesis: Preliminary Phase"
+        },
+        {
+            "text": "Like for the classic choice-free synthesis problem (as well as many other targeted synthesis problems [6] ), the synthesis procedure may be separated into a pre-synthesis and a proper synthesis. The pre-synthesis allows to quickly check properties of the structure of the reachability graph(s), from the structure of the class of nets aimed for. If this fails, we avoid a lengthy computation of the places of a tentative solution, get a better intuition about the true causes of the failure, hence are able to produce better error messages.",
+            "cite_spans": [
+                {
+                    "start": 102,
+                    "end": 105,
+                    "text": "[6]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 1. [9] A simultaneous choice-free synthesis problem is solvable if each of its augmented individual synthesis problems is, and the solution may be obtained easily by aggregating all those individual solutions."
+        },
+        {
+            "text": "For this first phase, a series of checks arising from the analysis of choice-free systems, has been elaborated in [9] , mainly based on the following observation [16] : This links a behavioural property (on small cycles, from some initial marking) and a structural one (on semiflows of the unmarked net). It also explains why, in a simultaneous synthesis problem, we have to consider the small cycles in all the given transition systems together.",
+            "cite_spans": [
+                {
+                    "start": 114,
+                    "end": 117,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 162,
+                    "end": 166,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 1. [9] A simultaneous choice-free synthesis problem is solvable if each of its augmented individual synthesis problems is, and the solution may be obtained easily by aggregating all those individual solutions."
+        },
+        {
+            "text": "These checks may be summarised as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1. [9] A simultaneous choice-free synthesis problem is solvable if each of its augmented individual synthesis problems is, and the solution may be obtained easily by aggregating all those individual solutions."
+        },
+        {
+            "text": "1. General: Each (finite) T S i must be deterministic, totally reachable and persistent. 2. The small cycles property: All the members of G must be prime (no common nontrivial divisor) and two different members must be disjoint. For instance, Condition 2 is not valid in TS 6 ( Fig. 8) since the (small) cycle \u0131[aabbcc \u0131 has Parikh vector (2, 2, 2), which is not prime.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 278,
+                    "end": 285,
+                    "text": "Fig. 8)",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "Theorem 1. [9] A simultaneous choice-free synthesis problem is solvable if each of its augmented individual synthesis problems is, and the solution may be obtained easily by aggregating all those individual solutions."
+        },
+        {
+            "text": "Condition 3 is not valid in TS 7 since there are two short paths \u0131 bac \u2192 s and \u0131 dae \u2192 s whose Parikh vectors differ, so that the distance from \u0131 to s is not defined here (also, they dominate \u03a8 (bc) and \u03a8 (de), respectively, which are small cycles in TS 7 ); it is not valid either for the pair TS 5,1 -T S 5,2 in Fig. 7 , since there is a short path \u0131 2 aba \u2192 whose Parikh vector is equal to (hence dominates) the Parikh vector of the small cycle \u0131 1 aab \u2192 \u0131 1 in TS 5,1 . Condition 4 is not valid in TS 8 since there is a path \u0131[abb s and a small cycle s[abc s: if we reduce abb by abc, we get b but the latter is not enabled at \u0131. The importance of Condition 5 is illustrated by the system TS 9 in Fig. 8 : it satisfies conditions 1 to 4, but not the earliest cycles property since there is a cycle ba at s 3 , a cycle d at s 2 and \u0394 s2 = (1, 0, 1, 0), so that there should be a cycle d at distance \u0394 s2 \u2212 \u2022 \u03a8 (ba) = (0, 0, 1, 0), i.e. at s 1 ; hence TS 9 (or {TS 9 }) has no choice-free solution; this is corrected in TS 9 , which has the choice-free solution P N 9 . ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 314,
+                    "end": 320,
+                    "text": "Fig. 7",
+                    "ref_id": "FIGREF5"
+                },
+                {
+                    "start": 701,
+                    "end": 707,
+                    "text": "Fig. 8",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "Theorem 1. [9] A simultaneous choice-free synthesis problem is solvable if each of its augmented individual synthesis problems is, and the solution may be obtained easily by aggregating all those individual solutions."
+        },
+        {
+            "text": "We shall now consider general paths in a transition system (see Appendix A.1) in addition to the usual directed ones. Referring to the general form of a place p \u2208 \u2022 x in a choice-free net as illustrated in the left of Fig. 2 ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 218,
+                    "end": 224,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "A New Criterion for the Choice-Free Simultaneous (and Individual) Synthesis"
+        },
+        {
+            "text": "Proof. We only need to show that \u2200p \u2208 \u2022 x : M 2 (p) \u2265 M 1 (p). In the general form of a place p \u2208 \u2022 x (left of Fig. 2) ,",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 111,
+                    "end": 118,
+                    "text": "Fig. 2)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "A New Criterion for the Choice-Free Simultaneous (and Individual) Synthesis"
+        },
+        {
+            "text": "The claimed property arises, since no k i is negative.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A New Criterion for the Choice-Free Simultaneous (and Individual) Synthesis"
+        },
+        {
+            "text": "This may be interpreted as follows: if there is a general path \u03c3 from some marking M 1 to some marking M 2 , and some (possibly fractional, possibly negative) factor",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A New Criterion for the Choice-Free Simultaneous (and Individual) Synthesis"
+        },
+        {
+            "text": "i.e., we have a kind of co-enabling of x.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A New Criterion for the Choice-Free Simultaneous (and Individual) Synthesis"
+        },
+        {
+            "text": "If we do not know exactly A(x), we may use any over-approximation:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A New Criterion for the Choice-Free Simultaneous (and Individual) Synthesis"
+        },
+        {
+            "text": "Note that the satisfaction of the constraint on a in this property relies on the sign of \u03a8 (\u03c3)(x), i.e. of f , and of the membership of a to the support of \u03a5 :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 1. In a choice-free net N , if M 1 [x , x belongs to the support of some (minimal) semiflow \u03a5 , A(x) \u2286 A x for some set"
+        },
+        {
+            "text": "the constraint is not satisfied.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 1. In a choice-free net N , if M 1 [x , x belongs to the support of some (minimal) semiflow \u03a5 , A(x) \u2286 A x for some set"
+        },
+        {
+            "text": "x belongs to the support of \u03a5 we also denote T x = T \u03a5 . We shall also denote by T 0 the set of labels in T not belonging to the support of some member of G, i.e., T 0 = T \\ \u222a \u03a5 \u2208G T \u03a5 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1. In a simultaneous choice-free synthesis problem, if \u03a5 \u2208 G we shall denote by T \u03a5 the support of \u03a5 , and if"
+        },
+        {
+            "text": ", then the problem is not solvable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 2. In a simultaneous choice-free synthesis problem, if x belongs to the support of some \u03a5 \u2208 G, s[x and \u00acs [x in some TS"
+        },
+        {
+            "text": "Proof. If there is a solution N , from Theorem 2, \u03a5 is a minimal semiflow of N . For any i, if a i belongs to the support of some \u03a5 \u2208 G \\ {\u03a5 }, we have that x does not belong to the support of \u03a5 , from the small cycles property above. From the definition of semiflows, we must have j \u03a5 (a j ) \u00b7 k j = k \u00b7 \u03a5 (x) = 0, hence k i = 0. As a consequence we may state that A(x) \u2286 T 0 \u222a T x (we do not have equality since it may happen that k i = 0 while a i \u2208 T 0 \u222a T x ). Let \u03c3 s be a short path from \u0131 to s, and similarly for s . (\u2212\u03c3 s )(\u03c3 s ) is a general path from s to s in TS , and \u03a8 ((\u2212\u03c3 s )(\u03c3 s )) = \u0394 s \u2212 \u0394 s , from the short distance property above. The proposition then results from Corollary 1, where we may choose",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 2. In a simultaneous choice-free synthesis problem, if x belongs to the support of some \u03a5 \u2208 G, s[x and \u00acs [x in some TS"
+        },
+        {
+            "text": "In this proposition, we used a special g-path from s to s , and we could wonder if choosing another one would lead to another condition. We shall now see that this is not the case.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 2. In a simultaneous choice-free synthesis problem, if x belongs to the support of some \u03a5 \u2208 G, s[x and \u00acs [x in some TS"
+        },
+        {
+            "text": "Proof. First, we may observe that each transition system TS is weakly periodic.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. If, in a simultaneous choice-free synthesis problem, conditions 1 to 5 are satisfied, for each g-cycle s[\u03c3 s in any TS"
+        },
+        {
+            "text": ". ., since TS is finite, we must have s i = s j for some i < j, hence a cycle s i [\u03c3 j\u2212i s i . In a finite, totally reachable, deterministic and persistent system, from Corollary 2 in [8] we have \u03a8 (\u03c3 j\u2212i ) = (j \u2212 i) \u00b7 \u03a8 (\u03c3) = \u03a5 \u2208G k \u03a5 \u00b7 \u03a5 for some coefficients k \u03a5 \u2208 N. Since, the \u03a5 's are prime and disjoint, (j \u2212 i) must divide the k \u03a5 \u2208 N and \u03a8 (\u03c3) = \u03a5 \u2208G k \u03a5 \u00b7 \u03a5 for some coefficients k \u03a5 \u2208 N. Then, from the properties of distances in [9] , we know that \u0394 s2 = \u0394 s1 and s 1 = s 2 .",
+            "cite_spans": [
+                {
+                    "start": 184,
+                    "end": 187,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 441,
+                    "end": 444,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Lemma 2. If, in a simultaneous choice-free synthesis problem, conditions 1 to 5 are satisfied, for each g-cycle s[\u03c3 s in any TS"
+        },
+        {
+            "text": "The claimed property then results from Lemma 4 in [7] , which states that general cycles are generated by directed ones when the previous properties are satisfied.",
+            "cite_spans": [
+                {
+                    "start": 50,
+                    "end": 53,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Lemma 2. If, in a simultaneous choice-free synthesis problem, conditions 1 to 5 are satisfied, for each g-cycle s[\u03c3 s in any TS"
+        },
+        {
+            "text": "If, in a simultaneous choice-free synthesis problem, conditions 1 to 5 are satisfied, two g-paths \u03c3 and \u03c3 go from s to s in TS , and x belongs to the support of some \u03a5 \u2208 G, then \u2200a",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2."
+        },
+        {
+            "text": "Proof. Since s [(\u2212\u03c3)(\u03c3 ) s is a g-cycle around s , from Lemma 2, we know that \u03a8 (\u03c3 ) = \u03a8 (\u03c3) + \u03a5 \u2208G z \u03a5 \u00b7 \u03a5 . In particular, from condition 2, that implies",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2."
+        },
+        {
+            "text": "From Proposition 2, we only have to consider a \u2208 T 0 \u222a T x .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2."
+        },
+        {
+            "text": "If a belongs to the support of \u03a5 , hence to T x , \u03a8 (\u03c3 )(a) = \u03a8 (\u03c3)(a) + z \u03a5 \u00b7 \u03a5 (a). Since z \u03a5 \u00b7 \u03a5 (a) = z \u03a5 \u00b7 \u03a5 (x) \u00b7 \u03a5 (a)/\u03a5 (x), we then have the claimed equivalence.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2."
+        },
+        {
+            "text": "If a belongs to T 0 , \u03a8 (\u03c3 )(a) = \u03a8 (\u03c3)(a) and \u03a5 (a) = 0, which again leads to the claimed equivalence.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2."
+        },
+        {
+            "text": "This corollary immediately leads to the main result of the present paper, a new pre-synthesis condition that may be added to the five ones we already listed for the simultaneous or individual choice-free synthesis (we shall later see that this new condition is not implied by the other ones): Two special cases may then be distinguished, corresponding to the cases where s occurs before or after s, i.e., that s [\u03c3 s or s[\u03c3 s for a directed path \u03c3 (but we may have both cases simultaneously):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 2."
+        },
+        {
+            "text": "Proof. In this case, we may apply Lemma 1 with M 2 = M , \u03c3 = \u2212\u03c3 and \u03a8 (\u03c3) \u2264 0, hence the claim.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 3. Forward fractional reduction: In a choice-free net"
+        },
+        {
+            "text": "From this result, we deduce the following criterion for non-choice-free-solvability. Applying these results, the two systems TS 10 , TS 11 in Fig. 9 do not allow a simultaneous choice-free solution. Indeed, TS 11 determines a semiflow (3, 2) , hence also a fractional semiflow (3/2, 1). With s = \u0131 1 , \u03c3 = ab, t = b, \u03a5 = (3, 2) and f = 1/2, since we do not have \u0131 1 [b , we may conclude there is no simultaneous choice-free-solution.",
+            "cite_spans": [
+                {
+                    "start": 235,
+                    "end": 238,
+                    "text": "(3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 239,
+                    "end": 241,
+                    "text": "2)",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 142,
+                    "end": 148,
+                    "text": "Fig. 9",
+                    "ref_id": "FIGREF11"
+                }
+            ],
+            "section": "Corollary 3. Forward fractional reduction: In a choice-free net"
+        },
+        {
+            "text": "This is also true for the two systems TS 11 , TS 12 : applying Corollary 3 with \u0131 3 [a s , s = s , \u03c3 = ab, t = b, \u03a5 = (3, 2) and f = 1/2, since we do not have s [b , we may conclude there is no simultaneous choice-free-solution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 3. Forward fractional reduction: In a choice-free net"
+        },
+        {
+            "text": "Since these two pairs of systems satisfy conditions 1 to 5, this also shows the independence of condition 6: this last condition is not implied by the other ones. There is also the symmetric version of those last two Corollaries. Applying these results, we get that the two systems in Fig. 10 , are not simultaneously choice-free-solvable either. Indeed, in TS 13 The two systems in Fig. 11 , are not simultaneously choice-free-solvable either. Indeed, in TS 16 ",
+            "cite_spans": [
+                {
+                    "start": 361,
+                    "end": 363,
+                    "text": "13",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 459,
+                    "end": 461,
+                    "text": "16",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 285,
+                    "end": 292,
+                    "text": "Fig. 10",
+                    "ref_id": "FIGREF14"
+                },
+                {
+                    "start": 383,
+                    "end": 390,
+                    "text": "Fig. 11",
+                    "ref_id": "FIGREF15"
+                }
+            ],
+            "section": "Corollary 3. Forward fractional reduction: In a choice-free net"
+        },
+        {
+            "text": "Now that we accumulated several structural properties of reachability graphs of bounded choice-free systems, and devised corresponding checks to be performed during the (simultaneous) pre-synthesis, we may wonder if they are sufficient to ascertain the existence of a solution, at least in some interesting subclasses of problems.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "But Still, Our Conditions Are Not Sufficient"
+        },
+        {
+            "text": "Since most of these properties concern the small cycles, they are of no help for acyclic transition systems. Let us then restrict our attention to a single (m = 1) reversible system, since then there are small cycles around each state (we mentioned before that cycles are transported Parikh-equivalently along the flow in finite deterministic and persistent systems). We shall also assume that all small cycles have the same Parikh vector, and that there is at least a (nonnecessarily choice-free) solution. However, even in these very specific class of systems, there is not always a choice-free solution. We shall give two different counter-examples.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "But Still, Our Conditions Are Not Sufficient"
+        },
+        {
+            "text": "The first one, illustrated in Fig. 12 , has already been used in [3] . It has five labels and is remarkable by its small cycles, that all have the Parikh vector 1 = (1, 1, 1, 1, 1) (so that fractional semiflows do not introduce any additional constraint since at least one of the components must be an integer: f \u00b7 \u03a5 (t) must count the number of occurrences of t in some path). It has a (non-choice-free) Petri net solution, but not a choice-free one: the numerical construction of the proper synthesis phase (for instance with the use of the APT tool [14] ) finds an unsolvable ESSP problem. The next transition system has four labels, and has a unique small cycle with Parikh vector (5, 3, 1, 1), hence has the form of a simple circle. Here too it has a non-choice-free solution, but no choice-free one (again found by APT). It is illustrated by Fig. 13 .",
+            "cite_spans": [
+                {
+                    "start": 65,
+                    "end": 68,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 552,
+                    "end": 556,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 30,
+                    "end": 37,
+                    "text": "Fig. 12",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 848,
+                    "end": 855,
+                    "text": "Fig. 13",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "But Still, Our Conditions Are Not Sufficient"
+        },
+        {
+            "text": "Both counterexamples share the additional condition that they have a Petri net solution. We may then wonder what happens if we still reinforce this condition, in the following way. Let us assume that m > 1, that each TS i is individually choice-free solvable (not only Petri net-solvable), and reversible, that all the small cycles have the same Parikh vector and that all conditions 1 to 6 are satisfied. Is it still possible that the simultaneous choice-free synthesis fails? Presently, we do not know and we are working on it.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "But Still, Our Conditions Are Not Sufficient"
+        },
+        {
+            "text": "We added a new structural criterion to the already long list of available necessary conditions for a labelled transition system to have a bounded choice-free solution. This allows to quickly rule out more inadequate (simultaneous) synthesis problems. However, we are still not in reach of a necessary and sufficient set of criteria fully characterising the state spaces of choice-free systems, in the style of the conditions developed for (bounded or unbounded) marked graphs and T-systems in [2, 4, 5] .",
+            "cite_spans": [
+                {
+                    "start": 493,
+                    "end": 496,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 497,
+                    "end": 499,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 500,
+                    "end": 502,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Concluding Remarks"
+        },
+        {
+            "text": "\u2227 \u2200j \u2208 {1, . . . , m} :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concluding Remarks"
+        },
+        {
+            "text": "(r j\u22121 , a j , r j ) \u2208 \u2192 if a j \u2208 T (r j , a j , r j\u22121 ) \u2208 \u2192 if a j \u2208 (\u2212T ) The back-arrow notation is extended to sequences in (T \u222a (\u2212T )) * inductively as follows: Two lts with the same label set TS = (S, T, \u2192, \u0131) and TS = (S , T, \u2192 , \u0131 ) are isomorphic if there is a bijection \u03b6 : S \u2192 S with \u03b6(\u0131) = \u0131 and (r, t, s) \u2208 \u2192 \u21d4 (\u03b6(r), t, \u03b6(s)) \u2208 \u2192 , for all r, s \u2208 S and t \u2208 T .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concluding Remarks"
+        },
+        {
+            "text": "(s, a, s ) is an edge of TS \u21d2 \u03c1(s ) \u2212 \u03c1(s) = F(a) \u2212 B(a) since this is the typical behaviour of a place p with token count \u03c1 during the firing of a with backward and forward connections B, F to p (anywhere in TS ). To solve an SSP(s 1 , s 2 ) (for State Separation Problem, where s 1 = s 2 ), we need to find an appropriate region (\u03c1, B, F) satisfying \u03c1(s 1 ) = \u03c1(s 2 ), i.e., separating states s 1 and s 2 . For an ESSP(s, a) (for Event-State Separation Problem, where e is not enabled at s), we need to find a region (\u03c1, B, F) with \u03c1(s) < B(a). This can be done by solving suitable systems of linear inequalities which arise from these two requirements, and from the requirement that regions not be too restrictive. If such a system can be solved, an appropriate place has been found, otherwise there does not exist any and TS is unsolvable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concluding Remarks"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "A decomposition theorem for finite persistent transition systems",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Darondeau",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Acta Informatica",
+            "volume": "46",
+            "issn": "",
+            "pages": "237--254",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00236-009-0095-6"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Characterisation of the state spaces of live and bounded marked graph Petri nets",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "LATA 2014",
+            "volume": "8370",
+            "issn": "",
+            "pages": "161--172",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-04921-2_13"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Synthesis of live and bounded persistent systems",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Fundamenta Informaticae",
+            "volume": "140",
+            "issn": "1",
+            "pages": "39--59",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "State space axioms for T-systems",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Acta Informatica",
+            "volume": "52",
+            "issn": "2-3",
+            "pages": "133--152",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00236-015-0219-0"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Characterisation of the state spaces of marked graph Petri nets",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Inf. Comput",
+            "volume": "253",
+            "issn": "",
+            "pages": "399--410",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "A graph-theoretical characterisation of state separation",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Schlachter",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Steffen",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Baier",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Van Den Brand",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Eder",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hinchey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "SOFSEM 2017",
+            "volume": "10139",
+            "issn": "",
+            "pages": "163--175",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-51963-0_13"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Bounded choice-free Petri net synthesis: algorithmic issues",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Schlachter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Acta Informatica",
+            "volume": "55",
+            "issn": "7",
+            "pages": "575--611",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00236-017-0310-9"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Simultaneous Petri net synthesis",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Best",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Devillers",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Schlachter",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Wimmel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Sci. Ann. Comput. Sci",
+            "volume": "28",
+            "issn": "2",
+            "pages": "199--236",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Free Choice Petri Nets. Cambridge Tracts in Theoretical Computer Science",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Desel",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Esparza",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "The structure of \"THE\"-multiprogramming system",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Dijkstra",
+                    "suffix": ""
+                }
+            ],
+            "year": 1968,
+            "venue": "Commun. ACM",
+            "volume": "11",
+            "issn": "5",
+            "pages": "341--346",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Monitors: an operating system structuring concept",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "A R"
+                    ],
+                    "last": "Hoare",
+                    "suffix": ""
+                }
+            ],
+            "year": 1974,
+            "venue": "Commun. ACM",
+            "volume": "17",
+            "issn": "10",
+            "pages": "549--557",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Circuit Implementation of Petri Nets. Computation Structures Group: Memo 73",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Patil",
+                    "suffix": ""
+                }
+            ],
+            "year": 1972,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "APT: Analysis of Petri Nets and Transition Systems",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Schlachter",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Presynthesis of bounded choice-free or fork-attribution nets",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Wimmel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Inf. Comput",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ic.2019.104482"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Choice-free Petri nets: a model for deterministic concurrent systems with bulk services and arrivals",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Teruel",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Colom",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Silva Su\u00e1rez",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "IEEE Trans. Systems Man Cybern. Part A",
+            "volume": "27",
+            "issn": "1",
+            "pages": "73--83",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Structure theory of equal conflict systems",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Teruel",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Silva",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "Theor. Comput. Sci",
+            "volume": "153",
+            "issn": "1 & 2",
+            "pages": "271--300",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Hardware Design and Petri Nets",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Yakovlev",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gomes",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Lavagno",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-1-4757-3143-9"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "On the left: a general pure (h = 0) or non-pure (h > 0) choice-free place p with initial marking \u03bc0 and unique output x (the inputs of ai's and other inputs/outputs of x are not constrained); {a1, . . . , am} = T \\{x}, but some ki's may be null. On the right, a general simple-choice place (the outputs of ai's and inputs of p are not constrained).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "On the left: a cluster in an equal conflict net, with two places and three transitions. On the right, its transformation for implementation: the cluster behaves as a transition in a choice-free net, and the intermediate place p as a place in a join-free net.Appendix A.1). Indeed, suppose that in the reachability graph of a choice-free net system there are a state s and two edge labels a = b such that s a \u2192 s 1 and s b \u2192 s 2 for two states s 1 and s 2 . By the CF property, a and b have no common input place, so that, by the firing rule, firing a cannot disable b and firing b cannot disable a. Hence s 2 for states s 1 , s 2 . Moreover, s 1 = s 2 by \u03a8 (ab) = \u03a8 (ba) and the fact that the effect of a firing sequence depends only on its Parikh vector. So, the reachability graph is indeed persistent.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Different kinds of branchings in an lts: choice (l.h.s.) and persistence (r.h.s.).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Two Petri net systems PNS 3 and PNS 3 , and a transition system TS 3 with initial state \u0131.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "A choice-place with side-conditions.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "TS 5,1 and TS 5,2 are simultaneously CF-solvable while TS 5,1 and T S 5,2 are not (see below).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "In the reachability graph of a choice-free system, the Parikh vector of any small cycle (if any) is a minimal semiflow of the underlying net.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "The short distance property: For each state s i of each TS i , all the shortest paths from \u0131 i to s i have the same Parikh vector, called the distance \u0394 si to s i , and none of those distances may dominate a member of G. 4. The reduced distance property: For the next checks we need the notion of residue of a T -vector \u03bc by another one \u03bd which builds the T -vector \u03bc \u2212 \u2022 \u03bd in such a way that \u2200t \u2208 T : \u03bc \u2212 \u2022 \u03bd(t) = max(\u03bc(t) \u2212 \u03bd(t), 0); then, for each i \u2208 {1, . . . , m}, state s i in TS i and member \u03a6 \u2208 G, there must be a state r i in TS i such that \u0394 ri = \u0394 si \u2212 \u2022 \u03a6. 5. The earliest Parikh cycles property: For any member \u03a5 \u2208 G and state s in some TS i with a (small) cycle around s with Parikh vector \u03a5 and member \u03a6 \u2208 G disjoint from \u03a5 , there is a cycle with Parikh vector \u03a5 around the (unique) state in TS i at distance \u0394 s \u2212 \u2022 \u03a6 (which exists by the previous property).3",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Illustration of Conditions 2 to 5 for a choice-free pre-synthesis.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Co-enabling: For any \u03a5 \u2208 G and x in its support, for any TS i and s, s \u2208 S i , if s[x and \u2200a \u2208 T 0 \u222a T x : (\u0394 s \u2212 \u0394 s )(a) \u2265 (\u0394 s \u2212 \u0394 s )(x) \u00b7 \u03a5 (a)/\u03a5 (x), then s [x .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF10": {
+            "text": "Forward fractional reduction in a pre-synthesis: Let TS = (S, T, \u2192, \u0131) be a deterministic and persistent labelled transition system, s \u2208 [\u0131 , t \u2208 T , \u03c3 \u2208 T * , f \u2208 Q >0 and \u03a5 be any T-vector. If \u00acs[t , s[\u03c3t , \u03a8 (\u03c3) \u2264 f \u00b7 \u03a5 and \u03a8 (\u03c3)(t) = f \u00b7 \u03a5 (t), then there is no choice-free solution of TS with semiflow \u03a5 .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF11": {
+            "text": "Three transition systems TS 10, TS 11, TS 12.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF12": {
+            "text": "Backward fractional reduction: In a choice-free netN , if M [t and M [\u03c3 with \u03c3 \u2208 T * and, for some f \u2208 Q >0 and semiflow \u03a5 , \u03a8 (\u03c3 ) \u2264 f \u00b7 \u03a5 and \u03a8 (\u03c3 )(t) = f \u00b7 \u03a5 (t), then M [\u03c3 t .Proof. In this case, we may apply Lemma 1 with M 1 = M , \u03c3 = \u03c3 and \u03a8 (\u03c3) \u2265 0, hence the claim.Corollary 6. Backward fractional reduction in a pre-synthesis: Let TS = (S, T, \u2192, \u0131) be a deterministic and persistent labelled transition system, s \u2208 [\u0131 , t \u2208 T , \u03c3 \u2208 T * , f \u2208 Q >0 and \u03a5 be any T-vector. If s[t , s[\u03c3 , \u03a8 (\u03c3) \u2265 f \u00b7\u03a5 , \u03a8 (\u03c3)(t) = f \u00b7 \u03a5 (t) and \u00acs[\u03c3t , then there is no choice-free-solution of TS with semiflow \u03a5 .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF13": {
+            "text": "we have the minimal semiflow \u03a5 = (3, 2); in TS 14 , we have \u0131 12 [b , \u0131 4 [aab , \u03a8 (aab) = (2, 1), so that with f = 1/2 and t = b, from Corollary 6 we should have \u0131 12 [aabb .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF14": {
+            "text": "Two transition systems TS 13, TS 14.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF15": {
+            "text": "we have the minimal semiflow \u03a5 = (3, 2); in TS 15 , we have \u0131 13 [b , \u0131 13 [baa , \u03a8 (baa) = (2, 1), so that with f = 1/2 and t = b, from Corollary 6 we should have \u0131 13 [baab . Transition systems TS 15, TS 16.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF16": {
+            "text": "A reversible lts with unitary small cycles, with a possible Petri net solution. It survives all the structural checks mentioned in this paper for the pre-synthesis phase, but does not have a choice-free solution.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF17": {
+            "text": "TS18 has the form of a circle, survives all the pre-synthesis checks we mention above and has a Petri net solution PN 18, but not a choice-free one.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF18": {
+            "text": "and (\u2212(\u03c3a)) = (\u2212a)(\u2212\u03c3), for a \u2208 T \u222a (\u2212T ) and \u03c3 \u2208 (T \u222a (\u2212T )) * A label a is enabled at s \u2208 S, or s a \u2192 for short, if \u2203s \u2208 S : s a \u2192 s . A state s is reachable from state s if \u2203\u03c3 \u2208 T * : s \u03c3 \u2192 s . 4 Sometimes, we shall use the notation s[t instead of s a \u2192, and [s to denote the set of states reachable from s. For a g-path \u03c3 \u2208 (T \u222a (\u2212T )) * , the Parikh vector of \u03c3 is a T -vector \u03a8 (\u03c3), defined inductively as follows:\u03a8 (\u03b5) = 0 (the null vector) and (\u03a8 (\u03c3a))t = a \u2208 T (\u03a8 (\u03c3))(t) \u2212 1 if (\u2212t) = a \u2208 (\u2212T ) (\u03a8 (\u03c3))(t) if t = a = (\u2212t)For example, \u03a8 (ab(\u2212a)b(\u2212c)aa) = (2, 2, \u22121). Two finite sequences are Parikhequivalent if they have the same Parikh vector, and Parikh-disjoint if no label occurs in both of them. The support of a T -vector, hence in particular of a Parikh vector, is the set of indices for which the vector is non-null. A g-path s[\u03c3 s is called a g-cycle, or more precisely a g-cycle at (or around) state s, if s = s . 5 A finite transition system TS = (S, T, \u2192, \u0131) is called -totally reachable if \u2200s \u2208 S\u2203\u03c3 \u2208 T * : \u0131 \u03c3 \u2192 s; -deterministic if, for all states s, s , s \u2208 S, and for any label t \u2208 T , s t \u2192 s and s t \u2192 s imply s = s ; -backward deterministic if, for all states s, s , s \u2208 S, and for any label t \u2208 T , s t \u2192 s and s t \u2192 s imply s = s ; -fully forward deterministic if, for all states s, s , s \u2208 S and for all sequences \u03b1, \u03b1 \u2208 T * , (s \u03b1 \u2192 s \u2227 s \u03b1 \u2192 s \u2227 \u03a8 (\u03b1) = \u03a8 (\u03b1 )) entails s = s ; -weakly periodic if for every s 1 \u2208 S, label sequence \u03c3 \u2208 T * , and infinite sequence s . . ., \u2200i, j \u2265 1: s i = s j ; -persistent if for all states s, s , s \u2208 S, and labels t = u, if s t \u2192 s and s u \u2192 s , then there is some state r \u2208 S such that s u \u2192 r and s t \u2192 r. -live if \u2200t \u2208 T \u2200s \u2208 [s 0 \u2203s \u2208 [s such that s [t ; -reversible if \u2200s \u2208 [s 0 , s 0 \u2208 [s .",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF1": {
+            "text": ", we shall denote \u2022\u2022 x \\ {x} by A(x). Lemma 1. Co-enabling along a general path: In a choice-free net N , if M 1 [x , x belongs to the support of some (minimal) semiflow \u03a5 , M 1",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We are indebted to the anonymous referees for their detailed and helpful remarks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements."
+        },
+        {
+            "text": "A labelled transition system with initial state, lts for short, is a quadruple TS = (S, T, \u2192, \u0131) where S is a set of states, T is a set of labels, \u2192 \u2286 (S \u00d7 T \u00d7 S) is the set of labelled edges, and \u0131 \u2208 S is an initial state. TS is finite if S and T are finite. Let (\u2212T ) (called backward edges) be a disjoint copy of T :A g-path is a sequence \u03c3 \u2208 (T \u222a (\u2212T )) * ; it is a (directed) path if \u03c3 \u2208 T * . For s, s \u2208 S, a g-path \u03c3 = a 1 . . . a m leads from s to s (denoted by s \u03c3 \u2192 s ) if \u2203r 0 , r 1 , . . . , r m \u2208 S : s = r 0 \u2227 r m = s A cycle s \u03c3 \u2192 s with \u03c3 \u2208 T * is small if \u03c3 = \u03b5 and there is no cycle s \u03c3 \u2192 s with \u03c3 = \u03b5 and \u03a8 (\u03c3 ) \u03a8 (\u03c3) (this should not be confused with a simple cycle, not visiting twice any state). A cycle s[\u03c3 s is prime if the greatest common divisor of the entries in its Parikh vector is 1. A (directed) path s[\u03c3 s is short if there is no other path between the same states with a smaller Parikh vector:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A.1 Labelled Transition Systems"
+        },
+        {
+            "text": "A (finite, place-transition, arc-weighted) Petri net is a triple PN = (P, T, F ) such that P is a finite set of places, T is a finite set of transitions, withwhere p is a place and t is a transition. An elementary property of Petri nets is the state equation which expresses thatPN is plain if no arc weight exceeds 1; pure if \u2200p \u2208 P : (p \u2022 \u2229 \u2022 p) = \u2205; choicefree if \u2200p \u2208 P : |p \u2022 | \u2264 1; join-free if \u2200t \u2208 T : | \u2022 t| \u2264 1; fork-attribution if choice-free and, in addition, \u2200t \u2208 T : | \u2022 t| \u2264 1; a marked graph if PN is plain and |p \u2022 | = 1 and | \u2022 p| = 1 for all places p \u2208 P ; and a T-system if PN is plain and |p \u2022 | \u2264 1 and | \u2022 p| \u2264 1 for all places p \u2208 P ; free-choice if it is plain and \u2200t, t \u2208 T :A marking is a mapping M : P \u2192 N, indicating the number of (black) tokens in each place. A Petri net system is a net provided with an initial marking (P, T, F, M 0 ); the subclasses defined above for Petri nets extend immediately for Petri net systems. A transition t \u2208 T is enabled by a marking M , denoted by M t \u2192, if for all places p \u2208 P , M (p) \u2265 F (p, t). If t is enabled at M , then t can occur (or fire) in M , leading to the marking M defined by M (p) = M (p) \u2212 F (p, t) + F (t, p) and denoted by M t \u2192 M . The reachability graph of PN is the labelled transition system whose initial state is M 0 , whose vertices are the reachable markings, and whose edges areand safe if it is 1-bounded. Properties of transition systems extend immediately to Petri net systems through their reachability graphs. A labelled transition system is PN-solvable if it is isomorphic to the reachability graph of a Petri net system (called the solution); it is CF-solvable if there is a choice-free solution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A.2 Petri Nets"
+        },
+        {
+            "text": "When linking transition systems and Petri nets, it is useful to introduce regions. A region (\u03c1, B, F) is a triple of functions \u03c1 (from states to N), and B, F (both from labels to N), satisfying the property that for any states s, s and label a:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A.3 Regions"
+        }
+    ]
+}

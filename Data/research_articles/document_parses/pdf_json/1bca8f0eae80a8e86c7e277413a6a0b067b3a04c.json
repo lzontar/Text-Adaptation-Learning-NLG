@@ -1,0 +1,1086 @@
+{
+    "paper_id": "1bca8f0eae80a8e86c7e277413a6a0b067b3a04c",
+    "metadata": {
+        "title": "Agent-Level Pandemic Simulation (ALPS) for Analyzing Effects of Lockdown Measures",
+        "authors": [
+            {
+                "first": "Anuj",
+                "middle": [],
+                "last": "Srivastava",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Florida State University",
+                    "location": {
+                        "settlement": "Tallahassee",
+                        "region": "FL",
+                        "country": "USA"
+                    }
+                },
+                "email": "*anuj@stat.fsu.edu"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "This paper develops an agent-level simulation model, termed ALPS, for simulating the spread of an infectious disease in a confined community. The mechanism of transmission is agent-to-agent contact, using parameters reported for Corona COVID-19 pandemic. The main goal of the ALPS simulation is analyze effects of preventive measuresimposition and lifting of lockdown norms -on the rates of infections, fatalities and recoveries. The model assumptions and choices represent a balance between competing demands of being realistic and being efficient for real-time inferences. The model provides quantification of gains in reducing casualties by imposition and maintenance of restrictive measures in place.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "There is a great interest in statistical modeling and analysis of medical, economical and epidemiological data resulting from current the Covid-19 pandemic. From an epidemiological perspective, as large amount of infection, containment, and recovery data from the this pandemic becomes available over time, the community is currently relying essentially on simulation models to help assess situations and to evaluate options [1] . Naturally, simulation systems that follow precise mathematical and statistical models are playing an important role in understanding this dynamic and complex situation [2] . In this paper we develop a mathematical simulation model, termed ALPS, to replicate the spread of an infectious disease, such as COVID-19, in a confined community and to study the influence of some governmental interventions on final outcomes.",
+            "cite_spans": [
+                {
+                    "start": 425,
+                    "end": 428,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 599,
+                    "end": 602,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Since ALPS is purely a simulation model, the underlying assumptions and choices of statistical distributions for random quantities become critical in its success. On one hand it is important to capture the intricacies the observed phenomena as closely as possible, using sophisticated modeling tools. On the other hand, it is important to keep the model efficient and tractable by using simplifying assumptions. One can, of course, relax these assumptions and obtain more and more realistic models as desired, but at the cost of increasing computational complexity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "There have been a large models proposed in the literatures relating to the the spread of epidemics through human contacts or otherwise. They can be broadly categorized in two main classes (a more detailed taxonomy of simulation models can be found in [3] ):",
+            "cite_spans": [
+                {
+                    "start": 251,
+                    "end": 254,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "1. Population-Level Coarse Modeling: A large number of epidemiological models have focused on the population-level variables -counts of infected (I), 0 1/15 susceptible (S), removed or recovered (R), etc. The most popular model of this type is the Susceptible-Infected-Removed (SIR) model [4] proposed by Kermack and McKendrick in 1927 . This model uses ordinary differential equations to model constrained growth of the counts in these three categories:",
+            "cite_spans": [
+                {
+                    "start": 289,
+                    "end": 292,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 305,
+                    "end": 335,
+                    "text": "Kermack and McKendrick in 1927",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "dS dt = \u2212\u03b2I(t)S(t), dI dt = \u03b2I(t)S(t) \u2212 \u03b3I(t), dR dt = \u03b3I(t) .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The two parameters \u03b2 and \u03b3 control the dynamics of infections, and the condition dS dt + dI dt + dR dt = 0 ensures constancy of the community size. A number of other papers have studied variants of these models and have adapted them for different epidemics, such as ebola and SARS [5] . While there are spatial versions of SIR models, they are usually limited in their modeling of spatial dynamics. They typically use a uniform static grid to represent the spread of infections, from a location to its neighbors, over time. In general these models do not explicitly model people dynamics as residents move around in a community. Several recent simulation models, focusing directly on Covid-19 illness, also rely on such coarser community level models [6] .",
+            "cite_spans": [
+                {
+                    "start": 281,
+                    "end": 284,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 751,
+                    "end": 754,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "2. Agent-Level Modeling: While population-level dynamical evolutions of population variables are simple and very effective for overall assessment, they do not take into account any social dynamics, human behavior, government-mandated restrictions, and complexities of human interactions explicitly. The models that study these human-level factors and variables , while tracking disease at an individual level, are called agent-level models [7] . Here one models the mobility, health status, and interactions of individual subjects (agents) in order to construct an overall population-level picture in a bottom-up way. The advantages of agent-based models are that they are more detailed and one can vary the parameters of restriction measures, such as social distancing, at a granular level to infer overall outcomes. Agent-based models have been discussed in several papers, including [3, [8] [9] [10] and so on. The importance of simulations based analysis of epidemic spread is emphasized in [11] but with a focus on infection models within host. Some aspect of spreading of diseases using network contact is also discussed. Hunter et al. [10] construct a detailed agent-based model for spread of infectious diseases, taking into account population demographics and other social conditions, but they do not consider countermeasures such as lockdowns in their simulations. A broad organization of different agent-based simulation methods have been presented in [3] . There are numerous other papers on the topic of agent-based simulations for simulating spread of infections that are not referenced.",
+            "cite_spans": [
+                {
+                    "start": 440,
+                    "end": 443,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 886,
+                    "end": 889,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 890,
+                    "end": 893,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 894,
+                    "end": 897,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 898,
+                    "end": 902,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 995,
+                    "end": 999,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1142,
+                    "end": 1146,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1463,
+                    "end": 1466,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The main distinction of the current paper from the past literature is its focus on agent-level transmission of infections, and the influence of social dynamics and lockdown-type restrictions on these transmissions. In this paper we assume a closed community with the infection started by a single agent at initial time. The infections are transmitted through physical exposure of susceptible agents to the infected agents. The infected agents go through a period of sickness with two eventual outcomes -full recovery for most and death for a small fraction. Once recovered, the agents can no longer be infected. The social dynamical model used here is based on fixed domicile, i.e. each agent has a fixed housing unit. Under unrestricted conditions, or no lockdown, the agents are free to move over the full domain using a simple motion model. These motions are independent across agents and encourage smooth paths. Under lockdown conditions, most of the agents head directly to their housing units and generally stay there during that period. A very small fraction of agents are allowed to move freely under the restrictions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The rest of this paper is organized as follows. Section 2 develops the proposed agent-level pandemic simulation (ALPS) model, specifying the underlying assumptions and motivating model choices. It also discusses choices of model parameters and present a validation using comparisons with the SIR model. Section 3 presents some illustrative examples and discussed computational complexity of ALPS. The use of ALPS in understanding influences of countermeasures is presented in Section 4. The paper ends by discussing model limitations and suggesting some future directions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this section we develop our simulation model for agent-level interactions and spread of the infections across a population in a well-defined geographical domain. In terms of the model design, there are competing requirements for such a simulation to be useful. Our main considerations in the design of ALPS are as follows. On one hand, we want to capture detailed properties of agents and their pertinent environments so as to render a realistic model of pandemic evolution with or without countermeasures. On the other hand, we want to keep model complexity reasonably low, in order to utilize it for analysis under variable conditions and countermeasures. Also, to obtain statistical summaries of pandemic conditions under different scenarios, we want to run a large number of simulations and compute averages. This also requires keeping the overall model tractable from a computational perspective to allow for multiple runs of ALPS in short time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Agent-Level Pandemic Simulation (ALPS) Model"
+        },
+        {
+            "text": "The overall setting of the simulation model is the following. We assuming that the community is based in a square geographical region D with h household units arranged in a uniformly-spaced square grid. We assume that there are N total agents in the community and the configuration updates every unit interval (hour) counted by the variable t. The agents are fully mobile to traverse all of D when unconstrained but are largely restricted to their home units under restrictions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "Next, we specify the assumptions/models being used at the moment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Independent Agents: Each agent (person) has an independent motion model and independent infection probability. The actual infection event is of course dependent on being in a close proximity of an infected carrier (within a certain distance, say \u2248 6 feet) for a certain exposure time. But the probability of an agent being infected is independent of such events for other persons.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Full Mobility In Absence of Restrictive Measures: We assume that each agent is fully mobile and moves across the domain freely when no restrictive measures are imposed. In other words, there no agents with restricted mobility due to age or health. Also, we do not impose any day/night schedules on the motions, we simply follow a fixed motion model at all times. Some papers, including [12] , provide a two-or three-state models where the agents transition between some stable states (home, workplace, shopping, etc) in a predetermined manner.",
+            "cite_spans": [
+                {
+                    "start": 388,
+                    "end": 392,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Homestay During Restrictive Measures: We assume that most agents stay at home at all times during the restrictive conditions. Only a small percentage (set as a parameter \u03c1 0 ) of population is allowed to move freely but the large majority stays at home.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Sealed Region Boundaries: In order to avoid complications of introducing a transportation model in the system, we assume that there is no transfer of agents into and out of the region D. The region is modeled to have reflecting boundaries to ensure that all the citizens stay with in the region. The only way the population of D is changed is through death of agent(s).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Fixed Domicile: The whole community is divided into a certain number of living units (households/buildings). These units are placed in square blocks with uniform spacing. Each agent has a fixed domicile at one of the units. During a lockdown period, the agents proceed to and stay at home with a certain fidelity. We assume that all agents within a unit are exposed to each other, i.e. they are in close proximity, and can potentially infect others.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 No Re-Infection: We assume that once a person has recovered from the diseased then he/she can not be infected again for the remaining observation period. While this is an important unresolved issue for the current Covid-19 infections, it has been a valid assumption for the past Corona virus infections.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Single Patient Ground Zero: The infection is introduced in the population using a single carrier, termed patient ground zero at time t = 0. This patient is selected randomly from the population and the time variable is indicated related to this introduction event.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "\u2022 Constant Immunity Level: The probability of infection of agents, under the exposure conditions, remains same over time. We do not assume any increase or decrease in agent immunity over time. Also, we do not assign any age or ethnicity to the agents and all agents are assumed to have equal immunity levels.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simplifying Assumptions"
+        },
+        {
+            "text": "There are several parts of the model that require individual specifications. These parts include a model on dynamics of individual agents (with or without restrictions in place), the mechanisms of transmitting infections from agent to agents, and the process of recovery and fatality for infected agents. A full listing of the model parameters and some typical values are given in Table 1 in the appendix.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 381,
+                    "end": 388,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "\u2022 Motion Model: The movement of a subject follows a simple model where the instantaneous velocity v i (t) is a weighted sum of three components: (1) velocity at the previous time, i.e. v i (t \u2212 1), (2) a directed component guiding them to their home, \u03b1(h i \u2212 x i (t \u2212 1)), and (3) an independent Gaussian increment \u03c3w i (t), w i (t) \u223c N (0, 1). Note that the motions of different agents are kept independent of each other. The located h i \u2208 D denotes the home unit (or stable state) of the i th person.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "Using mathematical notation, the model for instantaneous position x i (t) and velocity v i (t) of the i th agent are given by:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "Here \u03b1 \u2208 R + determines how fast one moves towards their home, and \u00b5 quantifies the degree to which one follows the directive to stay home. If \u00b5 = 0, then the person reaches home and stays there except for the random component w i . However, if \u00b5 = 0.5, then a significant fraction of motion represents continuity irrespective of the home location. The value \u00b5 = 1 implies that either there is not restriction in place or the person does not follow the directive.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "Reflecting Boundary: When a subject reaches boundary of the domain D, the motion is reflected and the motion continues in the opposite direction. Fig. 1 shows examples of random agent motions under different simulation conditions. The leftmost case shows when there is no lockdown and the agents are moving freely throughout. The middle case shows the case when the restrictions are imposed on day 10 and the restrictions stay in place after that. The last plot shows the case where a lockdown is imposed on day 10 and then lifted on day 20. \u2022 Restrictions (or Lockdown) Model: Once the restriction period starts, at time T 0 , all agents are directed towards their homes and asked to stay there. We assume that \u03c1% of the subject follow this directive while the others ((100 \u2212 \u03c1)%) follow a different motion model. The variable \u03c1 changes over time according to:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 146,
+                    "end": 152,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "We note that the people who do not follow restrictions follow the prescribed motion model with \u00b5 = 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "\u2022 Exposure-Infection Model: The event of infection of an agent depends on the level of exposure to another infected person. This process is controlled by the following parameters:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "-The distance between the subject and the infected person should be less than r 0 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "-The amount of exposure in terms of the number of time units should be at least \u03c4 0 . At the moment we use the cumulative exposure over the whole history, rather than just the recent history.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "-Given that these conditions are satisfied, the probability of catching the disease at each time t is an independent Bernoulli random variable with probability p I .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "\u2022 Recovery-Death Model: Once a subject is infected, we randomly associate the nature of the illness immediately. Either an infected agent is going to recover (non-fatal type, or NFT) or the person is eventually going to die (fatal type, or FT). The probability of having a fatal infection given that a person is infection is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "-Recovery: A subject with a non-fatal type (NFT) is sick for a period of T R days. After this period, the person can recover at any time according a Bernoulli random variable with probability p R .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "-Fatality: A subject with a fatal type (FT) is sick for a period of T D days. After this period, the person can die at any time independently according a Bernoulli random variable with probability p D .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Specifications"
+        },
+        {
+            "text": "A complete listing of the ALPS model parameters is provided in the Appendix in Table  1 . In this section, we motivate the values chosen for those parameters in these simulations. These values are motivated by the current reports of Corona virus pandemic.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 79,
+                    "end": 87,
+                    "text": "Table  1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Chosen Parameter Values"
+        },
+        {
+            "text": "\u2022 We have used a square domain with size 2 miles \u00d7 2 miles for a community with population of N agents. For N = 900, the model represents a population density of 225 people/mile 2 . The community contains h living units (buildings) with a domicile of N/h people per unit. In case N/h is high, a unit represents a tall building in metropolitan areas, but when N/h is small, a unit represents a single family home in a suburban area.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Chosen Parameter Values"
+        },
+        {
+            "text": "The time unit for updating configurations is one hour and occurrence of major events is specified in days. For example, the lockdown can start on day 1 and end on day 60.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Chosen Parameter Values"
+        },
+        {
+            "text": "\u2022 The standard deviation for accelerations in agent mobility are approximately 1-5 feet/hour (fph). Through integration over time, this results in agent speeds up to 1000 fph. We assume that \u03c1 0 = 0.98, i.e. 98% of the people follow the restriction directives.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Chosen Parameter Values"
+        },
+        {
+            "text": "\u2022 The physical distance between agents to catch infection should at most r 0 \u2248 6f t and the exposure time should be at least \u03c4 0 = 5 time units (hours). The probability p I of getting infected, under the right exposure conditions, is set at 5% at each time unit (hour) independently.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Chosen Parameter Values"
+        },
+        {
+            "text": "\u2022 Once infected, the probability of having a fatal outcome is set at 5-10%. The time period of recovery for agents with non-fatal outcomes starts at 7 days. The probability of reaching full recovery for those agents is p R = 0.001 at each subsequence time unit (hour). Similarly, for the agents with fatal outcomes, the period of being infected is set to be 7 days and after that the probability of death at each time unit (hour) is set to be p D = 0.1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Chosen Parameter Values"
+        },
+        {
+            "text": "Although ALPS is perhaps too simple model to capture intricate dynamics of an active society, it does provide an efficient tool for analyzing effects of countermeasures during the spread of a pandemic. Before it can be used in practice, there is an important need to validate it in some way. As described in [3] , there are several ways to validate a simulation model. One is to use real data (an observed census of infections over time) in a community to estimate model parameters, followed by a statistical model testing. While such data may emerge for Covid-19 for public use in the future (especially with the advent of tracking apps being deployed in many countries), there is currently no such agent-level data available for Covid-19. The other approach for validation is to consider coarse population-level variables and their dynamics, and compare them against established models such as SIR and its variations. We take this latter approach. Fig. 2 shows plots of the evolutions of global infection counts (susceptible, infection, recovered) in a community under the well-known SIR model (on the left) and the proposed ALPS model (on the right). In the ALPS model the counts for recovered and fatalities are kept separate, while in SIR model these two categories are combined. One can see a remarkable similarity in the shapes of corresponding curves and this provides a certain validation to the ALPS model. In fact, given the dynamical models of agent-level mobility and infections, one can in principle derive parameters of the population-level differential equations used in the SIR model. We have left that out for future developments.",
+            "cite_spans": [
+                {
+                    "start": 308,
+                    "end": 311,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 950,
+                    "end": 956,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Model Validation"
+        },
+        {
+            "text": "We illustrate the use of ALPS model by showing its outcomes under a few typical scenarios. Further, we discuss the computational cost of running ALPS on a regular laptop computer.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Exemplar Scenarios & Computational Complexity"
+        },
+        {
+            "text": "We start by showing outputs of ALPS under some interesting settings. In these examples, we use a relatively small number of agents (N = 900) and household units (h = 9), with T = 100days, in order to improve visibility of displays. Fig. 3 shows a sequence of temporal snapshots representing thecommunity at different times over the observation period. In this example, the population is fully mobile over the observation period and no social distancing restrictions are imposed. The snapshots show the situations at 10, 20, 50, and 100 days. The corresponding time evolution of global count measures is shown in the bottom right panel. The infection starts to spread rapidly around the 10th day and reaches a peak infection level of 81% around day 35. Then the recovery starts and continues until very few infected people are left. In this simulation, the number of fatalities is found to be 11%.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 232,
+                    "end": 238,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Examples from ALPS"
+        },
+        {
+            "text": "In the second example, the restrictions are introduced on day 5 after the infection and these measures stay in place after that. The results are shown in Fig. 4 . The bottom right panel shows temporal evolutions of the population-level infection counts: susceptible (blue curve), infected (red), recovered (green), and deceased (magenta). As the picture shows, the infections start growing initially but the gains of lockdown measures start appearing around day 15 -it takes about 10-12 for the restrictions to show results. The subsequent bumps in the infected counts is due to the new infections transmitted by roaming agents. In this run of ALPS, we see an overall fatality rate of 3% and an uninfected population size of 67%.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 154,
+                    "end": 160,
+                    "text": "Fig. 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Example 2 -Early Restrictions:"
+        },
+        {
+            "text": "In this example, with results shown in Fig. 5 , the restrictions are introduced on day 5 after the infection and lifted on day 30. So the restriction period of 25 days is surrounded by unrestricted mobility on both sides. As the plot of global variables indicate, the early restriction helps reduce the infection rates but these gains are lost soon after lifting of the restrictions. The percentage of infected people goes back up and the rate of fatalities resemble the unrestricted situation in Example 1.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 39,
+                    "end": 45,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Example 3: Early Imposition and Then Removal of Restrictions :"
+        },
+        {
+            "text": "Since computational efficiency of the simulator is of vital important, we next study the computational cost of running ALPS for different variable sizes. In these experiments, From these results we are see that the computational cost is linear in T with slope 1. For a change in N the number of agents, while keeping other variables fixed, the change in the computational cost is linear also. However, the rate of change is 2 for smaller values but increases to 4 for the larger values. The changes in computational cost due to changes in the number of households, with other variables held fixed, are minimal.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Computational Complexity"
+        },
+        {
+            "text": "There are several ways to utilize this model for prediction, planning and decision making. We illustrate some of these ideas using examples. At first we show individual simulations under different scenarios and then present results on average behavior obtained using hundreds of simulations. In these illustrations, we have used N = 972 agents and h = 81 households. Effect of Timing of Imposition of Restrictions: Fig. 6 shows some examples of ALPS outputs when a lockdown is imposed on the community but at different times. From top-left to bottom-right, the plots show lockdowns starting on day 1, day 5, day 10, and day 20, respectively. Once the restrictions are imposed, they are not removed in these examples. The best results are obtained for the earliest imposition of restrictions.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 415,
+                    "end": 421,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "In the top-left case, the peak infection rises to 22% of the community, on day 18, and then comes down steadily. The fraction of fatalities is 2% and the fraction of community never infected is 77%. In case the restrictions are imposed on day 5, and all other parameters held same, there is a small change in the situation. The peak infection rises to 55%, the fatalities increase to 7% and the fraction of uninfected goes down to 40%. We can see that an early imposition of lockdown measures also helps reduce peak infection rates in the community. Sometimes we notice a saw-tooth shape in the curve for infected people. This implies that the even the small portion of mobile agents can break through and spread infections at other home units despite full restrictions being in place. This saw-tooth shape underscores the need for severely limiting mobility. Even a small fraction of population being mobile can spread infections to the immobile agents and cause infections.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "The bottom two panels in Fig. 6 show results for a delayed lockdown, with the restrictions being imposed on day 20 and day 30. One can see that the peak infection rate becomes quite high (82-84%) and casualties mount to 10-11%. The fraction of uninfected population falls to 0% in these cases. This shows that, under the chosen parameter settings, day 20 is quite late in imposing lockdown conditions on the community, and the results are very similar to any later imposition. If the restrictions are imposed after 15-20 days, then there are no uninfected people left in the community in a typical run of ALPS. Effect of Timing of Removal of Restrictions: In the next set of simulations, we study the effects of lifting restrictions and thus re-allowing full mobility in the community. Some sample results are shown in Fig. 7 . Each plot shows the evolution for a different starting time T 0 and the end time Fig. 8 shows an example of the configuration with 25 households and 200 agents in the community. We vary the start time T 0 (start day of restrictions) from 1 to 30 and then to 150 and study the resulting outcomes using 100 runes of ALPS. (The value of T 0 = 150 implies that the restrictions are never imposed in that setting.) The remaining panels in Fig. 8 show box plots of the three variables changing with T 0 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 25,
+                    "end": 31,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 819,
+                    "end": 825,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                },
+                {
+                    "start": 909,
+                    "end": 915,
+                    "text": "Fig. 8",
+                    "ref_id": null
+                },
+                {
+                    "start": 1262,
+                    "end": 1268,
+                    "text": "Fig. 8",
+                    "ref_id": null
+                }
+            ],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "\u2022 Death Rate: Top right shows the percentage fatalities increasing from around 1% to almost 11% as T 0 changes from 1 to 30. the largest rate of increase is observed when T 0 is between 10 to 30 days.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "\u2022 Number of Uninfected: In the bottom left panel we see a decrease in the number of uninfected population from around 90% to 0% as T 0 increases. In case the restrictions are not imposed in first 30 days after the first infection, there is no agent left uninfected in the community.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "\u2022 Peak Infection Rate: In case the restrictions are imposed on the first day after the infection, the peak infection rate is contained to be 10%. As T 0 is increased and the restrictions are delayed the peak infection rate rises to almost 80% of the community.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "In Fig. 9 we study the effect of changing T 1 while T 0 = 1 is kept fixed (and other experimental conditions being same as in the last experiment). The results show that there is no difference in the eventual number of deaths and the peak infection rates when T 1 is changed from 10 to 40. This is because agent immunity and other infection ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 9,
+                    "text": "Fig. 9",
+                    "ref_id": null
+                }
+            ],
+            "section": "Analyzing Lockdown Measures"
+        },
+        {
+            "text": "The strengths and limitations of ALPS model are the following. ALPS provides an efficient yet comprehensive modeling of the spread of infections in a self-contained community, using simple model assumptions. The model can prove very useful in evaluating costs and effects of imposing social lockdown measures in a society.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "In the current version, the initial placement of agents is set to be normally distributed with means given by their home units and fixed variance. This variance is kept large to allow for near arbitrary placements of agents in the community. In practice, however, agents typically follow semi-rigid daily schedules of being at work, performing chores, or being at home. Thus, at the time of imposition of a lockdown, the agents can be better placed in the scenes according to their regular schedules rather than being placed arbitrarily.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "In terms of future directions, there are many ways to develop this simulation model to capture more realistic scenarios: (1) It is possible to model multiple, interactive communities instead of a single isolated community. (2) One can include typical daily schedules for agents in the simulations. A typical agent may leave home in the morning, spent time in the office during the day, and return to home in the evening. (3) It is possible to provide an age demographics to the community and assign immunity to agents according to their demographic labels [13] . (4) As more data becomes available in the future, one can change immunity levels of agents over time according to the spread and seasons. (5) In practice, when an agent is infected, he/she goes through different stages of the disease, associated with varying degrees of mobility [9] . One can introduce an additional variable to track these stages of infections in the model and change agent mobility accordingly.",
+            "cite_spans": [
+                {
+                    "start": 556,
+                    "end": 560,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 701,
+                    "end": 704,
+                    "text": "(5)",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 842,
+                    "end": 845,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "This paper develops an agent-based simulation model, called ALPS, for modeling spread of an infectious disease in a closed community. A number of simplifying and reasonable assumptions makes the ALPS efficient and effective for statistical analysis. The model is validated at a population level by comparing with the popular SIR model in epidemiology. These results indicate that: (1) Early imposition of lockdown measures (right after the first infection) significantly reduce infection rates and fatalities; (2) 0 13/15",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "Lifting of lockdown measures recommences the spread of the disease and the infections eventually reach the same level as the unrestricted community; (3) In absence of any extraneous solutions (a medical treatment/cure, a weakening mutation of the virus, or a natural development of agent immunity), the only viable option for preventing large infections is the judicious use of lockdown measures.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Special report: The simulations driving the world's response to COVID-19. How epidemiologists rushed to model the coronavirus pandemic",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Adam",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "FluTE, a publicly available stochastic influenza epidemic simulation model",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Chao",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Halloran",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Obenchain",
+                    "suffix": ""
+                },
+                {
+                    "first": "J I M",
+                    "middle": [],
+                    "last": "Longini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "PLoS computational biology",
+            "volume": "6",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A Taxonomy for Agent-Based Models in Human Infectious Disease Epidemiology",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Hunter",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mac",
+                    "middle": [],
+                    "last": "Namee",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Kelleher",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Journal of Artificial Societies and Social Simulation",
+            "volume": "20",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.18564/jasss.3414"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "A Contribution to the Mathematical Theory of Epidemics",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Kermack",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Mckendrick",
+                    "suffix": ""
+                }
+            ],
+            "year": 1927,
+            "venue": "Proceedings of the Royal Society A",
+            "volume": "115",
+            "issn": "772",
+            "pages": "700--721",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Population-based simulations of influenza pandemics: validity and significance for public health policy",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Timpka",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Eriksson",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Gursky",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Nyce",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Morin",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Jenvald",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Bulletin of the World Health Organization",
+            "volume": "87",
+            "issn": "",
+            "pages": "305--311",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Estimates of the severity of coronavirus disease 2019: a model-based analysis",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Verity",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Okell",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Dorigatti",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Winskill",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Whittaker",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Imai",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet Infect Dis",
+            "volume": "",
+            "issn": "",
+            "pages": "30243--30250",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S1473-3099(20"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Agent-Based Models",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Gilbert",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Growing artificial societies. Social science from the bottom up",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Epstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Axtell",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "An agent-based approach for modeling dynamics of contagious disease spread. International journal of health geographics",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Perez",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Dragicevic",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "8",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "An open-data-driven agent-based model to simulate infectious disease outbreaks",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Hunter",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Namee",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kelleher",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "PLoS ONE",
+            "volume": "13",
+            "issn": "12",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "High-resolution epidemic simulation using within-host infection and contact data",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Mikolajczyk",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Hernandez-Vargas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "BMC Public Health",
+            "volume": "18",
+            "issn": "886",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "An Agent-Based Spatially Explicit Epidemiological Model in MASON",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Dunham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Journal of Artificial Societies and Social Simulation",
+            "volume": "9",
+            "issn": "1",
+            "pages": "1--3",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Modelling transmission and control of the COVID-19 pandemic in Australia",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Chang",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Harding",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zachreson",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Cliff",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Prokopenko",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF1": {
+            "text": "The evolution of population-level infection measurements under the SIR model (left), courtesy wikipedia) and the ALPS model (right).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Example 1: Model outputs at different times under no restrictive measures. Blue dots are susceptible agents, red dots are infected agents, green dots are recovered agents, and purple circles denote fatalities.the infection has not started spreading yet. The situation on day 6 shows infection beginning to spread around agent zero and early signs of clustering of agents around their domicile units. The scene for day 10 shows progression of lockdown with most agents (98%) getting close to their domicile units and the infection being carried to some units by their resident agents. By day 20, the concentration of agents in their units is complete and only a few (2%) agents are allowed free mobility.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Example 3: Model outputs when the restrictive measures are imposed on day 5 and removed on day 30.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "As these plots indicate, Results from ALPS runs for different lockdown times. From top left to bottom right, the lockdowns are imposed on day 5, 10, 20, and 30. made by early imposition of restrictions are nullified when the restrictions are lifted. In all cases, after the lifting of restrictions, the full population gets infected eventually. Since we do no assume any change in the immunity levels of the agents over time, the results from lifting of restrictions are similar to not imposing any restrictions in the first place. The results appear to be same except for being shifted in time.Statistical Summaries:In the next set of experiments, we compute average values of some variables of interest using multiple (= 100) runs of ALPS. In the first result, we study three variables -number of deaths, number of people remaining uninfected, and the peak infection rate -using N = 200 agents living in a community of h = 25 households, observed over [0, 150] days. The top left panel of",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "T 1 = 30 T 0 = 10, T 1 = 60 Fig 7. ALPS output for different combinations of impositions and lifting of restrictive conditions. Statistical summaries of infection variables obtained using 100 runs of ALPS, plotted against the starting day of the restrictions. Statistical summaries of infection variables obtained using 100 runs of ALPS, plotted against the reopening day. factors are kept constant over time, and lifting of restrictions gives results akin to results from unrestricted conditions, irrespective of T 1 .",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Fig 1.Motions of five randomly selected agents under different conditions. Blue curves denote unrestricted movements, red curves denote movement during lockdown, and green curves denote movement after lockdown.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "we note the time taken by ALPS code on a McBook Pro laptop with Intel 2.8 GHz Core i7 processor and 16GB memory. The computational expense for a number of combination of N , h, and T are given in the table below. Recall that in this implementation, the number of households units h is a perfect square and the number of agents N is a multiple (or close to it) of h.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "This research was supported in part by the grants NSF DMS-1621787 and NSF DMS-1953087.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        },
+        {
+            "text": "A Listing of ALPS parameters Table 1 provides a listing of all the parameters one can adjust in ALPS to achieve different scenarios. It also provides some typical values used in the experiments presented in the paper. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 29,
+                    "end": 36,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "annex"
+        }
+    ]
+}

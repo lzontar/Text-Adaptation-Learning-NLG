@@ -1,0 +1,3085 @@
+{
+    "paper_id": "1a8b7c4373f1fdf5f75aba59a47abae95d6f4d91",
+    "metadata": {
+        "title": "Emotion-robust EEG Classification for Motor-imagery",
+        "authors": [
+            {
+                "first": "Abdul",
+                "middle": [],
+                "last": "Moeed",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Technical University of Munich Munich",
+                    "location": {
+                        "country": "Germany"
+                    }
+                },
+                "email": "abd.moeed@tum.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Developments in Brain Computer Interfaces (BCIs) are empowering those with severe physical afflictions through their use in assistive systems. Common methods of achieving this is via Motor-Imagery (MI), which maps brain signals to code for certain commands. Electroencephalogram (EEG) is preferred for recording brain signal data on account of it being non-invasive. Despite their potential utility, MI-BCI systems are yet confined to research labs. A major cause for this is lack of robustness of such systems. As hypothesized by two teams during Cybathlon 2016, a particular source of the system's vulnerability is the sharp change in the subject's state of emotional arousal. This work aims towards making MI-BCI systems resilient to such emotional perturbations. To do so, subjects are exposed to high and low arousal-inducing virtual reality (VR) environments before recording EEG data. The advent of COVID-19 compelled us to modify our methodology. Instead of training machine learning algorithms to classify emotional arousal, we opt for classifying subjects that serve as proxy for each state. Additionally, MI models are trained for each subject instead of each arousal state. As training subjects to use MI-BCI can be an arduous and time-consuming process, reducing this variability and increasing robustness can considerably accelerate the acceptance and adoption of assistive technologies powered by BCI.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Biological systems, such as humans, use electrical signals as the medium of communication between their control centers (brains) and motor organs (arms, legs). While this is taken for granted by most people, those with severe physical impairments, such as quadriplegia, experience the breakdown of this communication system rendering them unable to perform the most basic physical movements. Modern technologies, such as BCIs, have attempted to ameliorate this through the use of brain signals as commands for assistive systems [39] . MI, a common paradigm for BCI control, requires the subject to simulate or imagine movement of the limbs on account of there being discernible differences in brain signals when moving different limbs [1] . Due to it being non-invasive and costeffective, EEG is the method of choice for collecting data for such systems [1] .",
+            "cite_spans": [
+                {
+                    "start": 528,
+                    "end": 532,
+                    "text": "[39]",
+                    "ref_id": "BIBREF38"
+                },
+                {
+                    "start": 735,
+                    "end": 738,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 854,
+                    "end": 857,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "One of the many recent developments in the application of EEG-driven BCIs is the Cybathlon competition held every four years under the auspices of Eidgenssische Technische Hochschule Zrich (ETH Zurich) [45] . The competition involves physically challenged individuals completing routine tasks via assistive systems. One such task -the BCI race -has the participants (called pilots) control a virtual game character via brain signals only. Competing teams, who may hail from either academia or industry, are responsible for creating BCI systems and training their respective pilots. The goal of the Cybathlon is to push the state-of-the-art in BCI assistive systems, and accelerate its adoption in everyday lives of those who need it most.",
+            "cite_spans": [
+                {
+                    "start": 202,
+                    "end": 206,
+                    "text": "[45]",
+                    "ref_id": "BIBREF44"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "For the 2020 edition of Cybathlon, a team from the Technische Universitt Mnchen (TUM) called \"CyberTUM\" is amongst the competitors in the BCI race challenge. In order to achieve high scores in the competition, a major part of BCI development is the focus on robustness of the system i.e. minimizing the variability of the system for different sessions and environments. Lack of robustness, in fact, is an established concern in almost all BCI systems. Possible causes of the problem include nonstationarity of EEG signals (variance for the same subject) [59] [56] . An additional cause, as noted by participating teams in Cybathlon 2016, is the change in the subject's emotional state. During the race, As expected, a public event such as the BCI race, the pilots' stress stress levels increased. This is to be expected as a public event such as the BCI race can heighten stress. This change in the pilots' emotional state caused their respective BCI systems to perform sub-optimally.",
+            "cite_spans": [
+                {
+                    "start": 554,
+                    "end": 558,
+                    "text": "[59]",
+                    "ref_id": "BIBREF58"
+                },
+                {
+                    "start": 559,
+                    "end": 563,
+                    "text": "[56]",
+                    "ref_id": "BIBREF55"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "The objective of this work is to mitigate this concern and develop MI systems that are robust to perturbations in the subject's emotional state, specifically to emotional arousal. In order to achieve this, we develop VR environments to induce high and low arousal in the subject before recording MI data. VR environments have been previously used along with EEG to prompt changes in emotional arousal [5] . Additionally, they have been used together with MI for treating Parkinson's disease [32] . To our knowledge, this is the first work where VR environments are used to increase robustness of MI-BCI systems. Subsequently, learning algorithms are trained, not only for MI but also for different arousal states. The idea is that during the BCI race, we first detect the pilot's emotional state of arousal, and choose the appropriate MI classifier. Due to COVID-19, many steps in the above mentioned outline had to be modified, the details of which are present as follows.",
+            "cite_spans": [
+                {
+                    "start": 401,
+                    "end": 404,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 491,
+                    "end": 495,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "The inaugural Cybathlon competition was held in 2016. After the competition, the competing teams published their methods for training the participants, amongst which were Brain Tweakers (EPFL) [39] and Mirage91 (Graz University of Technology). One of the pilots of the former performed well in the qualifiers but poorly in the final, prompting the authors to cite psychological factors such as stress as the possible cause for the drop. A similar course of events was observed for the pilot of Mirage91, who after achieving an average runtime of 120 s in the days leading up to the Cybathlon, dropped to 196 s during the competition. The authors indicated that the pilot was showing signs of nervousness on competition day, with a heart beat of 132 beats per minute (bpm) prior to the race [51] .",
+            "cite_spans": [
+                {
+                    "start": 193,
+                    "end": 197,
+                    "text": "[39]",
+                    "ref_id": "BIBREF38"
+                },
+                {
+                    "start": 790,
+                    "end": 794,
+                    "text": "[51]",
+                    "ref_id": "BIBREF50"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. RELATED WORK A. Cybathlon 2016"
+        },
+        {
+            "text": "The authors' hypothesis regarding the drop in their pilots' performances is supported by existing BCI literature [9] [28] [16] [18] . Further support comes from evidence in affective science: It has been theorized that any event that causes an increase in emotional arousal can affect perception and memory in a manner which causes the retention of highpriority information and disregard of low-priority information [31] .",
+            "cite_spans": [
+                {
+                    "start": 113,
+                    "end": 116,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 117,
+                    "end": 121,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 127,
+                    "end": 131,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 416,
+                    "end": 420,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. RELATED WORK A. Cybathlon 2016"
+        },
+        {
+            "text": "Emotions are defined as complex psychological states, with three constituents: subjective experience, physiological and behavioral response [17] . Following early attempts [60] , more rigorous descriptions of emotions were made, the most widely accepted of which being the 'circumplex model' [48] . It proposes that all emotions can be described as a combination of two properties: valence and arousal. These can be thought as orthogonal axes in two-dimensions. Neurologically, it entails that any emotional state is a result of two distinct and independent neural sub-systems [42] . Figure 1 provides a visual representation of the circumplex model. As can be seen, emotions such as 'excited' are high on both the arousal and valence axes, while 'gloomy' is low in both arousal and valence.",
+            "cite_spans": [
+                {
+                    "start": 140,
+                    "end": 144,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 172,
+                    "end": 176,
+                    "text": "[60]",
+                    "ref_id": "BIBREF59"
+                },
+                {
+                    "start": 292,
+                    "end": 296,
+                    "text": "[48]",
+                    "ref_id": "BIBREF47"
+                },
+                {
+                    "start": 577,
+                    "end": 581,
+                    "text": "[42]",
+                    "ref_id": "BIBREF41"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 584,
+                    "end": 592,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "B. Emotional Valence and Arousal"
+        },
+        {
+            "text": "Alternative descriptions, such as the 'vector model' [7] , do not veer off sharply from the circumplex model; they too base emotional classification on both valence and arousal. Hence the circumplex model was used as the paradigm of emotional analysis for the duration of the project.",
+            "cite_spans": [
+                {
+                    "start": 53,
+                    "end": 56,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Emotional Valence and Arousal"
+        },
+        {
+            "text": "States of high and low arousal can be inferred from EEG signals [41] . This has been previously used to train learning systems for distinguishing between various arousal states [34] . EEG bands pertinent to different states of arousal are alpha (8-14 Hz) -related to a relaxed yet awakened state -and gamma (36-44 Hz) -a pattern associated with increased arousal and attention. The theta pattern (4-8 Hz), correlated with lethargy and sleepiness, is also useful for differentiating arousal.",
+            "cite_spans": [
+                {
+                    "start": 64,
+                    "end": 68,
+                    "text": "[41]",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 177,
+                    "end": 181,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Arousal, EEG and Motor Imagery"
+        },
+        {
+            "text": "With regards to motor imagery (MI), the most relevant EEG bands have been shown to be alpha (8) (9) (10) (11) (12) (13) (14) and beta (14) (15) (16) (17) (18) (19) (20) (21) (22) (23) (24) (25) (26) (27) (28) (29) (30) Hz) [15] , the latter of which is associated with high degrees of cognitive activity [41] .",
+            "cite_spans": [
+                {
+                    "start": 92,
+                    "end": 95,
+                    "text": "(8)",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 96,
+                    "end": 99,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 100,
+                    "end": 104,
+                    "text": "(10)",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 105,
+                    "end": 109,
+                    "text": "(11)",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 110,
+                    "end": 114,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 115,
+                    "end": 119,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 120,
+                    "end": 124,
+                    "text": "(14)",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 134,
+                    "end": 138,
+                    "text": "(14)",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 139,
+                    "end": 143,
+                    "text": "(15)",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 144,
+                    "end": 148,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 149,
+                    "end": 153,
+                    "text": "(17)",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 154,
+                    "end": 158,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 159,
+                    "end": 163,
+                    "text": "(19)",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 164,
+                    "end": 168,
+                    "text": "(20)",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 169,
+                    "end": 173,
+                    "text": "(21)",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 174,
+                    "end": 178,
+                    "text": "(22)",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 179,
+                    "end": 183,
+                    "text": "(23)",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 184,
+                    "end": 188,
+                    "text": "(24)",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 189,
+                    "end": 193,
+                    "text": "(25)",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 194,
+                    "end": 198,
+                    "text": "(26)",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 199,
+                    "end": 203,
+                    "text": "(27)",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 204,
+                    "end": 208,
+                    "text": "(28)",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 209,
+                    "end": 213,
+                    "text": "(29)",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 214,
+                    "end": 218,
+                    "text": "(30)",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 223,
+                    "end": 227,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 304,
+                    "end": 308,
+                    "text": "[41]",
+                    "ref_id": "BIBREF40"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Arousal, EEG and Motor Imagery"
+        },
+        {
+            "text": "Motor imagery data refers to data produced when the subject simulates limb movement. As movement of different limbs is sufficiently distinguishable, this can be used to perform control for various other tasks [37] . To record EEG data for motor imagery, the 10-20 international system of electrode placement is used 2. Due to the cross-lateral nature of limb control in the human brain, movement of the right arm is recorded most faithfully by C3 and that of the left arm by C4 [15] . ",
+            "cite_spans": [
+                {
+                    "start": 209,
+                    "end": 213,
+                    "text": "[37]",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 478,
+                    "end": 482,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Arousal, EEG and Motor Imagery"
+        },
+        {
+            "text": "Traditional methods of inducing stress include the Sing-asong stress test (SSST) [8] and the Trier social stress test (TSST) [20] , while meditation has been shown to induce relaxation [49] [29] . Emulating such environments faithfully in VR is sufficiently challenging, and may not be the most productive way to use VR to induce high/low emotional arousal.",
+            "cite_spans": [
+                {
+                    "start": 81,
+                    "end": 84,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 125,
+                    "end": 129,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 185,
+                    "end": 189,
+                    "text": "[49]",
+                    "ref_id": "BIBREF48"
+                },
+                {
+                    "start": 190,
+                    "end": 194,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Virtual Reality Environments"
+        },
+        {
+            "text": "Previously, VR exposure therapy has been explored to alleviate various psychological disorders [24] . One such example is using a VR height challenge -placing the subject on higher ground in a virtual environment [14] . Not only does the challenge induce high emotional arousal in test subjects, but the control subjects -the ones who are not acrophobic -also exhibit the same physiological responses as the test group i.e. increased heart rate and skin conductance level [14] . Similarly, VR environments, particularly those with natural scenery e.g. a forest, have shown efficacy in reducing stress [2] [3] . We thus developed two VR environments: one where the subject was placed on top of a skyscraper, called 'Height' while the second in a relaxing forest called 'Relaxation.' The environments were created using Unity 3D 1 .",
+            "cite_spans": [
+                {
+                    "start": 95,
+                    "end": 99,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 213,
+                    "end": 217,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 472,
+                    "end": 476,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 601,
+                    "end": 604,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 605,
+                    "end": 608,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Virtual Reality Environments"
+        },
+        {
+            "text": "As this project was part of the CyberTUM team's participation in Cybathlon 2020, the original idea was to collect real data with the actual pilots who will be competing in the even proper. At the beginning of this work, however, no ethics approval had been acquired to run any experiments on the pilots. This was not detrimental to the project as a proofof-concept could still be arrived at by collecting EEG data from volunteers within the CyberTUM team. The COVID-19 pandemic obstructed our means of collecting such data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Dataset"
+        },
+        {
+            "text": "In the absence of our own motor-imagery and arousal data, we opted for the Graz 2b data set [25] . It belongs to a family of BCI datasets collected by the BCI Lab at Graz University 1 https://unity.com/ of Technology. The dataset has been used previously in the BCI Competition IV [53] . EEG data is collected for 9 subjects doing a binary motor-imagery task (moving right and left hand on cue). The data is sampled at a frequency of 250 Hz with 3 EEG and 3 EOG channels. For our experiments, we use data from two subjects, B05 and B04, whom we refer to as subject 1 and 2 respectively henceforth.",
+            "cite_spans": [
+                {
+                    "start": 92,
+                    "end": 96,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 281,
+                    "end": 285,
+                    "text": "[53]",
+                    "ref_id": "BIBREF52"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Dataset"
+        },
+        {
+            "text": "As mentioned, we were unable to obtain our own EEG arousal data. To train the classifiers, we alternatively modified the experiment. Instead of using data with high/low arousal emotional states as labels, we used different subjects as proxies for such states, making it a cross-subject classification task [13] [46] . As EEG signals demonstrate significant variance between subjects, we can consider the data coming from subject A as that belonging to the emotional state of high arousal, and data from subject B as belonging to low arousal. With this approach, we can continue to train a classifier that would approximate the performance of one that is trained on actual arousal data, assuming the emotional states in this actual data are informative.",
+            "cite_spans": [
+                {
+                    "start": 306,
+                    "end": 310,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 311,
+                    "end": 315,
+                    "text": "[46]",
+                    "ref_id": "BIBREF45"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Subject Classification as Proxy for Arousal Classification"
+        },
+        {
+            "text": "The original scheme was to: 1) Develop VR environments in line with existing literature that are known to induce stress (high arousal) and relaxation (low arousal) in subjects. 2) Use electrodermal activity (EDA) activity to validate the efficacy of VR environments. EDA is a wide-used measure for emotional arousal, as skin conductance rises with rise in arousal [10] . 3) Record MI data alternating between states of low and high arousal for each session. Start with 60s of inducing high arousal via the \"Height\" environment, then record MI data for 45s. Repeat the same with \"Forest\" environment for relaxed state. Repeat this process for each trial. The MI data was to be recorded by using the common paradigm of showing the participant a cue on screen (typically left or right arrow) which would prompt them to imagine as if they were moving their left or right hand [44] [40] [27] . 4) Train an arousal classifier. The aim of this classifier is to indicate the emotional state (high or low arousal) of the subject. 5) Train separate MI classifiers for each emotional state.",
+            "cite_spans": [
+                {
+                    "start": 364,
+                    "end": 368,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 872,
+                    "end": 876,
+                    "text": "[44]",
+                    "ref_id": "BIBREF43"
+                },
+                {
+                    "start": 882,
+                    "end": 886,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D. Experimental Design"
+        },
+        {
+            "text": "The goal is to optimize for accuracy, even if different types of pre-processing and classifier types were required for each state, unlike the arousal classifier which necessitates the same pre-processing steps. 6) During deployment, first classify the emotional state using the arousal classifier, and based on its result, choose the appropriate MI classifier. As mentioned previously, due to numerous factors, many steps in the above formulation had to be either abandoned (2 and 3) or modified (4 and 5). The revised scheme, replaced steps 4-6 with the following: 1) Train a cross-subject classifier replacing the arousal classifier. The task of this classifier is to take EEG as input from any of the two subjects, and classify the input as belonging to either subject 1 or 2. As the classifier is agnostic to the subject, the same pre-processing had to be done for each subject's data. 2) Train separate MI classifiers for each subject instead of training for each emotional state. 3) At test time, sample a run of a few data points (5 in our experiments), feeding them to the cross-subject classifier. Based on its mode (most frequent classification), select the appropriate MI classifier.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D. Experimental Design"
+        },
+        {
+            "text": "We experimented with a multitude of machine learning algorithms which are briefly described as follows.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E. Learning algorithms"
+        },
+        {
+            "text": "a) Logistic regression: Logistic regression is a modification of linear regression for a binary classification task [21] . It predicts the probability of a class given the input, by first learning a weighted linear combination of input features and applying a logistic function to the result.",
+            "cite_spans": [
+                {
+                    "start": 116,
+                    "end": 120,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "E. Learning algorithms"
+        },
+        {
+            "text": "b) Linear discriminant analysis: LDA attempts to maximize inter-class variance while minimizing intra-class variance [4] in the data. This results in a clustering of the data where it is easily separable. It is widely used in MI BCI [58] [58] . c) Naive Bayes: A probabilistic classifier, naive bayes uses bayes' law to calculate the posterior probability of an event (class) given the prior and likelihood [33] . The posterior can then be updated with new evidence. It assumes that the features are independent, hence the term naive in its name.",
+            "cite_spans": [
+                {
+                    "start": 117,
+                    "end": 120,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 233,
+                    "end": 237,
+                    "text": "[58]",
+                    "ref_id": "BIBREF57"
+                },
+                {
+                    "start": 238,
+                    "end": 242,
+                    "text": "[58]",
+                    "ref_id": "BIBREF57"
+                },
+                {
+                    "start": 407,
+                    "end": 411,
+                    "text": "[33]",
+                    "ref_id": "BIBREF32"
+                }
+            ],
+            "ref_spans": [],
+            "section": "E. Learning algorithms"
+        },
+        {
+            "text": "d) Ensemble model: This is implemented as a voting classifier in gumpy. It uses a mix of classifiers such as nearestneighbor, LDA and support vector machines (SVM) and uses the majority vote as the classification output. As such, it necessarily either equals or outperforms both Naive Bayes and LDA as it uses them in the ensemble.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "E. Learning algorithms"
+        },
+        {
+            "text": "The data for subject 1 and 2 contained 324 and 399 trials (attempts at moving right or left hand) respectively. The standard approach to train MI classifiers is to analyze data and remove existing artifacts before extracting features from the data [55] . We first applied a Butterworth bandpass filter [11] to extract frequencies within the range 2-60 Hz. We then analyze the data for artifacts. A common source of artifacts in MI data is noise from electrodes located in the forehead's proximity. This is in fact data collected from the Electrooculography (EOG) channels which detect movements such as eye blinks, which may show up in the MI data. Such noise can be detected by first performing independent component analysis (ICA) -widely used in EEG preprocessing [30] -which tries to decompose a signal into constituent component under the assumption of statistical independence. We then see which of the resultant components correlates most with EOG channels, and filter it out [57] . An example of ICA on subject 1 can be seen in figure 4 . We filter out the first component which seems to be picking up an eye blink. ICA on subject 2 did not improve the results.",
+            "cite_spans": [
+                {
+                    "start": 248,
+                    "end": 252,
+                    "text": "[55]",
+                    "ref_id": "BIBREF54"
+                },
+                {
+                    "start": 302,
+                    "end": 306,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 767,
+                    "end": 771,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 983,
+                    "end": 987,
+                    "text": "[57]",
+                    "ref_id": "BIBREF56"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1036,
+                    "end": 1044,
+                    "text": "figure 4",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "A. Artifact Removal"
+        },
+        {
+            "text": "Several methods were attempted to extract features. In principle, feature extraction in BCI takes two forms: frequency band selection and channel selection (also known as spatial filtering). In regards to the former, we've previously mentioned in II-C that alpha and beta bands have been shown to be most related to MI activity. Accordingly, we use these frequency bands as our features. In the same section we observed that channels C3 and C4 are the most relevant for MI, which we can use directly without any spatial filtering. For this, instead of using raw alpha and beta patterns, we opt for logarithmic sub-band powers of said patterns (see gumpy documentation 2 ). Each spectrum is divided into four sub-bands. An alternative approach for feature extraction in MI classification has been the use of the \"common spatial pattern (CSP)\" algorithm [22] . It tries to find optimal variances of subcomponents of a signal [43] with respect to a given task. In our experiments, however, CSP performed poorly compared to logarithmic subband power of alpha and beta bands. The results when CSP was applied have thus been omitted from the report, but could be reproduced in the notebook (see section IX-A). A visualization of the features using PCA for both subjects can be seen in figure 5 . As can be observed, the features for subject 2 are more conducive to discrimination of MI. This is also verified in the training results, where every classification algorithm achieved higher accuracy for subject 2 compared to subject 1.",
+            "cite_spans": [
+                {
+                    "start": 852,
+                    "end": 856,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 923,
+                    "end": 927,
+                    "text": "[43]",
+                    "ref_id": "BIBREF42"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1279,
+                    "end": 1287,
+                    "text": "figure 5",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "B. Feature Extraction"
+        },
+        {
+            "text": "As mentioned previously, we train two types of classifiers: MI per subject classifier and cross-subject classifier. The entire training procedure is visually depicted in figure 6. After doing feature extraction, we first train an MI classifier for each subject with labels 0 and 1 (left and right hand movement respectively). Subsequently, we combine data of both subjects, labelling it 0 and 1 (subject 1 and subject 2 respectively) and train the cross-subject classifier. All classifiers described in III-E are trained in each case, the results of which can be seen in table I. a) MI classification: The data for each subject was divided into an 80-20 split (training-test). The features were also standardized by rescaling to zero mean and unit standard deviation. Results for both subjects were satisfactory, although subject 1's data was harder to train on compared to subject 2. b) Cross-subject classification: Training for crosssubject classifiers followed the same procedure of feature extraction with the only difference being a re-labeling of the samples from limb movements to source subject. Once again, we split the data into 80-20 (train-test) portions, though this time the data is the combined samples from both subjects. For testing the classifiers, we split the test set further into sections containing five samples (trials) each. For each section, we take the mode (most frequent prediction) of the classifier which is considered the final result. For example, if our test data has 50 samples from each subject, we portion it into 20 sections (each subject with 10 sections). We then feed each section to the classifier and take the majority score for that section as the classifier's prediction. As can be seen, the ensemble model outperforms the rest of the algorithms by a considerable margin. In addition to this, we also created t-SNE embeddings of the features with 2 and 3 dimensions [26] . The results were not up to par and have thus been left out here (they can be reproduced via the notebook discussed in IX-A). More details can be found in V. ",
+            "cite_spans": [
+                {
+                    "start": 1912,
+                    "end": 1916,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Training"
+        },
+        {
+            "text": "The results indicate that assuming different emotional states impart sufficient differences in EEG data, we can train classifiers that perform well above chance. Significant differences in the EEG signals between both subjects were observed during feature extraction and classification. This is not an uncommon phenomenon and has been documented in the literature [41] . Blankertz et. al show that after testing on 80 subjects, the average classifier accuracy of a binary task was 74.4% with a spread of 16.5% [6] . Our findings buttress this as the best models for subject 1 and 2 achieved 75.38% and 95% accuracy respectively. This variability generally chalked up to differences in the subjects' abilities for implicit learning [23] , performance in early neurofeedback sessions [35] and attention spans [12] .",
+            "cite_spans": [
+                {
+                    "start": 364,
+                    "end": 368,
+                    "text": "[41]",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 510,
+                    "end": 513,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 731,
+                    "end": 735,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 782,
+                    "end": 786,
+                    "text": "[35]",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 807,
+                    "end": 811,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "According to Tangermann et. al, the best results on data set 2b were achieved using filter-bank CSP as a pre-processing step followed by a naive bayes classifier during Competition IV [53] . In our testing, however, vanilla CSP for feature extraction was sub-optimal. Naive bayes was also found trailing behind other classifiers as seen in table I. We thus observe that vanilla CSP is not as performant as log band-power in our experiments, while we did not perform any experiments with filter-bank CSP.",
+            "cite_spans": [
+                {
+                    "start": 184,
+                    "end": 188,
+                    "text": "[53]",
+                    "ref_id": "BIBREF52"
+                }
+            ],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "In regards to cross-subject classification, appreciable results have been achieved by using ICA for feature extraction [54] combined with a nearest-neighbor (NN) classifier. We verify the efficacy of ICA as a pre-processing step for feature extraction. Other approaches have shown PCA as an effective step for dimensionality reduction [38] . While we could not confirm this with PCA, using the more modern dimensionality reduction technique of t-SNE performed poorly in our experiments (tested using target dimensions 2 and 3). There is, however, recent evidence that using t-SNE in tandem with common dictionary learning may yield good results [36] .",
+            "cite_spans": [
+                {
+                    "start": 119,
+                    "end": 123,
+                    "text": "[54]",
+                    "ref_id": "BIBREF53"
+                },
+                {
+                    "start": 335,
+                    "end": 339,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 645,
+                    "end": 649,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "A primary limitation of this work is the lack of testing on actual subjects. While the system ensures acceptable performance on an existing dataset, we can not conclude much about its usefulness in the real-world. To make such assertions with a certain degree of confidence, we need to evaluate how quickly we can switch between various MI classifiers based on the predictions of the emotion (cross-subject) classifier. This is also true for calibration time at the start of each session; while we use five trials during testing and get well abovechance results, comprehensive and systematic verification of the system is in order if it is to be of any practical use.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Limitations and Future Outlook"
+        },
+        {
+            "text": "In addition to alpha patterns, gamma bands are correlated with increased arousal [41] , which may have carried a strong supervision signal for the classifier. Had we acquired EEG data for aroused and relaxed states of a subject, an emphasis on gamma bands would have been warranted. As such, in the present case, as we did not have data corresponding to high and low arousal, gamma patterns were assumed not to be informative.",
+            "cite_spans": [
+                {
+                    "start": 81,
+                    "end": 85,
+                    "text": "[41]",
+                    "ref_id": "BIBREF40"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Limitations and Future Outlook"
+        },
+        {
+            "text": "Future work may also look at training classifiers for more than two subjects. While two subjects suffice for the purposes of this study, as the original task was the discrimination between two emotional states of arousal, it may be worth exploring how the cross-subject classifier would scale to additional classes. This may be interpreted as having to classify not only emotional arousal but also valence (positive or negative) which may have important ethical implications.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Limitations and Future Outlook"
+        },
+        {
+            "text": "Most of the classifiers used in this project are classic algorithms, and were chosen for their still prevailing use in MI BCI. However, future work may also incorporate modern approaches such as deep neural networks for MI classification [52] . Deep learning could also be used to formulate our problem as that of multi-task learning for both arousal and MI classification [50] . In this manner we can replace training multiple classifiers with a single one which both classifies emotional arousal as well as motor imagery.",
+            "cite_spans": [
+                {
+                    "start": 238,
+                    "end": 242,
+                    "text": "[52]",
+                    "ref_id": "BIBREF51"
+                },
+                {
+                    "start": 373,
+                    "end": 377,
+                    "text": "[50]",
+                    "ref_id": "BIBREF49"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Limitations and Future Outlook"
+        },
+        {
+            "text": "The nature of this project necessitated the undertaking of a multi-disciplinary approach, from understanding and systematizing human emotional arousal to developing algorithms for distinguishing both emotional states as well as motor function via EEG. Thus, this work borrows, incorporates and synthesizes elements from a number of disciplines including psychology (emotional arousal), neuroscience (EEG and motorimagery), computer graphics (virtual reality environments) and artificial intelligence (machine learning for classification). Broadly, we can categorize psychology and neuroscience as brain sciences and computer graphics and artificial intelligence under the umbrella of informatics. Each of the two disciplines contributed unique methods and insights without which the project may not have come to fruition. The most valuable insight was the difficulty in training accurate machine learning algorithms for EEG. Although machine learning has become the dominant paradigm for classification tasks, this project demonstrates that pre-processing of data (via techniques such as ICA and log power-band) is at least as important to the success of the system as the classifier (the results for other feature extractors can be reproduced in the provided notebook), and even after pre-processing, we have no guarantees of robust performance. Another key insight was the extent to which EEG patterns vary between different people, pointing to the difficulty of transfer learning in this domain.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VI. INTERDISCIPLINARY WORK"
+        },
+        {
+            "text": "A major hurdle in the widespread and practical use of assistive systems based on MI-BCI is lack of reliability. While this can have many origins, an important source as identified by two Cybathlon teams in 2016 was related to shifts in the subject's state of emotional arousal. In this work, we present an end-to-end framework for inducing high/low arousal in subjects, collecting EEG data and train learning algorithms for robust MI classification. While COVID-19 enforced certain constraints on data acquisition, we were still able to develop a proof-of-concept for how emotion-robust MI-BCI systems could be trained. Our results indicate that if the training signal contains sufficient information i.e. each emotional state has a distinct enough EEG signature, we can successfully train systems that are robust to variance in emotional arousal. A thorough study, however, needs to be conducted to determine the practicality of such a system with respect to variables such as classifier switching times and calibration periods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. CONCLUSION"
+        },
+        {
+            "text": "This project could not have been possible without the aid of Nicholas Berberich who provided constant and quality guidance on overall methodology, feature extraction and algorithms. Also worth gratitude are Matthijs Pals for his support in regards to MI data preprocessing and Svea Meyer for helping in the initial phase of the project as well as with explaining EEG terminology.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. ACKNOWLEDGMENTS"
+        },
+        {
+            "text": "The VR environments developed for this project can be found on the following Google Drive links:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Documentation"
+        },
+        {
+            "text": "\u2022 Forest VR -https://tinyurl.com/y79dxk87 \u2022 Height VR -https://tinyurl.com/yaqrmveu The environments were created using Unity version 2018.4.14f with the post-processing stack enabled. All code written for this project pertaining to training can be found on LRZ Gitlab using the following link: https://gitlab.lrz.de/cybertum/eegclassification and https://github.com/Abdul-Moeed/eegclassification. The Jupyter notebook titled 'Classifier Demo' contains the crux of the code; the rest of the scripts were created for testing tools and techniques. To reproduce ICA plots, run 'classifier.py'. The data used in this project can be found at http://www.bbci.de/competition/iv/ under 'Data sets 2b'. Further information on reproducibility can be found in the repository's README.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Documentation"
+        },
+        {
+            "text": "1) What would you do differently next time in your experimental/technical setup? A major challenge, compounded by COVID-19, was the collection of arousal data. We were originally planning to use the Biopac system (BIOPAC Systems, Inc., Goleta, California, United States) for measuring skin conductance. The procedure is involved and somewhat cumbersome, and could have been substituted with a heart rate sensor. Heart rate measurement is also an indicator of emotional arousal levels, and has the added benefit of being present in a smart watch. This would have made data acquisition simpler. Another important step would have been to test the efficacy of VR environments in inducing high/low arousal in systematic trials under control. Although there already exists evidence that VR has been known to impart such states, to observe its effect on EEG data would have been desirable. Finally, while classic machine learning is still widely used in MI classification, we observed, at least in subject 1's case, the difficulty in training a robust classifier. Perhaps opting for deep learning, which has shown increased performance in other domains such as computer vision and natural language processing, may have been promising. 2) What went really good/easier than expected? The creation of VR environments was surprisingly simple due to vast community support for Unity 3D. Integrating VR controls in the environments was slightly more involved but went rather smoothly. Regarding training: Besides feature extraction, training the classifiers was fairly straightforward. This was in part due to previous experience working with machine learning and in part because of easy-to-use implementations of common algorithms in existing libraries. 3) What kinds of skills would you need to learn in your studies to do such a project even better (machine learning, statistics, psychology, neuroscience)? Taking a course on BCI prior to working on this project would have substantially accelerated development. Trying to get familiarized with methods and terminology of the field was a major part of the project, but it also entailed allocating time for such self-study which could have been dedicated to development had prior knowledge in this domain been acquired. Thus a course on neurofeedback and BCI would have made the project better. 4) If you tried out an approach which you later on abandoned, you can report this here as well. Give reasons why you decided not to pursue this approach. During the training of MI classifiers, initially I used data from certain sessions for each subject. This yielded scores with high variance, even for the same subject for different sessions. I abandoned this by taking data from all sessions for each subject and using that for training instead.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Methodological Reflections"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "A comprehensive review of eeg-based brain-computer interface paradigms",
+            "authors": [
+                {
+                    "first": "Reza",
+                    "middle": [],
+                    "last": "Abiri",
+                    "suffix": ""
+                },
+                {
+                    "first": "Soheil",
+                    "middle": [],
+                    "last": "Borhani",
+                    "suffix": ""
+                },
+                {
+                    "first": "Eric",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Sellers",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yang",
+                    "middle": [],
+                    "last": "Jiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xiaopeng",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Journal of neural engineering",
+            "volume": "16",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Relaxation with immersive natural scenes presented using virtual reality. Aerospace medicine and human performance",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Allison P Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Michael",
+                    "suffix": ""
+                },
+                {
+                    "first": "Abigail",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Mayer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Devin",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Fellows",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Cowan",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Mark",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jay",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Hegel",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Buckey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "88",
+            "issn": "",
+            "pages": "520--526",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Inducing physiological stress recovery with sounds of nature in a virtual reality forestresults from a pilot study",
+            "authors": [
+                {
+                    "first": "Matilda",
+                    "middle": [],
+                    "last": "Annerstedt",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "J\u00f6nsson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mattias",
+                    "middle": [],
+                    "last": "Wallerg\u00e5rd",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gerd",
+                    "middle": [],
+                    "last": "Johansson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bj\u00f6rn",
+                    "middle": [],
+                    "last": "Karlson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Patrik",
+                    "middle": [],
+                    "last": "Grahn",
+                    "suffix": ""
+                },
+                {
+                    "first": "\u00c5se",
+                    "middle": [
+                        "Marie"
+                    ],
+                    "last": "Hansen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "W\u00e4hrborg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Physiology & behavior",
+            "volume": "118",
+            "issn": "",
+            "pages": "240--250",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Linear discriminant analysis-a brief tutorial. Institute for Signal and information Processing",
+            "authors": [
+                {
+                    "first": "Suresh",
+                    "middle": [],
+                    "last": "Balakrishnama",
+                    "suffix": ""
+                },
+                {
+                    "first": "Aravind",
+                    "middle": [],
+                    "last": "Ganapathiraju",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "",
+            "volume": "18",
+            "issn": "",
+            "pages": "1--8",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Neural correlate of spatial presence in an arousing and noninteractive virtual reality: an eeg and psychophysiology study",
+            "authors": [
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Baumgartner",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lilian",
+                    "middle": [],
+                    "last": "Valko",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michaela",
+                    "middle": [],
+                    "last": "Esslen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lutz",
+                    "middle": [],
+                    "last": "J\u00e4ncke",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "CyberPsychology & Behavior",
+            "volume": "9",
+            "issn": "1",
+            "pages": "30--45",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Neurophysiological predictor of smr-based bci performance",
+            "authors": [
+                {
+                    "first": "Benjamin",
+                    "middle": [],
+                    "last": "Blankertz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Claudia",
+                    "middle": [],
+                    "last": "Sannelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sebastian",
+                    "middle": [],
+                    "last": "Halder",
+                    "suffix": ""
+                },
+                {
+                    "first": "Eva",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hammer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andrea",
+                    "middle": [],
+                    "last": "Kbler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Klaus-Robert",
+                    "middle": [],
+                    "last": "Mller",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gabriel",
+                    "middle": [],
+                    "last": "Curio",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thorsten",
+                    "middle": [],
+                    "last": "Dickhaus",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "NeuroImage",
+            "volume": "51",
+            "issn": "4",
+            "pages": "1303--1309",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Remembering pictures: pleasure and arousal in memory",
+            "authors": [
+                {
+                    "first": "Margaret",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Bradley",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mark",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Greenwald",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mark",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Petry",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Lang",
+                    "suffix": ""
+                }
+            ],
+            "year": 1992,
+            "venue": "Journal of experimental psychology. Learning, memory, and cognition",
+            "volume": "18",
+            "issn": "",
+            "pages": "379--90",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "A new paradigm to induce mental stress: the sing-a-song stress test (ssst)",
+            "authors": [
+                {
+                    "first": "Anne-Marie",
+                    "middle": [],
+                    "last": "Brouwer",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Maarten",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Hogervorst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Frontiers in neuroscience",
+            "volume": "8",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Brain-computer interfaces for communication and rehabilitation",
+            "authors": [
+                {
+                    "first": "Ujwal",
+                    "middle": [],
+                    "last": "Chaudhary",
+                    "suffix": ""
+                },
+                {
+                    "first": "Niels",
+                    "middle": [],
+                    "last": "Birbaumer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ander",
+                    "middle": [],
+                    "last": "Ramos-Murguialday",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Nature Reviews Neurology",
+            "volume": "12",
+            "issn": "9",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Electrodermal responses: what happens in the brain",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Hugo",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Critchley",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "The Neuroscientist",
+            "volume": "8",
+            "issn": "2",
+            "pages": "132--142",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Butterworth bandpass and stationary wavelet transform filter comparison for electroencephalography signal",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Ss Daud",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Sudirman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "2015 6th international conference on intelligent systems, modelling and simulation",
+            "volume": "",
+            "issn": "",
+            "pages": "123--126",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Behavioural treatment of slow cortical potentials in intractable epilepsy: neuropsychological predictors of outcome",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Daum",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rockstroh",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Birbaumer",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Elbert",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Canavan",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Lutzenberger",
+                    "suffix": ""
+                }
+            ],
+            "year": 1993,
+            "venue": "Neurosurgery & Psychiatry",
+            "volume": "56",
+            "issn": "1",
+            "pages": "94--97",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Electroencephalogram subject identification: A review",
+            "authors": [
+                {
+                    "first": "Marcos",
+                    "middle": [],
+                    "last": "Del Pozo-Banos",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Jes\u00fas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jaime",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Alonso",
+                    "suffix": ""
+                },
+                {
+                    "first": "Carlos",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Ticay-Rivas",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Travieso",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Expert Systems with Applications",
+            "volume": "41",
+            "issn": "15",
+            "pages": "6537--6554",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Fear and physiological arousal during a virtual height challengeeffects in patients with acrophobia and healthy controls",
+            "authors": [
+                {
+                    "first": "Julia",
+                    "middle": [],
+                    "last": "Diemer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nora",
+                    "middle": [],
+                    "last": "Lohkamp",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andreas",
+                    "middle": [],
+                    "last": "M\u00fchlberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Zwanzger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Journal of anxiety disorders",
+            "volume": "37",
+            "issn": "",
+            "pages": "30--39",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Brain-computer interfaces: Revolutionizing human-computer interaction",
+            "authors": [
+                {
+                    "first": "Bernhard",
+                    "middle": [],
+                    "last": "Graimann",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gert",
+                    "middle": [],
+                    "last": "Brendan Z Allison",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pfurtscheller",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Psychological predictors of smr-bci performance",
+            "authors": [
+                {
+                    "first": "Maria",
+                    "middle": [],
+                    "last": "Eva",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sebastian",
+                    "middle": [],
+                    "last": "Hammer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benjamin",
+                    "middle": [],
+                    "last": "Halder",
+                    "suffix": ""
+                },
+                {
+                    "first": "Claudia",
+                    "middle": [],
+                    "last": "Blankertz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thorsten",
+                    "middle": [],
+                    "last": "Sannelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sonja",
+                    "middle": [],
+                    "last": "Dickhaus",
+                    "suffix": ""
+                },
+                {
+                    "first": "Klaus-Robert",
+                    "middle": [],
+                    "last": "Kleih",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andrea",
+                    "middle": [],
+                    "last": "M\u00fcller",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "K\u00fcbler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Biological psychology",
+            "volume": "89",
+            "issn": "1",
+            "pages": "80--86",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Discovering Psychology. Worth Publishers, Incorporated",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Hockenbury",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Why standard brain-computer interface (bci) training protocols should be changed: an experimental study",
+            "authors": [
+                {
+                    "first": "Camille",
+                    "middle": [],
+                    "last": "Jeunet",
+                    "suffix": ""
+                },
+                {
+                    "first": "Emilie",
+                    "middle": [],
+                    "last": "Jahanpour",
+                    "suffix": ""
+                },
+                {
+                    "first": "Fabien",
+                    "middle": [],
+                    "last": "Lotte",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Journal of neural engineering",
+            "volume": "13",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Image recoloring with valence-arousal emotion model",
+            "authors": [
+                {
+                    "first": "Hye-Rin",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "Henry",
+                    "middle": [],
+                    "last": "Kang",
+                    "suffix": ""
+                },
+                {
+                    "first": "In-Kwon",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Comput. Graph. Forum",
+            "volume": "35",
+            "issn": "",
+            "pages": "209--216",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "The trier social stress test-a tool for investigating psychobiological stress responses in a laboratory setting",
+            "authors": [
+                {
+                    "first": "Clemens",
+                    "middle": [],
+                    "last": "Kirschbaum",
+                    "suffix": ""
+                },
+                {
+                    "first": "Karl-Martin",
+                    "middle": [],
+                    "last": "Pirke",
+                    "suffix": ""
+                },
+                {
+                    "first": "Dirk",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Hellhammer",
+                    "suffix": ""
+                }
+            ],
+            "year": 1993,
+            "venue": "Neuropsychobiology",
+            "volume": "28",
+            "issn": "1-2",
+            "pages": "76--81",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Logistic regression",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "David G Kleinbaum",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Dietz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mitchel",
+                    "middle": [],
+                    "last": "Gail",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mitchell",
+                    "middle": [],
+                    "last": "Klein",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Klein",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Spatial patterns underlying population differences in the background eeg",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Koles",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Lazar",
+                    "suffix": ""
+                },
+                {
+                    "first": "S Z",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Brain Topography",
+            "volume": "2",
+            "issn": "",
+            "pages": "275--284",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Learning and self-regulation of slow cortical potentials in older adults",
+            "authors": [],
+            "year": 2000,
+            "venue": "Experimental aging research",
+            "volume": "26",
+            "issn": "1",
+            "pages": "15--35",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Virtual reality exposure therapy of anxiety disorders: A review",
+            "authors": [
+                {
+                    "first": "Merel",
+                    "middle": [],
+                    "last": "Krijn",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Paul",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ragnar",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Emmelkamp",
+                    "suffix": ""
+                },
+                {
+                    "first": "Roeline",
+                    "middle": [],
+                    "last": "Olafsson",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Biemond",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Clinical psychology review",
+            "volume": "24",
+            "issn": "3",
+            "pages": "259--281",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Bci competition 2008-graz data set b",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Leeb",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Brunner",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "M\u00fcller-Putz",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Schl\u00f6gl",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pfurtscheller",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "1--6",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Extracting the nonlinear features of motor imagery eeg using parametric t-sne",
+            "authors": [
+                {
+                    "first": "Ming-Ai",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xin-Yong",
+                    "middle": [],
+                    "last": "Luo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jin-Fu",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Neurocomput",
+            "volume": "218",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Motor imagery eeg classification for patients with amyotrophic lateral sclerosis using fractal dimension and fishers criterion-based channel selection",
+            "authors": [
+                {
+                    "first": "Yi-Hung",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Shiuan",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yi-De",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Sensors",
+            "volume": "17",
+            "issn": "7",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Flaws in current human training protocols for spontaneous brain-computer interfaces: lessons learned from instructional design",
+            "authors": [
+                {
+                    "first": "Fabien",
+                    "middle": [],
+                    "last": "Lotte",
+                    "suffix": ""
+                },
+                {
+                    "first": "Florian",
+                    "middle": [],
+                    "last": "Larrue",
+                    "suffix": ""
+                },
+                {
+                    "first": "Christian",
+                    "middle": [],
+                    "last": "M\u00fchl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Frontiers in human neuroscience",
+            "volume": "7",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Is meditation always relaxing? investigating heart rate, heart rate variability, experienced effort and likeability during training of three types of meditation",
+            "authors": [
+                {
+                    "first": "Anna-Lena",
+                    "middle": [],
+                    "last": "Lumma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bethany",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Kok",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tania",
+                    "middle": [],
+                    "last": "Singer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "International Journal of Psychophysiology",
+            "volume": "97",
+            "issn": "1",
+            "pages": "38--45",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Independent component analysis of electroencephalographic data",
+            "authors": [
+                {
+                    "first": "Scott",
+                    "middle": [],
+                    "last": "Makeig",
+                    "suffix": ""
+                },
+                {
+                    "first": "Anthony",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Bell",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tzyy-Ping",
+                    "middle": [],
+                    "last": "Jung",
+                    "suffix": ""
+                },
+                {
+                    "first": "Terrence",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Sejnowski",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Proceedings of the 8th International Conference on Neural Information Processing Systems",
+            "volume": "95",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "The selective effects of emotional arousal on memory",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mather",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Sutherland",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Psychol. Sci. Agenda",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Virtual reality and motor imagery: promising tools for assessment and therapy in parkinson's disease",
+            "authors": [
+                {
+                    "first": "Anat",
+                    "middle": [],
+                    "last": "Mirelman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Judith",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Maidan",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Deutsch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Movement Disorders",
+            "volume": "28",
+            "issn": "11",
+            "pages": "1597--1608",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Naive bayes classifiers. University of British Columbia",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Kevin",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Murphy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "",
+            "volume": "18",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Predicting arousal with machine learning of eeg signals",
+            "authors": [
+                {
+                    "first": "Tam\u00e1s",
+                    "middle": [],
+                    "last": "Nagy",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Tellez",
+                    "suffix": ""
+                },
+                {
+                    "first": "\u00c1d\u00e1m",
+                    "middle": [],
+                    "last": "Div\u00e1k",
+                    "suffix": ""
+                },
+                {
+                    "first": "Emma",
+                    "middle": [],
+                    "last": "L\u00f3g\u00f3",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "5th IEEE Conference on Cognitive Infocommunications (CogInfoCom)",
+            "volume": "",
+            "issn": "",
+            "pages": "137--140",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Predictors of successful self control during brain-computer communication",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Neumann",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Birbaumer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Neurosurgery & Psychiatry",
+            "volume": "74",
+            "issn": "8",
+            "pages": "1117--1121",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Eeg-based personal identification method using unsupervised feature extraction and its robustness against intra-subject variability",
+            "authors": [
+                {
+                    "first": "Takashi",
+                    "middle": [],
+                    "last": "Nishimoto",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hiroshi",
+                    "middle": [],
+                    "last": "Higashi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hiroshi",
+                    "middle": [],
+                    "last": "Morioka",
+                    "suffix": ""
+                },
+                {
+                    "first": "Shin",
+                    "middle": [],
+                    "last": "Ishii",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Neural Engineering",
+            "volume": "17",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Eeg-based brain-computer interfaces using motorimagery: Techniques and challenges",
+            "authors": [
+                {
+                    "first": "Natasha",
+                    "middle": [],
+                    "last": "Padfield",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jaime",
+                    "middle": [],
+                    "last": "Zabalza",
+                    "suffix": ""
+                },
+                {
+                    "first": "Huimin",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Valentin",
+                    "middle": [],
+                    "last": "Masero",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jinchang",
+                    "middle": [],
+                    "last": "Ren",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Sensors",
+            "volume": "19",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Energy of brain potentials evoked during visual stimulus: A new biometric",
+            "authors": [
+                {
+                    "first": "Ramaswamy",
+                    "middle": [],
+                    "last": "Palaniappan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Danilo",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Mandic",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "International Conference on Artificial Neural Networks",
+            "volume": "",
+            "issn": "",
+            "pages": "735--740",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "The cybathlon bci race: Successful longitudinal mutual learning with two tetraplegic users",
+            "authors": [
+                {
+                    "first": "Serafeim",
+                    "middle": [],
+                    "last": "Perdikis",
+                    "suffix": ""
+                },
+                {
+                    "first": "Luca",
+                    "middle": [],
+                    "last": "Tonin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sareh",
+                    "middle": [],
+                    "last": "Saeedi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Christoph",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jos\u00e9",
+                    "middle": [],
+                    "last": "Del R Mill\u00e1n",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "PLoS biology",
+            "volume": "16",
+            "issn": "5",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Eeg-based discrimination between imagination of right and left hand movement",
+            "authors": [
+                {
+                    "first": "Gert",
+                    "middle": [],
+                    "last": "Pfurtscheller",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ch",
+                    "middle": [],
+                    "last": "Neuper",
+                    "suffix": ""
+                },
+                {
+                    "first": "Doris",
+                    "middle": [],
+                    "last": "Flotzinger",
+                    "suffix": ""
+                },
+                {
+                    "first": "Martin",
+                    "middle": [],
+                    "last": "Pregenzer",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "Electroencephalography and clinical Neurophysiology",
+            "volume": "103",
+            "issn": "6",
+            "pages": "642--651",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "Electroencephalography and high-density electrophysiological source localization. Handbook of psychophysiology",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Diego",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pizzagalli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "3",
+            "issn": "",
+            "pages": "56--84",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "The circumplex model of affect: An integrative approach to affective neuroscience, cognitive development, and psychopathology",
+            "authors": [
+                {
+                    "first": "Jonathan",
+                    "middle": [],
+                    "last": "Posner",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "James",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bradley S",
+                    "middle": [],
+                    "last": "Russell",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Peterson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Development and psychopathology",
+            "volume": "17",
+            "issn": "3",
+            "pages": "715--734",
+            "other_ids": {}
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "Optimal spatial filtering of single trial eeg during imagined hand movement",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ramoser",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Muller-Gerking",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Pfurtscheller",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "IEEE Transactions on Rehabilitation Engineering",
+            "volume": "8",
+            "issn": "4",
+            "pages": "441--446",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "Optimal spatial filtering of single trial eeg during imagined hand movement",
+            "authors": [
+                {
+                    "first": "Herbert",
+                    "middle": [],
+                    "last": "Ramoser",
+                    "suffix": ""
+                },
+                {
+                    "first": "Johannes",
+                    "middle": [],
+                    "last": "Muller-Gerking",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gert",
+                    "middle": [],
+                    "last": "Pfurtscheller",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "IEEE transactions on rehabilitation engineering",
+            "volume": "8",
+            "issn": "4",
+            "pages": "441--446",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "2014 IEEE International Conference on Systems, Man, and Cybernetics (SMC)",
+            "authors": [
+                {
+                    "first": "Robert",
+                    "middle": [],
+                    "last": "Riener",
+                    "suffix": ""
+                },
+                {
+                    "first": "Linda",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Seward",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "2792--2794",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "Cross-subject eeg signal classification with deep neural networks applied to motor imagery",
+            "authors": [
+                {
+                    "first": "Mouad",
+                    "middle": [],
+                    "last": "Riyad",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mohammed",
+                    "middle": [],
+                    "last": "Khalil",
+                    "suffix": ""
+                },
+                {
+                    "first": "Abdellah",
+                    "middle": [],
+                    "last": "Adib",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "International Conference on Mobile, Secure, and Programmable Networking",
+            "volume": "",
+            "issn": "",
+            "pages": "124--139",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "Study of restingstate functional connectivity networks using eeg electrodes position as seed",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gonzalo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Carolina",
+                    "middle": [],
+                    "last": "Rojas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Carlos",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Alvarez",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mar\u00eda",
+                    "middle": [],
+                    "last": "Montoya",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jaime",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "De La Iglesia-Vay\u00e1",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marcelo",
+                    "middle": [],
+                    "last": "Cisternas",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "G\u00e1lvez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Frontiers in neuroscience",
+            "volume": "12",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF47": {
+            "ref_id": "b47",
+            "title": "A circumplex model of affect",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "James",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Russell",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "Journal of personality and social psychology",
+            "volume": "39",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "The psychological effects of meditation: a meta-analysis",
+            "authors": [
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Sedlmeier",
+                    "suffix": ""
+                },
+                {
+                    "first": "Juliane",
+                    "middle": [],
+                    "last": "Eberth",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marcus",
+                    "middle": [],
+                    "last": "Schwarz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Doreen",
+                    "middle": [],
+                    "last": "Zimmermann",
+                    "suffix": ""
+                },
+                {
+                    "first": "Frederik",
+                    "middle": [],
+                    "last": "Haarig",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sonia",
+                    "middle": [],
+                    "last": "Jaeger",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sonja",
+                    "middle": [],
+                    "last": "Kunze",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Psychological bulletin",
+            "volume": "138",
+            "issn": "6",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "Eeg-based motor imagery classification with deep multi-task learning",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Yue",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Shen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "2019 International Joint Conference on Neural Networks (IJCNN)",
+            "volume": "",
+            "issn": "",
+            "pages": "1--8",
+            "other_ids": {}
+        },
+        "BIBREF50": {
+            "ref_id": "b50",
+            "title": "Cybathlon experiences of the graz bci racing team mirage91 in the brain-computer interface discipline",
+            "authors": [
+                {
+                    "first": "Karina",
+                    "middle": [],
+                    "last": "Statthaler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andreas",
+                    "middle": [],
+                    "last": "Schwarz",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Steyrl",
+                    "suffix": ""
+                },
+                {
+                    "first": "Reinmar",
+                    "middle": [],
+                    "last": "Kobler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Maria",
+                    "middle": [
+                        "Katharina"
+                    ],
+                    "last": "H\u00f6ller",
+                    "suffix": ""
+                },
+                {
+                    "first": "Julia",
+                    "middle": [],
+                    "last": "Brandstetter",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lea",
+                    "middle": [],
+                    "last": "Hehenberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marvin",
+                    "middle": [],
+                    "last": "Bigga",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gernot",
+                    "middle": [],
+                    "last": "M\u00fcller-Putz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Journal of neuroengineering and rehabilitation",
+            "volume": "14",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "A novel deep learning approach for classification of EEG motor imagery signals",
+            "authors": [
+                {
+                    "first": "Yousef",
+                    "middle": [],
+                    "last": "Rezaei Tabar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ugur",
+                    "middle": [],
+                    "last": "Halici",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Journal of Neural Engineering",
+            "volume": "14",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF52": {
+            "ref_id": "b52",
+            "title": "Review of the bci competition iv",
+            "authors": [
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Tangermann",
+                    "suffix": ""
+                },
+                {
+                    "first": "Klaus-Robert",
+                    "middle": [],
+                    "last": "M\u00fcller",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ad",
+                    "middle": [],
+                    "last": "Aertsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Niels",
+                    "middle": [],
+                    "last": "Birbaumer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Christoph",
+                    "middle": [],
+                    "last": "Braun",
+                    "suffix": ""
+                },
+                {
+                    "first": "Clemens",
+                    "middle": [],
+                    "last": "Brunner",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert",
+                    "middle": [],
+                    "last": "Leeb",
+                    "suffix": ""
+                },
+                {
+                    "first": "Carsten",
+                    "middle": [],
+                    "last": "Mehring",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kai",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Miller",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gernot",
+                    "middle": [],
+                    "last": "Mueller-Putz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Frontiers in neuroscience",
+            "volume": "6",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF53": {
+            "ref_id": "b53",
+            "title": "Selecting relevant eeg signal locations for personal identification problem using ica and neural network",
+            "authors": [
+                {
+                    "first": "Preecha",
+                    "middle": [],
+                    "last": "Tangkraingkij",
+                    "suffix": ""
+                },
+                {
+                    "first": "Chidchanok",
+                    "middle": [],
+                    "last": "Lursinsap",
+                    "suffix": ""
+                },
+                {
+                    "first": "Siripun",
+                    "middle": [],
+                    "last": "Sanguansintukul",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tayard",
+                    "middle": [],
+                    "last": "Desudchit",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Eighth IEEE/ACIS International Conference on Computer and Information Science",
+            "volume": "",
+            "issn": "",
+            "pages": "616--621",
+            "other_ids": {}
+        },
+        "BIBREF54": {
+            "ref_id": "b54",
+            "title": "Eeg artifact removalstate-of-the-art and guidelines",
+            "authors": [
+                {
+                    "first": "Jose",
+                    "middle": [],
+                    "last": "Antonio Urig\u00fcen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bego\u00f1a",
+                    "middle": [],
+                    "last": "Garcia-Zapirain",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Journal of neural engineering",
+            "volume": "12",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF55": {
+            "ref_id": "b55",
+            "title": "Towards a cure for bci illiteracy",
+            "authors": [
+                {
+                    "first": "Carmen",
+                    "middle": [],
+                    "last": "Vidaurre",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benjamin",
+                    "middle": [],
+                    "last": "Blankertz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Brain topography",
+            "volume": "23",
+            "issn": "2",
+            "pages": "194--198",
+            "other_ids": {}
+        },
+        "BIBREF56": {
+            "ref_id": "b56",
+            "title": "The removal of eog artifacts from eeg signals using independent component analysis and multivariate empirical mode decomposition",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Teng",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "IEEE Journal of Biomedical and Health Informatics",
+            "volume": "20",
+            "issn": "5",
+            "pages": "1301--1308",
+            "other_ids": {}
+        },
+        "BIBREF57": {
+            "ref_id": "b57",
+            "title": "Common spatial pattern method for channel selelction in motor imagery based brain-computer interface",
+            "authors": [
+                {
+                    "first": "Yijun",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Shangkai",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xiaornog",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "IEEE Engineering in Medicine and Biology 27th Annual Conference",
+            "volume": "",
+            "issn": "",
+            "pages": "5392--5395",
+            "other_ids": {}
+        },
+        "BIBREF58": {
+            "ref_id": "b58",
+            "title": "Brain-computer interfaces for communication and control",
+            "authors": [
+                {
+                    "first": "Niels",
+                    "middle": [],
+                    "last": "Jonathan R Wolpaw",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Birbaumer",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dennis",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gert",
+                    "middle": [],
+                    "last": "Mcfarland",
+                    "suffix": ""
+                },
+                {
+                    "first": "Theresa",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Pfurtscheller",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vaughan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Clinical neurophysiology",
+            "volume": "113",
+            "issn": "6",
+            "pages": "767--791",
+            "other_ids": {}
+        },
+        "BIBREF59": {
+            "ref_id": "b59",
+            "title": "Outlines of psychology",
+            "authors": [
+                {
+                    "first": "Max",
+                    "middle": [],
+                    "last": "Wilhelm",
+                    "suffix": ""
+                },
+                {
+                    "first": "Charles",
+                    "middle": [],
+                    "last": "Wundt",
+                    "suffix": ""
+                },
+                {
+                    "first": "Judd",
+                    "middle": [],
+                    "last": "Hubbard",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "1",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "The circumplex model of emotional classification.Figure courtesyof[19].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "[10][11][12][13][14][15][16][17][18][19][20] International system of EEG electrode placement. Electrodes C3 and C4 are most relevant for MI activity.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Figure courtesyof[47].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Virtual reality environments for inducing arousal in subjects. On top is 'Height' designed to induce high arousal by placing the subject on the edge of a skyscraper. Below is 'Relaxation' intended to lower arousal via a natural, calming setting.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "ICA with EOG channels. A visual depiction of the first component (in red) of ICA being correlated with EOG.(b) Plotting ICA components against each other. The peak in the first component (blue) evidently due to an eye-blink.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Artifact analysis using ICA for subject 1.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Dimensionality reduction using PCA for feature space visualization of both subjects. Subject 2's features are more informative for the motor-imagery task compared to subject 1 which is also reflected in the training accuracy. Right hand movements are labeled red while left hand movements are blue.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF1": {
+            "text": "Summary of results. Accuracy scores for MI (both subjects) as well as cross-subject (X-sub) using various classifiers. Best results in bold",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

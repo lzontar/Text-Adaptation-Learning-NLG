@@ -1,0 +1,2022 @@
+{
+    "paper_id": "1e09696c2eeb0c0d89bb97e0c40d1ceff972b09d",
+    "metadata": {
+        "title": "On Implementable Timed Automata",
+        "authors": [
+            {
+                "first": "Sergio",
+                "middle": [],
+                "last": "Feo-Arenis",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Airbus Central R&T",
+                    "location": {
+                        "settlement": "Munich",
+                        "country": "Germany"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Milan",
+                "middle": [],
+                "last": "Vujinovi\u0107",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Albert-Ludwigs-Universit\u00e4t Freiburg",
+                    "location": {
+                        "country": "Germany"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Bernd",
+                "middle": [],
+                "last": "Westphal",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Albert-Ludwigs-Universit\u00e4t Freiburg",
+                    "location": {
+                        "country": "Germany"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Generating code from networks of timed automata is a wellresearched topic with many proposed approaches, which have in common that they not only generate code for the processes in the network, but necessarily generate additional code for a global scheduler which implements the timed automata semantics. For distributed systems without shared memory, this additional component is, in general, undesired.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "In this work, we present a new approach to the generation of correct code (without global scheduler) for distributed systems without shared memory yet with (almost) synchronous clocks if the source model does not depend on a global scheduler. We characterise a set of implementable timed automata models and provide a translation to a timed while language. We show that each computation of the generated program has a network computation path with the same observable behaviour.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Automatic code generation from real-time system models promises to avoid human implementation errors and to be cost and time efficient, so there is a need to automatically derive (at least parts of) an implementation from a model. In this work, we consider a particular class of distributed real-time systems consisting of multiple components with (almost) synchronous clocks, yet without shared memory, a shared clock, or a global scheduler. Prominent examples of such systems are distributed data acquisition systems such as data aggregation in satellite constellations [16, 18] , the wireless fire alarm system [15] , IoT sensors [30] , or distributed database systems (e.g. [12] ). For these systems, a common notion of time is important (to meet real-time requirements or for energy efficiency) and is maintained up to a certain precision by clock synchronisation protocols, e.g., [17, 23, 24] . Global scheduling is undesirable because schedulers are expensive in terms of network bandwidth and computational power and the number of components in the system may change dynamically, thus keeping track of all components requires large computational resources.",
+            "cite_spans": [
+                {
+                    "start": 572,
+                    "end": 576,
+                    "text": "[16,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 577,
+                    "end": 580,
+                    "text": "18]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 614,
+                    "end": 618,
+                    "text": "[15]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 633,
+                    "end": 637,
+                    "text": "[30]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 678,
+                    "end": 682,
+                    "text": "[12]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 886,
+                    "end": 890,
+                    "text": "[17,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 891,
+                    "end": 894,
+                    "text": "23,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 895,
+                    "end": 898,
+                    "text": "24]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Timed automata, in particular in the flavour of Uppaal [7] , are widely used to model real-time systems (see, for example, [14, 32] ) and to reason about the correctness of systems as the ones named above. Modelling assumptions of timed automata such as instantaneous updates of variables and zero-time message exchange are often convenient for the analysis of timed system models, yet they, in general, inhibit direct implementations of model behaviour on real-world platforms where, e.g., updating variables take time.",
+            "cite_spans": [
+                {
+                    "start": 55,
+                    "end": 58,
+                    "text": "[7]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 123,
+                    "end": 127,
+                    "text": "[14,",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 128,
+                    "end": 131,
+                    "text": "32]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this work, we aim for the generation of distributed code from networks of timed automata with exactly one program per network component (and no other programs, in particular no implicit global scheduler), where all execution times are considered and modelled (including the selection of subsequent edges), and that comes with a comprehensible notion of correctness. Our work can be seen as the first of two steps towards bridging the gap between timed automata models and code. We propose to firstly consider a simple, iterative programming language with an exact real-time semantics (cf. Sect. 4) as the target for code generation. In this step, which we consider to be the harder one of the two, we deal with the discrepancy between the atomicity of the timed automaton semantics and the non-atomic execution on real platforms. The second step will then be to deal with imprecise timing on real-world platforms.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our approach is based on the following ideas. We define a short-hand notation (called implementable timed automata) for a sub-language of the well-known timed automata (cf. Sect. 3). We assume independency from a global scheduler [5] as a sufficient criterion for the existence of a distributed implementation. For the timing aspect, we propose not to use platform clocks directly in, e.g., edge guards (see related work below) but to turn model clocks into program variables and to assume a \"sleep\" operation with absolute deadlines on the target platform (cf. Sect. 4). In Sect. 5, we establish the strong and concrete notion of correctness that for each time-safe computation of a program obtained by our translation scheme there is a computation path in the network with the same observable behaviour. Section 6 shows that our short-hand notation is sufficiently expressive to support industrial case studies and discusses the remaining gap towards realworld programming languages like C, and Sect. 7 concludes.",
+            "cite_spans": [
+                {
+                    "start": 230,
+                    "end": 233,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Generating code for timed systems from timed automata models has been approached before [3, 4, 20, 25, 29] . All these works also generate code for a scheduler (as an additional, explicit component) that corresponds to the implicit, global scheduler introduced by the timed automata semantics [5] . Thus, these approaches do not yield the distributed programs that we aim for. A different approach in the context of timed automata is to investigate discrete sampling of the behaviour [28] and so-called robust semantics [28, 33] . A timed automaton model is then called implementable wrt. to certain robustness parameters. Bouyer et al. [11] have shown that each timed automaton (not a network, as in our case) can be sampled and made implementable at the price of a potentially exponential increase in size. A different line of work is [1, 2, 31] . They use timed automata (in the form of RT-BIP components [6] ) as abstract model of the scheduling of tasks. Considering execution times for tasks, a so-called physical model (in a slightly different formalism) is obtained for which an interpreter has been implemented (the real-time execution engine) that then realises a scheduling of the tasks. The computation time necessary to choose the subsequent task (including the evaluation of guards) is \"hidden\" in the execution engine (which at least warns if the available time is exceeded), and they state the unfortunate observation that time-safety does not imply time-robustness with their approach.",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 91,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 92,
+                    "end": 94,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 95,
+                    "end": 98,
+                    "text": "20,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 99,
+                    "end": 102,
+                    "text": "25,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 103,
+                    "end": 106,
+                    "text": "29]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 293,
+                    "end": 296,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 484,
+                    "end": 488,
+                    "text": "[28]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 520,
+                    "end": 524,
+                    "text": "[28,",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 525,
+                    "end": 528,
+                    "text": "33]",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 637,
+                    "end": 641,
+                    "text": "[11]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 837,
+                    "end": 840,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 841,
+                    "end": 843,
+                    "text": "2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 844,
+                    "end": 847,
+                    "text": "31]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 908,
+                    "end": 911,
+                    "text": "[6]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "There is an enormous amount of work on so-called synchronous languages like Esterel [10] , SIGNAL [8] , Lustre [19] and time triggered architectures such as Giotto/HTL [21] . These approaches provide an abstract programming or modelling language such that for each program, a deployable implementation, in particular for signal processing applications, can be generated.",
+            "cite_spans": [
+                {
+                    "start": 84,
+                    "end": 88,
+                    "text": "[10]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 98,
+                    "end": 101,
+                    "text": "[8]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 111,
+                    "end": 115,
+                    "text": "[19]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 168,
+                    "end": 172,
+                    "text": "[21]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "As modelling formalism (and input to code generation), we consider timed automata as introduced in [7] . In the following, we recall the definition of timed automata for self-containedness. Our presentation follows [26] and is standard with the single exception that we exclude strict inequalities in clock constraints.",
+            "cite_spans": [
+                {
+                    "start": 99,
+                    "end": 102,
+                    "text": "[7]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 215,
+                    "end": 219,
+                    "text": "[26]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "A timed automaton A = (L, A, X, V, I, E, ini ) consists of a finite set of locations (including the initial location ini ), sets A, X, and V of channels, clocks, and (data) variables. A location invariant I : L \u2192 \u03a6(X) assigns a clock constraint over X from \u03a6(X) to a location. Finitely many edges in E are of the form ( , \u03b1, \u03d5, r,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "consists of input and output actions on channels and the internal action \u03c4 , \u03a6(X, V ) are conjunctions of clock constraints from \u03a6(X) and data constraints from \u03a6(V ), and R(X, V ) * are finite sequences of updates, an update either resets a clock or updates a data variable. For clock constraints, we exclude strict inequalities as we do not yet support their semantics (of reaching the upper or lower bound arbitrarily close but not inclusive) in the code generation. In the following, we may write (e) etc. to denote the source location of edge e.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "The operational semantics of a network N = A 1 . . . A n of timed automata as components -and with pairwise disjoint sets of clocks and variables -is the (labelled) transition system T (N ) = (C, \u039b, { \u03bb \u2212 \u2192| \u03bb \u2208 \u039b}, C ini ) over configurations. A configuration c \u2208 C = { , \u03bd | \u03bd |= I( )} consists of location vector (an n-tuple whose i-th component is a location of A i ) and a valuation \u03bd : X(N ) \u222a V (N ) \u2192 R + 0 \u222a D of clocks and variables. The location vector has invariant I( ) = n i=1 I( i ), and we assume a satisfaction relation between valuations and clock and data constraints as usual. Labels are \u039b = {\u03c4 } \u222a R + 0 , and the set of initial configurations is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "There is an internal transition , \u03bd \u03c4 \u2212 \u2192 , \u03bd , if and only if there is an edge e = ( , \u03c4, \u03d5, r, ) enabled in , \u03bd and \u03bd is the result of applying e's update vector to \u03bd. An edge is enabled in , \u03bd if and only if its source location occurs in the location vector, its guard is satisfied by \u03bd, and \u03bd satisfies the destination location's invariant. There is a rendezvous transition , \u03bd \u03c4 \u2212 \u2192 , \u03bd , if and only if there are edges e 0 = ( 0 , a!, \u03d5 0 , r 0 , 0 ) and e 1 = ( 1 , a?, \u03d5 1 , r 1 , 1 ) in two different automata enabled in , \u03bd and \u03bd is the result of first applying e 0 's and then e 1 's update vector to \u03bd.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "A transition sequence of N is any finite or infinite, initial and consecutive sequence of the form 0 , \u03bd 0 \u03bb1 \u2212\u2192 1 , \u03bd 1 \u03bb2 \u2212\u2192 \u00b7 \u00b7 \u00b7 . N is called deadlock-free if no transition sequence of N ends in a configuration c such that there are no c , c such that c",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Next, Deadline, Boundary. Given an edge e with source location and clock constraint \u03d5 clk , and a configuration c = , \u03bd , we define next(c, \u03d5 clk ) = min{d \u2208 R + 0 | \u03bd+d |= I( )\u2227\u03d5 clk } and deadline(c, \u03d5 clk ) = max{d \u2208 R + 0 | \u03bd+next(c, \u03d5 clk )+ d |= I( )\u2227\u03d5 clk } if minimum/maximum exist and \u221e otherwise. That is, next gives the smallest delay after which e is enabled from c and deadline gives the largest delay for which e is enabled after next. The boundary of a location invariant \u03d5 clk is a clock constraint \u2202\u03d5 clk s.t. \u03bd + d |= \u2202\u03d5 clk if and only if d = next(c, \u03d5 clk ) + deadline(c, \u03d5 clk ). A simple sufficient criterion to ensure existence of boundaries is to use location invariants of the form \u03d5 clk = x \u2264 q, then \u2202\u03d5 clk = x \u2265 q.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "In the following, we introduce implementable timed automata that can be seen as a definition of a sub-language of timed automata as recalled in Sect. 2. As briefly discussed in the introduction, a major obstacle with implementing timed automata models is the assumption that actions are instantaneous. The goal of considering the sub-language defined below is to make the execution time of resets and the duration of message transmissions explicit. Other works like, e.g., [13] , propose higher-dimensional timed automata where actions take time. We propose to make action times explicit within the timed automata formalism. ",
+            "cite_spans": [
+                {
+                    "start": 473,
+                    "end": 477,
+                    "text": "[13]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementable Timed Automata"
+        },
+        {
+            "text": "Implementable timed automata distinguish internal, send, and receive edges by action and update in contrast to timed automata. An internal edge models (only) updates of data variables or sleeping idle (which takes time on the platform), a send edge models (only) the sending of a message (which takes time), and a receive edge (only) models the ability to receive a message with a timeout. All kinds of edges may reset clocks. Figure 1 shows an example implementable timed automaton using double-outline edges to distinguish the graphical representation from timed automata. The edge from 0 to 1 , for example, models that message 'LZ[id]' may be transmitted between time s 0 + g (including guard time g and operating time) and s 0 + g + m, i.e., the maximal transmission duration here is m. The time n l1 would be the operating time budgeted for location 1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 427,
+                    "end": 435,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Implementable Timed Automata"
+        },
+        {
+            "text": "The semantics of the implementable network N consisting of implementable timed automata I 1 , . . . , I n is the labelled transition system T (A I1 . . . A In ). The timed automata A Ii are obtained from I i by applying the translation scheme in Fig. 2 edge-wise. The construction introduces fresh \u00d7 -locations. Intuitively, a discrete transition to an \u00d7 -location marks the completion of a data update or message transmission in I that started at the next time of the considered configuration. After completion of the update or transmission, implementable timed automata always wait up to the deadline. If the update or transmission has a certain time budget, then we need to expect that the time budget may be completely used in some cases. Using the time budget, possibly with a subsequent wait, yields a certain independence from platform speed: if one platform is fast enough to execute the update or transmission in the time budget, then all faster platforms are. Note that the duration of an action may be zero in implementable timed automata (exactly as in timed automata), yet then there will be no timesafe execution of any corresponding program on a real-world platform. In [5] , the concept of not to depend on a global scheduler is introduced. Intuitively, independency requires that sending edges are never blocked because no matching receive edge is enabled or because another send edge in a different component is enabled. That is, the schedule of the network behaviour ensures that at each point in time at most one automaton is ready to send, and that each automaton that is ready to send finds an automaton that is ready for the matching receive. Similar restrictions have been imposed on timed automaton models in [9] to verify the ZeroConf protocol. Whether a network depends on a global scheduler is decidable; for details, we refer the reader to [5] . Figure 3 shows an artificial network of implementable timed automata whose independency from a global scheduler depends on the parameters s 1,0 + w 1 and s 2,0 + w 2 . If the location 1,1 is reached, then the standard semantics of timed automata would (using the implicit global scheduler) block the sending edge until 2,1 is reached. Yet in a distributed system, the sender should not be assumed to know the current location of the receiver. By choosing the parameters accordingly (i.e., by protocol design), we can ensure that the receiver is always ready before the sender so that the sender is never blocked. In this case, we can offer a distributed implementation.",
+            "cite_spans": [
+                {
+                    "start": 1185,
+                    "end": 1188,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1734,
+                    "end": 1737,
+                    "text": "[9]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1869,
+                    "end": 1872,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 246,
+                    "end": 252,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 1875,
+                    "end": 1883,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Implementable Timed Automata"
+        },
+        {
+            "text": "In the following sections, we only consider networks of implementable timed automata that are deadlock-free, closed component (no shared clocks or variables, no committed locations (cf. [7] )), and do not depend on a global scheduler.",
+            "cite_spans": [
+                {
+                    "start": 186,
+                    "end": 189,
+                    "text": "[7]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementable Timed Automata"
+        },
+        {
+            "text": "In this section, we introduce a timed programming language that provides the necessary expressions and statements to implement networks of implementable timed automata as detailed in Sect. 5. The semantics is defined as a structural operational semantics (SOS) [27] that is tailored towards proving the correctness of the implementations obtained by our translation scheme from Sect. 5. We use a dedicated time component in configurations of a program to track the execution times of statements and support a snapshot operator to measure the time that passed since the execution of a particular statement. Due to lack of space, we introduce expressions on a strict as-needed basis, including message, location, edge, and time expressions. In a general purpose programming language, the former kinds of expressions can usually be realised using integers (or enumerations), and time expressions can be realised using platform-specific representations of the current system time.",
+            "cite_spans": [
+                {
+                    "start": 261,
+                    "end": 265,
+                    "text": "[27]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Timed While Programs"
+        },
+        {
+            "text": "Syntax. Expressions of our programming language are defined wrt. given network variables V and X. We assume that each constraint from \u03a6(X, V ) or expression from \u03a8 (V ) over V and X has a corresponding (basic type) program expression and thus that each variable v \u2208 V and each clock x \u2208 X have corresponding (basic type) program variables v v , v x \u2208 V b . In addition, we assume typed variables for locations, edges, and messages, and for times (on the target platform). We additionally consider location variables V l to store the current location, edge variables V e to store the edge currently worked on, message variables V m to store the outcome of a receive operation, and time variables V t to store platform time. Message expressions are of the form mexpr ::= m | a, m \u2208 V m , a \u2208 A, location expressions are of the form lexpr ::= l | | nextloc I (mexpr ), l \u2208 V l , \u2208 L, and edge expressions are of the form eexpr ::= e | e, e \u2208 V e , e \u2208 E. A time expression has the form texpr ::= | t | t + expr , where is the current platform time and t \u2208 V t . Note that time variables are different from clock variables. The values of clock variable v x are used to compute a new next time, which is then stored in a time variable, which can be compared to the platform time. Clock variables can be represented by platform integers (given their range is sufficient for the model) while time variables will be represented by platform specific data types like timespec with C [22] and POSIX. In this way, model clocks are only indirectly connected (and compared) to the platform clock. Table 1 . Statements S, statement sequences S, and programs P .",
+            "cite_spans": [
+                {
+                    "start": 1473,
+                    "end": 1477,
+                    "text": "[22]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1583,
+                    "end": 1590,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Timed While Programs"
+        },
+        {
+            "text": "| if e = eexpr 1 : S1 . . . e = eexpr n : Snfi | while expr do S od S ::= | S | S | S; S | S ; S ( ; S \u2261 S; \u2261 S), P ::= S1 \u00b7 \u00b7 \u00b7 Sn.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Timed While Programs"
+        },
+        {
+            "text": "The set of statements, statement sequences, and timed programs are given by the grammar in Table 1 . The term nextedge I ([mexpr ]) represents an implementation of the edge selection in an implementable timed automaton that can optionally be called with a message expression. We denote the empty statement sequence by and introduce as an artificial snapshot operator on statements (see below). The particular syntax with snapshot and non-snapshot statements allows us to simplify the semantics definition below. We use StmSeq to denote the set of all statement sequences. \u03c0 = S, (\u03b2, \u03b3, w, u) , \u03c3 consisting of a statement sequence S \u2208 StmSeq, the operating time of the current statement \u03b2 \u2208 R + 0 i.e., the time passed since starting to work on the current statement), the time to completion of the current statement \u03b3 \u2208 R + 0 \u222a {\u221e} (i.e., the time it will take to complete the work on the current statement), the snapshot time w \u2208 R + 0 (i.e., the time since the last snapshot), the platform clock value 1 u \u2208 R + 0 , and a type-consistent valuation \u03c3 of the program variables. We will use operating time and time to completion to define computations of timed while programs (with discrete transitions when the time to completion is 0), and we will use the snapshot time w as an auxiliary variable in the construction of predicates by which we relate program and network computations. The valuation \u03c3 maps basic type variables from V b to values from a domain that includes all values of data variables from D as used in the implementable timed automaton and all values needed to evaluate clock constraints (see below), i.e. \u03c3(V b ) \u2286 D b . Time variables from V t are mapped to non-negative real numbers, i.e., \u03c3(V t ) \u2286 R + 0 , message variables from V m are mapped to channels, i.e., \u03c3(V m ) \u2286 A \u222a {\u22a5} or the dedicated value \u22a5 representing 'no message', location variables from V l are mapped to locations, i.e., \u03c3(V l ) \u2286 L, and edge variables from V e are mapped to edges, i.e., \u03c3(V e ) \u2286 E.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 91,
+                    "end": 98,
+                    "text": "Table 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 572,
+                    "end": 591,
+                    "text": "\u03c0 = S, (\u03b2, \u03b3, w, u)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Timed While Programs"
+        },
+        {
+            "text": "For the interpretation of expressions in a component configuration we assume that, if the valuation \u03c3 of the program variables corresponds to the valuation of data variables \u03bd, then the interpretation expr (\u03c0) of basic type expression expr corresponds to the value of expr under \u03bd. Other variables obtain their values from \u03c3, too, i.e. t (\u03c0) = \u03c3(t), m (\u03c0) = \u03c3(m), l (\u03c0) = \u03c3(l), and e (\u03c0) = \u03c3(e); constant symbols are interpreted by their corresponding value, i.e. a (\u03c0) = a, (\u03c0) = , and e (\u03c0) = e, and we have t + expr (\u03c0) = t (\u03c0) + expr (\u03c0). There are two non-standard cases. The -symbol denotes the platform clock value of \u03c0, i.e..",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "(\u03c0) = u, and we assume that nextloc I ([mexpr ]) (\u03c0) yields the destination location of the edge that is currently processed (as given by e), possibly depending on a message name given by mexpr . If e (\u03c0) denotes an internal action or send edge e, this is just the destination location (e), for receive edges it is (e) if mexpr evaluates to the special value \u22a5, and an i from a (a i ?, i ) pair in the edge otherwise. If the receive edge is non-deterministic, we assume that the semantics of nextloc I resolves the non-determinism.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "Program Computations. Table 2 gives an SOS-style semantics with discrete reduction steps of a statement sequence (or component). Note that the rules in Table 2 (with the exception of receive) apply when the time to completion is 0, that is, at the point in time where the current statement completes. Each rule then yields a configuration with the operating time \u03b3 for the new current statement. The new snapshot time w is 0 if the first statement in S is a snapshot statement S , and w otherwise. Rule (R7) updates m to a, which is a channel or, in case of timeout, the 'no message' indicator '\u22a5'. Rule (R8) is special in that it is supposed to represent the transition relation of an implementable timed automaton. Depending on the program valuation \u03c3, (R8) is supposed to yield a triple of the next edge to work on, this edge's next and deadline. For simplicity, we assume that the interpretation of nextedge I ([mexpr ]) is deterministic for a given valuation of program variables.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 22,
+                    "end": 29,
+                    "text": "Table 2",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 152,
+                    "end": 159,
+                    "text": "Table 2",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "A configuration of program P = S 1 \u00b7 \u00b7 \u00b7 S n is an n-tuple \u03a0 = ( S 1 , (\u03b2 1 , \u03b3 1 , w 1 , u 1 ), \u03c3 1 , . . . , S n , (\u03b2 n , \u03b3 n , w n , u n ), \u03c3 n ) of component configurations; C(P ) denotes the set of all configurations of P . The operational semantics of a program P is the labelled transition system on system configurations defined as follows. There is a delay transition",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "if no current statement completes strictly before \u03b4. There is an internal transition",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "if for some i, 1 \u2264 i \u2264 n, a discrete reduction rule from Table 2 ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 57,
+                    "end": 64,
+                    "text": "Table 2",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "There is a synchronisation transition ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": ", \u03c3 j by (R7), and \u03b2 j \u2265 \u03b2 i , i.e. if component j has been listening at least as long as component i has been sending.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "Note that this definition of synchronisation allows multiple components to send at the same time (which may cause message collision on a shared medium) and that, similar to the rendezvous communication of timed automata, out of multiple receivers, only one takes the message. In our application domain these cases do not happen because we assume that implementable networks do not depend on a global scheduler. That is, the program of an implementable network never exhibits any of these two behaviours.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "A program configuration is called initial if and only if the k-th component configuration, 1 \u2264 k \u2264 n, is at S k , with any \u03b2 k , \u03b3 k = 0, w k = 0, u k = 0, and any \u03c3 k with \u03c3 k (V b ) = 0. We use C ini (P ) to denote the set of initial configurations of program P . A computation of P is an initial and consecutive sequence of program configurations \u03b6 = \u03a0 0 , \u03a0 1 , . . . , i.e. \u03a0 0 \u2208 C ini (P ) and for all i \u2208 N 0 exists \u03bb \u2208 R + 0 \u222a {\u03c4 } such that \u03a0 i \u03bb \u2212 \u2192 \u03a0 i+1 as defined above. We need not consider terminating computations of programs here because we assume networks of implementable timed automata without deadlocks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Component Configurations and Interpretation of Expressions. A component configuration is a tuple"
+        },
+        {
+            "text": "The program of the network of implementable timed automata N = I 1 . . . I n is P (N ) = S(I 1 ) . . . S(I n ) (cf. Table 3c ). The edges' work is implemented in the corresponding Line 2 of the statement sequences in Tables 3a and 3b. The remaining Lines 3 to 8 include the evaluation of guards to choose the edge to be executed next. The result of choosing the edge is stored in program variable e which (by the while loop and the if-statement) moves to Line 1 of the implementation of that edge. The program's timing behaviour is controlled by variable t and is thus decoupled from clocks in the timed automata model. After Line 8, the value of t denotes the absolute time where the execution of the next edge is due. That is, clocks in the program are not directly compared to the platform time (which would raise issues with the precision of platform clocks) but are used to determine points in time that the target platform is supposed to sleep to. By doing so, we also lower the risk of accumulating imprecisions in the sleep operation of the target platform when sleeping for many relative durations. The idea of scheduling work and operating time is illustrated by the timing diagram in Fig. 4 . Row (a) shows a na\u00efve schedule for comparison: From time t i\u22121 , decide on the next edge to execute and determine this edge's next time at t i (light grey phase: operating time, must complete within the next edge's next time n e ), then sleep up to the next time (dashed grey line), then execute the edge(s) actions (dark grey phase: work time, must complete within the edge's deadline d e ), then sleep up to the edge's deadline at t i+1 , and start over. The program obtained by our translation scheme implements the schedule shown in Row (b). The program begins with determining the next edge right after the work phase and then has only one sleep phase up to, e.g., t i+2 where the next work phase begins. In this manner, we require only one interaction with the execution platform that implements the sleep phases. Row (c) illustrates a possible extension of our approach where operating time is needed right before the work phase, e.g., to prepare the platform's transceiver for sending a message.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 116,
+                    "end": 124,
+                    "text": "Table 3c",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 1195,
+                    "end": 1201,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "We call the program P (N ) a correct implementation of network N if and only if for each observable behaviour of a time-safe execution of P (N ) there is a corresponding computation path of N . In the following, we provide our notion of time-safety and then elaborate on the above mentioned correspondence between program and network computations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "Intuitively, a computation of P (N ) is not time-safe if either the execution of an edge's statement sequence takes longer than the admitted deadline or if the next time of the subsequent edge is missed, e.g., by an execution platform that is too slow. Note that in a given program computation, the performance of the platform is visible in the operation time \u03b2 and time to completion \u03b3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "We write \u03a0 k :L e n to denote that the program counter of component k is at Line n of the statement sequence of edge e. We use \u03c3| X\u222aV to denote the (network) configuration encoded by the values of the corresponding program variables. We assume 2 that for each program variable v, the old value, i.e., the value before the last assignment in the computation is available as @v.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "i.e., if the i-th configuration completes (\u03b3 i,k = 0) Line 2 of an edge's statement sequence, not more time than admitted by its deadline has been used (w k ),",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "i.e., the sleepto statement in Line 1 completes exactly after the deadline of the previously worked on edge plus the current edge's next time. \u2666 Note that, by Definition 2, operating times may be larger than the subsequent edge's next time in a time-safe computation (if the execution of the current edge completes before its deadline). Stronger notions of time-safety are possible. For correctness of P (N ), recall that we introduced Timed While Programs to consider the computation time that is needed to compute the transition relation of an implementable network on the fly. In addition, program computations have a finer granularity than network computations: In network computations, the current location and the valuation of clocks and variables are updated atomically in a transition. In the program P (N ), these updates are spread over three lines.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "We show that, for each time-safe computation \u03b6 of program P (N ), there is a computation of network N that is related to \u03b6 in a well-defined way. The relation between program and network configurations decouples both computations in the sense that at some times (given by the respective timestamp) the, e.g., clock values in the program configuration are \"behind\" network clocks (i.e., correspond to an earlier network configuration), at some times they are \"ahead\", and there are points where they coincide. Figure 5 illustrates the relation for one edge e. The top row of Fig. 5 gives a timing diagram of the execution of the program for edge e of one component. The rows below show the values over time for each program variable v up to e, n, and d. For example, the value of l will denote the source location of e until Line 3 is completed, and then denotes the destination location . Similarly, v and x denote the effects of the update vector of e on data variables and clocks. Note that, during the execution of Line 3, we may observe combinations of values for v and l that are never observed in a network computation due to the atomic semantics of networks.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 509,
+                    "end": 517,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF6"
+                },
+                {
+                    "start": 574,
+                    "end": 580,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF6"
+                }
+            ],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "The two bottom lines of Fig. 5 show related network configurations aligned with their corresponding program lines. Note that the execution of each line except for Line 1 may be related to two network configurations depending on whether the program timestamp is before or after the current edge's deadline. Figure 6 illustrates the three possible cases: The execution of program Line 2 (work time, dark gray) is related to network configurations with the source location of the current edge. Right after the work time, the network location \u00d7 is related and at the current edge's deadline the destination location is related. In the related network computation, the transition from \u00d7 to always takes place at the current edge's deadline. This point in time may, in the program computation, be right after work time (Fig. 6a , no delay in \u00d7 ), in the operating time (Fig. 6b) , or in the sleep time (Fig. 6c) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 24,
+                    "end": 30,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF6"
+                },
+                {
+                    "start": 306,
+                    "end": 314,
+                    "text": "Figure 6",
+                    "ref_id": "FIGREF7"
+                },
+                {
+                    "start": 813,
+                    "end": 821,
+                    "text": "(Fig. 6a",
+                    "ref_id": "FIGREF7"
+                },
+                {
+                    "start": 863,
+                    "end": 872,
+                    "text": "(Fig. 6b)",
+                    "ref_id": "FIGREF7"
+                },
+                {
+                    "start": 896,
+                    "end": 905,
+                    "text": "(Fig. 6c)",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "The relation between program and network configurations as illustrated in Fig. 5 can be formalised by predicates over program and network configurations, one predicate per edge and program line. 3 The following lemma states the described existence of a network computation for each time-safe program computation. The relation gives a precise, component-wise and phase-wise relation of program computations to network computations. In other words, we obtain a precise accounting of which phases of a time-safe program computation correspond to a network computation and how. We can argue component-wise by the closed component-assumption from Sect. 3. Table 3c reach the Line 2 of a send or receive edge (cf . Table 3a and 3b) and establish a related network configuration. For the induction step, we need to consider delays and discrete steps of the program. From time-safety of \u03b6 we can conclude to possible delays in N for the related configurations with a case-split wrt. the deadline (cf. Fig. 6 ). When the program time is at the current edge's deadline, the network may delay up to the deadline in an intermediate location \u00d7 , take a transition to the successor location , and possibly delay further. For discrete program steps, we can verify that N has enabled discrete transitions that reach a network configuration that is related to the next program line. Here, we use our assumptions from the program semantics that update vectors have the same effect in the program and the network. And we use the convenient property of our program semantics that the effects of statements only become visible with the discrete transitions. For synchronisation transitions of the program, we use the assumption that the considered network of implementable timed automata does not depend on a global scheduler, in particular that send actions are never blocked, or, in other words, that whenever a component has a send edge locally enabled, then there is a receiving edge enabled on the same channel.",
+            "cite_spans": [
+                {
+                    "start": 195,
+                    "end": 196,
+                    "text": "3",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 74,
+                    "end": 80,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF6"
+                },
+                {
+                    "start": 651,
+                    "end": 659,
+                    "text": "Table 3c",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 707,
+                    "end": 717,
+                    "text": ". Table 3a",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 993,
+                    "end": 999,
+                    "text": "Fig. 6",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "Our main result in Theorem 1 is obtained from Lemma 1 by a projection onto observable behaviour (cf. Definition 3). Intuitively, the theorem states that at each point in time with a discrete transition to Line 2, the program configuration exactly encodes a configuration of network P (N ) right before taking an internal, send, or receive edge.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": ". . be the projection of a computation path \u03be of the implementable network N onto component k, 1 \u2264 k \u2264 n, labelled such that each configuration k i,0 , \u03bd k i,0 is initial or reached by a discrete transition to a source location of an internal, send, or receive edge.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "The sequence \u03be k",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "is the largest index such that between c := k j,0 , \u03bd k j,0 and k j,ij , \u03bd k j,ij + d j exactly next(c) time units have passed, is called the observable behaviour of component k in \u03be. \u2666 Theorem 1. Let N be an implementable network and \u03b6 k = \u03c0 0,0 , . . . , \u03c0 0,n0 , \u03c0 1,0 , . . . the projection onto the k-th component of a time-safe computation \u03b6 of P (N ) labelled such that \u03c0 i,ni , \u03c0 i+1,0 are exactly those transitions in \u03b6 from a Line 1 to the subsequent Line 2. Then ( \u03c3 i,0 (l), \u03c3 i,0 | X\u222aV , u i,0 ) i\u2208N0 is an observable behaviour of component k on some computation path of N . \u2666 Fig. 7 . Timed automaton of the implementable timed automaton (after applying the scheme from Fig. 2) for the LZ-protocol of sensors [15] .",
+            "cite_spans": [
+                {
+                    "start": 723,
+                    "end": 727,
+                    "text": "[15]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 590,
+                    "end": 596,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                },
+                {
+                    "start": 684,
+                    "end": 691,
+                    "text": "Fig. 2)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Correct Implementation of Implementable Networks"
+        },
+        {
+            "text": "The work presented here was motivated by a project to support the development of a new communication protocol for a distributed wireless fire alarm system [15] , without shared memory, only assuming clock synchronisation and message exchange. We provided modelling and analysis of the protocol a priori, that is, before the first line of code had been written. In the project, the engineers manually implemented the model and appreciated how the model indicates exactly which action is due in which situation. Later, we were able to study the handwritten code and observed (with little surprise) striking regularities and similarities to the model. So we conjectured that there exists a significant sublanguage of timed automata that is implementable. In our previous work [5] , we identified independency from a global scheduler as a useful precondition for the existence of a distributed implementation (cf. Sect. 2). For this work, we have modelled the LZ-protocol of sensors in the wireless fire alarm system from [15] as an implementable timed automaton (cf. Fig. 1 ; Fig. 7 shows the timed automaton obtained by applying the scheme from Fig. 2 ). Hence our modelling language supports real-world, industry case-studies. Implementable timed automata also subsume some models of time-triggered, periodic tasks that we would model by internal edges only.",
+            "cite_spans": [
+                {
+                    "start": 155,
+                    "end": 159,
+                    "text": "[15]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 773,
+                    "end": 776,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1018,
+                    "end": 1022,
+                    "text": "[15]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1064,
+                    "end": 1070,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1073,
+                    "end": 1079,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                },
+                {
+                    "start": 1143,
+                    "end": 1149,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Evaluation and Discussion"
+        },
+        {
+            "text": "From the program obtained by the translation scheme given in Table 3 , we have derived an implementation of the protocol in C. Clock, data, location, edge, and message variables become enumerations or integers, time variables use the POSIX data-structure timespec. The implementation runs timely for multiple days. Although our approach with sleeping to absolute times reduces the risk of drift, there is jitter on real-world platforms. The impact of timing imprecision needs to be investigated per application and platform when refining the program of a network to code, e.g., following [11] . In our case study, jitter is much smaller than the model's time unit. Another strong assumption that we use is synchrony of the platform clocks and synchronised starting times of programs which can in general not be achieved on real-world platforms. In the wireless fire alarm system, component clocks are synchronised in an initialisation phase and kept (sufficiently) synchronised using system time information in messages. Robustness against limited clock drift is obtained by including so-called guard times [23, 24] in the protocol design. In the model, this is constant g: Components are ready to receive g time units before message transmission starts in another component.",
+            "cite_spans": [
+                {
+                    "start": 588,
+                    "end": 592,
+                    "text": "[11]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1107,
+                    "end": 1111,
+                    "text": "[23,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1112,
+                    "end": 1115,
+                    "text": "24]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 61,
+                    "end": 68,
+                    "text": "Table 3",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "Evaluation and Discussion"
+        },
+        {
+            "text": "Note that Theorem 1 only applies to time-safe computations. Whether an implementation is time-safe needs to be analysed separately, e.g., by conducting worst-case execution time (WCET) analyses of the work code and the code that implements the timed automata semantics. The C code for the LZ-model mentioned above actually implements a sleepto function that issues a warning if the target time has already passed (thus indicating non-time-safety). The translation scheme could easily be extended by a statement between Lines 2 and 3 that checks whether the deadline was kept and issues a warning if not. Then, Theorem 1 would strengthen to the statement that all computations of P (I) either correspond to observable behaviour of I or issue a warning. Note that, in contrast to [1, 2, 31] , our approach has the practically important property that time-safety implies time-robustness, i.e., if a program is time-safe on one platform then it is time-safe on any 'faster' platform. Furthermore, we have assumed a deterministic choice of the next edge to be executed for simplicity and brevity of the presentation. Non-deterministic models can be supported by providing a non-deterministic semantics to the nextedge I function in the programming language and the correctness proof.",
+            "cite_spans": [
+                {
+                    "start": 778,
+                    "end": 781,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 782,
+                    "end": 784,
+                    "text": "2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 785,
+                    "end": 788,
+                    "text": "31]",
+                    "ref_id": "BIBREF32"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Evaluation and Discussion"
+        },
+        {
+            "text": "We have presented a shorthand notation that defines a subset of timed automata that we call implementable. For networks of implementable timed automata that do not depend on a global scheduler, we have given a translation scheme to a simple, exact-time programming language. We obtain a distributed implementation with one program for each network component, the programs are supposed to be executed concurrently, possibly on different computers. We propose to not substitute (imprecise) platform clocks for (model) clocks in guards and invariants, but to rely on a sleep function with absolute deadlines. The generated programs do not include any \"hidden\" execution times, but all updates, actions, and the time needed to select subsequent edges are taken into account. For the generated programs, we have established a notion of correctness that closely relates program computations to computation paths of the network. The close relation lowers the mental burden for developers that is induced by other approaches that switch to a slightly different, e.g., robust semantics for the implementation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "Our work decomposes the translation from timed automata models to code into a first step that deals with the discrepancy between atomicity of the timed automaton semantics and the non-atomic execution on real platforms. The second step, to relate the exact-time program to real platforms with imprecise timing is the subject of future work.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Model-based implementation of real-time applications",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Abdellatif",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Combaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sifakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "229--238",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/1879021.1879052"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Rigorous implementation of real-time systems -from theory to application",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Abdellatif",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Combaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sifakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Math. Struct. Comput. Sci",
+            "volume": "23",
+            "issn": "4",
+            "pages": "882--914",
+            "other_ids": {
+                "DOI": [
+                    "10.1017/S096012951200028X"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Synthesis of Ada code from graph-based task models",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Abdullah",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mohaqeqi",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Yi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "1467--1472",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/3019612.3019681"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Code synthesis for timed automata",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Amnell",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Fersman",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Pettersson",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Yi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Nord. J. Comput",
+            "volume": "9",
+            "issn": "4",
+            "pages": "269--300",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "On global scheduling independency in networks of timed automata",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Feo-Arenis",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vujinovi\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Westphal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Modeling heterogeneous real-time components in BIP",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Basu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bozga",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sifakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "SEFM",
+            "volume": "",
+            "issn": "",
+            "pages": "3--12",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/SEFM.2006.27"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "A tutorial on Uppaal",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Behrmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "David",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Larsen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "SFM-RT 2004",
+            "volume": "3185",
+            "issn": "",
+            "pages": "200--236",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-30080-9_7"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Synchronous programming with events and relations: the SIGNAL language and its semantics",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Benveniste",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Le Guernic",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Jacquemot",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Sci. Comput. Program",
+            "volume": "16",
+            "issn": "2",
+            "pages": "103--149",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/0167-6423(91)90001-E"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Compositional abstraction in real-time model checking",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Berendsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Vaandrager",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "FORMATS 2008",
+            "volume": "5215",
+            "issn": "",
+            "pages": "233--249",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "The Esterel synchronous programming language: design, semantics, implementation",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Berry",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Gonthier",
+                    "suffix": ""
+                }
+            ],
+            "year": 1992,
+            "venue": "Sci. Comput. Program",
+            "volume": "19",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/0167-6423(92)90005-V"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Timed automata can always be made implementable",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Bouyer",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Larsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Markey",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Sankur",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Thrane",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "CONCUR 2011",
+            "volume": "6901",
+            "issn": "",
+            "pages": "76--91",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-23217-6_6"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Spanner: Google's globally distributed database",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Corbett",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dean",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Epstein",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "ACM Trans. Comput. Syst",
+            "volume": "31",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Higher-dimensional timed automata",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Fahrenberg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "51",
+            "issn": "",
+            "pages": "109--114",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ifacol.2018.08.019"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Automated analysis of AODV using UPPAAL",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Fehnker",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Van Glabbeek",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "H\u00f6fner",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mciver",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Portmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Tan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "TACAS 2012",
+            "volume": "7214",
+            "issn": "",
+            "pages": "173--187",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-28756-5_13"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Ready for testing: ensuring conformance to industrial standards through formal verification",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Feo-Arenis",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Westphal",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Dietsch",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mu\u00f1iz",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Andisha",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Podelski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Formal Aspects Comput",
+            "volume": "28",
+            "issn": "3",
+            "pages": "499--527",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00165-016-0365-3"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Parameterized verification of track topology aggregation protocols",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Feo-Arenis",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Westphal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "FMOODS/FORTE -2013",
+            "volume": "7892",
+            "issn": "",
+            "pages": "35--49",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-38592-6_4"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Clock synchronization of distributed, real-time, industrial data acquisition systems",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Flammini",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Ferrari",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Data Acquisition, chap. 3. IntechOpen",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.5772/10458"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Ridesharing: fault tolerant aggregation in sensor networks using corrective actions",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Gobriel",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Khattab",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Moss\u00e9",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Brustoloni",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Melhem",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "SECON",
+            "volume": "",
+            "issn": "",
+            "pages": "595--604",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/SAHCN.2006.288516"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "The synchronous data flow programming language LUSTRE",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Halbwachs",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Caspi",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Raymond",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Pilaud",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Proc. IEEE",
+            "volume": "79",
+            "issn": "9",
+            "pages": "1305--1320",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Translating Uppaal to not quite C",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hendriks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Giotto: a time-triggered language for embedded programming",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Henzinger",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Horowitz",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Kirsch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Proc. IEEE",
+            "volume": "91",
+            "issn": "1",
+            "pages": "84--99",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Programming Languages -C",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Iso/Iec",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "9899",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Formal approach to guard time optimization for TDMA",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Jubran",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Westphal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "223--233",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/2516821.2516849"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Optimizing guard time for TDMA in a wireless sensor network -case study",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Jubran",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Westphal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "LCN",
+            "volume": "",
+            "issn": "",
+            "pages": "597--601",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/LCNW.2014.6927708"
+                ]
+            }
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Automatic translation from Uppaal to C",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kristensen",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mejlholm",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pedersen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Real-Time Systems -Formal Specification and Automatic Verification",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Olderog",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Dierks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "A structural approach to operational semantics",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Plotkin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "J. Log. Algebr. Program",
+            "volume": "",
+            "issn": "",
+            "pages": "17--139",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Dynamical properties of timed automata",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Puri",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Discrete Event Dyn. Syst",
+            "volume": "10",
+            "issn": "1-2",
+            "pages": "87--113",
+            "other_ids": {
+                "DOI": [
+                    "10.1023/A:1008387132377"
+                ]
+            }
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "On generating soft real-time programs for non-realtime environments",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Senthooran",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Watanabe",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Nishizaki",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Numao",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Caro",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Suarez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Theory and Practice of Computation",
+            "volume": "",
+            "issn": "",
+            "pages": "1--12",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-4-431-54436-4_1"
+                ]
+            }
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "A methodology for choosing time synchronization strategies for wireless IoT networks",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Tirado-Andr\u00e9s",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rozas",
+                    "suffix": ""
+                },
+                {
+                    "first": "\u00c1",
+                    "middle": [],
+                    "last": "Araujo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Sensors",
+            "volume": "19",
+            "issn": "16",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.3390/s19163476"
+                ]
+            }
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Model-based implementation of parallel real-time systems",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Triki",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Combaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Bensalem",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sifakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "FASE 2013",
+            "volume": "7793",
+            "issn": "",
+            "pages": "235--249",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-37057-1_18"
+                ]
+            }
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Ad Hoc routing protocol verification through broadcast abstraction",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Wibling",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Parrow",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pears",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "FORTE 2005",
+            "volume": "3731",
+            "issn": "",
+            "pages": "128--142",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11562436_11"
+                ]
+            }
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Almost ASAP semantics: from timed models to timed implementations",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Wulf",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Doyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Raskin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Formal Asp. Comput",
+            "volume": "17",
+            "issn": "3",
+            "pages": "319--341",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00165-005-0067-8"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "An implementable timed automaton I = (L, ini , A, X, V, I, E) consists of locations, initial location, channels, clocks, variables like timed automata, a location invariant I : L \u2192 \u03a6(X) s.t. each I( ) has a boundary \u2202I( ), and a finite set E",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The LZ-protocol of sensors[15] as implementable timed automaton.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Edges of the timed automaton of an implementable timed automaton.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Artificial example of a non-implementable network if s2,0 + w2 > s1,0 + w1.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": ") if e = eexpr 1 : S 1 . . . e = eexpr n : Sn fi; S,(\u03b2, 0, w, u), \u03c3 S, (0, \u03b3 , w , u), \u03c3 , \u2200 0 \u2264 i \u2264 n \u2022 \u03c3(e) = \u03c3(eexpr i ) (R10a) whileexpr do S od; S, (\u03b2, 0, w, u), \u03c3 S; while expr do S od; S, (0, \u03b3 , w , u), \u03c3 , \u03c3(expr ) = true (R10b) while expr do S od; S, (\u03b2, 0, w, u), \u03c3 S, (0, \u03b3 , w , u), \u03c3 , \u03c3(expr ) = false",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Scheduling of work and operating time.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Relating program and network computations for one component.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Cases of changing from intermediate location to destination location.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "For each time-safe computation \u03b6 = \u03a0 0 , \u03a0 1 , . . . of P (N ), there exists a computation path \u03be = c 0,0 , . . . , c 0,m0 , c 1,0 , . . . of N s.t. each network configuration c i,j is properly related to program configuration \u03a0 i . \u2666 Proof (sketch). The proof is a technical check of the predicates mentioned above during an inductive construction of computation path \u03be. For the base case, we show that the initialisation statements in Lines 1 to 4 of",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Implementation scheme for implementable timed automaton.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

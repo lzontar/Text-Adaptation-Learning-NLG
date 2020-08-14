@@ -1,0 +1,1985 @@
+{
+    "paper_id": "1e83d54a7efa64efb8481057e5d2798f489ca840",
+    "metadata": {
+        "title": "Politeness for the Theory of Algebraic Datatypes",
+        "authors": [
+            {
+                "first": "Ying",
+                "middle": [],
+                "last": "Sheng",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Stanford University",
+                    "location": {
+                        "settlement": "Stanford",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Yoni",
+                "middle": [],
+                "last": "Zohar",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Stanford University",
+                    "location": {
+                        "settlement": "Stanford",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Christophe",
+                "middle": [],
+                "last": "Ringeissen",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "CNRS",
+                    "location": {
+                        "postCode": "54000",
+                        "settlement": "Nancy",
+                        "region": "Inria, LORIA",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Jane",
+                "middle": [],
+                "last": "Lange",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Stanford University",
+                    "location": {
+                        "settlement": "Stanford",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Pascal",
+                "middle": [],
+                "last": "Fontaine",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "CNRS",
+                    "location": {
+                        "postCode": "54000",
+                        "settlement": "Nancy",
+                        "region": "Inria, LORIA",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Clark",
+                "middle": [],
+                "last": "Barrett",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Stanford University",
+                    "location": {
+                        "settlement": "Stanford",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Algebraic datatypes, and among them lists and trees, have attracted a lot of interest in automated reasoning and Satisfiability Modulo Theories (SMT). Since its latest stable version, the SMT-LIB standard defines a theory of algebraic datatypes, which is currently supported by several mainstream SMT solvers. In this paper, we study this particular theory of datatypes and prove that it is strongly polite, showing also how it can be combined with other arbitrary disjoint theories using polite combination. Our results cover both inductive and finite datatypes, as well as their union. The combination method uses a new, simple, and natural notion of additivity, that enables deducing strong politeness from (weak) politeness.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Algebraic datatypes such as lists and trees are extremely common in many programming languages. Reasoning about them is therefore crucial for modeling and verifying programs. For this reason, various decision procedures for algebraic datatypes have been, and continue to be developed and employed by formal reasoning tools such as theorem provers and Satisfiability Modulo Theories (SMT) solvers. For example, the general algorithm of [4] describes a decision procedure for datatypes suitable for SMT solvers. Consistently with the SMT paradigm, [4] leaves the combination of datatypes with other theories to general combination methods, and focuses on parametric datatypes (or generic datatypes as they are called in the programming languages community).",
+            "cite_spans": [
+                {
+                    "start": 435,
+                    "end": 438,
+                    "text": "[4]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 546,
+                    "end": 549,
+                    "text": "[4]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The traditional combination method of Nelson and Oppen [20] is applicable for the combination of this theory with many other theories, as long as the other theory is stably infinite (a technical condition that intuitively amounts to the ability to extend every model to an infinite one). Some theories of interest, however, are not stably infinite, the most notable one being the theory of fixed-width bit-vectors, which is commonly used for modeling and verifying both hardware and software. To be able to perform combinations with such theories, a more general combination method was designed [21] , which relies on polite theories. Roughly speaking, a theory is polite if: (i) every model can be arbitrarily enlarged; and (ii) there is a witness, a function that transforms any quantifierfree formula to an equivalent quantifier-free formula such that if the original formula is satisfiable, the new formula is satisfiable in a \"minimal\" interpretation. This notion was later strengthened to strongly polite theories [14] , which also account for possible arrangements of the variables in the formula. Strongly polite theories can be combined with any other disjoint decidable theory, even if that other theory is not stably infinite. While strong politeness was already proven for several useful theories (such as equality, arrays, sets, multisets [21] ), strong politeness of algebraic datatypes remained an unanswered question.",
+            "cite_spans": [
+                {
+                    "start": 55,
+                    "end": 59,
+                    "text": "[20]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 595,
+                    "end": 599,
+                    "text": "[21]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1020,
+                    "end": 1024,
+                    "text": "[14]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1352,
+                    "end": 1356,
+                    "text": "[21]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The main contribution of this paper is an affirmative answer to this question. We introduce a witness function that essentially \"guesses\" the right constructors of variables without an explicit constructor in the formula. We show how to \"shrink\" any model of a formula that is the output of this function into a minimal model. The witness function, as well as the model-construction, can be used by any SMT solver for the theory of datatypes that implements polite theory combination. We introduce and use the notion of additive witnesses, which allows us to prove politeness and conclude strong politeness. We further study the theory of datatypes beyond politeness and extend a decision procedure for a subset of this theory presented in [9] to support the full theory.",
+            "cite_spans": [
+                {
+                    "start": 740,
+                    "end": 743,
+                    "text": "[9]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The theory investigated in this paper is that of algebraic datatypes, as defined by the SMT-LIB 2 standard [3] . Detailed information on this theory, including a decision procedure and related work, can be found in [4] . Later work extends this procedure to handle shared selectors [23] and co-datatypes [22] . More recent approaches for solving formulas about datatypes use, e.g., theorem provers [15] , variant satisfiability [12, 19] , and reduction-based decision procedures [1, 6, 13] .",
+            "cite_spans": [
+                {
+                    "start": 107,
+                    "end": 110,
+                    "text": "[3]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 215,
+                    "end": 218,
+                    "text": "[4]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 282,
+                    "end": 286,
+                    "text": "[23]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 304,
+                    "end": 308,
+                    "text": "[22]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 398,
+                    "end": 402,
+                    "text": "[15]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 428,
+                    "end": 432,
+                    "text": "[12,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 433,
+                    "end": 436,
+                    "text": "19]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 479,
+                    "end": 482,
+                    "text": "[1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 483,
+                    "end": 485,
+                    "text": "6,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 486,
+                    "end": 489,
+                    "text": "13]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "In this paper, we focus on polite theory combination. Other combination methods for non stably infinite theories include shiny theories [27] , gentle theories [11] , and parametric theories [17] . The politeness property was introduced in [21] , and extends the stable infiniteness assumption initially used by Nelson and Oppen. Polite theories can be combined\u00e0 la Nelson-Oppen with any arbitrary decidable theory. Later, a flaw in the original definition of politeness was found [14] , and a corrected definition (here called strong politeness) was introduced. Strongly polite theories were further studied in [8] , where the authors proved their equivalence with shiny theories.",
+            "cite_spans": [
+                {
+                    "start": 136,
+                    "end": 140,
+                    "text": "[27]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 159,
+                    "end": 163,
+                    "text": "[11]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 190,
+                    "end": 194,
+                    "text": "[17]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 239,
+                    "end": 243,
+                    "text": "[21]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 480,
+                    "end": 484,
+                    "text": "[14]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 611,
+                    "end": 614,
+                    "text": "[8]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "More recently, it was proved [9] that a general family of datatype theories extended with bridging functions is strongly polite. This includes the theories of lists/trees with length/size functions. The authors also proved that a class of axiomatizations of datatypes is strongly polite. In contrast, in this paper we focus on standard interpretations, as defined by the SMT-LIB 2 standard, without any size function, but including selectors and testers. One can notice that the theory of standard lists without the length function, and more generally the theory of finite trees without the size function, were not mentioned as polite in a recent survey [7] . Actually, it was unclear to the authors of [7] whether these theories are strongly polite. This is now clarified in the current paper.",
+            "cite_spans": [
+                {
+                    "start": 29,
+                    "end": 32,
+                    "text": "[9]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 654,
+                    "end": 657,
+                    "text": "[7]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 703,
+                    "end": 706,
+                    "text": "[7]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "The paper is organized as follows. Section 2 provides the necessary notions from first-order logic and polite theories, and it introduces our working definition of the theory of datatypes, which is based on SMT-LIB 2. Section 3 discusses the difference between politeness and strong politeness, and introduces a useful condition for their equivalence. Section 4 contains the main result of this paper, namely that the theory of algebraic datatypes is strongly polite. Section 5 studies various axiomatizations of the theory of datatypes, and relates them to politeness. Section 6 concludes with directions for further research.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Outline"
+        },
+        {
+            "text": "We briefly review usual definitions of many-sorted first-order logic with equality (see [10, 26] for more details). For any set S, an S-sorted set A is a function from S to P(X) \\ {\u2205} for some set X (i.e., A assigns a non-empty set to every element of S), such that A(s) \u2229 A(s ) = \u2205 whenever s = s . We use A s to denote A(s) for every s \u2208 S, and call the elements of S sorts. When there is no ambiguity, we sometimes treat sorted sets as sets (e.g., when writing expressions like x \u2208 A). Given a set S (of sorts), the canonical S-sorted set, denoted [[S]], satisfies [[S]] s = {s} for every s \u2208 S. A many-sorted signature \u03a3 consists of a set S \u03a3 (of sorts), a set F \u03a3 of function symbols, and a set P \u03a3 of predicate symbols. Function symbols have arities of the form \u03c3 1 \u00d7 . . . \u00d7 \u03c3 n \u2192 \u03c3, and predicate symbols have arities of the form \u03c3 1 \u00d7 . . . \u00d7 \u03c3 n , with \u03c3 1 , . . . , \u03c3 n , \u03c3 \u2208 S \u03a3 . For each sort \u03c3 \u2208 S \u03a3 , P \u03a3 includes an equality symbol = \u03c3 of arity \u03c3 \u00d7 \u03c3. We denote it by = when \u03c3 is clear from context. \u03a3 is called finite if S \u03a3 , F \u03a3 , and P \u03a3 are finite.",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 92,
+                    "text": "[10,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 93,
+                    "end": 96,
+                    "text": "26]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Signatures and Structures"
+        },
+        {
+            "text": "We assume an underlying S \u03a3 -sorted set of variables. Terms, formulas, and literals are defined in the usual way. For a \u03a3-formula \u03c6 and a sort \u03c3, we denote the set of free variables in \u03c6 of sort \u03c3 by vars \u03c3 (\u03c6). This notation naturally extends to vars S (\u03c6) when S is a set of sorts. A sentence is a formula without free variables. We denote by QF (\u03a3) the set of quantifier-free formulas of \u03a3. A \u03a3-literal is called flat if it has one of the following forms: x = y, x = y, x = f (x 1 , . . . , x n ), P (x 1 , . . . , x n ), or \u00acP (x 1 , . . . , x n ) for some variables x, y, x 1 , . . . , x n and function and predicate symbols f and P from \u03a3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Signatures and Structures"
+        },
+        {
+            "text": "A \u03a3-structure is a many-sorted structure for \u03a3, without interpretation of variables. It consists of a S \u03a3 -sorted set A, and interpretations to the function and predicate symbols of \u03a3. We further require that = \u03c3 is interpreted as the identity relation over A \u03c3 for every \u03c3 \u2208 S \u03a3 . A \u03a3-interpretation A is an extension of a \u03a3-structure with interpretations to some set of variables. For any \u03a3-term \u03b1, \u03b1 A denotes the interpretation of \u03b1 in A. When \u03b1 is a set of \u03a3-terms, \u03b1 A = x A | x \u2208 \u03b1 . Similarly, \u03c3 A , f A and P A denote the interpretation of \u03c3, f and P in A. Satisfaction is defined as usual. A |= \u03d5 denotes that A satisfies \u03d5.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Signatures and Structures"
+        },
+        {
+            "text": "Two formulas \u03c6 and \u03c8 are T -equivalent if they are satisfied by the same class of T -interpretations. Let \u03a3 1 and \u03a3 2 be signatures, T 1 a \u03a3 1 -theory, and T 2 a \u03a3 2 -theory. The combination of T 1 and T 2 ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Signatures and Structures"
+        },
+        {
+            "text": "In this section we formally define the SMT-LIB 2 theory of algebraic datatypes. The formalization is based on [3] , but is adjusted to suit our investigation of politeness. Definition 1. Given a signature \u03a3, a set S \u2286 S \u03a3 and an S-sorted set A, the set of \u03a3-trees over A of sort \u03c3 \u2208 S \u03a3 is denoted by T \u03c3 (\u03a3, A) and is inductively defined as follows: A) . The depth of a \u03a3-tree over A is inductively defined by depth(a) = 0 for every a \u2208 A, depth(c) = 1 for every 0-ary function symbol c \u2208 F \u03a3 , and depth(c(t 1 , . . . , t n )) = 1 + max(depth(t 1 ), . . . , depth(t n )) for every n-ary function symbol c of \u03a3.",
+            "cite_spans": [
+                {
+                    "start": 110,
+                    "end": 113,
+                    "text": "[3]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 351,
+                    "end": 353,
+                    "text": "A)",
+                    "ref_id": null
+                }
+            ],
+            "section": "The SMT-LIB 2 Theory of Datatypes"
+        },
+        {
+            "text": "The idea behind Definition 1 is that T \u03c3 (\u03a3, A) contains all ground \u03c3-sorted terms constructed from the elements of A (considered as constant symbols) and the function symbols of \u03a3. , c(a, b, b) , b) of depth 3.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 182,
+                    "end": 194,
+                    "text": ", c(a, b, b)",
+                    "ref_id": null
+                }
+            ],
+            "section": "The SMT-LIB 2 Theory of Datatypes"
+        },
+        {
+            "text": "A finite signature \u03a3 is called a datatypes signature if S \u03a3 is the disjoint union of two sets of sorts S \u03a3 = Elem \u03a3 Struct \u03a3 and F \u03a3 is the disjoint union of two sets of function symbols F \u03a3 = CO \u03a3 SE \u03a3 , such that SE \u03a3 = {s c,i : \u03c3 \u2192 \u03c3 i | c \u2208 CO \u03a3 , c : \u03c3 1 , . . . , \u03c3 n \u2192 \u03c3, 1 \u2264 i \u2264 n} and P \u03a3 = {is c : \u03c3 | c \u2208 CO \u03a3 , c : \u03c3 1 , . . . , \u03c3 n \u2192 \u03c3}. We denote by \u03a3 |CO the signature with the same sorts as \u03a3, no predicate symbols (except = \u03c3 for \u03c3 \u2208 S \u03a3 ), and whose function symbols are CO \u03a3 . We further require the following well-foundedness requirement:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "From now on, we omit the subscript \u03a3 from the above notations (e. In accordance with SMT-LIB 2, we call the elements of CO constructors, the elements of SE selectors, and the elements of P testers. 0-ary constructors are called nullary. In what follows, \u03a3 denotes an arbitrary datatypes signature.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "In the next example we review some common datatypes signatures. The signature \u03a3 lp has three sorts, elem, pair and list. Its function symbols are cons of arity (pair \u00d7 list) \u2192 list, car of arity list \u2192 pair, as well as nil, cdr, f irst, second with arities as above. Its predicate symbols are is pair , is cons and nil, with arities as above. It can be used to model lists of ordered pairs. Similarly to the above signatures, it is a datatypes signature.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "Next, we distinguish between finite datatypes (e.g., records) and inductive datatypes (e.g., lists).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "We denote the set of inductive sorts in \u03a3 by Ind (\u03a3) and the set of its finite sorts by Fin(\u03a3). Note that if \u03c3 is inductive, then according to Definitions 1 and 3 we have that for any natural number i there exists a natural number",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "). Further, for any natural number d and every Elem-sorted set D there exists a natural number i such that T \u03c3,i (\u03a3 |CO , D) contains an element whose depth is greater than d.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "Example 3. list is inductive in \u03a3 list and \u03a3 lp . pair is finite in \u03a3 pair and \u03a3 lp .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "Finally, we define datatypes structures and the theory of algebraic datatypes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2."
+        },
+        {
+            "text": "A is said to be a datatypes \u03a3-structure generated by D if:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4. Let \u03a3 be a datatypes signature and D an Elem-sorted set. A \u03a3-structure"
+        },
+        {
+            "text": "Notice that the interpretation of selector functions s c,i when applied to terms that are constructed using a constructor different than c is not fixed and can be set arbitrarily in datatypes structures, consistently with SMT-LIB 2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4. Let \u03a3 be a datatypes signature and D an Elem-sorted set. A \u03a3-structure"
+        },
+        {
+            "text": "Example 4. If A is a datatypes \u03a3 list -structure then list A is the set of terms constructed from elem A and cons, plus nil. If elem A is the set of natural numbers, then list A contains, e.g., nil, cons (1, nil) , and cons(1, cons(1, cons(2, nil))). These correspond to the lists [] (the empty list), [1] and [1, 1, 2] , respectively.",
+            "cite_spans": [
+                {
+                    "start": 204,
+                    "end": 212,
+                    "text": "(1, nil)",
+                    "ref_id": null
+                },
+                {
+                    "start": 302,
+                    "end": 305,
+                    "text": "[1]",
+                    "ref_id": null
+                },
+                {
+                    "start": 310,
+                    "end": 313,
+                    "text": "[1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 314,
+                    "end": 316,
+                    "text": "1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 317,
+                    "end": 319,
+                    "text": "2]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 4. Let \u03a3 be a datatypes signature and D an Elem-sorted set. A \u03a3-structure"
+        },
+        {
+            "text": "If A is a datatypes \u03a3 pair -structure then pair A is the set of terms of the form pair(a, b) with a, b \u2208 elem A . If elem A is again interpreted as the set of natural numbers, pair A includes, for example, the terms pair(1, 1) and pair (1, 2) , that correspond to (1, 1) and (1, 2), respectively. Notice that in this case, pair A is an infinite set even though pair is a finite sort (in terms of Definition 3).",
+            "cite_spans": [
+                {
+                    "start": 236,
+                    "end": 239,
+                    "text": "(1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 240,
+                    "end": 242,
+                    "text": "2)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 4. Let \u03a3 be a datatypes signature and D an Elem-sorted set. A \u03a3-structure"
+        },
+        {
+            "text": "Datatypes \u03a3 lp -structures with the same interpretation for elem include the terms nil, cons(pair(1, 1), nil), and cons(pair(1, 1), cons(pair (1, 2) , nil)) in the interpretation for list, that correspond to [], [(1, 1)] and [(1, 1), (1, 2)], respectively. If we rename elem in the definition of \u03a3 list to pair, we get that",
+            "cite_spans": [
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "(1,",
+                    "ref_id": null
+                },
+                {
+                    "start": 146,
+                    "end": 148,
+                    "text": "2)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 4. Let \u03a3 be a datatypes signature and D an Elem-sorted set. A \u03a3-structure"
+        },
+        {
+            "text": "Given two theories T 1 and T 2 , a combination method\u00e0 la Nelson-Oppen provides a modular way to decide T 1 \u222a T 2 -satisfiability problems using the satisfiability procedures known for T 1 and T 2 . Assuming that T 1 and T 2 have disjoint signatures is not sufficient to get a complete combination method for the satisfiability problem. The reason is that T 1 and T 2 may share sorts, and the equality symbol on these shared sorts. To be complete, T 1 and T 2 must agree on the cardinality of their respective models, and there must be an agreement between T 1 and T 2 on the interpretation of shared formulas built over the equality symbol. These two requirements can be easily fulfilled, based on the following definitions:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Polite Theories"
+        },
+        {
+            "text": "Definition 6 (Arrangement). Let V be a finite set of variables whose sorts are in S and",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 5 (Stable Infiniteness). Given a signature \u03a3 and a set S \u2286 S \u03a3 , we say that a \u03a3-theory T is stably infinite with respect to S if every quantifierfree \u03a3-formula that is T -satisfiable is also T -satisfiable by a T -interpretation"
+        },
+        {
+            "text": "Assume that both T 1 and T 2 are stably infinite with disjoint signatures, and let V be the finite set of variables shared by T 1 and T 2 . Under this assumption, T 1 and T 2 can agree on an infinite cardinality, and guessing an arrangement of V suffices to get an agreement on the interpretation of shared formulas.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 5 (Stable Infiniteness). Given a signature \u03a3 and a set S \u2286 S \u03a3 , we say that a \u03a3-theory T is stably infinite with respect to S if every quantifierfree \u03a3-formula that is T -satisfiable is also T -satisfiable by a T -interpretation"
+        },
+        {
+            "text": "In this paper we are interested in an asymmetric disjoint combination where T 1 and T 2 are not both stably infinite. In this scenario, one theory can be arbitrary. As a counterpart, the other theory must be more than stably infinite: it must be polite, meaning that it is always possible to increase the cardinality of a model and to have a model whose cardinality is finite.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 5 (Stable Infiniteness). Given a signature \u03a3 and a set S \u2286 S \u03a3 , we say that a \u03a3-theory T is stably infinite with respect to S if every quantifierfree \u03a3-formula that is T -satisfiable is also T -satisfiable by a T -interpretation"
+        },
+        {
+            "text": "In the following we decompose the politeness definition from [14, 21] in order to distinguish between politeness and strong politeness (in terms of [8] ) in various levels of the definition. In what follows, \u03a3 is an arbitrary (many-sorted) signature, S \u2286 S \u03a3 , and T is a \u03a3-theory.",
+            "cite_spans": [
+                {
+                    "start": 61,
+                    "end": 65,
+                    "text": "[14,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 66,
+                    "end": 69,
+                    "text": "21]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 148,
+                    "end": 151,
+                    "text": "[8]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 5 (Stable Infiniteness). Given a signature \u03a3 and a set S \u2286 S \u03a3 , we say that a \u03a3-theory T is stably infinite with respect to S if every quantifierfree \u03a3-formula that is T -satisfiable is also T -satisfiable by a T -interpretation"
+        },
+        {
+            "text": "The theory T is smooth w.r.t. S if for every quantifier-free formula \u03c6, T -interpretation A that satisfies \u03c6, and function \u03ba from S to the class of cardinals such that \u03ba(\u03c3) \u2265 \u03c3 A for every \u03c3 \u2208 S there exists a \u03a3-interpretation A that satisfies \u03c6 with \u03c3 A = \u03ba(\u03c3) for every \u03c3 \u2208 S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (Smooth)."
+        },
+        {
+            "text": "In definitions introduced above, as well as below, we often identify singletons with their single elements when there is no ambiguity (e.g., when saying that a theory is smooth w.r.t. a sort \u03c3).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (Smooth)."
+        },
+        {
+            "text": "We now introduce some concepts in order to define finite witnessability. Let \u03c6 be a quantifier-free \u03a3-formula and A a \u03a3-interpretation. We say that A finitely",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 7 (Smooth)."
+        },
+        {
+            "text": "where V is any set of variables whose sorts are in S. We say that a function wtn : QF (\u03a3) \u2192 QF (\u03a3) is a (strong) witness for T w.r.t. S if for every \u03c6 \u2208 QF (\u03a3) we have that: 1. \u03c6 and \u2203 \u2212 \u2192 w .wtn(\u03c6) are T -equivalent for \u2212 \u2192 w = vars (wtn(\u03c6)) \\ vars (\u03c6); and 2. wtn(\u03c6) is (strongly) finitely witnessed for T w.r.t. S. 1 Finally, we recall the following theorem from [14] . Theorem 1 ([14] ). Let \u03a3 1 and \u03a3 2 be signatures and let",
+            "cite_spans": [
+                {
+                    "start": 366,
+                    "end": 370,
+                    "text": "[14]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 373,
+                    "end": 388,
+                    "text": "Theorem 1 ([14]",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Definition 7 (Smooth)."
+        },
+        {
+            "text": "S = S \u03a31 \u2229 S \u03a32 . If T 1 is a \u03a3 1 -theory strongly polite w.r.t. S 1 \u2286 S \u03a31 , T 2 is a \u03a3 2 -theory strongly polite w.r.t. S 2 \u2286 S \u03a32 , and S \u2286 S 2 , then T 1 \u2295 T 2 is strongly polite w.r.t. S 1 \u222a (S 2 \\ S).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 8 (Finitely Witnessable"
+        },
+        {
+            "text": "It was shown in [14] that politeness is not sufficient for the proof of the polite combination method from [21] . Strong politeness was introduced to fix the problem. It is unknown, however, whether there are theories that are polite but not strongly polite. In this section we offer a simple (yet useful) criterion for the equivalence of the two notions. Throughout this section, unless stated otherwise, \u03a3 and S denote an arbitrary signature and a subset of its set of sorts, and T, T 1 , T 2 denote arbitrary \u03a3-theories.",
+            "cite_spans": [
+                {
+                    "start": 16,
+                    "end": 20,
+                    "text": "[14]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 107,
+                    "end": 111,
+                    "text": "[21]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Additive Witnesses"
+        },
+        {
+            "text": "The following example, which is based on [14] using notions of the current paper, shows that the strong and non-strong witnesses are different. Let \u03a3 0 be a signature with a single sort \u03c3 and no function or predicate symbols (except = \u03c3 ), T 0 the \u03a3 0 -theory consisting of all \u03a3 0 -structures A with \u03c3 A \u2265 2, \u03c6 the formula x = x \u2227 w = w, and \u03b4 the arrangement (x = w) of {x, w}. Then \u03c6 \u2227 \u03b4 is T 0 -satisfiable, but every interpretation A with \u03c3 A = {x, w} A that satisfies it has only one element in \u03c3 A and so \u03c6 is not strongly finitely witnessed for T 0 w.r.t. \u03c3. It is straightforward to show, however, that \u03c6 is finitely witnessed for T 0 w.r.t. \u03c3. Moreover, the function wtn defined by wtn(\u03c6) = (\u03c6 \u2227 w 1 = w 1 \u2227 w 2 = w 2 ) for fresh w 1 , w 2 is a witness for T 0 w.r.t. \u03c3, but not a strong one. This does not show, however, that T 0 is not strongly polite. In fact, it is indeed strongly polite since the function wtn (\u03c6) = \u03c6 \u2227 w 1 = w 2 for fresh w 1 , w 2 is a strong witness for",
+            "cite_spans": [
+                {
+                    "start": 41,
+                    "end": 45,
+                    "text": "[14]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Additive Witnesses"
+        },
+        {
+            "text": "We introduce the notion of additivity, which ensures that the witness is able to \"absorb\" arrangements and thus lift politeness to strong politeness. Definition 10 (Additivity). Let f : QF (\u03a3) \u2192 QF (\u03a3). We say that f is Sadditive for T if f (f (\u03c6)\u2227\u03d5) and f (\u03c6)\u2227\u03d5 are T -equivalent and have the same set of S-sorted variables for every \u03c6, \u03d5 \u2208 QF (\u03a3), provided that \u03d5 is a conjunction of flat literals such that every term in \u03d5 is a variable whose sort is in S. When T is clear from the context, we just say that f is S-additive. We say that T is additively finitely witnessable w.r.t. S if there exists a witness for T w.r.t. S which is both computable and S-additive. T is said to be additively polite w.r.t. S if it is smooth and additively finitely witnessable w.r.t. S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Additive Witnesses"
+        },
+        {
+            "text": "The theory T 0 from the example above is additively finitely witnessable w.r.t. \u03c3, even though wtn is not \u03c3-additive. Indeed, it is possible to define a new witness for T 0 w.r.t. \u03c3, say wtn , which is \u03c3-additive. This function wtn is defined by: wtn (\u03c6) = wtn (\u03c6) if \u03c6 is a conjunction that includes some disequality x = y for some x, y. Otherwise, wtn (\u03c6) = \u03c6.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 1. Suppose T is additively polite w.r.t. S. Then it is strongly polite w.r.t. S."
+        },
+        {
+            "text": "T 0 is an existential theory: it consists of all the structures that satisfy an existential sentence (in this case, \u2203x, y . x = y). The construction of wtn can be generalized to any existential theory. Such theories are also smooth w.r.t. any set of sorts and so existential theories are additively polite.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 1. Suppose T is additively polite w.r.t. S. Then it is strongly polite w.r.t. S."
+        },
+        {
+            "text": "The notion of additive witnesses is useful for proving that a polite theory is strongly polite. In particular, the witnesses for the theories of equality, arrays, sets and multisets from [21] are all additive, and so strong politeness of these theories follows from their politeness. The same will hold later, when we conclude strong politeness of theories of algebraic datatypes from their politeness.",
+            "cite_spans": [
+                {
+                    "start": 187,
+                    "end": 191,
+                    "text": "[21]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Corollary 1. Suppose T is additively polite w.r.t. S. Then it is strongly polite w.r.t. S."
+        },
+        {
+            "text": "Let \u03a3 be a datatypes signature with S \u03a3 = Elem Struct and F \u03a3 = CO SE. In this section, we prove that T \u03a3 is strongly polite with respect to Elem. In Sect. 4.1, we consider theories with only inductive sorts, and consider theories with only finite sorts in Sect. 4.2. We combine them in Sect. 4.3, where arbitrary theories of datatypes are considered. This separation is only needed for finite witnessability. For smoothness, however, it is straightforward to show that the Elem domain of a given interpretation can always be augmented without changing satisfiability of quantifier-free formulas.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Politeness for the SMT-LIB 2 Theory of Datatypes"
+        },
+        {
+            "text": "Lemma 1 holds for any datatypes signature.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 1. T \u03a3 is smooth w.r.t. Elem."
+        },
+        {
+            "text": "In this section, we assume that all sorts in Struct are inductive.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Inductive Datatypes"
+        },
+        {
+            "text": "To prove finite witnessability, we now introduce an additive witness function. Following arguments from [21] , it suffices to define the witness only for conjunctions of flat literals. A complete witness can then use the restricted one by first transforming the input formula to flat DNF form and then creating a disjunction where each disjunct is the result of applying the witness on the corresponding disjunct. Similarly, it suffices to show that wtn(\u03c6) is finitely witnessed for \u03c6 which is a conjunction of flat literals. Essentially, our witness guesses possible constructors for variables whose constructors are not explicit in the input formula. T \u03a3 ) . Let \u03c6 be a quantifier-free conjunction of flat \u03a3-literals. wtn i (\u03c6) is obtained from \u03c6 by performing the following steps:",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 108,
+                    "text": "[21]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 653,
+                    "end": 658,
+                    "text": "T \u03a3 )",
+                    "ref_id": null
+                }
+            ],
+            "section": "Inductive Datatypes"
+        },
+        {
+            "text": "where c and d range over CO.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "For any literal of the form"
+        },
+        {
+            "text": "c (x) such that x = c( \u2212 \u2192 u ) does not occur in \u03c6 for any \u2212 \u2192 u , we conjunctively add x = c( \u2212 \u2192 u ) with fresh \u2212 \u2192 u .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "For any literal of the form is"
+        },
+        {
+            "text": "c (x) such that x = d( \u2212 \u2192 u d ) does not occur in \u03c6 for any d = c and \u2212 \u2192 u d , we conjunctively add d =c x = d( \u2212 \u2192 u d ), with fresh \u2212 \u2192 u d .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "For any literal of the form \u00acis"
+        },
+        {
+            "text": "conjunctively add a literal x = x for a fresh variable x of sort \u03c3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "For any sort \u03c3 \u2208 Elem such that \u03c6 does not include a variable of sort \u03c3 we"
+        },
+        {
+            "text": "where e, e , e , e , z are fresh.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "For any sort \u03c3 \u2208 Elem such that \u03c6 does not include a variable of sort \u03c3 we"
+        },
+        {
+            "text": "In Definition 11, Item 1 guesses the constructor of the argument for the selector. Items 2 and 3 correspond to the semantics of testers. Item 4 is meant to ensure that we can construct a finite witness with non-empty domains. The requirement for absence of literals before adding literals or disjunctions to \u03c6 is used to ensure additivity of wtn i . And indeed:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "For any sort \u03c3 \u2208 Elem such that \u03c6 does not include a variable of sort \u03c3 we"
+        },
+        {
+            "text": "Further, it can be verified that: The remainder of this section is dedicated to the proof of the following lemma:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 2. wtn i is Elem-additive."
+        },
+        {
+            "text": "Suppose that \u0393 is T \u03a3 -satisfiable, and let A be a satisfying T \u03a3 -interpretation. We define a T \u03a3 -interpretation B as follows, and then show that B is a finite witness of \u0393 for T \u03a3 w.r.t. Elem. First for every \u03c3 \u2208 Elem we set \u03c3 B = vars \u03c3 (\u0393 ) A , and for every variable e \u2208 vars \u03c3 (\u0393 ), we set e B = e A . The interpretations of Struct-sorts, testers and constructors are uniquely determined by the theory. It is left to define the interpretation of Struct-variables in B, as well as the interpretation of the selectors (the interpretation of selectors is fixed by the theory only when applied to the \"right\" constructor). We do this in several steps:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Step 1 -Simplifying \u0393 : since \u03c6 is a conjunction of flat literals, \u0393 is a conjunction whose conjuncts are either flat literals or disjunctions of flat literals (introduced in Items 1 and 3 of Definition 11). Since A |= \u0393 , A satisfies exactly one disjunct of each such disjunction. We can thus obtain a formula \u0393 1 from \u0393 by replacing every disjunction with the disjunct that is satisfied by A. Notice that A |= \u0393 1 and that it is a conjunction of flat literals. Let \u0393 2 be obtained from \u0393 1 by removing any literal of the form is c (x) and any literal of the form \u00acis c (x). Let \u0393 3 be obtained from \u0393 2 by removing any literal of the form x = s c,i (y). For convenience, we denote \u0393 3 by \u0393 . Obviously, A |= \u0393 , and \u0393 is a conjunction of flat literals without selectors and testers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Step 2 -Working with Equivalence Classes: We would like to preserve equalities between Struct-variables from A. To this end, we group all variables in vars (\u0393 ) to equivalence classes according to their interpretation in A. Let \u2261 A denote an equivalence relation over vars (\u0393 ) such that x \u2261 A y iff x A = y A . We denote by [x] the equivalence class of x. Let \u03b1 be an equivalence class, thus \u03b1 A = x A | x \u2208 \u03b1 is a singleton. Identifying this singleton with its only element, we have that \u03b1 A denotes a A for an arbitrary element a of the equivalence class \u03b1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Step 3 -Ordering Equivalence Classes: We would also like to preserve disequalities between Struct-variables from A. Thus we introduce a relation \u227a over the equivalence classes, such that \u03b1 \u227a \u03b2 if y = c(w 1 , . . . , w n ) occurs as one of the conjuncts in \u0393 for some w 1 , . . . , w n and c such that w k \u2208 \u03b1 for some y \u2208 \u03b2, c \u2208 CO, and k. Call an equivalence class \u03b1 nullary if A |= is c (x) for some x \u2208 \u03b1 and nullary constructor c. Call an equivalence class \u03b1 minimal if \u03b2 \u227a \u03b1 for every \u03b2. Notice that each nullary equivalence class is minimal. The relation \u227a induces a directed acyclic graph (DAG), denoted G. The vertices are the equivalence classes. Whenever \u03b1 \u227a \u03b2, we draw an edge from vertex \u03b1 to \u03b2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Step 4 -Interpretation of Equivalence Classes: We define \u03b1 B for every equivalence class \u03b1. Then, x B is simply defined as [x] B , for every Struct-variable x. The idea goes as follows. Nullary classes are assigned according to A. Other minimal classes are assigned arbitrarily, but it is important to assign different classes to terms whose depths are far enough from each other to ensure that the disequalities in A are preserved. Non-minimal classes are uniquely determined after minimal ones are assigned. Formally, let m be the number of equivalence classes, l the number of minimal equivalence classes, r the number of nullary equivalence classes, and \u03b1 1 , . . . , \u03b1 m a topological sort of G, such that all minimal classes occur before all others, and the first r classes are nullary. Let d be the length of the longest path in G. We define \u03b1 B i by induction on i. In the definition, we use B Elem to denote the Elem-sorted set assigning \u03c3 B to every \u03c3 \u2208 Elem.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "1. If 0 < r and i \u2264 r then \u03b1 i is a nullary class and so we set \u03b1 B i = \u03b1 A i . 2. If r < i \u2264 l then \u03b1 i is minimal and not nullary. Let \u03c3 be the sort of variables in \u03b1 i . If \u03c3 \u2208 Elem, then all variables in the class have already been defined. Otherwise, \u03c3 \u2208 Struct. In this case, we define \u03b1 B i to be an arbitrary element of T \u03c3 (\u03a3 |CO , B Elem ) that has depth strictly greater than max depth(\u03b1 B j ) | 0 < j < i + d (here max \u2205 = 0).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "3. If i > l then we set \u03b1 B i = c(\u03b2 B 1 , . . . , \u03b2 B n ) for the unique equivalence classes \u03b2 1 , . . . , \u03b2 n \u2286 {\u03b1 1 , . . . , \u03b1 i\u22121 } and c such that y = c(x 1 , . . . , x n ) occurs in \u0393 for some y \u2208 \u03b1 i and x 1 \u2208 \u03b2 1 , . . . , x n \u2208 \u03b2 n .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Since \u03a3 is a datatypes signature in which all Struct-sorts are inductive, the second case of the definition is well-defined. Further, the topological sort ensures \u03b2 1 , . . . , \u03b2 n exist, and the partition to equivalence classes ensures that they are unique. Hence:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Step 5 -Interpretation of Selectors: Let s c,i \u2208 SE for c : (a 1 , . . . , a n ) for some a 1 \u2208 \u03c3 B 1 , . . . , a n \u2208 \u03c3 B n . We then set s B c,i (a) = a i . Otherwise, we consider two cases. If x B = a for some x \u2208 vars (\u0393 ) such that y = s c,i (x) occurs in \u0393 2 for some y, we set s B c,i (a) = y B . Otherwise, s B c,i (a) is set arbitrarily.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 60,
+                    "end": 68,
+                    "text": "(a 1 , .",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Example 6. Let \u0393 be the following \u03a3 list -formula:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "We have the following satisfying interpretation A: Now that B is defined, it is left to show that it is a finite witness of \u0393 for T \u03a3 w.r.t. Elem. By construction, \u03c3 B = vars \u03c3 (\u0393 ) B for every \u03c3 \u2208 Elem. B also preserves the equalities and disequalities in A, and by considering every shape of a literal in \u0393 we can prove that B |= \u0393 . Our interpretation of the selectors then ensures that:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "Lemma 6, together with the definition of the domains of B, gives us that B is a finite witness of \u0393 for T \u03a3 w.r.t. Elem, and so Lemma 4 is proven. As a corollary of Lemmas 1, 2 and 4, strong politeness is obtained.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 4 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals. Then, \u0393 = wtn i (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem."
+        },
+        {
+            "text": "If \u03a3 is a datatypes signature and all sorts in Struct \u03a3 are inductive, then T \u03a3 is strongly polite w.r.t. Elem \u03a3 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 2."
+        },
+        {
+            "text": "In this section, we assume that all sorts in Struct are finite.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Finite Datatypes"
+        },
+        {
+            "text": "For finite witnessability, we define the following witness, that guesses the construction of each Struct-variables until a fixpoint is reached. For every quantifier-free conjunction of flat \u03a3-literals \u03c6, define the sequence \u03c6 0 , \u03c6 1 , . . ., such that \u03c6 0 = \u03c6, and for every i \u2265 0, \u03c6 i+1 is obtained from \u03c6 i by conjuncting it with a disjunction c\u2208CO x = c(w c 1 , . . . , w c nc ) for fresh w c 1 , . . . , w c nc , where x is some arbitrary Struct-variable in \u03c6 i such that there is no literal of the form x = c(y 1 , . . . , y n ) in \u03c6 i for any constructor c and variables y 1 , . . . , y n , if such x exists. Since Struct only has finite sorts, this sequence becomes constant at some \u03c6 k .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Finite Datatypes"
+        },
+        {
+            "text": "Similarly to Sect. 4.1, we have:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 12 (A Witness for"
+        },
+        {
+            "text": "We now prove the following lemma:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 12 (A Witness for"
+        },
+        {
+            "text": "Then, wtn f (\u03c6) is finitely witnessed for T \u03a3 with respect to Elem.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 9 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals."
+        },
+        {
+            "text": "Suppose \u0393 = wtn f (\u03c6) is T \u03a3 -satisfiable, and let A be a satisfying T \u03a3interpretation. We define a T \u03a3 -interpretation B which is a finite witness of \u0393 for T \u03a3 w.r.t. Elem. We set \u03c3 B = vars \u03c3 (\u0393 ) A for every \u03c3 \u2208 Elem, e B = e A , for every variable e \u2208 vars Elem (\u0393 ) and x B = x A for every variable x \u2208 vars Struct (\u0393 ). Selectors are also interpreted as they are interpreted in A. This is well-defined: for any Struct-variable x, every element in \u03c3 A for \u03c3 \u2208 Elem that occurs in x A has a corresponding variable e in \u0393 such that e A is that element. This holds by the finiteness of the sorts in Struct and the definition of wtn f . Further, for any Struct-variable x such that s c,i (x) occurs in \u0393 , we must have that it occurs in some literal of the form y = s c,i (x) of \u0393 . Similarly to the above, all elements that occur in y A and x A have corresponding variables in \u0393 . Therefore, B |= \u0393 is a trivial consequence of A |= \u0393 . By the definition of its domains, B is a finite witness of \u0393 for T \u03a3 w.r.t. Elem, and so Lemma 9 is proven. Then, by Lemmas 1 7 and 9 , strong politeness is obtained.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 9 (Finite Witnessability). Let \u03c6 be a conjunction of flat literals."
+        },
+        {
+            "text": "If \u03a3 is a datatypes signature and all sorts in Struct \u03a3 are finite, then T \u03a3 is strongly polite w.r.t. Elem \u03a3 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3."
+        },
+        {
+            "text": "Now we consider the general case. Let \u03a3 be a datatypes signature. We prove that T \u03a3 is strongly polite w.r.t. Elem. We show that there are datatypes signatures \u03a3 1 , \u03a3 2 \u2286 \u03a3 such that T \u03a3 = T \u03a31 \u2295T \u03a32 , and then use Theorem 1. In \u03a3 1 , inductive sorts are excluded, while in \u03a3 2 , finite sorts are considered to be element sorts.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Combining Finite and Inductive Datatypes"
+        },
+        {
+            "text": "Formally, we set \u03a3 1 as follows: where Elem \u03a31 = Elem \u03a3 and Struct \u03a31 = Fin(\u03a3).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Combining Finite and Inductive Datatypes"
+        },
+        {
+            "text": "\u03c3 \u2208 Struct \u03a31 } and SE \u03a31 and P \u03a31 are the corresponding selectors and testers. Notice that if \u03c3 is finite and c : \u03c3 1 \u00d7 . . . \u00d7 \u03c3 n \u2192 \u03c3 is in CO \u03a3 , then \u03c3 i must be finite or in Elem \u03a3 for every 1 \u2264 i \u2264 n. Next, we set \u03a3 2 as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Combining Finite and Inductive Datatypes"
+        },
+        {
+            "text": "\u03c3 \u2208 Struct \u03a32 } and SE \u03a32 and P\u03a3 2 are the corresponding selectors and testers. Thus,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Combining Finite and Inductive Datatypes"
+        },
+        {
+            "text": "By Theorem 3, T 1 is strongly polite w.r.t. S 1 and by Theorem 2, T 2 is strongly polite w.r.t. S 2 . By Theorem 1 we have:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Combining Finite and Inductive Datatypes"
+        },
+        {
+            "text": "Remark 1. A concrete witness for T \u03a3 in the general case, that we call wtn \u03a3 , is obtained by first applying the witness from Definition 11 and then applying the witness from Definition 12 on the literals that involve finite sorts. A direct finite witnessability proof can be obtained by using the same arguments from the proofs of Lemmas 4 and 9. This witness is simpler than the one produced in the proof from [14] of Theorem 1, that involves purification and arrangements. In our case, we do not consider arrangements, but instead notice that the resulting function is additive, and hence ensures strong finite witnessability.",
+            "cite_spans": [
+                {
+                    "start": 412,
+                    "end": 416,
+                    "text": "[14]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Combining Finite and Inductive Datatypes"
+        },
+        {
+            "text": "In this section, we discuss the possible connections between the politeness of T \u03a3 and some axiomatizations of trees. We show how to get a reduction of any T \u03a3satisfiability problem into a satisfiability problem modulo an axiomatized theory of trees. The latter can be decided using syntactic unification.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Axiomatizations"
+        },
+        {
+            "text": "Let \u03a3 be a datatypes signature. The set TREE * \u03a3 of axioms is defined as the union of all the sets of axioms in Fig. 1 (d(X1, . . . , Xn) ) | c, d \u2208 CO, c = d} (Acyc) Remark 2. Along the lines of [1] , a superposition calculus can be applied to get a TREE \u03a3 -satisfiability procedure. Such a calculus has been used in [6, 9] for a theory of trees with selectors but no testers. To handle testers, one can use a classical encoding of predicates into first-order logic with equality, by representing an atom is c (x) as a flat equality Is c (x) = T where Is c is now a unary function symbol and T is a constant. Then, a superposition calculus dedicated to TREE \u03a3 can be obtained by extending the standard superposition calculus [1] with some expansion rules, one for each axiom of TREE \u03a3 [9] . For the axioms Is 1 and Is 2 , the corresponding expansion rules are respectively x = c(x 1 , . . . , x n )",
+            "cite_spans": [
+                {
+                    "start": 196,
+                    "end": 199,
+                    "text": "[1]",
+                    "ref_id": null
+                },
+                {
+                    "start": 318,
+                    "end": 321,
+                    "text": "[6,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 322,
+                    "end": 324,
+                    "text": "9]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 726,
+                    "end": 729,
+                    "text": "[1]",
+                    "ref_id": null
+                },
+                {
+                    "start": 786,
+                    "end": 789,
+                    "text": "[9]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 112,
+                    "end": 118,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 119,
+                    "end": 137,
+                    "text": "(d(X1, . . . , Xn)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Axiomatizations"
+        },
+        {
+            "text": "Further, consider the theory of finite trees defined from TREE \u03a3 by dismissing Proj , Is 1 and Is 2 . Being defined by Horn clauses, it is convex. Further, it is a Shostak theory [16, 18, 24] admitting a solver and a canonizer [9] . The solver is given by a syntactic unification algorithm [2] and the canonizer is the identity function. The satisfiability procedure built using the solver and the canonizer can be applied to decide TREE \u03a3 -satisfiability problems containing \u03a3 |CO -atoms.",
+            "cite_spans": [
+                {
+                    "start": 179,
+                    "end": 183,
+                    "text": "[16,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 184,
+                    "end": 187,
+                    "text": "18,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 188,
+                    "end": 191,
+                    "text": "24]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 227,
+                    "end": 230,
+                    "text": "[9]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 290,
+                    "end": 293,
+                    "text": "[2]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Axiomatizations"
+        },
+        {
+            "text": "The following result shows that any T \u03a3 -satisfiability problem can be reduced to a TREE \u03a3 -satisfiability problem. This leads to a T \u03a3 -satisfiability procedure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Axiomatizations"
+        },
+        {
+            "text": "Let \u03a3 be a finite datatypes signature and \u03d5 any conjunction of flat \u03a3-literals including an arrangement over the variables in \u03d5. Then, there exists a \u03a3-formula \u03d5 such that:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 3."
+        },
+        {
+            "text": "We conclude this section with a short discussion on the connection to Sect. 4. Both the current section and Sect. 4 rely on two constructions: (i) A formula transformation (wtn \u03a3 in Sect. 4, \u03d5 \u2192 \u03d5 in the current section); and (ii) A small model construction (finite witnessability in Sect. 4, equisatisfiability between T \u03a3 and TREE in Proposition 3). While these constructions are similar in both sections, they are not the same. A nice feature of the constructions of Sect. 4 is that they clearly separate between steps (i) and (ii). The witness is very simple, and amounts to adding to the input formula literals and disjunctions that trivially follow from the original formula in T \u03a3 . Then, the resulting formula is post-processed in step (ii), according to a given satisfying interpretation. Having a satisfying interpretation allows us to greatly simplify the formula, and the simplified formula is useful for the model construction. In contrast, the satisfying TREE \u03a3 -interpretation that we start with in step (ii) of the current section is not necessarily a T \u03a3 -interpretation, which makes the approach of Sect. 4 incompatible, compared to the syntactic unification approach that we employ here. For that, some of the post-processing steps of Sect. 4 are employed in step (i) itself, in order to eliminate all testers and as much selectors as possible. In addition, a pre-processing is applied in order to include an arrangement. The constructed interpretation finitely witnesses \u03d5 and so this technique can be used to produce an alternative proof of strong politeness.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 3."
+        },
+        {
+            "text": "In this paper we have studied the theory of algebraic datatypes, as it is defined by the SMT-LIB 2 standard. Our investigation included both finite and inductive datatypes. For this theory, we have proved that it is strongly polite, making it amenable for combination with other theories by the polite combination method. Our proofs used the notion of additive witnesses, also introduced in this paper. We concluded by extending existing axiomatizations and a decision procedure of trees to support this theory of datatypes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "There are several directions for further research that we plan to explore. First, we plan to continue to prove that more important theories are strongly polite, with an eye to recent extensions of the datatypes theory, namely datatypes with shared selectors [23] and co-datatypes [22] . Second, we envision to further investigate the possibility to prove politeness using superposition-based satisfiability procedures. Third, we plan to study extensions of the theory of datatypes corresponding to finite trees including function symbols with some equational properties such as associativity and commutativity to model data structures such as multisets [25] . We want to focus on the politeness of such extensions. Initial work in that direction has been done in [5] , that we plan to build on.",
+            "cite_spans": [
+                {
+                    "start": 258,
+                    "end": 262,
+                    "text": "[23]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 280,
+                    "end": 284,
+                    "text": "[22]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 653,
+                    "end": 657,
+                    "text": "[25]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 763,
+                    "end": 766,
+                    "text": "[5]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "\u03d5 is T \u03a3 -satisfiable iff \u03d5 is TREE \u03a3 -satisfiable",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Proposition 3 can be easily lifted to any conjunction of \u03a3-literals \u03d5 by flattening and then guessing all possible arrangements over the variables. Further, \u2203 \u2212 \u2192 w . \u03d5 and \u03d5 are not only T \u03a3 -equivalent but also TREE * \u03a3 -equivalent. As a consequence",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "New results on rewrite-based satisfiability procedures",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Armando",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Bonacina",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ranise",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Schulz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "ACM Trans. Comput. Log",
+            "volume": "10",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Unification theory",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Baader",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Snyder",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Narendran",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Schmidt-Schau\u00df",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "U"
+                    ],
+                    "last": "Schulz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Handbook of Automated Reasoning",
+            "volume": "",
+            "issn": "",
+            "pages": "445--532",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "The SMT-LIB Standard: Version 2.6. Technical report",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fontaine",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "An abstract decision procedure for a theory of inductive data types",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Barrett",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Shikanian",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "J. Satisfiability Boolean Model. Comput",
+            "volume": "3",
+            "issn": "1-2",
+            "pages": "21--46",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Satisfiability modulo free data structures combined with bridging functions",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Berthon",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ringeissen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of SMT@IJCAR 2016. CEUR Workshop Proceedings",
+            "volume": "1617",
+            "issn": "",
+            "pages": "71--80",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Rewrite-based satisfiability procedures for recursive data structures",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Bonacina",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Echenim",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Electron. Notes Theor. Comput. Sci",
+            "volume": "174",
+            "issn": "8",
+            "pages": "55--70",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Theory combination: beyond equality sharing",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Bonacina",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fontaine",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ringeissen",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Lutz",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Sattler",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "A.-Y",
+                    "middle": [],
+                    "last": "Turhan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Description Logic, Theory Combination, and All That",
+            "volume": "11560",
+            "issn": "",
+            "pages": "57--89",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-22102-7_3"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Many-sorted equivalence of shiny and strongly polite theories",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Casal",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rasga",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "J. Autom. Reasoning",
+            "volume": "60",
+            "issn": "2",
+            "pages": "221--236",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Politeness and combination methods for theories with bridging functions",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Chocron",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fontaine",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ringeissen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J. Autom. Reasoning",
+            "volume": "64",
+            "issn": "1",
+            "pages": "97--134",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "A Mathematical Introduction to Logic",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Enderton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Combinations of theories for decidable fragments of first-order logic",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fontaine",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "FroCoS 2009",
+            "volume": "5749",
+            "issn": "",
+            "pages": "263--278",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-04222-5_16"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Variant-based decidable satisfiability in initial algebras with predicates",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Guti\u00e9rrez",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Meseguer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "LOPSTR 2017",
+            "volume": "10855",
+            "issn": "",
+            "pages": "306--322",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-94460-9_18"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Deciding and interpolating algebraic data types by reduction",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Hojjat",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "R\u00fcmmer",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Jebelean",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Negru",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Petcu",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Zaharie",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Ida",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "19th International Symposium on Symbolic and Numeric Algorithms for Scientific Computing",
+            "volume": "",
+            "issn": "",
+            "pages": "145--152",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Polite theories revisited",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Jovanovi\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "LPAR 2010",
+            "volume": "6397",
+            "issn": "",
+            "pages": "402--416",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-16242-8_29"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Coming to terms with quantified reasoning",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kov\u00e1cs",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Robillard",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Voronkov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the 44th ACM SIGPLAN Symposium on Principles of Programming Languages",
+            "volume": "",
+            "issn": "",
+            "pages": "260--270",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Canonization for disjoint unions of theories",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Krstic",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Conchon",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Inf. Comput",
+            "volume": "199",
+            "issn": "1-2",
+            "pages": "87--106",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Combined satisfiability modulo parametric theories",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Krsti\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Goel",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Grundy",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "TACAS 2007",
+            "volume": "4424",
+            "issn": "",
+            "pages": "602--617",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-71209-1_47"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Combining decision procedures",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Manna",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Zarba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Formal Methods at the Crossroads. From Panacea to Foundational Support",
+            "volume": "2757",
+            "issn": "",
+            "pages": "381--422",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-40007-3_24"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Variant-based satisfiability in initial algebras",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Meseguer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Sci. Comput. Program",
+            "volume": "154",
+            "issn": "",
+            "pages": "3--41",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Simplification by cooperating decision procedures",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Nelson",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Oppen",
+                    "suffix": ""
+                }
+            ],
+            "year": 1979,
+            "venue": "ACM Trans. Program. Lang. Syst",
+            "volume": "1",
+            "issn": "2",
+            "pages": "245--257",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "combining data structures with nonstably infinite theories using many-sorted logic",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ranise",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ringeissen",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Zarba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "FroCoS 2005",
+            "volume": "3717",
+            "issn": "",
+            "pages": "48--64",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11559306_3"
+                ]
+            }
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "A decision procedure for (co)datatypes in SMT solvers",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Reynolds",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Blanchette",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "J. Autom. Reasoning",
+            "volume": "58",
+            "issn": "3",
+            "pages": "341--362",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Datatypes with shared selectors",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Reynolds",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Viswanathan",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Barbosa",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IJCAR 2018",
+            "volume": "10900",
+            "issn": "",
+            "pages": "591--608",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-94205-6_39"
+                ]
+            }
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "A practical decision procedure for arithmetic with function symbols",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Shostak",
+                    "suffix": ""
+                }
+            ],
+            "year": 1979,
+            "venue": "J. ACM",
+            "volume": "26",
+            "issn": "2",
+            "pages": "351--360",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Locality results for certain extensions of theories with bridging functions",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Sofronie-Stokkermans",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "CADE 2009",
+            "volume": "5663",
+            "issn": "",
+            "pages": "67--83",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-02959-2_5"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Combining decision procedures for sorted theories",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Zarba",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "JELIA 2004",
+            "volume": "3229",
+            "issn": "",
+            "pages": "641--653",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Combining nonstably infinite theories",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Zarba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "J. Autom. Reasoning",
+            "volume": "34",
+            "issn": "3",
+            "pages": "209--238",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Let \u03a3 be a signature with two sorts, elem and struct, and whose function symbols are b of arity struct, and c of arity (elem \u00d7 struct \u00d7 struct) \u2192 struct. Consider the {elem}-sorted set A = {a}. For the elem sort, T elem (\u03a3, A) is the singleton A = {a} and the \u03a3-tree a is of depth 0. For the struct sort, T struct (\u03a3, A) includes infinitely many \u03a3-trees, such as b of depth 1, c(a, b, b) of depth 2, and c(a",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The signature \u03a3 list has two sorts, elem and list. Its function symbols are cons of arity (elem \u00d7 list) \u2192 list, nil of arity list, car of arity list \u2192 elem and cdr of arity list \u2192 list. Its predicate symbols are is nil and is cons , both of arity list. It is a datatypes signature, with Elem = {elem}, Struct = {list}, CO = {nil, cons} and SE = {car, cdr}. It is often used to model lisp-style linked lists. car represents the head of the list and cdr represents its tail. nil represents the empty list. \u03a3 list is well-founded as T list (\u03a3 list |CO , [[Elem]]) includes nil. The signature \u03a3 pair also has two sorts, elem and pair. Its function symbols are pair of arity (elem \u00d7 elem) \u2192 pair and first and second of arity pair \u2192 elem. Its predicate symbol is is pair of arity pair. It is a datatypes signature, with Elem = {elem}, Struct = {pair}, CO = {pair}, and SE = {first, second}. It can be used to model ordered pairs, together with projection functions. It is wellfounded as T pair (\u03a3 pair |CO , [[Elem]]) is not empty (as [[Elem]] is not empty).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Let \u03c6 be a conjunction of flat literals. \u03c6 and \u2203 \u2212 \u2192 w . \u0393 are T \u03a3equivalent, where \u0393 = wtn i (\u03c6) and \u2212 \u2192 w = vars (\u0393 ) \\ vars (\u03c6).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "4]. The construction above yields the following interpretationB: elem B = {1, 2}, e 1 B = 1, e 2 B = 2.For list-variables, we proceed as follows. The equivalence classes of list-variables are [x 1 ], [x 2 ], [x 3 ], [x 4 ], with [x 2 ] \u227a [x 1 ] and [x 4 ] \u227a [x 3 ].The length of the longest path in G is 1. Assuming [x 2 ] comes before [x 4 ] in the topological sort, x B 2 will get an arbitrary list over {1, 2} with length greater than 1 (the depth of e B 2 plus the length of the longest path), say, [1, 1, 1]. x B 4 will then get an arbitrary list of length greater than 4 (the depth of x B 2 plus the length of the longest path). Thus we could have x B",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Axioms for TREE \u03a3 and TREE * \u03a3 Proposition 2. Every TREE * \u03a3 -unsatisfiable formula is T \u03a3 -unsatisfiable.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "g., when writing [[Elem]] rather than [[Elem \u03a3 ]], CO rather than CO \u03a3 ) whenever \u03a3 is clear from the context. Notice that Definition 2 remains equivalent if we replace [[Elem]] by any (non-empty) Elem-sorted set A. The set [[Elem]] has been chosen since this minimal Elem-sorted set is sufficient.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "). The theory T is (strongly) finitely witnessable w.r.t. S if there exists a (strong) witness for T w.r.t. S which is computable. Definition 9 (Polite). T is called (strongly) polite w.r.t. S if it is smooth and (strongly) finitely witnessable w.r.t. S.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "(where upper case letters denote implicitly universally quantified variables). Let TREE \u03a3 be the set obtained from TREE * \u03a3 by dismissing Ext 1 and Ext 2 . Note that because of Acyc, we have that TREE \u03a3 is infinite (that is, consists of infinitely many axioms) unless all sorts in Struct are finite. TREE \u03a3 is a generalization of the theory of Absolutely Free Data Structures (AFDS) from [9] to many-sorted signatures with selectors and testers. In what follows we identify TREE \u03a3 (and TREE * \u03a3 ) with the class of structures that satisfy them when there is no ambiguity. X1, . . . , Xn) = c(Y1, . . . , Yn) i=1 Xi = Yi | c \u2208 CO} (Dis) {c(X1, . . . , Xn) = d(Y1, . . . , Ym) | c, d \u2208 CO, c = d} (Proj ) {sc,i(c(X1, . . . , Xn)) = Xi | c \u2208 CO, i \u2208 [1, n]} (Is1) {isc(c(X1, . . . , Xn)) | c \u2208 CO} (Is2) {\u00acisc",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We are thankful to the anonymous reviewers for their comments.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgments."
+        }
+    ]
+}

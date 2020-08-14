@@ -1,0 +1,1007 @@
+{
+    "paper_id": "1ad917049674d271404a6fa30f0fa939a652663b",
+    "metadata": {
+        "title": "PCA Based Kernel Initialization for Convolutional Neural Networks",
+        "authors": [
+            {
+                "first": "Yifeng",
+                "middle": [],
+                "last": "Wang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "China Three Gorges Corporation",
+                    "location": {
+                        "postCode": "100038",
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": "wangyifeng1@ctg.com.cn"
+            },
+            {
+                "first": "Yuxi",
+                "middle": [],
+                "last": "Rong",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "China Three Gorges Corporation",
+                    "location": {
+                        "postCode": "100038",
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": "rongyuxi@ctg.com.cn"
+            },
+            {
+                "first": "Hongyue",
+                "middle": [],
+                "last": "Pan",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "China Three Gorges Corporation",
+                    "location": {
+                        "postCode": "100038",
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": "panhongyue@ctg.com.cn"
+            },
+            {
+                "first": "Ke",
+                "middle": [],
+                "last": "Liu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "China Three Gorges Corporation",
+                    "location": {
+                        "postCode": "100038",
+                        "settlement": "Beijing",
+                        "country": "China"
+                    }
+                },
+                "email": "liuke1@ctg.com.cn"
+            },
+            {
+                "first": "Yang",
+                "middle": [],
+                "last": "Hu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Hangzhou HuaNeng Engineering Safety Technology Co., Ltd",
+                    "institution": "",
+                    "location": {
+                        "postCode": "311121",
+                        "settlement": "Hangzhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Fangmin",
+                "middle": [],
+                "last": "Wu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Hangzhou HuaNeng Engineering Safety Technology Co., Ltd",
+                    "institution": "",
+                    "location": {
+                        "postCode": "311121",
+                        "settlement": "Hangzhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Wei",
+                "middle": [],
+                "last": "Peng",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Hangzhou HuaNeng Engineering Safety Technology Co., Ltd",
+                    "institution": "",
+                    "location": {
+                        "postCode": "311121",
+                        "settlement": "Hangzhou",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Xingsi",
+                "middle": [],
+                "last": "Xue",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Fujian Key Lab for Automotive Electronics and Electric Drive",
+                    "institution": "Fujian University of Technology",
+                    "location": {
+                        "postCode": "350118",
+                        "settlement": "Fuzhou, Fujian",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Junfeng",
+                "middle": [],
+                "last": "Chen",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Hohai University",
+                    "location": {
+                        "postCode": "213022",
+                        "settlement": "Changzhou, Jiangsu",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The initialization of Convolutional Neural Networks (CNNs) is about providing reasonable initial values for the convolution kernels and the fully connected layers. In this paper, we proposed a convolution kernel initialization method based on the two-dimensional principal component analysis (2DPCA), in which a parametric equalization normalization method is used to adjust the scale between each neuron weight. After that the weight initial value can be adaptively adjusted according to different data samples. This method enables each neuron to fully back-propagate errors and accelerate network model training. Finally, a network model was built and experiments were performed using T anh and ReLU activation functions. The experimental results verify the effectiveness of the proposed method through the distribution of histograms and the curve comparison diagrams of model training.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The Convolutional Neural Networks (CNNs) [2] , as representative deep learning models, have a remarkable ability to extract features directly from the original images and recognize the rules of these visual images with minimal preprocessing. The most common form of the CNNs architecture stacks a number of convolutional and pooling layers optionally followed by fully connected layers. Most notable among these is the convolution kernel which is a small trainable matrix used for features detection. The initialization of CNNs is about providing reasonable initial values for the convolution kernels and the fully connected layers.",
+            "cite_spans": [
+                {
+                    "start": 41,
+                    "end": 44,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The kernel initialization of the CNNs is an issue worthy of discussion. For simple Neural Networks (NN), random initialization would be a good choice. G. Thimm and E. Fiesler designed experiments to test the random weight initialization methods on the multilayer perceptron and the high order networks [8] . He et al. found that the rectifying activation unit is very important for the neural network, and proposed a Parametric Rectified Linear Unit (PReLU) to generalize the traditional rectified units. It is well to be reminded that they derived a robust initialization method, particularly considering the rectifier nonlinearities [1] . Sun et al. proposed Multi-layer Maxout Networks (MMN) with multi-layer which can train active function, and deduced a new initialization method dedicated to the activation of MMN. The method can reduce the movement of internal covariates when the signal propagates through the layer [6] . A. Pacheco determined the input weights and bias for the Extreme Learning Machine (ELM) by using the Restricted Boltzmann Machine (RBM), named as RBM-ELM [4] . Similarly, Zhang and Ji also constructed a RBM model to pre-train convolution kernels. The trained weight matrix is transformed to initialize the convolution kernel parameters of the CNNs [11] . Liu et al. proposed an image extraction algorithm by mixing the AutoEncoder and the CNNs. They utilized the AutoEncoder to train the basic elements of image and initialized the convolution kernel of the CNNs [3] . Yang et al. used sparse coding to extract the convolution kernel for initialization, which can shorten the training time and raise the recognition rate [9] . In target super resolution, Li et al. proposed a Multi-channel Convolution image Super-Resolution (MCSR) algorithm, which used a residual CNN based on sparse coding and an MSRA initialization method to accelerate model training the convergence [10] . M. S. Seyfioglu compared two NN initialization methods, unsupervised pre-training and transfer-learning, in training the deep NN on small data sets [5] . Tang et al. employed k-means unsupervised feature learning as the pre-training process, instead of the traditional random initialization weights [7] . So far, there are no unified understanding and development methods for the initialization problem of the CNNs. Moreover, the current initialization methods gave no considerations to the sample information and cannot automatically adapt to variation of the samples. In this paper, we attempt to employ the Principal Component Analysis (PCA) into kernel initialization and propose a parametric equalization normalization to adjust the scale among the neuron weights.",
+            "cite_spans": [
+                {
+                    "start": 302,
+                    "end": 305,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 308,
+                    "end": 317,
+                    "text": "He et al.",
+                    "ref_id": null
+                },
+                {
+                    "start": 635,
+                    "end": 638,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 641,
+                    "end": 660,
+                    "text": "Sun et al. proposed",
+                    "ref_id": null
+                },
+                {
+                    "start": 924,
+                    "end": 927,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1084,
+                    "end": 1087,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1278,
+                    "end": 1282,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1285,
+                    "end": 1304,
+                    "text": "Liu et al. proposed",
+                    "ref_id": null
+                },
+                {
+                    "start": 1493,
+                    "end": 1496,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1651,
+                    "end": 1654,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1901,
+                    "end": 1905,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 2056,
+                    "end": 2059,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 2207,
+                    "end": 2210,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The rest of the article is organized as follows. Section 2 reviews the methods of the convolution kernel initialization. Section 3 proposed the PCA-based convolution kernel initialization with balanced normalization. Section 4 presents the experimental configuration and results; finally, the conclusions are presented in Sect. 5.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "There are mainly three initialization methods: random initialization, Xavier initialization and MSRA Initialization.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Convolution Kernel Initialization"
+        },
+        {
+            "text": "The random initialization method generally refers to the normal distribution randomization method. It defines a random variable x, which obeys a probability distribution f (x) with mean \u03bc and standard deviation \u03c3. We have the following probability density function.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Random Initialization"
+        },
+        {
+            "text": "The random variable distribution obeys the normal distribution, referred to as f (x) \u223c N \u03bc, \u03c3 2 are set as different values. The mean \u03bc affects the symmetry center of the curve, and the standard deviation \u03c3 influences the smoothness of the curve. The larger the \u03bc is, the smoother the curve will be. The random initialization method initializes each parameter of the convolution kernel according to the Gaussian probability distribution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Random Initialization"
+        },
+        {
+            "text": "Xavier Glorot et al. [12] proposed the Xavier initialization method whose core idea is to keep the variance of input and output consistent and prevent all output values from going to 0. The literature derivation gives the specific form of Xavier initialization:",
+            "cite_spans": [
+                {
+                    "start": 21,
+                    "end": 25,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Xavier Initialization"
+        },
+        {
+            "text": "where n j is the total number of input neurons for each feature map of the layer, and n j+1 is the total number of output neurons. The U denotes a uniform distribution within this range. Each weight parameter is randomly initialized to random value which obeys this uniformly distribution. The parameters of the method only depend on the number of input and output neurons, do not need to manually set parameters, and are completely adaptive to the size of the network model itself, and are more stable and easy to use than the random initialization method.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Xavier Initialization"
+        },
+        {
+            "text": "The MSRA initialization method is an improved method for Xavier. It is particularly applicable to the most popular Relu function. Its specific form is shown in (3) . It is a normal distribution with a mean 0 and a variance 2/n.",
+            "cite_spans": [
+                {
+                    "start": 160,
+                    "end": 163,
+                    "text": "(3)",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "MSRA Initialization"
+        },
+        {
+            "text": "where n is the number of inputs to the layer, and G denotes that obeys a normal distribution. The parameters of this method are only dependent on the number of neurons of one input, less than the two parameters of Xavier, and are particularly suitable for Relu functions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "MSRA Initialization"
+        },
+        {
+            "text": "In this section, we employ the Two-Dimensional Principal Component Analysis (2DPCA) to extract the feature vectors of the image and introduce an equalization normalization method to adjust the scale of the weight between layers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PCA-Based Convolution Kernel Initialization with Balanced Normalization"
+        },
+        {
+            "text": "Suppose there is an image sample set X = {X 1 , X 2 , \u00b7 \u00b7 \u00b7 , X N }, the number of sample sets is N , and the dimension is m \u00d7 n. Projecting images in both row and column directions, so that the variance remaining in the subspace is the largest. The fact that 2DPCA uses orthogonal transformation to eliminate the correlation between the original vectors should be paid attention too. The two principal components obtained are linearly independent. Therefore, the principal component may represent higher information than the original data. The specific 2DPCA calculation steps are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Two-Dimensional Principal Component Analysis"
+        },
+        {
+            "text": "(1) Calculate the average of all image samples:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Two-Dimensional Principal Component Analysis"
+        },
+        {
+            "text": "(3) The eigenvalue decomposition of the covariance matrix G t is performed by using the Jacobian method to obtain the corresponding eigenvalue \u03bb 1 , \u03bb 2 , \u00b7 \u00b7 \u00b7 , \u03bb d and the eigenvector corresponding to each eigenvalue. The eigenvector corresponding to the largest k eigenvalues is selected to compose the projection matrix U = [u 1 , u 2 , \u00b7 \u00b7 \u00b7 , u k ] \u2208 R n\u00d7k ; (4) Do feature extraction to every sample data by column:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Two-Dimensional Principal Component Analysis"
+        },
+        {
+            "text": "what is obtained is the feature of X j . The original two-dimensional m \u00d7 n size image is now reduced to m \u00d7 k, that is, the number of bits of the matrix column vectoris compressed after the feature extraction, and the number of row is not changed; (5) After the above process, a new sample F j , j = 1, 2, \u00b7 \u00b7 \u00b7 , N is obtained. On the new sample, repeat step (1) (2) construct a new covariance matrix G * t :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Two-Dimensional Principal Component Analysis"
+        },
+        {
+            "text": "Similarly, repeat step (3) to take the feature vector corresponding to the largest d eigenvalues to obtain the projection matrix in the row direction",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Two-Dimensional Principal Component Analysis"
+        },
+        {
+            "text": "Since the variance of each principal component is gradually reduced, the key information included is also decremented. So generally, the contribution rate can indicate the amount of information occupied by a principal component. Specifically, it refers to the proportion of the cumulative value of the total variance of a principal component, also, the proportion of the sum of a feature value to the sum of all feature values, which is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Two-Dimensional Principal Component Analysis"
+        },
+        {
+            "text": "The 2DPCA method is used to initialize each convolution kernel in the network. The initialization is based on training sample data. The size of the convolution kernel is R k \u00d7 R k . The size of the input map for each layer is set to",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "2DPCA Initialization"
+        },
+        {
+            "text": "There are a total of D k maps. The process is as follows.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "2DPCA Initialization"
+        },
+        {
+            "text": "(1) Manually select one picture for each category from all the data. That is, a total of n pictures can be selected. Each picture can correspond to a category of its own. (2) Count the number of neurons input and output for each convolutional layer, and use the Xavier initialization method to initialize all the parameter weights W k,i,j for each convolutional layer in turn. The W k,i,j denotes the weight of the j-th window of the i-th convolution kernel in the k-th layer, and all offsets are initialized to 0. (3) Do forward-propagating to each picture, and obtain the corresponding fea-",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "2DPCA Initialization"
+        },
+        {
+            "text": ", which denotes the i-th feature map of the k-th layer of the z-th picture. The size r k of the feature map obtained between different layers is different. The inputting size of picture of each layer is C k \u2212 R k + 1. (4) Combine the feature maps of the same location corresponding to different pictures into a set P k,i , which indicates the i-th feature map of the k-th layer, and sample the R k \u00d7 R k window size of all the graphs in the set to obtain the image set P k,i . And the number of sampling result in P k,i is n \u00d7 (r k \u2212 R k + 1) \u00d7 (r k \u2212 R k + 1). (5) Calculating all the images in the set P k,j according to the 2DPCA steps in 3.3.1, then obtain the corresponding projection matrix U k,j , V k,j \u2208 R R k \u00d7R k , which correspond to the two columns and rows, and the feature value sets \u03bb u and \u03bb v corresponding to each feature vector. (6) After arbitrarily adding the eigenvalues in \u03bb u and \u03bb v get a new set \u03bb * , take the largest D k values before. Every value corresponds to the two eigenvectors \u03be a u and \u03be b v respectively. Calculating \u03be b v * \u03be aT u in turn yields a set of evaluation matrices M = {M 1 , M 2 , \u00b7 \u00b7 \u00b7 M T }, where the maximum value of T is R 2 k . Then the initialize the convolution kernel in turn.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "2DPCA Initialization"
+        },
+        {
+            "text": "For an N -layer convolutional neural network, the loss function is defined as (z N ). We usually want the gradient of the weight W k (i, j) of the k-th layer to satisfy the following form:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Parametric Equalization Normalization"
+        },
+        {
+            "text": "where D is the set of input images and y k = \u2202 \u2202z k (z N ) is the backpropagation error. A similar formula can also be applied to offset b k , except that the coefficient becomes constant 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Parametric Equalization Normalization"
+        },
+        {
+            "text": "In order to make all parameters be able to learn at the same speed, we need to scale (5) proportionally, hoping to be a constant for all weights:",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 88,
+                    "text": "(5)",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Parametric Equalization Normalization"
+        },
+        {
+            "text": "Among them, W k 2 2 represents the 2-norm square of matrix W k , but due to the effect of nonlinear activation function, this condition is difficult to control and guarantee, and the change of weight will directly affect the final output value y k . We therefore need to simplify (6) so that each convolution kernel in the same layer W k satisfies about a constant, rather than strictly for all weights:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Parametric Equalization Normalization"
+        },
+        {
+            "text": "where N is the number of rows of the weight matrix. This formula makes all the values in the same weight matrix have the same trend. At the same time, we can note that for the input in the layer has little effect on the gradient in the entire network. It can be seen that z k\u22121 (j) and y k are independent of each other, so we can further simplify the objective function:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Parametric Equalization Normalization"
+        },
+        {
+            "text": "The method taking the approximate value is convenient to adjust the change rate of the weight of each layer.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Parametric Equalization Normalization"
+        },
+        {
+            "text": "For the sake of clarity, the pseudocode of the intra-layer equalization normalization is shown in Algorithm 1. For all hidden layers k \u2208 {1, 2, \u00b7 \u00b7 \u00b7 , N} in the network, we calculate the mean and standard deviation of all output values, and make all the output values satisfy the unit mean \u03b2 and unit variance, that is, calculate the average value\u03bc k (i) and the variance value\u03c3 k (i) 2 of the output value of each channel z k (i) first, and then the weights W k and offsets b k are divided by the coefficients respectively to make adjustment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intra-layer Equalization Normalization."
+        },
+        {
+            "text": "Inter-layer Equalization Normalization. The parameter adjustment method in Intra-layer Equalization Normalization makes the output of each layer satisfy a variance of 1, and for all the rate of change C 2 k,i in W k is a constant. However, it does not guarantee the rate of change between layers. Here we use an iterative method to make the rate of change C 2 k,i between all layers be a constant. The pseudo-code of crossover operator is shown in Algorithm 2.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intra-layer Equalization Normalization."
+        },
+        {
+            "text": "Input: the number of layers N Output: the weights W k and offsets b k 1: Randomly initializes weights W k 2: Set all the offsets as b k =0 3: Select a part of the sample data z0 \u2208 D \u2282 D from the training data set; 4: for all z0 \u2208 D do 5:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 1 Intra-layer Equalization Normalization"
+        },
+        {
+            "text": "Obtain the output of each layer, calculate the mean\u03bc k (i) and variance\u03c3 2 k (i) of each channel of the output; 6:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 1 Intra-layer Equalization Normalization"
+        },
+        {
+            "text": "Update the scale of the weight W k (i, :) based on Equation (9) 7:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 1 Intra-layer Equalization Normalization"
+        },
+        {
+            "text": "Update the value of offset b k (i) based on Equation (10) 8: end for 9: return W k , b k",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 1 Intra-layer Equalization Normalization"
+        },
+        {
+            "text": "Input: the number of layers N Output: the weights W k and offsets b k 1: Randomly initializes weights W k 2: Set all the offsets as b k =0 3: Select a part of the sample data z0 \u2208 D \u2282 D from the training data set; 4: for all N layers do 5:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 2. Inter-layer Equalization Normalization"
+        },
+        {
+            "text": "Calculate the ratio C k = Ej C k,j for each layer;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 2. Inter-layer Equalization Normalization"
+        },
+        {
+            "text": "6: Calculate a scale change coefficient r k =C C k \u03b1/2 , \u03b1 is an attenuation factor;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 2. Inter-layer Equalization Normalization"
+        },
+        {
+            "text": "Update the weight and offset of each layer: W k \u2190 r k W k and b k \u2190 r k b k \u00a3 8: end for 9: return W k , b k",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "7:"
+        },
+        {
+            "text": "Assume that there are a total of n categories of picture data to be trained, the size of the convolution kernel of each convolution layer k is R k \u00d7 R k , the number of convolution kernels per layer is p i , and N is the number of convolutional layers which determined by the model:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Convolution Kernel Initialization Procedure Based on 2DPCA and Equalization Normalization"
+        },
+        {
+            "text": "(1) Get the evaluation matrix set M according to the 2DPCA initialization process in Sect. 3.2; (2) If the number of sets M is greater than or equal to the number of convolution kernels p k , initialize all the p k convolution kernels by taking the matrix corresponding to the previous p k eigenvalue according to the value size \u03bb * ; If the number of feature vectors d k is less than the number of convolution kernels p k , initialize the first d k convolution kernels with all the assignment matrices, and the remaining uninitialized convolution kernel roulette algorithm randomly selects the assignment matrix into the weight matrix W k of the current convolution layer;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Convolution Kernel Initialization Procedure Based on 2DPCA and Equalization Normalization"
+        },
+        {
+            "text": "(3) Using Algorithm 1, each convolutional layer is calculated separately, and calculate the mean\u03bc k and variance\u03c3 2 k of p k convolution kernels within each layer; (4) Using Algorithm 2, the entire set of weight matrixes are firstly extracted in the entire network model. The dimensions of each weight are different. The number of columns and rows in the matrix are the size and the number of the k-th layer convolution kernel, respectively. Then the iterative operation of the weight adjustment is performed: The above operations are iterated until the weight adjustment approaches convergence, and a new set of weight matrices {W 1 , W 2 , \u00b7 \u00b7 \u00b7 , W N } is obtained and assigned (approximately 10 iterations).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Convolution Kernel Initialization Procedure Based on 2DPCA and Equalization Normalization"
+        },
+        {
+            "text": "The experiment of this article is trained on Alibaba Cloud Server. The CPU model is Intel Xeon Platinum 8163 (dual core). The processor is clocked at 2.5 GHz. It uses only the CPU for training. The operating system is Windows server 2012R, and the memory size is 8 GB. The programming language is c/c++.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments and Results"
+        },
+        {
+            "text": "The output values of six hidden layers are counted in turn. The activation function uses the T anh and Relu functions to draw the distribution histograms of the output values. Their histograms respectively as shown in Fig. 1 and Fig. 2 , respectively. From Fig. 1 and Fig. 2 , it is relatively reasonable for the distribution of each layer of the two models. The distribution of the output values of each layer is not much different, and the parameters of back propagation adjustment are all better, which makes the model easier to training. At the same time, since the algorithm is based on the specific training sample data after the principal component analysis is performed for initialization, the initial value of the convolution kernel is more suitable for this sample data, and there will be a good starting point for the optimization of such nonconvex functions. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 218,
+                    "end": 224,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 229,
+                    "end": 235,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 257,
+                    "end": 263,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 268,
+                    "end": 274,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Histogram Analysis"
+        },
+        {
+            "text": "In order to verify the performance of the initialization algorithm proposed in this chapter, the algorithm was applied to the classical hand-written digital data set MNIST for verification. Relu and T anh were used as activation functions to calculate the accuracy rate after each training. The experimental results were compared with other classical Gaussian random initialization, Xavier initialization, and MSRA initialization methods to detect the rate of increase in recognition rate. Draw a graph of the accuracy rate of the training process.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Comparison"
+        },
+        {
+            "text": "The experiment adopts the classical Lenet-5 convolutional neural network model. The model consists of two convolutional layers and two alternating pooling layers, finally connects to a fully connected layer. Among them, the convolution kernel size is 5 \u00d7 5, the step length is 1, the pooling window size is 2 \u00d7 2, and the step size is also 2. That is, using the non-overlapping pooling and the pooling method is the maximum pooling. Whats more, the dropout regularization mechanism is added in the full connection layer to enhance the generalization ability of the network. The batch size is 1, that is, every time an image is passed in, it will adjust weight values by back-propagating and calculate the error. In order to make comparison images more clearly and avoid the interference caused by the curve crossover, calculate the overall accuracy rate after every 10 training charts, that is, the accuracy rate equels the correct number of identification pictures/the number of trained pictures. The total number of iterations is 400, that is, the curve obtained by training 4000 images. Each algorithm counts 5 times and takes the average value.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Comparison"
+        },
+        {
+            "text": "When the activation function takes Relu, the comparison curve of the accuracy during the training of the three different initialization methods is shown in Fig. 3 . This experiment mainly contrasts the rising rate of recognition rate during training, that is, the convergence speed of the network model. From this experimental comparison chart, it can be seen that the accuracy of the four initialization methods rises as the training progresses. The recognition rate of the 2DPCA initialization method proposed in this paper rises fastest in the early stage, and it can reach the accuracy rate of 0.3 at the beginning of the training. However, the accuracy of the other methods is only 0.1 at the beginning. And for the 10 classification problem, the probability of random selection is 0.1. It can be seen that since the 2DPCA initialization is based on the actual data image initialization, a weight value suitable for the sample data can be initialized directly, and the optimization is started from a good starting point, and the accuracy rate is increased faster. And the other three methods are not based on sample data. The MSRA initialization effect is relatively good, it proves that it is indeed suitable for Relu activation function (Fig. 4) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 156,
+                    "end": 162,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1244,
+                    "end": 1252,
+                    "text": "(Fig. 4)",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Model Comparison"
+        },
+        {
+            "text": "It can be seen from this experiment that MSRA and Xavier have similar effects, when Tanh is used as an activation function. Since MSRA is not particularly suitable for T anh functions, the effect is lower than Relu as an activation function, and the Xavier effect on the Tanh function is slightly higher than the MSRA initialization. Among them, the effect of 2DPCA initialized based on the sample data is still the best, and the accuracy rate of the initial period is the fastest. It can be seen that the 2DPCA initialization method both has a good effect in the Relu activation function and the Tanh activation function, and is not limited by the type of the specific activation function.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Comparison"
+        },
+        {
+            "text": "This paper studies the initialization method of convolutional neural network, statistics the output value of each layer under different initialization methods and draws a histogram, and analyzes the distribution of output values from the histogram. 2DPCA-based convolution kernel initialization method is proposed for the problem of its distribution. 2DPCA is used to extract key features from the sample data and initialize the convolution kernel, and an equalization normalization method is introduced to adjust the size of the weights between the layers. The method does not need to manually set hyper-parameters, avoids random values, and does not have limitations on the types of activation functions. The parameters are completely determined according to the characteristics of specific training sample data. Finally, the histogram distribution and the curve comparison diagram of the model training show that the proposed method can effectively avoid the uncertainty caused by initializing the weights and accelerate the training speed of the entire model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Delving deep into rectifiers: surpassing humanlevel performance on imagenet classification",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ren",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of the IEEE International Conference on Computer Vision",
+            "volume": "",
+            "issn": "",
+            "pages": "1026--1034",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Imagenet classification with deep convolutional neural networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Krizhevsky",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Sutskever",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hinton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "1097--1105",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Novel image feature extraction algorithm based on fusion autoencoder and CNN",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Appl. Res. Comput",
+            "volume": "34",
+            "issn": "12",
+            "pages": "3839--3843",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Restricted boltzmann machine to determine the input weights for extreme learning machines",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Pacheco",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Krohling",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Da Silva",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Expert Syst. Appl",
+            "volume": "96",
+            "issn": "",
+            "pages": "77--85",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Deep neural network initialization methods for micro-doppler classification with low training sample support",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Seyfioglu",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "Z"
+                    ],
+                    "last": "G\u00fcrb\u00fcz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "IEEE Geosci. Remote Sens. Lett",
+            "volume": "14",
+            "issn": "12",
+            "pages": "2462--2466",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Improving deep neural networks with multi-layer maxout networks and a novel initialization method",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Su",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Neurocomputing",
+            "volume": "278",
+            "issn": "",
+            "pages": "34--40",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Weed identification based on k-means feature learning combined with convolutional neural network",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Tang",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Xin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Comput. Electron. Agric",
+            "volume": "135",
+            "issn": "",
+            "pages": "63--70",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Neural network initialization",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Thimm",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Fiesler",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "IWANN 1995",
+            "volume": "930",
+            "issn": "",
+            "pages": "535--542",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-59497-3_220"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Convolutional neural networks based on sparse coding for human postures recognition",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "AOPC 2017: Optical Sensing and Imaging Technology and Applications",
+            "volume": "10462",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Image super-resolution using multi-channel convolution",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yunfei",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Randi",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wei",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Nian",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "J. Image Graphics",
+            "volume": "22",
+            "issn": "12",
+            "pages": "1690--1700",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Classification method of FMRI data based on convolutional neural network. Pattern Recog",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ji",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Artif. Intell",
+            "volume": "30",
+            "issn": "6",
+            "pages": "549--558",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Understanding the difficulty of training deep feedforward neural networks",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Glorot",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Bengio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Proceedings of the Thirteenth International Conference on Artificial Intelligence and Statistics",
+            "volume": "",
+            "issn": "",
+            "pages": "249--256",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Traverse all N weight matrices and calculate C k for each layer; (4.2) Calculate the global average ratioC; (4.3) Then calculate the scale factor r k ; (4.4) Adjust the weight W k and bias b k .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The output distribution histogram with T anh activation function.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The output distribution histogram with Relu activation function.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The accuracy curves of different initialization methods with Relu activation function.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "The accuracy curves of different initialization methods with T anh activation function.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

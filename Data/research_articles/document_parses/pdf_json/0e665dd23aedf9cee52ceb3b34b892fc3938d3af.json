@@ -1,0 +1,476 @@
+{
+    "paper_id": "0e665dd23aedf9cee52ceb3b34b892fc3938d3af",
+    "metadata": {
+        "title": "M3D-CAM: A PYTORCH LIBRARY TO GENERATE 3D ATTENTION MAPS FOR MEDICAL DEEP LEARNING A PREPRINT",
+        "authors": [
+            {
+                "first": "Karol",
+                "middle": [],
+                "last": "Gotkowski",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Radiologie Universit\u00e4tsklinikum",
+                    "location": {
+                        "settlement": "Frankfurt"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Camila",
+                "middle": [],
+                "last": "Gonzalez",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Radiologie Universit\u00e4tsklinikum",
+                    "location": {
+                        "settlement": "Frankfurt"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Andreas",
+                "middle": [],
+                "last": "Bucher",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Radiologie Universit\u00e4tsklinikum",
+                    "location": {
+                        "settlement": "Frankfurt"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Anirban",
+                "middle": [],
+                "last": "Mukhopadhyay",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Radiologie Universit\u00e4tsklinikum",
+                    "location": {
+                        "settlement": "Frankfurt"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "M3d-CAM is an easy to use library for generating attention maps of CNN-based Pytorch models improving the interpretability of model predictions for humans. The attention maps can be generated with multiple methods like Guided Backpropagation, Grad-CAM, Guided Grad-CAM and Grad-CAM++. These attention maps visualize the regions in the input data that influenced the model prediction the most at a certain layer. Furthermore, M3d-CAM supports 2D and 3D data for the task of classification as well as for segmentation. A key feature is also that in most cases only a single line of code is required for generating attention maps for a model making M3d-CAM basically plug and play.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "M3d-CAM is an easy to use library for generating attention maps with any CNN-based Pytorch [1] model both for 2D and 3D data as well as with classification and segmentation tasks. M3d-CAM works by injecting itself into a given model appending and even replacing certain functions of the model. The model itself will work as usual and its predictions remain untouched ensuring that no code is broken. M3d-CAM itself will work behind the scenes and generate attention maps every time model.forward is called. Examples of these attention maps are shown in figure  1 . The most important functions of M3d-CAM are explained in the following subsections. ",
+            "cite_spans": [
+                {
+                    "start": 91,
+                    "end": 94,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 553,
+                    "end": 562,
+                    "text": "figure  1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "M3d-CAM Overview"
+        },
+        {
+            "text": "To inject a model with M3d-CAM one simply needs to insert the line model = medcam.inject(model) after model initialization as shown in code example 1. This will add all the necessary functionality to the model. Additionally inject offers multiple parameters that can be adjusted. As an example one can define an output_dir and set save_maps=True to save every generated attention map. One can also set a desired backend which is used for generating the attention maps such as Grad-CAM. These backends are explained in more detail in section 2. Furthermore, it is possible to choose the layer of interest with layer . Hereby one can specifically define a single layer, a set of layers, every layer with full or the highest CNN-layer with auto for the most comfort. 1 # Import M3d-CAM 2 from medcam import medcam ",
+            "cite_spans": [
+                {
+                    "start": 764,
+                    "end": 765,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Injection"
+        },
+        {
+            "text": "As the layer names of a model are often unknown to the user, M3d-CAM offers the method medcam.get_layers(model) for quickly acquiring every layer name of a model. However it needs to be noted that attention maps can not be generated for every type of layer. This is true for layer types such as fully connected, bounding box or other special types of layers. The attention for theses layers can be computed but it is not possible to project them back to the original input data, hence no attention maps can be generated.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Layer retrieval"
+        },
+        {
+            "text": "M3d-CAM also supports the evaluation of attention maps with given ground truth masks by simply calling model.forward(input, mask) including the mask in the forward call. The attention map is then internally evaluated by the medcam.Evaluator class with a predefined metric by the user. Alternatively one can call the medcam.Evaluator class directly. By calling model.dump() or respectively medcam.Evaluator.dump() the evaluation results are saved as an excel table.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "M3d-CAM supports multiple methods for generating the attention maps. For simplicity we will refer to them as backends. For a better understanding of how these attention maps look like we included examples for every backend. The original input images are shown in figure 2. The first image displays a chest X-Ray used on the task of classification by employing a CovidNet [2] , the second a lung CT slice on the task of 2D segmentation by employing an Inf-Net [3] and the third a 3D prostate CT image on the task of 3D segmentation by employing a nnUNet [4] . Figure 2 : From left to right: A chest X-Ray from the COVID-19 image data collection [5] , a lung CT slice also from [5] and 3D prostate CT image from the Medical Decathlon dataset [6] 2.1 Grad-CAM Grad-CAM [7] works by first propagating the input through the entire model. In a second step a desired class in the output is isolated by setting every other class to zero. The output of this isolated class is then backpropagated through the model up to the desired layer. Here the layer gradients are extracted and together with the feature maps of the same layer the attention map is computed. The result is a heatmap-like image of the attention at the desired layer as shown in figure 3 . The approach of generating an attention map from a specific preferably high layer gives a good compromise between high-level semantics and detailed spatial information. Furthermore, by isolating a specific class Grad-CAM becomes class discriminant. ",
+            "cite_spans": [
+                {
+                    "start": 371,
+                    "end": 374,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 459,
+                    "end": 462,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 553,
+                    "end": 556,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 644,
+                    "end": 647,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 676,
+                    "end": 679,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 740,
+                    "end": 743,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 766,
+                    "end": 769,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 559,
+                    "end": 567,
+                    "text": "Figure 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 1238,
+                    "end": 1246,
+                    "text": "figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Evaluation"
+        },
+        {
+            "text": "Guided Backpropagation was first introduced in [8] and works by first propagating the input through the entire model similar to Grad-CAM. In a second step the output is then backpropagated through the entire model. However only the non-negative gradients are passed to the next layer as negative gradients correspond to suppressed pixels deemed not relevant by the authors. The result is a noise-like image depicting the model attention as shown in figure 4. The advantage of Guided Backpropagation is that the attention is pixel-precise. The downsides are that it is neither class nor layer discriminant. ",
+            "cite_spans": [
+                {
+                    "start": 47,
+                    "end": 50,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Guided Backpropagation"
+        },
+        {
+            "text": "Another backend presented in [7] is Guided Grad-CAM which is a combination of Guided Backpropagation and Grad-CAM in an effort to combine the best of both approaches. When generating attention maps with both backends the resulting attention maps can be combined through simply multiplying them element-wise. The result is a noise-like class and layer discriminant pixel-precise attention map as shown in figure 5 . The only downside of Guided Grad-CAM is the need of performing backpropagation two times. ",
+            "cite_spans": [
+                {
+                    "start": 29,
+                    "end": 32,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 404,
+                    "end": 412,
+                    "text": "figure 5",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Guided Grad-CAM"
+        },
+        {
+            "text": "Grad-CAM++ is an extension of Grad-CAM introduced in [9] . It differs to vanilla Grad-CAM in that it weights the gradients before combining them with the feature maps resulting in more precise attention maps, especially when dealing with multiple instances of the same class in an image according to the authors. Examples of these attention maps are shown in figure 6. ",
+            "cite_spans": [
+                {
+                    "start": 53,
+                    "end": 56,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Grad-CAM++"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "PyTorch: An imperative style, high-performance deep learning library",
+            "authors": [
+                {
+                    "first": "Adam",
+                    "middle": [],
+                    "last": "Paszke",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "8024--8035",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "COVID-Net: A Tailored Deep Convolutional Neural Network Design for Detection of COVID-19 Cases from Chest Radiography Images",
+            "authors": [
+                {
+                    "first": "Linda",
+                    "middle": [],
+                    "last": "Zhong Qiu Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alexander",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Wong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.09871"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Inf-Net: Automatic COVID-19 Lung Infection Segmentation from CT Images",
+            "authors": [
+                {
+                    "first": "Deng-Ping",
+                    "middle": [],
+                    "last": "Fan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "IEEE TMI",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "nnu-net: Self-adapting framework for u-net-based medical image segmentation",
+            "authors": [
+                {
+                    "first": "Fabian",
+                    "middle": [],
+                    "last": "Isensee",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1809.10486"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "COVID-19 image data collection",
+            "authors": [
+                {
+                    "first": "Joseph",
+                    "middle": [],
+                    "last": "Paul Cohen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Paul",
+                    "middle": [],
+                    "last": "Morrison",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lan",
+                    "middle": [],
+                    "last": "Dao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "A large annotated medical image dataset for the development and evaluation of segmentation algorithms",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Amber",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Simpson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1902.09063"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Grad-cam: Visual explanations from deep networks via gradient-based localization",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Ramprasaath",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Selvaraju",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the IEEE",
+            "volume": "",
+            "issn": "",
+            "pages": "618--626",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Striving for simplicity: The all convolutional net",
+            "authors": [
+                {
+                    "first": "Jost",
+                    "middle": [],
+                    "last": "Tobias Springenberg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1412.6806"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Grad-cam++: Generalized gradient-based visual explanations for deep convolutional networks",
+            "authors": [
+                {
+                    "first": "Aditya",
+                    "middle": [],
+                    "last": "Chattopadhay",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "2018 IEEE Winter Conference on Applications of Computer Vision (WACV)",
+            "volume": "",
+            "issn": "",
+            "pages": "839--847",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Grad-CAM attention maps for 2D classification, 2D segmentation and 3D segmentation. arXiv:2007.00453v1 [cs.CV] 1 Jul 2020",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Continue to do what you're doing... 12 # In this case inference on some new data 13 model.eval() 14 for i, batch in enumerate(data_loader): 15 # Every time forward is called, attention maps will be generated and saved 16 output = model(batch) 17 # more of your code... Listing 1: Example of injecting a model with M3d-CAM",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The resulting Grad-CAM attention maps from the input images.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The resulting Guided Backpropagation attention maps from the input images.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "The resulting Guided Grad-CAM attention maps from the input images.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "The resulting Grad-CAM++ attention maps from the input images.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

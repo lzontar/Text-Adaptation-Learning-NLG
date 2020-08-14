@@ -1,0 +1,602 @@
+{
+    "paper_id": "0a29a486b0d83b76602f802c9740d6a825072c0c",
+    "metadata": {
+        "title": "Exploring the Concept of Abstract State Machines for System Runtime Enforcement",
+        "authors": [
+            {
+                "first": "Elvinia",
+                "middle": [],
+                "last": "Riccobene",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universit\u00e0 degli Studi di Milano",
+                    "location": {
+                        "settlement": "Milan",
+                        "country": "Italy"
+                    }
+                },
+                "email": "elvinia.riccobene@unimi.it"
+            },
+            {
+                "first": "Patrizia",
+                "middle": [],
+                "last": "Scandurra",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universit\u00e0 degli Studi di Bergamo",
+                    "location": {
+                        "settlement": "Bergamo",
+                        "country": "Italy"
+                    }
+                },
+                "email": "patrizia.scandurra@unibg.it"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Modern intelligent software systems are rapidly growing in complexity and scale, and many real usage scenarios might be impossible to reproduce and validate at design-time. As envisioned by the Models@run.time research community, the use of formal models at runtime are fundamental to address this challenge. In this paper, we explore the concept of ASM@run.time and put this definition into the context of the runtime enforcement technique to address the runtime assurance of software systems. This is a work-in-progress research line.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Modern intelligent software systems, such as those employed in smart infrastructures using big data, AI and IoT technologies, are rapidly growing in complexity and scale, and many real usage scenarios might be impossible to reproduce and validate at design-time. To address this challenge, the Models@run.time research community [4] has identified a reference architecture to equip a software system with a model running in tandem with the system to address software runtime assurance. Similar ideas have been proliferating in other contexts, such as Digital twins in the manufacturing domain [11] , and Living models [9] in the field of Computer Automated Multi-Paradigm Modelling.",
+            "cite_spans": [
+                {
+                    "start": 329,
+                    "end": 332,
+                    "text": "[4]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 593,
+                    "end": 597,
+                    "text": "[11]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 618,
+                    "end": 621,
+                    "text": "[9]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Among the different approaches and techniques proposed in literature that exploit the concept of model@runtime, runtime enforcement [6] is a runtime verification method that focuses on steering system executions with the goal of preventing and reacting to misbehaviours and failures. Runtime enforcement techniques enforce the software system to run according to its specification, for example the specification of safety assertions that describe situations (states) or actions that must be avoided (e.g., a train must not open its doors when moving). When a new (input) event occurs that may change the state of the software system, the model, if available, is used to evaluate safety assertions and prevent the system change if it violates an assertion on the runtime model of the system. This enforcement mechanism can be, therefore, used for input sanitisation [6] to protect the system from its (untrusted) environment. All inputs to the system shall enter first the enforcement mechanism which filters out those that could harm the system or ensure that all the necessary inputs are provided to the system. While classical runtime verification approaches (like [2, 5] and [7] to name a few) generally focus on the oracle problem, namely assigning verdicts to a system execution, runtime enforcement focuses on ensuring the correctness of the sequence of events by possibly modifying or preventing the system execution [6] .",
+            "cite_spans": [
+                {
+                    "start": 132,
+                    "end": 135,
+                    "text": "[6]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 865,
+                    "end": 868,
+                    "text": "[6]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1167,
+                    "end": 1170,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1171,
+                    "end": 1173,
+                    "text": "5]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1178,
+                    "end": 1181,
+                    "text": "[7]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1424,
+                    "end": 1427,
+                    "text": "[6]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper we present some preliminary results of our work-in-progress investigation on the use of Abstract State Machines as models@run.time for runtime enforcement. In particular, we present the architecture of a runtime enforcement tool we have been developing within the ASMETA framework 1 -a set of tools for the ASM formal method -to check safety assertions of software systems at runtime. This mechanism exploits the concept of executable ASM models and it is based on a new component, the AsmetaS@run.time, that simulates the ASM models in tandem with the real software systems. We also envision some real scenarios in the context of safety-critical systems where we are applying the ASM@run.time enforcement approach.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We here present a conceptual view of a runtime enforcement for input sanitisation [6] to protect the system from its (untrusted) environment. The proposed mechanism exploits the runtime simulator for ASMs, namely AsmetaS@run.time. This last tool was recently developed as part of the ASMETA toolset to allow the use of ASM models as runtime models. It supports simulation as-a-service features including model roll-back to the initial state after a failure of the model execution (e.g., invariant violations, inconsistent updates, ill-formed inputs, etc.) while processing an input event.",
+            "cite_spans": [
+                {
+                    "start": 82,
+                    "end": 85,
+                    "text": "[6]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Runtime Enforcement with AsmetaS@run.time"
+        },
+        {
+            "text": "The intent of the proposed runtime enforcement mechanism is to evaluate safety assertions when there is a new (input) event that may change the state of the system and prevent the change if it violates an assertion on the ASM runtime model of the system. As shown in Fig. 1 , every attempt (or only those considered critical) to change the system state is mediated by a process (the enforcer ) that decides whether the change is safe. To make this decision (one per each observed event), the enforcer process evaluates the effect of the event on an ASM model of the behavior of the system (or a subpart of it dealing with the most critical requirements) that runs on-board the system as runtime model. If we are in a safe state (both the system and its runtime ASM model) and there is a new (input) event that may change this state, the enforcer performs first the state transfer on the ASM model (by feeding the input event to the ASM in terms of a monitored function value) and makes sure that the transition (that may take several machine steps -an ASM run) will take the ASM to a state without violating an invariant or generating an inconsistent update. If the ASM will produce a (safe) change of state, the enforcer confirms the state transfers also to the system, otherwise (the change is considered unsafe) it prevents the system to react to the event and a state rollback of the ASM model is performed to move it back to its previous (safe) state before the input event was processed. Therefore, the system is allowed to react to an event only when the model successfully checked the safety constraints for the event.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 267,
+                    "end": 273,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Runtime Enforcement with AsmetaS@run.time"
+        },
+        {
+            "text": "We assume that there exists a catalog of safety assertions (expressed in any suitable language) describing all possible situations that may produce a violation of safety, and that these assertions have been expressed in the ASM runtime model in terms of ASM invariants. The catalog may be dynamically updated at runtime in case dangerous situations have not been foreseen at design time or because of unanticipated changes in the requirements when such changed requirements are added at runtime as effect of unanticipated adaptation (such as service-based applications plugging in new services and components discovered at runtime to improve quality of service). We assume that the invariants corresponding to the assertions added to the catalog dynamically are added to the ASM runtime model dynamically, as well.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Runtime Enforcement with AsmetaS@run.time"
+        },
+        {
+            "text": "The runtime enforcement technique could be useful to prevent the execution of unsafe commands in cyber physical systems where the environment is only partially observable [8] , and, in general, in any safety-critical system, where the effects of not enforcing the safety assertions would lead to human hazards, as it happens for medical software [1] . We do not target hard real-time systems since these systems require dedicated solutions (e.g., real-time operating systems) and pose specific challenges.",
+            "cite_spans": [
+                {
+                    "start": 171,
+                    "end": 174,
+                    "text": "[8]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 346,
+                    "end": 349,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Runtime Enforcement with AsmetaS@run.time"
+        },
+        {
+            "text": "In this paper, we have presented our long-term vision of using the ASM executable models as formal support to the runtime enforcement technique to assure safe execution of a software system. Our short-term plan is to complete the implementation of the other components (the Assertion Catalog and the Assertion Enforcer) of the proposed runtime enforcement mechanism based on the new AsmetaS@run.time component. We also want to test its effective operation in the area of safety-critical systems, as for example those in the medical software domain.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "In the future, we plan to extend the ASM@run.time enforcement approach in the context of self-adaptive systems [3, 10] . Our long term goal is to develop a complete framework able to deal with requirements changes also affecting the model behavior, and therefore providing model adaptation features at runtime.",
+            "cite_spans": [
+                {
+                    "start": 111,
+                    "end": 114,
+                    "text": "[3,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 115,
+                    "end": 118,
+                    "text": "10]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Analysis of safety-critical computer failures in medical devices",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Alemzadeh",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Kalbarczyk",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Iyer",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Raman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IEEE Secur. Priv",
+            "volume": "11",
+            "issn": "4",
+            "pages": "14--26",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/MSP.2013.49"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "CoMA: conformance monitoring of Java programs by abstract state machines",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Arcaini",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Gargantini",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Riccobene",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Formal design and verification of selfadaptive systems with decentralized control",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Arcaini",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Riccobene",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Scandurra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ACM Trans. Auton. Adapt. Syst",
+            "volume": "11",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Models@run.time: a guided tour of the state of the art and research challenges",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bencomo",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "G\u00f6tz",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Softw. Syst. Model",
+            "volume": "18",
+            "issn": "5",
+            "pages": "3049--3082",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10270-018-00712-x"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Formal methods @ runtime",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Calinescu",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kikuchi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Monterey Workshop 2010",
+            "volume": "6662",
+            "issn": "",
+            "pages": "122--135",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-21292-5_7"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Runtime failure prevention and reaction",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Falcone",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Mariani",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rollet",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Saha",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Lectures on Runtime Verification",
+            "volume": "10457",
+            "issn": "",
+            "pages": "103--134",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-75632-5_4"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Software monitoring through formal specification animation",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Dong",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Wong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "ISSE",
+            "volume": "5",
+            "issn": "4",
+            "pages": "231--241",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s11334-009-0096-1"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Runtime enforcement of cyber-physical systems",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pinisetty",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Roop",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Smyth",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Allen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Tripakis",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Von Hanxleden",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "ACM Trans. Embed. Comput. Syst",
+            "volume": "16",
+            "issn": "5s",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/3126500"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "A multi-paradigm modelling approach to live modelling",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Tendeloo",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Mierlo",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Vangheluwe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Softw. Syst. Model",
+            "volume": "18",
+            "issn": "5",
+            "pages": "2821--2842",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10270-018-0700-7"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "ActivFORMS: a model-based approach to engineer selfadaptive systems",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Weyns",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "U"
+                    ],
+                    "last": "Iftikhar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Digital twin-based smart production management and control framework for the complex product assembly shop-floor",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zhuang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Xiong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Int. J. Adv. Manuf. Technol",
+            "volume": "96",
+            "issn": "1",
+            "pages": "1149--1163",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Runtime safety assertion enforcement by AsmetaS@run.time",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

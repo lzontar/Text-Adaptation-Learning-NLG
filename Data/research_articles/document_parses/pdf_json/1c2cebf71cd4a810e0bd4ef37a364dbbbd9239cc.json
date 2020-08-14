@@ -1,0 +1,1191 @@
+{
+    "paper_id": "1c2cebf71cd4a810e0bd4ef37a364dbbbd9239cc",
+    "metadata": {
+        "title": "A Characterization of Distributed ASMs with Partial-Order Runs",
+        "authors": [
+            {
+                "first": "Egon",
+                "middle": [],
+                "last": "B\u00f6rger",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universit\u00e0 di Pisa",
+                    "location": {
+                        "settlement": "Pisa",
+                        "country": "Italy"
+                    }
+                },
+                "email": "boerger@di.unipi.it"
+            },
+            {
+                "first": "Klaus-Dieter",
+                "middle": [],
+                "last": "Schewe",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Zhejiang University",
+                    "location": {
+                        "settlement": "Haining",
+                        "country": "China"
+                    }
+                },
+                "email": "kdschewe@acm.org"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "To overcome the practical limitations of partial-order runs of 'distributed ASMs' (Abstract State Machines) proposed by Gurevich, we have defined a concept of concurrent runs of multi-agent ASMs and could show that concurrent ASMs capture a natural language-independent axiomatic definition of concurrent algorithms, thus generalising Gurevich's seminal 'Sequential ASM Thesis' from sequential to concurrent algorithms. However, we remained intrigued by the fact that Blass and Gurevich used partial-order runs of distributed ASMs to explain runs of sequential recursive algorithms. We discovered that also the inverse simulation holds: for every distributed ASM with partial order runs, these runs can be described by runs of a sequential recursive algorithm. This surprising result clarifies the difference in expressivity between partialorder and concurrent runs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In [8, the concept of sequential Abstract State Machines (seq-ASMs) has been defined for which the 'Sequential ASM Thesis' [7] -to capture the intuitive notion of sequential algorithm-could be proved from three natural postulates, see [9] . In [8, Sect. 6 ] the concept of sequential ASM runs is extended by partial-order runs of a specific class of multi-agent ASMs called distributed ASMs. However, contrary to the great variety of successful applications of sequential ASMs, the use of distributed ASMs with partial-order runs turned out to be impractical to adequately model concurrent systems. It has been replaced in [4] by a language-independent axiomatic characterization of concurrent runs, adding a fourth postulate (on the intuitive meaning of concurrency), together with a definition of concurrent ASMs, based upon which the Sequential ASM Thesis and its proof could be generalized to a Concurrent ASM Thesis-to capture the proposed intuitive notion of concurrent algorithms.",
+            "cite_spans": [
+                {
+                    "start": 3,
+                    "end": 6,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 123,
+                    "end": 126,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 235,
+                    "end": 238,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 244,
+                    "end": 247,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 248,
+                    "end": 255,
+                    "text": "Sect. 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 623,
+                    "end": 626,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In reaction to some scepticism expressed in [13] , whether recursive algorithms can be adequately defined by ASMs, partial-order runs of distributed ASMs have been used in [1] to simulate the computations of recursive algorithms. 1 For a long time we have been intrigued by this proposal, since on the one side, a simple sequential extension of ASMs suffices for the specification of recursive algorithms (see for example [2] ), on the other side partial-order runs of distributed ASMs turned out to be impractical for modeling truly concurrent systems (see [4] ).",
+            "cite_spans": [
+                {
+                    "start": 44,
+                    "end": 48,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 172,
+                    "end": 175,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 230,
+                    "end": 231,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 422,
+                    "end": 425,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 558,
+                    "end": 561,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In Sect. 3 we review Gurevich's description of distributed ASMs with partialorder runs and analyse the proof that the runs of recursive algorithms can be defined as partial-order runs of distributed ASMs. The analysis reveals that the distributed ASMs used to define recursive runs by partial-order runs are finitely composed concurrent ASMs with non-deterministic sequential (nd-seq) components (see the definition in Sect. 3). In Sect. 4 we show the surprising discovery that also the inverse relation holds, namely: for every finitely composed concurrent algorithm with nd-seq components, if its concurrent runs are definable by partial-order runs, then the algorithm can be simulated by a recursive algorithm. This establishes the main result of this paper.",
+            "cite_spans": [
+                {
+                    "start": 9,
+                    "end": 10,
+                    "text": "3",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Recursive algorithms are behaviourally equivalent to finitely composed concurrent algorithms C with nd-seq components such that all concurrent C-runs are definable by partial-order runs. 2 The equivalence of runs of recursive ASMs and of partial-order runs of distributed ASMs makes it explicit in which sense concurrent ASM runs as characterized in [4] are more expressive than the 'partial-order runs of distributed ASMs' proposed in [8, Sect. 6] .",
+            "cite_spans": [
+                {
+                    "start": 187,
+                    "end": 188,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 350,
+                    "end": 353,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 436,
+                    "end": 439,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 440,
+                    "end": 448,
+                    "text": "Sect. 6]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 1.1 (Main Theorem)."
+        },
+        {
+            "text": "We will also show that if the concurrent runs are restricted further to partialorder runs of a concurrent algorithm with a fixed finite number of agents and fixed non-deterministic sequential (nd-seq) programs, one can simulate them even by a non-deterministic sequential algorithm. An interesting example of this special case are partial-order runs of Petri nets and more generally of Mayr's Process Rewrite Systems [12] .",
+            "cite_spans": [
+                {
+                    "start": 417,
+                    "end": 421,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 1.1 (Main Theorem)."
+        },
+        {
+            "text": "For the proofs we use an axiomatic characterization of recursive algorithms as sequential algorithms enriched by call steps, 3 such that the parent-child relationship between caller and callee defines well-defined shared locations representing input and return parameters. This characterization is reviewed in Sect. 2 and is taken from [5] where it appears as Recursion Postulate and is added to Gurevich's three postulates for sequential ASMs [9] as basis for the proof of an ASM thesis for recursive ASMs.",
+            "cite_spans": [
+                {
+                    "start": 336,
+                    "end": 339,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 444,
+                    "end": 447,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 1.1 (Main Theorem)."
+        },
+        {
+            "text": "We assume the knowledge of [8, 9] and [4] and use without further explanations standard textbook notations for ASMs, including ambient ASMs [3, Ch. 4.1]. 2 We call R behaviourally equivalent to C if each r \u2208 R can be simulated by a c \u2208 C and vice versa. 3 To emphasize the sequential nature of recursive algorithms we sometimes use the term 'sequential recursive algorithm'. See [5] for the technical reason for this naming policy.",
+            "cite_spans": [
+                {
+                    "start": 27,
+                    "end": 30,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 31,
+                    "end": 33,
+                    "text": "9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 38,
+                    "end": 41,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 154,
+                    "end": 155,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 254,
+                    "end": 255,
+                    "text": "3",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 379,
+                    "end": 382,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 1.1 (Main Theorem)."
+        },
+        {
+            "text": "We start with a characteristic example to illustrate the intuitive idea of recursion which guided the formulation of the recursion postulate below. 4 Take the mergesort algorithm, which consists of a main algorithm sort and an auxiliary algorithm merge. Every call to (a copy, we also say an instance of) sort and every call to (an instance of) the merge algorithm could give rise to a new agent. However, these agents only interact by passing input parameters and return values, but otherwise operate on disjoint sets of locations. In addition, a calling agent always waits to receive return values, which implies that only one or (in case of parallel calls) a finite number of agents are active in any state. If one considers mutual recursion, then this becomes slightly more general, as there is a finite family of algorithms calling (instances of) each other. Furthermore, there may be several simultaneous calls. E.g. in mergesort, sort calls two copies of itself, each sorting one half of the list of given elements. Such simultaneously called copies may run sequentially in one order or the other, in parallel or even asynchronously. This give rise to non-deterministic execution of multiple sequential algorithms.",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 149,
+                    "text": "4",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Recursion Postulate"
+        },
+        {
+            "text": "Therefore, for a characterization of recursive algorithms and their computations we can rely on the capture of non-deterministic sequential algorithms by non-deterministic sequential ASMs. 5 Thus, to axiomatically define recursive algorithms and their runs it suffices to add to the three postulates for nd-seq algorithms a Call Step Postulate and a Recursive Run Postulate defined below, which together form the Recursion Postulate.",
+            "cite_spans": [
+                {
+                    "start": 189,
+                    "end": 190,
+                    "text": "5",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Recursion Postulate"
+        },
+        {
+            "text": "To characterize the input/output relation between the input provided by the caller in a call step and the output computed by the callee for this input we use the ASM function classification from [6] to distinguish between input, output and local (also called controlled) function symbols in the signature, the union of pairwise disjoint sets \u03a3 in , \u03a3 out and \u03a3 loc respectively. We call any nd-seq algorithm which comes with such a signature and also satisfies the Call Step Postulate below an algorithm with input and output (for short: i/o-algorithm). We can then define (sequential) recursive algorithms syntactically as collections of i/o-algorithms. The independency condition for (possibly parallel) computations of different instances of the given algorithms requires that for different calls, in particular for different calls of the same algorithm, the state spaces of the triggered subcomputations are separated from each other. This encapsulation of subcomputations can be made precise by the concept of ambient algorithms where each instance of an algorithm has a unique context parameter for its functions, e.g. its executing agent (see [3, Ch. 4.1] ), and is started in an initial state that only depends on its input locations. 6 Now we are ready to formulate the postulate for call steps. In Sect. 3.4 we formalize this postulate by an ASM Call(t 0 \u2190 N (t 1 , . . . , t n )) (see Definition 3.4 and its refinement in Sect. 4).",
+            "cite_spans": [
+                {
+                    "start": 195,
+                    "end": 198,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1150,
+                    "end": 1153,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1154,
+                    "end": 1162,
+                    "text": "Ch. 4.1]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1243,
+                    "end": 1244,
+                    "text": "6",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1396,
+                    "end": 1410,
+                    "text": "Definition 3.4",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Recursion Postulate"
+        },
+        {
+            "text": "When an i/o-algorithm p-the caller, viewed as parent algorithm-calls a finite number of i/o-algorithms c 1 , . . . , c nthe callees, viewed as child algorithms CalledBy(p)-a call relationship (denoted as CalledBy(p)) holds between the caller and each callee. The caller activates a fresh instance of each callee c i so that they can start their computations. These computations are independent of each other and the caller remains waitingi.e. performs no step-until every callee has terminated its computation (read: has reached a final state). For each callee, the initial state of its computation is determined only by the input passed by the caller; the only other interaction of the callee with the caller is to return in its final state an output to p.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Postulate 1 (Call Step Postulate)."
+        },
+        {
+            "text": "A p (parent) and A c (child) if and only if they satisfy the following conditions on their function classification:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2.2. A call relationship holds for (instances of) two i/o-algorithms"
+        },
+        {
+            "text": "so that the parent algorithm is able to update input locations of the child algorithm. Furthermore, A p never reads the input locations of A c . \u03a3 A c out \u2286 \u03a3 A p so that the parent algorithm can read the output locations of the child algorithm. Furthermore, A p never updates output locations of A c .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2.2. A call relationship holds for (instances of) two i/o-algorithms"
+        },
+        {
+            "text": "Differently from runs of a nd-seq algorithm, where in each state at most one step of the nd-seq algorithm is performed, in a recursive run a sequential recursive algorithm R can perform in one step simultaneously one step of each of finitely many not terminated and not waiting called instances of its i/o-algorithms. This is expressed by the Recursive Run Postulate. In this postulate we refer to Active and not Waiting instances of components, which are defined as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2.2. A call relationship holds for (instances of) two i/o-algorithms"
+        },
+        {
+            "text": "To be Active resp. Waiting in a state S is defined as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2.2. A call relationship holds for (instances of) two i/o-algorithms"
+        },
+        {
+            "text": "Called collects the instances of algorithms that are called during the run. The subset of Called which contains all the children called by p is denoted by CalledBy(p). Called = {main} and CalledBy(p) = \u2205 are true in the initial state S 0 , for each i/o-algorithm p \u2208 R. In particular, in S 0 the original component main is considered to not be CalledBy(p), for any p.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2.2. A call relationship holds for (instances of) two i/o-algorithms"
+        },
+        {
+            "text": "For a sequential recursive algorithm R with main component main a recursive run is a sequence S 0 , S 1 , S 2 , . . . of states 7 together with a sequence C 0 , C 1 , C 2 , . . . of sets of instances of components of R which satisfy the following constraints:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Postulate 2 (Recursive Run Postulate)."
+        },
+        {
+            "text": "C 0 is the singleton set C 0 = {main}, i.e. every run starts with main, every C i is a finite set of instances of components of R which are Active and not Waiting in state S i , every S i+1 is obtained in one R-step by performing in S i simultaneously one step of each i/o-algorithm in C i . Such an R-step is also called a recursive step of R. Bounded call tree branching. There is a fixed natural number m > 0, depending only on R, which in every R-run bounds the number of callees which can be called by a call step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Recursive run constraint"
+        },
+        {
+            "text": "If in a recursive R-run the main algorithm calls some i/o-algorithms, this call creates a finitely branched call tree whose nodes are labeled by the instances of the i/o-algorithms involved, with active and not waiting algorithms labeling the leaves and with the main (the parent) algorithm labeling the root of the tree and becoming waiting. When the algorithm at a leaf makes a call, this extends the tree correspondingly. When the algorithm at a child of a node has terminated its computation, we delete the child from the tree. The leaves of this (dynamic) call tree are labeled by the active not waiting algorithms in the run. When the main algorithm terminates, the call tree is reduced again to the root labeled by the initially called main algorithm.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark (on Call Trees)."
+        },
+        {
+            "text": "Usually, it is expected that for recursive R-runs each called i/o-algorithm reaches a final state, but in general it is not excluded that this is not the case.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark (on Call Trees)."
+        },
+        {
+            "text": "In [5] the reader can find a definition of recursive ASMs together with a proof that they capture (are equivalent to) recursive algorithms as characterized by the Recursion Postulate. Here we use the postulate as a basis for the proof that recursive algorithms are captured by 'distributed ASMs with partial-order runs', as defined in [8] .",
+            "cite_spans": [
+                {
+                    "start": 3,
+                    "end": 6,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 335,
+                    "end": 338,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Remark (on Call Trees)."
+        },
+        {
+            "text": "Syntactically, a multi-agent (also called concurrent) algorithm C is defined as a family of algorithms alg(a), each associated with ('indexed by') an agent a \u2208 Agent that executes the algorithm in a run. Each (a, alg(a)) resp. alg(a) is called a component resp. (component) program of C. This applies to distributed ASMs [8] as well as to recursive or concurrent algorithms and ASMs [4, 5] .",
+            "cite_spans": [
+                {
+                    "start": 321,
+                    "end": 324,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 383,
+                    "end": 386,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 387,
+                    "end": 389,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Recursive ASMs Are Distributed ASMs with Partial-Order Runs"
+        },
+        {
+            "text": "To investigate the simulation of recursive runs by partial-order runs of distributed ASMs (Sect. 3.4) we must explain what are finitely composed concurrent (Gurevich's 'distributed') algorithms (Sect. 3.1) and partial-order resp. concurrent runs (Sect. 3.2 resp. 3.3).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Recursive ASMs Are Distributed ASMs with Partial-Order Runs"
+        },
+        {
+            "text": "For recursive algorithms various restrictions on the syntactical definition of multi-agent algorithms have to be made most of which appear also for distributed ASMs in [8, Sect. 6] .",
+            "cite_spans": [
+                {
+                    "start": 168,
+                    "end": 171,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 172,
+                    "end": 180,
+                    "text": "Sect. 6]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Finitely Composed Concurrent Algorithms"
+        },
+        {
+            "text": "First of all, although the components alg(a) of concurrent algorithms are not necessarily sequential algorithms, to simulate specific concurrent algorithms by recursive ones, which are defined as families of nd-seq algorithms, we must restrict our attention to concurrent algorithms with sequential (though possibly non-deterministic) components. 8 Second, for distributed ASMs it is stipulated in [8, p. 31 ] that the agents are equipped with instances of programs which are taken from 'a finite indexed set of single-agent programs'. This leads to what we call finitely composed concurrent algorithms or ASMs C where the components can only be copies (read: instances) of finitely many different nd-seq algorithms or ASMs, which we will call the program base of C.",
+            "cite_spans": [
+                {
+                    "start": 347,
+                    "end": 348,
+                    "text": "8",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 398,
+                    "end": 407,
+                    "text": "[8, p. 31",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Finitely Composed Concurrent Algorithms"
+        },
+        {
+            "text": "Third, for distributed ASMs it is stipulated in [8, 6.2, p. 31] that in initial states there are only finitely many agents, each equipped with a program. We reflect this by the (simplifying but equivalent) condition that the runs of a finitely composed concurrent algorithm or ASM must be started by executing a distinguished main component.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Finitely Composed Concurrent Algorithms"
+        },
+        {
+            "text": "Fourth, for distributed ASMs it is stipulated in [8, p. 32 ] that 'An agent a can make a move at S by firing Prog(a) ... and change S accordingly. As part of the move, a may create new agents', which then may contribute by their moves to the run in which they were created. For this purpose we use the new function.",
+            "cite_spans": [
+                {
+                    "start": 49,
+                    "end": 58,
+                    "text": "[8, p. 32",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Finitely Composed Concurrent Algorithms"
+        },
+        {
+            "text": "We summarize these constraints for distributed ASMs by the notion of finitely composed concurrent algorithms (read: concurrent ASMs).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Finitely Composed Concurrent Algorithms"
+        },
+        {
+            "text": "A concurrent algorithm C is finitely composed iff (i)-(iii) hold:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3.1."
+        },
+        {
+            "text": "(i) There exists a finite set B of nd-seq algorithms such that each C-program is of form amb a in r for some program r \u2208 B-call B the program base of C. (ii) There exists a distinguished agent a 0 which is the only one Active in any initial state. Formally this means that in every initial state of a C-run, Agent = {a 0 } holds. We denote by main the component in B of which a 0 executes an instance. For partial-order runs of C defined below this implies that they start with a minimal move which consists in executing the program asm(a 0 ) = amb a 0 in main. (iii) Each program in B may contain rules of form let a = new (Agent) in r .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3.1."
+        },
+        {
+            "text": "Together with (ii) this implies that every agent, except the distinguished a 0 , before making a move in a run must have been created in the run.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3.1."
+        },
+        {
+            "text": "C is called finite iff Agent is finite.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3.1."
+        },
+        {
+            "text": "In [8] Gurevich defined (for distributed algorithms) the notion of partial-order run by a partial order on the set of single moves of the agents which execute the component algorithms. For a nd-seq algorithm A, to make one move means to perform one step in a state S . ",
+            "cite_spans": [
+                {
+                    "start": 3,
+                    "end": 6,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Partial-Order Runs"
+        },
+        {
+            "text": "In a concurrent run as defined in [4] , multiple agents with different clocks may contribute by their single moves to define the successor state of a state. Therefore, when a successor state S i+1 of a state S i is obtained by applying to S i multiple update sets U a with agents a in a finite set Agent i \u2286 Agent, each U a is required to have been computed by a \u2208 Agent i in a preceding state S j , i.e. with j \u2264 i . It is possible that j < i holds so that for different agents different alg(a)-execution speeds (and purely local subruns to compute U a ) can be taken into account.",
+            "cite_spans": [
+                {
+                    "start": 34,
+                    "end": 37,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Concurrent Runs"
+        },
+        {
+            "text": "This can be considered as resulting from a separation of a step of an nd-seq algorithm alg(a) into a read step-which reads location values in a state S jfollowed by a write step which applies the update set U a computed on the basis of the values read in S j to a later state S i (i \u2265 j ). We say that a contributes to updating the state S i to its successor state S i+1 , and that a move starts in S j and contributes to updating S i (i.e. it finishes in S i+1 ). This is formally expressed by the following definition of concurrent ASMs and their runs. Definition 3.3. Let C be a concurrent algorithm of component algorithms pgm(a) (read: ASM rules) with associated agents a \u2208 Agent. A concurrent run of C is defined as a sequence S 0 , S 1 , . . . of states together with a sequence A 0 , A 1 , . . . of finite subsets of Agent, such that S 0 is an initial state and each S i+1 is obtained from S i by applying to it the updates computed by the agents in A i , where each a \u2208 A i computes its update set U a on the basis of the location values (including the input and shared locations) read in some preceding state S j (i.e. with j \u2264 i ) depending on a.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent Runs"
+        },
+        {
+            "text": "Remark. In this definition we deliberately permit the set of Agents to be infinite or dynamic and potentially infinite, growing or shrinking in a run. In Definition 3.2 above, the set of Agents is fixed by the set M of moves.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent Runs"
+        },
+        {
+            "text": "We are now ready to specify recursive algorithms by distributed ASMs, following the thought proposed in [1] . For the sake of precision and simplicity we formulate the construction in terms of ASMs; due to the characterization theorems in [5] and [4] this implies no loss of generality.",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 107,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 239,
+                    "end": 242,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 247,
+                    "end": 250,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Simulation of Recursive by Partial-Order Runs"
+        },
+        {
+            "text": "Proof. Let R be a recursive ASM given with distinguished program main. We define a finitely composed concurrent ASM C R with program base {r * | r \u2208 R}, where r * is defined as r * = if Active(r ) and not Waiting(r ) then r .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "In doing so, for each call rule r = t 0 \u2190 N (t 1 , . . . , t n ) in R we use for its translation the following ASM Call(t 0 \u2190 N (t 1 , . . . , t n ) ), which rigorously defines the behavioral interpretation of the call rule r (for details see [5] ): N (t 1 , . . . , t n ) ",
+            "cite_spans": [
+                {
+                    "start": 243,
+                    "end": 246,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 40,
+                    "end": 64,
+                    "text": "\u2190 N (t 1 , . . . , t n )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 124,
+                    "end": 148,
+                    "text": "\u2190 N (t 1 , . . . , t n )",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 250,
+                    "end": 272,
+                    "text": "N (t 1 , . . . , t n )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "Note that the call is a call-by-value and that (f , (v 1 , . . . , v k ) ) denotes the output location whose value the caller expects to be updated by the callee with the return value.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 47,
+                    "end": 72,
+                    "text": "(f , (v 1 , . . . , v k )",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "By definition, r * can only contribute a non-empty update set to form a state S i+1 in a concurrent run, if r is Active and not Waiting; this reflects that by the recursive run postulate, in every step of a recursive run of R only Active and not Waiting rules are executed.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "The definition of r * obviously guarantees that C R simulates R step by step: in each run step the same Active and not Waiting rules r respectively r * and their agents are selected for their simultaneous execution and their rules perform the same state change.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "Note that by Definition 3.4 of Call(i/o-rule), each agent operates in its own state space so that the view of an agent's step as read-step followed by a writestep is equivalent to the atomic view of this step. Note also that in a concurrent run of C R the Agent set is dynamic, in fact it grows with each execution of a call rule, together with the number of instances of R-components executed during a recursive run of R.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "It remains to define every concurrent run (S 0 , A 0 ), (S 1 , A 1 ), . . . of C R by a partial-order run. For this we define an order on the set M of moves made during a concurrent run, showing that it satisfies the constraints on finite history and the sequentiality of agents, and then relate each state S i of the run to the state computed by the set M i of moves performed to compute S i (from S 0 ), showing that M i is a finite initial segment of M and that the associated state \u03c3(M i ) equals S i and satisfies the coherence condition.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "Each successor state S i+1 in a concurrent run of C R is the result of applying to S i the write steps of finitely many moves of agents in A i . This defines the function ag, which associates agents with moves, and the finite set M i of all moves finished in a state belonging to the initial run segment [S 0 , . . . ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "The partial order \u2264 on M is defined by m < m iff move m contributes to update some state S i (read: finishes in S i ) and move m starts reading in a later state S j with i + 1 \u2264 j . Thus, by definition, M i is an initial segment of M .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "To prove the finite history condition, consider any m \u2208 M and let S j be the state in which it is started. There are only finitely many earlier states S 0 , . . . , S j \u22121 , and in each of them only finitely many moves m can be finished, contributing to update S j \u22121 or an earlier state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "The condition on the sequentiality of the agents follows directly from the definition of the order relation \u2264 and from the fact that in a concurrent run, for every move m = (read m , write m ) executed by an agent, this agent performs no other move between the read m -step and the corresponding write m -step in the run. This leaves us to define the function \u03c3 for finite initial segments M \u2286 M and to show the coherence property. We define \u03c3(M ) as result of the application of the moves in M in any total order extending the partial order \u2264. For the initial state S 0 we have \u03c3(\u2205) = S 0 . This implies the definability claim S i = \u03c3(M i ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "The definition of \u03c3 is consistent for the following reason. Whenever two moves m = m are incomparable, then either they both start in the same state or say m starts earlier than m . But m also starts earlier than m finishes. This is only possible for agents ag(m) = a and ag(m ) = a whose programs pgm(a), pgm(a ) are not in an ancestor relationship in the call tree. Therefore these programs have disjoint signatures, so that the moves m and m could be applied in any order with the same resulting state change.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "To prove the coherence property let M be a finite initial segment, and let M = M \\M max , where M max is the set of all maximal elements of M . Then \u03c3(M ) is the result of applying simultaneously all moves m \u2208 M max to \u03c3(M ), and the order in which the maximum moves are applied is irrelevant. This implies in particular the desired coherence property.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "The key argument in the proof exploits the Recursion Postulate whereby for recursive runs of R, the runs of different agents are initiated by calls and concern different state spaces with pairwise disjoint signatures, due to the function parameterization by agents, unless pgm(a ) is a child (or a descendant) of pgm(a), in which case the relationship between the signatures is defined by the call relationship. Independent moves can be guaranteed in full generality only for algorithms with disjoint signatures.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3.1. Every recursive ASM R can be simulated by a finitely composed concurrent ASM C R with nd-seq ASM components for which every concurrent run of C R is definable by a partial-order run."
+        },
+        {
+            "text": "While Theorem 3.1 is not surprising, we will now show its less obvious inverse. Proof. Let a concurrent C-run (S 0 , A 0 ), (S 1 , A 1 ), . . . be given. If it is definable by a partial-order run (M , \u2264, ag, pgm, \u03c3), the transition from S i = \u03c3(M i ) to S i+1 is performed in one concurrent step by parallel independent moves m \u2208 M i+1 \\M i , where M i is the set of moves which contributed to transform S 0 into S i . Let m \u2208 M i+1 \\M i be a move performed by an agent a = ag(m) with rule pgm(a) = amb a in r , an instance of a rule r in the program base of C. To execute the concurrent step by means of steps of a recursive ASM R C , we simulate each of its moves m by letting agent a act in the R C -run as caller of a named rule out r \u2190 OneStep r (in r ). The callee agent c acts as delegate for one step of a: it executes amb a \u2208 r and makes its program immediately Terminated . To achieve this, we refine the Call machine defined in Definition 3.4 such that upon calling out r \u2190 OneStep r (in r ), the delegate c created by the call becomes Active so that it can make a step to execute amb c in OneStep r . It suffices to add to the component Initialize the update Terminated (amb c in q) := false, which makes c Active. OneStep r is defined to perform amb caller (c) in r and to terminate immediately (by setting Terminated to true). For ease of exposition we add to Definition 3.4 also the update caller (c) :=self , to distinguish agents in the concurrent run-the caller s of OneStep r -machinesfrom the delegates each of which simulates one step of its caller and immediately terminates its life cycle.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "It remains to determine the input and output for calling OneStep r . For the input we exploit the existence of a bounded exploration witness W r for r . All updates produced in a single step are determined by the values of W r in the state, in which the call is launched. So W r defines the input terms of the called rule OneStep r , combined in in r . Analogously, a single step of r provides updates to finitely many locations that are determined by terms appearing in the rule, which defines out r .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "We summarize the explanations by the following definition:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "OneStep r = amb caller (self ) in r // the delegate executes the step of its caller Terminated (pgm(self )) := true // ... and immediates stops",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "Note that by the refined Definition 3.4, out r \u2190 OneStep r (in r ) triggers the execution of the delegate program amb c in OneStep r . Let a = caller (c). By definition, amb c in OneStep r triggers amb c in amb a in r . Furthermore, since the innermost ambient binding counts, this machine is equivalent to the simulated machine amb a in r , as was to be shown.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "Thus the recursive R C -run which simulates (S 0 , A 0 ), (S 1 , A 1 ), . . . starts by Definition 3.1 in S 0 with program amb a 0 in in main \u2190 OneStep main (out main ). For the sake of notational simplicity we disregard the auxiliary locations of R C . Let",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "We use the same agents a ij for A i in the R C -run, but with program out ri j \u2190 OneStep ri j (in ri j ). Their step in the recursive run leads to a state S i where all callers a ij are Waiting and the newly created delegates c ij are Active and not Waiting. So we can choose them for the set A i of agents which perform the next R C step, whereby all rules r ij are performed simultaneously (as in the given concurrent run step), in the ambient of caller (c ij ) = a ij thus leading as desired to the state S i+1 , the delegates make their program Terminated , whereby their callers a ij become again not Waiting and thereby ready to take part in the next step of the concurrent run. We assume for this that whenever in the C-run (not in the R C run) a new agent a is created, it is made not Waiting (by initializing CalledBy(a) := \u2205).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Distributed ASMs with Partial-Order Runs Are Recursive ASMs"
+        },
+        {
+            "text": "Consider an R C -run where each recursive step of the concurrent caller agents in A i , which call each some OneStep program, alternates with a recursive step of all-the just called-delegates whose program is not yet Terminated . Then this run is equivalent to a corresponding concurrent C-run.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark."
+        },
+        {
+            "text": "Note that Theorem 4.1 heavily depends on the prerequisite that C only has partial-order runs. 10 With general concurrent runs as defined in [4] the construction would not be possible.",
+            "cite_spans": [
+                {
+                    "start": 94,
+                    "end": 96,
+                    "text": "10",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 140,
+                    "end": 143,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Remark."
+        },
+        {
+            "text": "The semantics of Petri nets actually defines a rather special case of partial-order runs, namely runs one can describe even by a nd-seq ASM, as we show in this section.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Partial Order Runs of Petri Nets"
+        },
+        {
+            "text": "A Petri net comes with a finite number of transition rules, each of which can be described by a nd-seq ASM (see [6, p. 297] ). The special character of the computational Petri net model is due to the fact that during the runs, only exactly these rules are used. In other words there is a fixed association of each rule with an executing agent; there is no rule instantiation with new agents which could be created during a run. Therefore the states are the global markings of the net. The functions \u03c3(I ) associated with the po-runs of the net yield for every finite initial segment I as value the global marking obtained by firing the rules in I .",
+            "cite_spans": [
+                {
+                    "start": 112,
+                    "end": 123,
+                    "text": "[6, p. 297]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Partial Order Runs of Petri Nets"
+        },
+        {
+            "text": "For this particular kind of concurrent ASMs with partial-order runs one can define the concurrent runs by nd-seq ASMs, as we are going to show in this section.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Partial Order Runs of Petri Nets"
+        },
+        {
+            "text": "For each finite concurrent ASM C = {(a i , r i ) | 1 \u2264 i \u2264 n} with nd-seq ASMs r i such that all its concurrent runs are definable by partial-order runs one can construct a nd-seq ASM M C such that the concurrent runs of C and the runs of M C are equivalent. 10 The other prerequisites in Theorem 4.1 appear to be rather natural. Unbounded runs can only result, if in a single step arbitrarily many new agents are created. Also, infinitely many different rules associated with the agents are only possible, if new agents are created and added during a concurrent run. Though this is captured in the general theory of concurrency in [4] , it was not intended in Gurevich's definition of partial-order runs.",
+            "cite_spans": [
+                {
+                    "start": 259,
+                    "end": 261,
+                    "text": "10",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 632,
+                    "end": 635,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 4.2."
+        },
+        {
+            "text": "To show the converse we proceed analogously. If we have S i = \u03c3(M i ) for all i \u2265 1, then S i+1 results from S i by applying in parallel all moves in M i+1 \u2212 M i . Applying a move m means to apply an update set produced by some rule r j \u2208 C (namely the rule pgm(ag(m))) in state S i , and applying several update sets in parallel means to apply their union \u0394, which then must be consistent. So we have S i+1 = S i + \u0394 with \u0394 = j \u2208J \u0394 ij for some J , where each \u0394 ij is an update set produced by r ij , i.e. \u0394 is an update set produced by AllRulesOf(J ), which implies that the linearised run S 0 , S 1 , . . . is a run of M C .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4.2."
+        },
+        {
+            "text": "For the corollary it suffices to note that each Petri net transition can be described by a nd-seq ASM (see [6, p. 297] ). The functions \u03c3(I ) associated with the po-runs yield the global marking obtained by firing the rules in I .",
+            "cite_spans": [
+                {
+                    "start": 107,
+                    "end": 118,
+                    "text": "[6, p. 297]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 4.2."
+        },
+        {
+            "text": "While Gurevich's Sequential ASM Thesis [9] provides an elegant and satisfactory mathematical definition of the notion of sequential algorithm plus a proof that sequential algorithms are captured by sequential ASMs, this theory does not capture recursive algorithms. It lacks an appropriate call concept. In fact, in an attempt to solve this problem Blass and Gurevich in [1] invoked the notion of partial-order runs of 'distributed ASMs', which has been proposed in [8] as a concurrency concept for ASMs. We showed in this paper that these 'distributed ASMs' are finitely composed ASMs whose partial-order runs characterize (are equivalent to) recursive runs. Thus, partial-order runs of distributed ASMs do not capture the concept of concurrent algorithms (but see [4] ).",
+            "cite_spans": [
+                {
+                    "start": 39,
+                    "end": 42,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 371,
+                    "end": 374,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 466,
+                    "end": 469,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 766,
+                    "end": 769,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Algorithms vs. machines",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Blass",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gurevich",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Bull. EATCS",
+            "volume": "77",
+            "issn": "",
+            "pages": "96--119",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Remarks on turbo ASMs for functional equations and recursion schemes",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "B\u00f6rger",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Bolognesi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "ASM 2003",
+            "volume": "2589",
+            "issn": "",
+            "pages": "218--228",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-36498-6_12"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Modeling Companion for Software Practitioners",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "B\u00f6rger",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Raschke",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-662-56641-1"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Concurrent abstract state machines",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "B\u00f6rger",
+                    "suffix": ""
+                },
+                {
+                    "first": "K.-D",
+                    "middle": [],
+                    "last": "Schewe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Acta Inform",
+            "volume": "53",
+            "issn": "5",
+            "pages": "469--492",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00236-015-0249-7"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "A behavioural theory of recursive algorithms",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "B\u00f6rger",
+                    "suffix": ""
+                },
+                {
+                    "first": "K.-D",
+                    "middle": [],
+                    "last": "Schewe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Abstract State Machines: A Method for High-Level System Design and Analysis",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "B\u00f6rger",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "St\u00e4rk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-18216-7"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "A new thesis",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gurevich",
+                    "suffix": ""
+                }
+            ],
+            "year": 1985,
+            "venue": "In: Abstracts",
+            "volume": "6",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Evolving algebras 1993: lipari guide",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gurevich",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Specification and Validation Methods",
+            "volume": "",
+            "issn": "",
+            "pages": "9--36",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Sequential abstract-state machines capture sequential algorithms",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gurevich",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "ACM Trans. Comput. Logic",
+            "volume": "1",
+            "issn": "1",
+            "pages": "77--111",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Recursive abstract state machines",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gurevich",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Spielmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "J. UCS",
+            "volume": "3",
+            "issn": "4",
+            "pages": "233--246",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "On expanding protocol conformance checking to exception handling",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Heike",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Zimmermann",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Both",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "SOCA",
+            "volume": "8",
+            "issn": "4",
+            "pages": "299--322",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s11761-013-0146-2"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Process rewrite systems",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Mayr",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Inf. Comput",
+            "volume": "156",
+            "issn": "",
+            "pages": "264--286",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "What is an algorithm?",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Moschovakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Mathematics Unlimited -2001 and Beyond",
+            "volume": "",
+            "issn": "",
+            "pages": "919--936",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-56478-9_46"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "A recursive algorithm R is a finite set of i/o-algorithms with one distinguished main algorithm. The elements of R are called components of R.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Let C = {(a, alg(a))} a\u2208Agent be a concurrent algorithm, in which each alg(a) is an nd-seq algorithm. A partial-order run for C is defined by a set M of moves of instances of the algorithms alg(a) (a \u2208 Agent), a function ag : M \u2192 Agent assigning to each move the agent performing the move, a partial order \u2264 on M , and an initial segment function \u03c3 such that the following conditions are satisfied:finite history. For each move m \u2208 M its history {m | m \u2264 m} is finite. sequentiality of agents. The moves of each agent are ordered, i.e. for any two moves m and m of one agent ag(m) = ag(m ) we either have m \u2264 m or m \u2264 m. coherence. For each finite initial segment M \u2286 M (i.e. such that for m \u2208 M and m \u2264 m we also have m \u2208 M ) there exists a state \u03c3(M ) over the combined signatures of the algorithms (a, alg(a)) such that for each maximum element m \u2208 M the state \u03c3(M ) is the result of applying m to \u03c3(M \u2212 {m}).",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Theorem 4.1. For each finitely composed concurrent ASM C with program base {r i | i \u2208 I } of nd-seq ASMs such that all its concurrent runs are definable by partial-order runs, one can construct a recursive ASM R C such that each concurrent run of C can be simulated by a recursive run of R C .9",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Proof. We relate the states S i of a given concurrent run of C to the states \u03c3(M i ) associated with initial segments M i of a given corresponding partial order run (M , \u2264, ag, pgm, \u03c3), where each step leading from S i to S i+1 consists of pairwise incomparable moves in M i+1 \\M i . We call such a sequence S 0 , S 1 , . . . of states a linearised run of C. For i > 0 the initial segments M i are non empty.The linearized runs of C can be characterized as runs of a nd-seq ASM M C : in each step this machine chooses one of finitely many non-empty subsets of rules in C to execute them in parallel. Formally:To complete the proof it suffices to show the following lemma. Proof. To show that each run S 0 , S 1 , . . . of M C is a linearised run of C we proceed by induction to construct the partial-order run (M , \u2264) with its finite initial segments M i . For the initial state S 0 = \u03c3(\u2205) there is nothing to show, so let S i+1 result from S i by applying an update set produced by AllRulesOf(J ) for some non-empty J \u2286 I . By induction we have S i = \u03c3(M i ) for some initial segment of a partial-order run (M , \u2264). As AllRulesOf(J ) is a parallel composition, S i+1 results from applying the union of update sets \u0394 ij \u2208 \u0394 ri j for j = 1, . . . , |J | to S i . Each \u0394 ij defines a move m ij of some ag(m ij ) = a ij , move which finishes in state S i . We now have two cases:(i) The moves m ij with j \u2208 J are pairwise independent, i.e. their application in any order produces the same new state. Then (M , \u2264) can be extended with these moves such that M i+1 = M i \u222a {m ij | j \u2208 J } becomes an initial segment and S i+1 = \u03c3(M i ) holds. (ii) If the moves m ij with j \u2208 J are not pairwise independent, the union of the corresponding update sets is inconsistent, hence the run terminates in state S i .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Corollary 4.1. Partial-order Petri net runs can be simulated by runs of a nondeterministic sequential ASM. 11"
+        }
+    ]
+}

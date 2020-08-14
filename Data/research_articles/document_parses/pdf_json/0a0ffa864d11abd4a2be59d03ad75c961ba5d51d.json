@@ -1,0 +1,1319 @@
+{
+    "paper_id": "0a0ffa864d11abd4a2be59d03ad75c961ba5d51d",
+    "metadata": {
+        "title": "An Agent-Based Simulation of the Spread of Dengue Fever",
+        "authors": [
+            {
+                "first": "Imran",
+                "middle": [],
+                "last": "Mahmood",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Brunel University",
+                    "location": {
+                        "addrLine": "Kingston Lane",
+                        "postCode": "UB8 3PH",
+                        "settlement": "Uxbridge, London",
+                        "country": "UK"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Mishal",
+                "middle": [],
+                "last": "Jahan",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "of Sciences and Technology (NUST)",
+                    "institution": "National University",
+                    "location": {
+                        "addrLine": "H-12",
+                        "postCode": "44000",
+                        "settlement": "Islamabad",
+                        "country": "Pakistan"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Derek",
+                "middle": [],
+                "last": "Groen",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Brunel University",
+                    "location": {
+                        "addrLine": "Kingston Lane",
+                        "postCode": "UB8 3PH",
+                        "settlement": "Uxbridge, London",
+                        "country": "UK"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Aneela",
+                "middle": [],
+                "last": "Javed",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Atta-ur-Rahman School of Applied Biosciences (ASAB), National University of Sciences and Technology (NUST)",
+                    "institution": "",
+                    "location": {
+                        "addrLine": "H-12",
+                        "postCode": "44000",
+                        "settlement": "Islamabad",
+                        "country": "Pakistan"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Faisal",
+                "middle": [],
+                "last": "Shafait",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "of Sciences and Technology (NUST)",
+                    "institution": "National University",
+                    "location": {
+                        "addrLine": "H-12",
+                        "postCode": "44000",
+                        "settlement": "Islamabad",
+                        "country": "Pakistan"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Vector-borne diseases (VBDs) account for more than 17% of all infectious diseases, causing more than 700,000 annual deaths. Lack of a robust infrastructure for timely collection, reporting, and analysis of epidemic data undermines necessary preparedness and thus posing serious health challenges to the general public. By developing a simulation framework that models population dynamics and the interactions of both humans and mosquitoes, we may enable epidemiologists to analyze and forecast the transmission and spread of an infectious disease in specific areas. We extend the traditional SEIR (Susceptible, Exposed, Infectious, Recovered) mathematical model and propose an Agent-based model to analyze the interactions between the host and the vector using: (i) our proposed algorithm to compute vector density, based on the reproductive behavior of the vector; and (ii) agent interactions to simulate transmission of virus in a spatio-temporal environment, and forecast the spread of the disease in a given area over a period of time. Our simulation results identify several expected dengue cases and their direction of spread, which can help in detecting epidemic outbreaks. Our proposed framework provides visualization and forecasting capabilities to study the epidemiology of a certain region and aid public health departments in emergency preparedness.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Each year, millions of people are exposed to serious health risks due to emerging infectious and communicable diseases. This poses a severe threat to the public health security at local, regional or national level; especially in underdeveloped countries. This is primarily due to the lack of infrastructure for timely collection, reporting, and analysis of epidemic data; non-existent early warning and forecasting systems; inadequate preparedness and emergency response management [22] .",
+            "cite_spans": [
+                {
+                    "start": 482,
+                    "end": 486,
+                    "text": "[22]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "3.9 billion people in 128 countries are at risk of contracting dengue, with estimated 96 million cases annually. The worldwide incidence of dengue has risen 30-fold in the past 30 years. Pakistan is among the 110 countries in the world which are badly affected by the mosquito-borne dengue virus. The first outbreak of dengue fever (DF) in Pakistan was confirmed in 1994. The country is currently experiencing among worst-ever dengue outbreaks, recording about 45,000 confirmed cases [27] . Even today, an effective dengue vaccine offering balanced protection is still elusive. Unfortunately, existing dengue vaccines are known to have limited efficacy and cure [8] . This underscores the critical need of preventing dengue transmission and eventual outbreak by: (i) investigating favorable conditions for the dengue epidemic to occur [21] ; (ii) plummeting the vector population [23] ; and averting the vector-human contact [7] , all of which are perceived as daunting challenges of Epidemiology. Due to the lack of ICT enabled governance, the existing infectious disease surveillance systems in Pakistan are unable to perform epidemiological spread analyses and effective emergency response planning [11, 18] . Researchers have started exploring latest techniques like Artificial Intelligence for diagnostic screen of dengue suspects [12] , but these methods are still in their infancy.",
+            "cite_spans": [
+                {
+                    "start": 484,
+                    "end": 488,
+                    "text": "[27]",
+                    "ref_id": null
+                },
+                {
+                    "start": 662,
+                    "end": 665,
+                    "text": "[8]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 835,
+                    "end": 839,
+                    "text": "[21]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 880,
+                    "end": 884,
+                    "text": "[23]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 925,
+                    "end": 928,
+                    "text": "[7]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1202,
+                    "end": 1206,
+                    "text": "[11,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1207,
+                    "end": 1210,
+                    "text": "18]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1336,
+                    "end": 1340,
+                    "text": "[12]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To mitigate these challenges, we need to develop a reliable health surveillance and rapid emergency response infrastructure, that monitors and responds to known endemic diseases in the country, and evolves to cater potential new outbreaks. This infrastructure should have the capability to collect spatio-temporal epidemiological data, analyze it using computational methods, forecast possible outbreaks and generate early warnings for rapid emergency response management. Due to the sparsity of data, the dynamics of the vector population and its interaction with the human population is quite difficult to capture. We therefore need to build models that incorporate the vector population, disease transmission and the spread direction of the infectious disease, and that support the application of preemptive strategies and countermeasures.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this study we present a simulation approach to analyze and predict the mosquito population density and its consequence on dengue spread. We also simulate the pathogen transmission, and observe the dynamic interaction of human and mosquito population, both of which we use to forecast outbreaks in a spatial environment. Our proposed agent-based simulation framework allows modeling of both human and vector population dynamics, using separate layers. Human agents evolve between different states, from Susceptible to Exposed, Infected and eventually Recovered states while Mosquito agents evolve from Egg to Larva, Pupa and Adult state. Both population layers are spatially distributed and we model the interaction between both layers using our proposed algorithm. In addition, we expose both layers to exogenous variables such a temperature, humidity, rainfall and the permeable water surfaces in the region. From our simulation results we can reproduce predicted dengue cases across age groups and highlight them using spatio-temporal visualizations. We validate our results using data of an existing study of the local region [4] . Our proposed framework can be re-used for simulation, visualization and forecasting of any region and aid Public health departments in emergency preparedness.",
+            "cite_spans": [
+                {
+                    "start": 1132,
+                    "end": 1135,
+                    "text": "[4]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The rest of the paper is organized as follows: Sect. 2 outlines the background concepts used in this paper and the literature review. Section 3 discusses our proposed framework. Section 4 provides simulation results and model validation and Sect. 5 provides conclusions and future work.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "This section provides key concepts used in our modeling approach. Epidemiology is the study of models, causes, effects, risk factors, transmission, spread and outbreaks of infectious diseases in a particular population [25] . DENV is transmitted to humans through the bite of infected female Aedes mosquitoes primarily Aedes aegypti and Aedes albopictus. A susceptible mosquito can acquire infection from an infectious person and transmit it further, or human gets infection from the bite of already Infectious Aedes aegypti. It spends its lives around or in side houses, becomes adult and typically flies up to 400 m [26] . Adees aegypti life cycle is composed of four stages as shown in Fig. 2 . Aedes Aygepti proliferates around 30-32 \u2022 C. The number of eggs laid per batch depends on the weight of mosquito and other factors. Details of the dengue epidemiology can be viewed at [9] . ",
+            "cite_spans": [
+                {
+                    "start": 219,
+                    "end": 223,
+                    "text": "[25]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 618,
+                    "end": 622,
+                    "text": "[26]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 882,
+                    "end": 885,
+                    "text": "[9]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 689,
+                    "end": 695,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Dengue Epidemiology"
+        },
+        {
+            "text": "Various meteorological factors also influence the growth of the vector population and the spread of dengue fever. Temperature and humidity influence the incidence of dengue fever by modifying adult feeding behavior, larval development and mosquito survival. The average life span of Aedes mosquito is 25 days, with a range from one day to 76 days. Population density of Aedes Aegypti rapidly increases in summers as rising temperatures shortens the incubation period of mosquitoes and they take less time to emerge from eggs to adults. This increase the overall risk of dengue transmission [14] . The mortality rate of mosquitoes increases at high temperatures. For temperatures 15 \u2022 C, the feeding frequency of mosquitoes increases resulting in greater risk of viral transmission. Mosquito life cycle consists of two stages one of which is aquatic i.e they require stagnant water in order to develop and reproduce. Rainfall plays a vital role in the development of mosquitoes and Dengue transmission. There is an increase in dengue cases during and after rainy seasons. Pakistan is unfortunately experiencing severe forms of above stated changes. Relative humidity, temperature and rain remained noteworthy prognosticators of dengue occurrence in Pakistan. Surge of cases occurred from September to October [24] , as shown in Fig. 3 . ",
+            "cite_spans": [
+                {
+                    "start": 590,
+                    "end": 594,
+                    "text": "[14]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1308,
+                    "end": 1312,
+                    "text": "[24]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1327,
+                    "end": 1333,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Environmental Factors"
+        },
+        {
+            "text": "Traditional non-spatial epidemiology models have been used use to represent epidemics of communicable diseases [3] . A Susceptible, Exposed, Infectious, Recovered (SEIR) is an epidemiological model that describes the transmission process of an infectious disease [19] . The individuals enter or leave the compartment based on flow rates defined. There is a decrease in Susceptible individuals when individuals get infection, or they die. Number of individuals in the Exposed compartment increases when they get infection and decreases as soon as they show the symptoms of infection and decreases with the death rate. The infection compartment increases by the infection events of Exposed and decreases by the death and recovery rate. There is an increase in Recovered compartment with the recovery rate and decreases with the natural death. Another extension to the SIS model was proposed in [13] . It contains three population components: Humans (H), Vectors (M) and Eggs (E). 'L' represents the number of Latent mosquitoes that are in incubation period, as shown in Fig. 4 . At first a Susceptible human gets infection from a vector moves to the Infectious compartment. While at infectious state, a human may get recovered and move to the Recovered state or may die. An Infectious human may spread infection to a Susceptible vector which would move to the Latent compartment, where it stays for the time between getting Infection and becoming infectious, called latency period; the vector then moves to the Infectious compartment. A susceptible mosquito if lays eggs increases the population of susceptible vectors, whereas an Infectious mosquito if lays eggs would increase the population of Infectious vectors. It is also possible that an Infectious mosquito lays normal eggs. The main goal of modeling the life cycle of mosquitoes is to estimate the growth of the vector density at a place and time; and the interaction with the hosts to predict the rate of spread of disease. Our proposed approach is based on the foundation of this principle. ",
+            "cite_spans": [
+                {
+                    "start": 111,
+                    "end": 114,
+                    "text": "[3]",
+                    "ref_id": null
+                },
+                {
+                    "start": 263,
+                    "end": 267,
+                    "text": "[19]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 892,
+                    "end": 896,
+                    "text": "[13]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1068,
+                    "end": 1074,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Mathematical Modeling in Epidemiology"
+        },
+        {
+            "text": "Most existing mathematical models focus on non-spatial macro-level aspects of the system. Because we are strongly interested in the micro-level aspects of our agents (a level where we can more easily extract rules and behaviors), we therefore use agent-based modelling. An agent-based model consists of autonomous decision-making entities: Agents, each able to perceptively assess situations and make decision according to a set of predefined rules. ABM is decentralized and produces collective behavior by agents communicating and interacting with each other in their environment [16] . The interest in using ABM has been recently renewed due to their ability to model complex geospatial structures and interacting networks [5] .",
+            "cite_spans": [
+                {
+                    "start": 581,
+                    "end": 585,
+                    "text": "[16]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 725,
+                    "end": 728,
+                    "text": "[5]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Agent-Based Modeling and Simulation"
+        },
+        {
+            "text": "Many researchers have proposed different dengue epidemic simulation models. However, selection of the methodology and platform greatly depends upon the purpose of the study. Jacintho, et al. [16] propose an agent-based model of the dengue spread, using the Swarm platform that models the micro-level behavior of agents in the spread and transmission of dengue fever using a rule-based approach, however it lacks GIS based spatial representation. Almeida, et al. [1] propose an individual-based approach to model Aedes aegypti population considering vectors, humans and objects as agents, using repast framework. Kang and Aldstadt [17] proposed an approach to validate spatially explicit ABM for several specifications of vector-borne disease transmission models, using multiple scale spatio-temporal patterns. Hunter et al. [15] developed a data driven agent-based SEIR model that resulted in the emergence of patterns and behaviors that are not directly programmed into the model. Lima, et al. [20] developed DengueME, a collaborative open source platform to simulate dengue disease and its vector's dynamics. It supports compartmental and individual-based models, implemented over a GIS database, that represent Aedes aegypti population dynamics, human demography, human mobility, urban landscape and dengue transmission mediated by human and mosquito encounters. Yein Ling Hii [14] proposed a machine learning approach to study dengue fever considering climatic factors: temperature and rainfall using Poisson multivariate regression and validated through multiple statistical models. Guo, et al. [10] presented a comparison of various machine learning algorithms for the accurate prediction of dengue in China, and shows that support vector regression achieved a superior performance in comparison with other forecasting techniques assessed in this study.",
+            "cite_spans": [
+                {
+                    "start": 191,
+                    "end": 195,
+                    "text": "[16]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 462,
+                    "end": 465,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 630,
+                    "end": 634,
+                    "text": "[17]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 824,
+                    "end": 828,
+                    "text": "[15]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 995,
+                    "end": 999,
+                    "text": "[20]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1380,
+                    "end": 1384,
+                    "text": "[14]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1600,
+                    "end": 1604,
+                    "text": "[10]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Literature Review"
+        },
+        {
+            "text": "Our proposed framework uses the mathematical model proposed by [13] , as underlying foundation and extend it using an ABM approach, which consists of two population layers: (i) human and (ii) vectors (mosquitoes and eggs). Both layers express the population dynamics, mobility and microscopic behavior of human and vector agents separately, yet provide a common spatial environment for their interactions, to study the spread of disease within the desired spatiotemporal resolution.",
+            "cite_spans": [
+                {
+                    "start": 63,
+                    "end": 67,
+                    "text": "[13]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Literature Review"
+        },
+        {
+            "text": "This section discusses the details of our proposed framework which is composed of three layers: (i) Host Layer (Human population); (ii) Vector Layer (Mosquito population); and (iii) Pathogen Layer (Dengue parameters), as shown in Fig. 5 . The framework further integrates: (i) GIS based spatial environment for agent distribution and mobility; (ii) time step using a user defined temporal resolution (from Min to Year); (iii) simulation engine to handle change of states and dynamic event processing; (iv) database for importing input data and exporting simulation results; (v) exogenous variables for weather and climate data; and (vi) validation data for model validation. The framework also provide a visualization dashboard for viewing the change of states of the distributed population of agents in real-time (or virtual time a.k.a faster than real-time) and for the graph visualization of the simulation results. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 230,
+                    "end": 236,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Proposed Framework"
+        },
+        {
+            "text": "This layer concerns with the structure, behavior and the interactions of host agent and allows the modelers to initialize a host population (e.g., human or animals) using variable configurations. The behavior of the host agent is represented by a state chart, as shown in Fig. 6 which consists of six states: Susceptible, Exposed, Infected (or Immune), Recovered (or Dead). In this paper we assume the entire host population is initialized in Susceptible state. In the future, we intend to support a distribution of initial states so that we can use more realistic model configurations of a study area. When at 'Susceptible' state, a host agent receives an incoming message from an infectious mosquito, representing the 'infectious bite', it transits to an 'Exposed' state. After a certain period, defined by the incubation period parameter (3-8 days [28] ) either the host will transit to 'Infected' state or go to immune state (if resolved immune by the immunity probability). When at infected state, an incoming 'bite' message causes a self-loop transition, which is used to transmit the virus to an uninfected mosquito, with a given probability. After a certain duration, defined by the illness duration parameter (20 days) the host will transit to 'Recovered' state, if resolved true by the survival probability (0.9) or 'Dead' otherwise. We implement the interactions between Host and Vector agents using message passing and a distance based network type [2], which implies that a vector is connected with multiple hosts that are situated within a given range (36 m), and can communicate i.e. bite with infection or acquire an infection through a bite, as shown in Fig. 8 . The detailed bite algorithm is presented later in this section. ",
+            "cite_spans": [
+                {
+                    "start": 851,
+                    "end": 855,
+                    "text": "[28]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 272,
+                    "end": 278,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 1671,
+                    "end": 1677,
+                    "text": "Fig. 8",
+                    "ref_id": null
+                }
+            ],
+            "section": "Host Layer"
+        },
+        {
+            "text": "This layer concerns with the structure, behavior and the interactions of vector agent. The behavior of the vector agent is represented by a state chart, as shown in Fig. 7 . It consists of states: Egg, Larva, Pupa and Adult (male or female). A vector agent can be initialized in any of these states. In this paper we assume initialize the vector population with the probability of 0.2 eggs, 0.2 larvae, 0.2 pupas and 0.4 adults (0.5 male and 0.5 female). The vector agents are uniformly distributed over the space, however this distribution can be fine tuned if the data of the concentrations of the mosquitoes nests is available. From egg, the agent moves on to the Larva state between 2-3 days. From larva it takes 4 days to transit to Pupa state, where it resides for 2 days and moves to the Adult stage, with a 0.5 probability to be a male or a female [6] . The male Aedes aegypti neither makes a bite nor transmits infection and dies after a lifespan of 14 days and then go to the final state 'dead '. A female mosquito can enter into the 'Oviposition' state when it is ready to lay eggs. A susceptible female will lay susceptible eggs whereas an infected female lay eggs with infectious probability = 0.3. The spawning of eggs is triggered by the event 'EggSpawn'. The initial state of an egg (infected or not) depends on whether the female mosquito is in Susceptible or infected state. The lifespan of the female mosquito is assumed to be between 42-56 days. Inspired from the Helmersson's mathematical model [13] , shown in Fig. 4 , the 'susceptible', 'latent' and 'Infected' states of the female mosquito are implemented. If not initially infected (i.e., IsInfected = false), an adult female mosquito enters into 'susceptible' state. It goes to 'latent' state if bites an infected human and acquires the virus (with a transmission probability of 0.18). The latent period is the delay from transmission to infection and is assumed to be 10 days, after which the agent enters into the 'Infected' state. While at 'susceptible' or 'Infected' states, a female mosquito bites human and have her fill of blood after each meal, at the rate of a bite after 2 days. Aedes aegypti is an intermittent biter and prefers to bite more than one person during the feeding period, therefore we assume it bites all the connected hosts. This bite is triggered by the event 'bite' at random intervals until the mosquito is dead When a 'bite' occurs the interaction between Host and Vector is implemented as shown in Algorithm 1. It takes VectorID and a list of ConnectedHosts as input. A vector is connected to all the hosts that lie within the range of 36 m. This algorithm determines infectivity of the vector after the bite using a boolean variable 'Infected'. Line1 assigns the existing state (infected or not) of the vector. Line 2-14 iterates a list of all the connected hosts and evaluate two scenarios as shown in Fig. 1 . If the vector is infected it will transmit an 'infectious bite' through message passing, and cause the host to transit from 'susceptible' to 'exposed' state. Else, if the host is infected the vector will acquire infection (with a 0.018 probability), and transit from 'susceptible' to 'Latent' state. Otherwise it will just 'bite' the host without the transmission of any infection. The number of times mosquito will bite human is defined by bite rate [13] , which is temperature dependent and is calculated as:",
+            "cite_spans": [
+                {
+                    "start": 856,
+                    "end": 859,
+                    "text": "[6]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1516,
+                    "end": 1520,
+                    "text": "[13]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 3370,
+                    "end": 3374,
+                    "text": "[13]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 165,
+                    "end": 171,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                },
+                {
+                    "start": 1532,
+                    "end": 1538,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 2910,
+                    "end": 2916,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Vector Layer"
+        },
+        {
+            "text": "This layer deals with the modalities of the pathogen under study i.e., 'Dengue' in our case. In this paper the structure and the behaviour of the pathogen is limited only to initialize the serotype (i.e., DENV1, DENV2, DENV3 or DENV4) and key parameters such as infectivity, transmisiability, survivability and incubation period. In future, we aim to extend this layer for dealing with the complex logic of the cross-immunity with different serotypes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pathogen Layer"
+        },
+        {
+            "text": "Our simulation is implemented using AnyLogic University Edition, and performed for a population of 50,000 persons and 1,000 mosquito agents, for a period of 90 days, on an Intel Core i7-8700 CPU@3.20 GHz, 16.0 GB RAM, and a 64-bit Windows Operating System. The human and mosquito populations are randomly distributed within a selected region in the city of Islamabad. A simulation run is shown using spatial and temporal visualization in Fig. 9 and 10. Initially the person agent population is susceptible, as soon as it is bitten by infectious mosquito it becomes Exposed (orange), after completing its incubation period of 4-7 days in exposed state it either becomes Infectious (red) or Immune (gray). From Infectious state after completing 4-12 days it either becomes Recovered (green) or Dead (black). The simulated results obtained are compared with the actual results of confirmed cases obtained from the dengue outbreak occurred in the local region in 2013. The actual cases were 9,036 out of the total population of 1,257,602 while the simulated cases were 400 out of the total agents' population of 50,000. In order to compare the data results of actual and simulated dengue cases, we calculated the prevalence of both data sets:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 438,
+                    "end": 444,
+                    "text": "Fig. 9",
+                    "ref_id": "FIGREF6"
+                }
+            ],
+            "section": "Simulation and Results"
+        },
+        {
+            "text": "No. of Dengue Cases Total Population \u00d7 100 (1) Fig. 11 . Comparison of dengue cases -Source of actual data [4] For comparison we present a graph containing both cases in Fig. 11 . We observe a similar trend in the prevalence of dengue cases between the actual and simulated results. The Root Mean Square Error (RMSE) of both actual and simulated prevalence for the 90 days is 0.064. The results show that the dengue transmission is temperature dependent. It is to be noted that with the increase in temperature, the biting rate of Aedes aegypti increases that give rise to the dengue cases.",
+            "cite_spans": [
+                {
+                    "start": 107,
+                    "end": 110,
+                    "text": "[4]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 47,
+                    "end": 54,
+                    "text": "Fig. 11",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 170,
+                    "end": 177,
+                    "text": "Fig. 11",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Simulation and Results"
+        },
+        {
+            "text": "In this paper we presented a framework for modeling, simulation, visualization and forecasting of dengue spread, using an agent-based modeling approach. Our framework incorporates the structure, behaviour and interactions of key entities of disease epidemiology: (i) Host (Humans); (ii) Vector (mosquitoes); and (iii) Pathogen (dengue virus), using a separation of concern through independent layers. Our open-ended framework offers greater flexibility to the modelers for modification and extensibility of the disease under study, and can be used as a research tool by stakeholders (e.g., clinicians, microbiologists and public health professionals) to study the epidemiology of a region. The unique feature of our framework is its ability to model the life-cycle and population dynamics of both host and vector population, while incorporating extended mathematical models for the study of the epidemic spread. In the absence of vector population data, this tool provides means to synthesize vector population, and help improve the understanding of the spread of diseases. In the future, we plan to improve our proposed framework further by adding the mobility layer to incorporate movements, both in the Host and Vector layers. We also aim to extend our framework to support populations of a million agents or more.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion and Future Work"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Multiagent modeling and simulation of an Aedes aegypti mosquito population",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "De Almeida",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "P M"
+                    ],
+                    "last": "Ferreira",
+                    "suffix": ""
+                },
+                {
+                    "first": "\u00c1",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Eiras",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Obermayr",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Geier",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Environ. Model. Softw",
+            "volume": "25",
+            "issn": "12",
+            "pages": "1490--1507",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.envsoft.2010.04.021"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Ud Din, I.: Dengue epidemic in postconflict Swat District",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Chaudhry",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ahmad",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Rashid",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Am. J. Trop. Med. Hyg",
+            "volume": "96",
+            "issn": "4",
+            "pages": "899--902",
+            "other_ids": {
+                "DOI": [
+                    "10.4269/ajtmh.16-0608"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Agent-Based Modelling and Geographical Information Systems: A Practical Primer",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Crooks",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Malleson",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Manley",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Heppenstall",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Proactive vector control strategies and improved monitoring and evaluation practices for dengue prevention",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Eisen",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Barry",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Morrison",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Scott",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "J. Med. Entomol",
+            "volume": "46",
+            "issn": "6",
+            "pages": "1245--1255",
+            "other_ids": {
+                "DOI": [
+                    "10.1603/033.046.0601"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Is Dengvaxia a useful vaccine for dengue endemicareas?",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Gubler",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Halstead",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "BMJ",
+            "volume": "367",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1136/bmj.l5710"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Dengue and Dengue Hemorrhagic Fever",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Gubler",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Ooi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Vasudevan",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Farrar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "CABI",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Developing a dengue forecast model using machine learning: a case study in China",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "PLoS Negl. Trop. Dis",
+            "volume": "11",
+            "issn": "10",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Knowledge and attitude of the public towards dengue control in urban and rural areas of Punjab",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hafeez",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Akram",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Suhail",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Arshad",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Pak. J. Zool",
+            "volume": "44",
+            "issn": "1",
+            "pages": "15--21",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Artificial intelligence based diagnostic screening for dengue fever",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Haneef",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Mahmood",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Younis",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Shafait",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "International Conference on Dengue Prevention and Control",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Mathematical modeling of dengue -temperature effect on vectorial capacity",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Helmersson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Climate and dengue fever: early warning based on temperature and rainfall",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Hii",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Epidemiology and Global Health",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "An open-data-driven agent-based model to simulate infectious disease outbreaks",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Hunter",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Namee",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kelleher",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "PLoS One",
+            "volume": "13",
+            "issn": "12",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1371/journal.pone.0208775"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "An agent-based model for the spread of the dengue fever: a swarm platform simulation approach",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [
+                        "F O"
+                    ],
+                    "last": "Jacintho",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "F M"
+                    ],
+                    "last": "Batista",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Ruas",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "G B"
+                    ],
+                    "last": "Marietto",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Silva",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Proceedings of the 2010 Spring Simulation Multiconference",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/1878537.1878540"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Using multiple scale spatio-temporal patterns for validating spatially explicit agent-based models",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Kang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Aldstadt",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Int. J. Geogr. Inf. Sci",
+            "volume": "33",
+            "issn": "1",
+            "pages": "193--213",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/13658816.2018.1535121"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Epidemiological trends and risk factors associated with dengue disease in Pakistan (1980-2014): a systematic literature search and analysis",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Khan",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Khan",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ghaffar",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Khalid",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "BMC Public Health",
+            "volume": "18",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/s12889-018-5676-2"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Mathematical models in infectious disease epidemiology",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kretzschmar",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wallinga",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Modern Infectious Disease Epidemiology. SBH",
+            "volume": "",
+            "issn": "",
+            "pages": "209--221",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-0-387-93835-6_12"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Dengueme: a tool for the modeling and simulation of dengue spatiotemporal dynamics",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "F M D"
+                    ],
+                    "last": "Lima",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Int. J. Environ. Res. Public Health",
+            "volume": "13",
+            "issn": "9",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Assessing potential countermeasures against the dengue epidemic in non-tropical urban cities",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Masui",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Kakitani",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ujiyama",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Hashidate",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Shiono",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kudo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Theor. Biol. Med. Model",
+            "volume": "13",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/s12976-016-0039-0"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Surveillance of dengue fever virus: a review of epidemiological models and early warning systems",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Racloz",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Ramsey",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Tong",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "PLoS Negl. Trop. Dis",
+            "volume": "6",
+            "issn": "5",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Sustained reduction of the dengue vector population resulting from an integrated control strategy applied in two Brazilian cities",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Regis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "PLoS ONE",
+            "volume": "8",
+            "issn": "7",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1371/journal.pone.0067682"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Monitoring the diversity of malaria and dengue vector in Karachi: studying variation of genera and subgenera of mosquitoes under different ecological conditions",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Shaikh",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "J H"
+                    ],
+                    "last": "Kazmi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Qureshi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Ecol. Process",
+            "volume": "3",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/s13717-014-0012-y"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Epidemiology: Beyond the Basics",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Szklo",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Nieto",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "WHO: Who scales up response to worldwide surge in dengue",
+            "authors": [],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "World Health Organization: Dengue and severe dengue-fact sheet",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Mosquito to human dengue transmission",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Life-cycle of Aedes aegypti",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Dengue cases in Pakistan (2013-2018)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Humans, mosquitoes and eggs. S = Susceptible, E = Exposed, I = Infected, R = Recovered, L = Latent, H = Human, M = Mosquitoes, E = Egg",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Agent-based simulation framework",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Host agent (human) Vector agent (mosquito) Bite mechanism",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Simulation results -spatial visualization (Color figure online) Fig. 10. Simulation results temporal visualization (Color figure online)",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

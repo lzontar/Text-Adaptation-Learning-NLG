@@ -1,0 +1,2548 @@
+{
+    "paper_id": "00bf962783de4cdf5a1d7a3602af87f34428a481",
+    "metadata": {
+        "title": "Evaluating Physiological Dynamics via Synchrosqueezing: Prediction of Ventilator Weaning",
+        "authors": [
+            {
+                "first": "Hau-Tieng",
+                "middle": [],
+                "last": "Wu",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Shu-Shua",
+                "middle": [],
+                "last": "Hseu",
+                "suffix": "",
+                "affiliation": {},
+                "email": "sshseu@vghtpe.gov.tw.m.-y."
+            },
+            {
+                "first": "Mauo-Ying",
+                "middle": [],
+                "last": "Bien",
+                "suffix": "",
+                "affiliation": {},
+                "email": "mybien@tmu.edu.tw."
+            },
+            {
+                "first": "Yu",
+                "middle": [
+                    "Ru"
+                ],
+                "last": "Kou",
+                "suffix": "",
+                "affiliation": {},
+                "email": "yrkou@ms.ym.edu.tw"
+            },
+            {
+                "first": "Ingrid",
+                "middle": [],
+                "last": "Daubechies",
+                "suffix": "",
+                "affiliation": {},
+                "email": "ingrid@math.duke.edu."
+            },
+            {
+                "first": "Y",
+                "middle": [
+                    "R"
+                ],
+                "last": "Kou",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Oscillatory phenomena abound in many types of signals. Identifying the individual oscillatory components that constitute an observed biological signal leads to profound understanding about the biological system. The instantaneous frequency (IF), the amplitude modulation (AM), and their temporal variability are widely used to describe these oscillatory phenomena. In addition, the shape of the oscillatory pattern, repeated in time for an oscillatory component, is also an important characteristic that can be parametrized appropriately. These parameters can be viewed as phenomenological surrogates for the hidden dynamics of the biological system. To estimate jointly the IF, AM, and shape, this paper applies a novel and robust time-frequency analysis tool, referred to as the synchrosqueezing transform (SST). The usefulness of the model and SST are shown directly in predicting the clinical outcome of ventilator weaning. Compared with traditional respiration parameters, the breath-to-breath variability has been reported to be a better predictor of the outcome of the weaning procedure. So far, however, all these indices normally require at least 20 min of data acquisition to ensure predictive power. Moreover, the robustness of these indices to the inevitable noise is rarely discussed. We find that based on the proposed model, SST and only 3 min of respiration data, the ROC area under curve of the prediction accuracy is 0.76. The high predictive power that is achieved in the weaning problem, despite a shorter evaluation period, and the stability to noise suggest that other similar kinds of signal may likewise benefit from the proposed model and SST.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Index Terms-Heart rate variability (HRV), instantaneous frequency, physiological dynamics, respiratory rate variability (RRV), synchrosqueezing transform, ventilation weaning prediction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "B IOLOGICAL signals can contain a wealth of information.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In particular, to evaluate a person's physiological condition we can extract information from a variety of biological signals such as ECG, respiratory signals, blood pressure, and circadian rhythm [1] - [8] . In some cases, this information is easy to read and interpret, in others, it is less accessible, and more sophisticated approaches are needed to extract the information. Many of the measured signals are oscillatory, and one particular and common technique is to focus on the oscillatory features. The fundamental quantity describing the oscillation is its period, which is defined to be the time needed for an observer to observe a \"complete and intact oscillation\"; this can be expressed by the frequency, which qualitatively is the inverse of the period, that is, it gives the number of oscillations per unit time period. For example, the periods of the ECG signal, the respiratory signal, and the circadian rhythm are about 1 s, 5 s, and 24 h, corresponding to 1 Hz, 0.2 Hz, and 11.6 mHz, respectively [2] - [5] . In recent years, growing evidence suggests that information extracted from biological signals with oscillatory features has diagnostic and prognostic value in various diseases [1] , [2] , [4] - [6] , [9] , [10] .",
+            "cite_spans": [
+                {
+                    "start": 197,
+                    "end": 200,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 203,
+                    "end": 206,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1014,
+                    "end": 1017,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1020,
+                    "end": 1023,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1202,
+                    "end": 1205,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 1208,
+                    "end": 1211,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1214,
+                    "end": 1217,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1220,
+                    "end": 1223,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1226,
+                    "end": 1229,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1232,
+                    "end": 1236,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Mathematically, frequency analysis is typically studied via the Fourier transform when the signal can be assumed to be stationary. However, it has been long observed that the stationarity assumption is too restrictive for physiological signals, and more information of the physiological system can be extracted if one allows time dependence in the frequency or period. For example, the variability of the time intervals between sequential heart beats, or heart rate variability (HRV) [2] , [4] , observed in ECG signals, and the variability of the time intervals between sequential breath intakes, or respiratory rate variability (RRV) [3] , [10] - [16] are well known to be related to physiological dynamics. Accurate extraction of this type of time-varying information improves diagnostic accuracy and treatment quality [3] , [4] , [9] , [10] and much effort has been put on this direction. In general, time-varying frequency is not measured directly, but is inferred from the behavior, in time, of the oscillation-to-oscillation intervals. A well-known example is the analysis of R-peak to R-peak intervals (RRI) to reveal HRV information [4] , [9] , [17] . Many techniques have been introduced, including spectral methods and nonlinear dynamical analysis, such as Poincare map, entropy analysis, fractal analysis, to analyze these oscillation-tooscillation intervals [10] - [17] .",
+            "cite_spans": [
+                {
+                    "start": 484,
+                    "end": 487,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 490,
+                    "end": 493,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 636,
+                    "end": 639,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 642,
+                    "end": 646,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 649,
+                    "end": 653,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 822,
+                    "end": 825,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 828,
+                    "end": 831,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 834,
+                    "end": 837,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 840,
+                    "end": 844,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1142,
+                    "end": 1145,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1148,
+                    "end": 1151,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1154,
+                    "end": 1158,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1371,
+                    "end": 1375,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1378,
+                    "end": 1382,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "These established analysis techniques have at least the following three limitations, however, in their use for the study of Fig. 1 . Typical recorded respiratory signal from an intensive care unit patient with support from a ventilator. The arrows with a mark R indicate times in the signal where it would be difficult to identify a basic oscillation if only peaks were taken into consideration; the arrow with a mark B indicates a brief machine recalibration; the arrow with a mark G indicates an invalid respiratory trigger. This patient succeeded in ventilator weaning. physiological signals. A first limitation is the (relatively) large number of oscillations that must be observed. For example, for analysis of respiratory signals, at least 300 and 100-1000 oscillations are needed for methods that use a Poincare map [10] , [14] , [15] or approximate entropy [12] , [18] , respectively. It is feasible to collect many points for the ECG signal, since this requires only a continuous recording for about 5 min, a reasonable length for a bedside observation. For signals that function on larger time scales than the ECG signal, the story is different. For example, for respiratory signals, we normally need at least 20 min or longer to collect the necessary amount of data, which is usually difficult in certain clinical settings such as patients in intensive care unit [10] , [12] , [14] - [16] or newborns [18] . The situation would be even worse if we wanted to analyze larger time-scale physiological signals such as circadian rhythm [5] , [7] .",
+            "cite_spans": [
+                {
+                    "start": 823,
+                    "end": 827,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 830,
+                    "end": 834,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 837,
+                    "end": 841,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 865,
+                    "end": 869,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 872,
+                    "end": 876,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1374,
+                    "end": 1378,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1381,
+                    "end": 1385,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1388,
+                    "end": 1392,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1395,
+                    "end": 1399,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1412,
+                    "end": 1416,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1542,
+                    "end": 1545,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1548,
+                    "end": 1551,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 124,
+                    "end": 130,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "The second limitation is that it is not always straightforward to determine the oscillation-to-oscillation time series from the given oscillatory signal. Recall that this determination depends on being able to isolate individual oscillations, which requires the identification of the complete repeating basic pattern and, possibly, landmarks within the pattern. Given a suitable definition of this repeating pattern, the oscillation-to-oscillation time series is determined by finding the landmarks for each oscillation. For example, for the ECG signal, the pattern is related to the electrophysiological activity of a normal heart beat and the landmark is defined to be the R peak, and the RRI-time series is based on the R-peak detection [4] , [9] , [17] . For other physiological signals, it is not always easy to define a basic \"oscillation\" or a \"landmark,\" even for healthy subjects. For example, although we can provide a definition for respiratory signals, in practice determining the landmarks is not easy, specifically when there is invalid or doubly triggered respiration (see Fig. 1 ). This difficulty can be mitigated to some extent by noise removal or noise reduction algorithms [17] , but even then no reliable determination of the \"true\" landmarks can be guaranteed. Sometimes it is hard to even provide a universally accepted definition of a landmark, e.g., for the electroesophagographic signal.",
+            "cite_spans": [
+                {
+                    "start": 740,
+                    "end": 743,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 746,
+                    "end": 749,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 752,
+                    "end": 756,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1193,
+                    "end": 1197,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1088,
+                    "end": 1094,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "The third limitation is the overreduction of the information inside the physiological signals by retaining only the oscillationto-oscillation time series. For example, respiratory signal information is hidden in the time varying amplitude of the ECG signal [19] , which is lost in the RRI time series. Indeed, the basic pattern of the oscillation of the ECG signal itself also varies according to time due to the cardiac axis rotation induced by the respiration and other effects.",
+            "cite_spans": [
+                {
+                    "start": 257,
+                    "end": 261,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "To address these limitations, we propose in this paper a descriptive model featuring a more fine-grained description of the oscillatory physiological signal than given by the time intervals between sequential oscillations. The model is characterized by the wave-shape function, which is defined to replace the definition of an oscillation and the landmark, the instantaneous frequency, the variability of which is defined to be a proxy for the physiological dynamics, and the amplitude modulation, which is aimed to capture more physiological information. The companion algorithm, referred to as the synchrosqueezing transform (SST), is introduced to provide an accurate estimation of the instantaneous frequency and the amplitude modulation [20] , [21] .",
+            "cite_spans": [
+                {
+                    "start": 742,
+                    "end": 746,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 749,
+                    "end": 753,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "We recently reported [14] , [15] that small variabilities of respiratory parameters including rate and flow are associated with a high incidence of weaning failure in intensive care unit patients, and these variabilities may serve as reliable predictors for weaning patients from mechanical ventilation. As an testbed of the proposed model and algorithm, we analyze the respiratory signals collected from patients in one of our recent studies [15] . We show that the variation of the recorded respiratory signal, monitored for as brief a period as 3 min, together with the tidal volume information, can be used to define a weaning index (WIN) that predicts weaning process outcome with a success rate quantitatively as high as with the area under curve (AUC) of 0.76 when analyzed by the receiver operation characteristic (ROC).",
+            "cite_spans": [
+                {
+                    "start": 21,
+                    "end": 25,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 28,
+                    "end": 32,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 443,
+                    "end": 447,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In this section, we provide a phenomenological model describing general oscillatory physiological signals. A physiological system is closely linked with a variety of other physiological systems that interact in complex ways; it is well known that, for example, chemical set points and metabolic demand play a role in respiration patterns [3] , [15] . Our treatment of these signals will be purely phenomenological; that is, the parameters and indices we will derive from observations of the physiological signal will be based solely on these signals themselves, and not on explicit, quantitative models of the underlying mechanisms. We will show by example in the next section that these parameters and indices in the model contain information that can provide insight into the functioning of the underlying physiology.",
+            "cite_spans": [
+                {
+                    "start": 338,
+                    "end": 341,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 344,
+                    "end": 348,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Model"
+        },
+        {
+            "text": "The major characteristic pattern of an oscillatory physiological signal is that it is a (fairly) periodic phenomenon; we therefore model it (without noise) as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Model"
+        },
+        {
+            "text": "where s(\u00b7) is a continuously differentiable periodic function we call the wave shape function, s(t + 2\u03c0) = s(t) for all t; it is an oscillating function that satisfies some mild technical conditions [22] (Note that to make the discussion clear, we assume that the signal has just one component, unlike [22] , where superpositions of several components were considered.) We call the derivative \u03c6 (\u00b7) of the phase function \u03c6(t) the instantaneous frequency of f ; we require it to be positive, but it need not be constant; we allow it to vary in time, as long as the variations are slight from one period to the next, i.e., |\u03c6 (t)| \u2264 \u03c6 (t) for all t, where is some small, preassigned number. Likewise, the amplitude A(t) should be positive, but is allowed to vary slightly as well, i.e., |A (t)| \u2264 \u03c6 (t). In summary, we have the following conditions for all t \u2208 R:",
+            "cite_spans": [
+                {
+                    "start": 199,
+                    "end": 203,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 302,
+                    "end": 306,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Model"
+        },
+        {
+            "text": "(2) For the identifiability problem raised in this model and hence the terminologies instantaneous frequency and amplitude modulation, we refer the reader to [21] for the discussion.",
+            "cite_spans": [
+                {
+                    "start": 158,
+                    "end": 162,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Model"
+        },
+        {
+            "text": "In reality, the recorded physiological signal g(t) is contaminated by noise or measurement error, and we model the deviated physiological signal as [21] , [23] ",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 152,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 155,
+                    "end": 159,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Model"
+        },
+        {
+            "text": "where \u03a6(t) is a generalized stationary random process with finite variance and \u03c3(t) is a slowly varying smooth function which capture the heteroscedasticity of the error. Although the possible noise appearing in the medical signal is versatile, our model covers a large portion of it, for example, the time-dependent noise, the Poisson noise and even \"slightly\" nonstationary noise. Note that the commonly used Gaussian white noise model is when \u03c3(t) = 1 and \u03a6(t) is the derivative of the Brownian motion.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Model"
+        },
+        {
+            "text": "Given the model (1) for the oscillatory physiological signal f (t), we want to capture the time-varying quantities of the signal, including the instantaneous frequency \u03c6 (t) and the amplitude modulation A(t), when the signal is contaminated by noise as the model (3). It is well known that the continuous wavelet transform (CWT) and short time Fourier transform (STFT) provide profound information about these time-varying quantities, in particular the instantaneous frequency, but accurate extraction via these methods remains an issue, even after many years of research. Reallocation is a technique widely employed in order to get accurate estimates of the instantaneous frequency [24] - [26] . In general, these methods reallocate the wavelet coefficients or STFT coefficients according to some \"regrouping\" rule, making it possible to read the instantaneous frequency from the resulting time-frequency plane representation.",
+            "cite_spans": [
+                {
+                    "start": 683,
+                    "end": 687,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 690,
+                    "end": 694,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Methodology"
+        },
+        {
+            "text": "Synchrosqueezing transform (SST) is a recently introduced novel reallocation technique introduced in [27] in order to analyze speech signals; it was theoretically proved to enjoy several nice properties, useful in our analysis of [20] - [23] . Specifically, the instantaneous frequency \u03c6 (t) and the amplitude modulation A(t) can be accurately estimated and the estimation does not depend on whether or not the wave-shape function is a cosine [22] ; moreover, the SST is robust to several different types of noise, like the white or colored Gaussian noise [23] or almost stationary generalized random process [21] . Furthermore, the analysis result is adaptive to the data in the sense that the error is dependent only on the first three moments of the chosen mother wavelet and its derivative instead of the profile of the mother wavelet. We summarize the reallocation technique and SST in Appendix A and its numerical implementation in Appendix B. 1 For the sake of convenience, in what follows we shall use the acronyms SSTIF (for SynchroSqueezing Transform-derived Instantaneous Frequency) to refer to the SST-estimated instantaneous frequency, and SSTAM (SynchroSqueezing Transformderived Amplitude Modulation) to refer to the SST-estimated amplitude modulation.",
+            "cite_spans": [
+                {
+                    "start": 101,
+                    "end": 105,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 230,
+                    "end": 234,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 237,
+                    "end": 241,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 443,
+                    "end": 447,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 556,
+                    "end": 560,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 609,
+                    "end": 613,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 950,
+                    "end": 951,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Methodology"
+        },
+        {
+            "text": "Making a weaning decision for a patient on a ventilator is clinically an important issue. The RRV has proved to be helpful in predicting the outcome of weaning intubated patients from the ventilator [14] - [16] . Extended intubation has many negative side effects, such as an increased risk for infection [28] , [29] ; ideally physicians seek to extubate as soon as medically possible. Yet, weaning too early carries risk as well: reintubation leads to stress to patients or a higher mortality rate [28] , [29] ). It is thus important to decide accurately when patients can be weaned from the ventilator. To increase the weaning success, the present common practice is to conduct spontaneous breathing trials before a weaning attempt; the final weaning decision is based on the patient's performance during spontaneous breathing trials, characterized by parameters derived directly from the respiration signal, such as the rapid shallow breathing index (RSBI) [30] , and subjective evaluation by the clinician. Unfortunately, weaning failure still occurs in a significant percentage of patients who are judged ready-to-wean [28] , [29] . Recently, several RRV-based predictors have been proposed to increase the rate of success weaning in this context; these newer predictors are reported to have a higher accuracy than RSBI in predicting weaning success or failure [10] , [14] - [16] . Since the oscillation-to-oscillation time series is the focus of RRV analysis, observation of the respiration signal usually takes at least 20 min to guarantee highly significant prediction accuracy [13] - [15] . In addition, these more accurate RRV-based predictors rely on accurate timing of breath intake \"peaks\", and are thus likely subject to stability issues caused by the inevitable noise.",
+            "cite_spans": [
+                {
+                    "start": 199,
+                    "end": 203,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 206,
+                    "end": 210,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 305,
+                    "end": 309,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 312,
+                    "end": 316,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 499,
+                    "end": 503,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 506,
+                    "end": 510,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 960,
+                    "end": 964,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 1124,
+                    "end": 1128,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 1131,
+                    "end": 1135,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 1366,
+                    "end": 1370,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1373,
+                    "end": 1377,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1380,
+                    "end": 1384,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1586,
+                    "end": 1590,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1593,
+                    "end": 1597,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. TESTBED: VENTILATOR WEANING PROBLEM"
+        },
+        {
+            "text": "To mitigate these limitations, we analyze the respiratory signal by the approach proposed in Section II. First, we model the respiratory signal R(t) (without noise) as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. TESTBED: VENTILATOR WEANING PROBLEM"
+        },
+        {
+            "text": "where s(\u00b7), A(t), and \u03c6(t) satisfy (2). Fig. 2 illustrates the role of the different constituents of f(t) modeling the respiratory signal.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 40,
+                    "end": 46,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "III. TESTBED: VENTILATOR WEANING PROBLEM"
+        },
+        {
+            "text": "In reality, the recorded respiration signal Resp(t) is noisy, and we model it as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. TESTBED: VENTILATOR WEANING PROBLEM"
+        },
+        {
+            "text": "where \u03c3(t)\u03a6(t) satisfies the same conditions as that of (3). We apply the methodology described in Section II to directly analyze Resp(t) signals measured continuously during clinically feasible time intervals, far shorter than 20 min. The SST result of the recorded respiratory signal demonstrated in Fig. 1 is shown in Fig. 3 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 302,
+                    "end": 308,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 321,
+                    "end": 327,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "III. TESTBED: VENTILATOR WEANING PROBLEM"
+        },
+        {
+            "text": "To validate the combination of the model and the SST algorithm in deriving the dynamics of a physiological signal with large oscillatory scale, we consider the following database collected in a recent study [15] for the purpose of studying the ventilator weaning problem.",
+            "cite_spans": [
+                {
+                    "start": 207,
+                    "end": 211,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Study Material"
+        },
+        {
+            "text": "All protocols in that study [15] were approved by the Institutional Review Board of Taipei Veterans General Hospital, Taipei, Taiwan, and written informed consent was obtained from patients. The study subjects were 68 ready-for-weaning intubated patients collected in the intensive care unit of Taipei Veterans General Hospital, Taipei, Taiwan. In particular, all subjects are with RSBI \u2264110 breaths/min/L since we excluded patients not ready for weaning with RSBI >110 breaths/min/L before spontaneous breathing trial (SBT) due to the restriction from the Institutional Review Board. For each subject, we continuously recorded a 30 min flow signal at the sampling rate 100 Hz during SBT under the T-piece ventilator mode. The characteristics of these patients and the protocol to perform SBT are described in detail in [15] . These 68 subjects are divided into weaning success (n = 45) and failure (n = 23) groups, based upon their extubation outcomes. Extubation was defined to be successful if patients did not need the ventilator again for at least 48 h after extubation. Reinstitution of either noninvasive or invasive mechanical ventilation within 48 h of extubation was considered an extubation failure. In [15] , the data show no difference between the success and failure groups in the mean values of six clinically used weaning predictors measured before subject inclusion, and also in the mean values of three breathing pattern parameters measured after subject inclusion; in other words, the mean values of these nine clinically used weaning predictors could not allow us to discriminate success cases from failures.",
+            "cite_spans": [
+                {
+                    "start": 28,
+                    "end": 32,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 820,
+                    "end": 824,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1214,
+                    "end": 1218,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Study Material"
+        },
+        {
+            "text": "We now define the WIN index capturing the breathing pattern variability. Given the respiratory signal Resp(t), we apply SST to get the SSTIF and SSTAM. In the respiratory signal, the SSTAM can be understood as the instantaneous tidal volume. Then, we define the WIN index shown in Fig. 5 . As shown, the cut-off value of WIN index could allow us to separate a majority of patients with success weaning procedure from those with failure weaning procedure. Accordingly, this cut-off value of WIN index might be helpful for the physicians to make decision which patients merit weaning from mechanical ventilation. Notice that our method requires only three consecutive minutes of respiratory signal observation. It is important to note that the occurrence, during the observation windows, of machine calibration or some breathing irregularities, such as coughs, invalid trigger, etc., which normally require special attention in the existing analyses, is not an impediment for our method. These properties of the SST for a patient in the success group are shown in Fig. 3 for demonstration.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 281,
+                    "end": 287,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 1062,
+                    "end": 1068,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "B. WIN Index"
+        },
+        {
+            "text": "In this paper, we introduced a phenomenological model and the synchrosqueezing transform (SST) to alleviate the limitations of traditional methods for the analysis of oscillatory physiological signals. The usefulness of this combination is shown by applying it to the study of the ventilator weaning problem. Our results show that the SSTIF and SSTAM and their derived quantity WIN from the respiratory signal provide a suitable criterion for clinical use to predict weaning outcome, with an ROC-AUC of 0.76.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "At first sight, this result does not improve upon what has been reported for RRV-based predictions [14] - [16] . One should take into account, however, the following two points. First, the WIN requires only 3 min of consecutively recorded data rather than the at least 20 min typically required for the RRV-based indices; since a 3 min-observation is entirely feasible in clinical practice, whereas a 20 min-observation is much less so this is a crucial difference. Second, the definition of an oscillation and its landmark are not critical in the analysis. Note that even if the definition of an oscillation and its landmark are precisely given, the landmark detection is typically not robust under perturbations by noise, e.g., invalid breathing in the respiratory signal. Although the necessarily noisy signal can be \"denoised,\" existing noise removal or noise reduction algorithms cannot guarantee a reliable determination of the \"true\" landmarks. Even if \"oscillation-based segmentation\" could be carried out perfectly on a long enough recorded physiological signal so that enough oscillations are collected, it is not straightforward to obtain such an uninterrupted signal, in practice, especially when the period of each oscillation is large than, say, 2 s. Different kinds of interruptions during the signal record, for example, machine calibration, coughs, suction, irritation, and so on, require the signal analyst to artificially cut-and-stitch together pieces of signal so that the oscillation-to-oscillation intervals can be defined, as needed for the traditional method, even though there is no theoretical support to show that the dynamical variabilities evaluated from such manipulated time series are still as trustworthy. Similar potential disruptions typically occur in other oscillatory physiological signals. We therefore expect that the combination of the proposed phenomenological model and the analysis method, SST, have great potential in dealing with broader physiological signals than the traditional approaches, especially when the scale of the signal is large and the determination of the landmarks is not easy.",
+            "cite_spans": [
+                {
+                    "start": 99,
+                    "end": 103,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 106,
+                    "end": 110,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "In the introduction, we identified three drawbacks of presently used methods. We have already shown that the method proposed here does not suffer from the first two drawbacks: we can use much shorter time observation time observation windows, and we need not identify precisely the oscillating pattern to be detected. The third drawback we formulated was the relative poverty of the traditional landmark-to-landmark time interval series. The importance of keeping a richer description is illustrated by our method's use of variation in both frequency and amplitude in the ventilator weaning example.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "Physiologically, the respiration is not only controlled by the neural respiratory center, but also controlled by the arterial chemoreceptors, lung vagal sensory receptors, lung mechanics, etc. In a normal subject, these control factors are integrated in a complex way which leads to the RRV [12] , [14] , [15] . Although we do not have a definite evidence, based on the reasoning about the relationship between the decreased HRV (or RRV) and the severity of disease [2] , [4] , [14] - [16] , we hypothesize that the distinguishing power of WIN is a consequence of the possible disintegrity of the respiratory control factors, and this disintegrity leads to the decreased variability in the breathing pattern. This hypothesis indicates that the subject with decreased WIN is not completely ready for weaning, and explains why we observe the different patterns in the two groups. Also note that RRV is a different notion compared with the descriptive breathing parameters, like total volume, peak respiratory flow, total breath duration, and so on, which quantify the average behavior of one breath but not the complex integrity of the control factors.",
+            "cite_spans": [
+                {
+                    "start": 291,
+                    "end": 295,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 298,
+                    "end": 302,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 305,
+                    "end": 309,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 466,
+                    "end": 469,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 472,
+                    "end": 475,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 478,
+                    "end": 482,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 485,
+                    "end": 489,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "This discussion would not be complete without listing the shortcomings of our approach. First, the phenomenological nature of our analysis limits the possibility to extract detailed underlying mechanisms leading to the variability and hence the prediction outcome. For example, we are not able (nor did we attempt) to distinguish if the observed variability is purely neural in origin, or if mechanical factors also play a role; finer modeling is needed to decide this, if possible. Second, from the viewpoint of estimating physiological dynamics, monitoring variability from the signal of one physiological subsystem, for example, the respiratory signal, is not sufficient: the physiological dynamics is the outcome of the complicated interactions between different physiological subsystems. Incorporating different simultaneously recorded biomedical signals, such as electrocardiograms, respiratory signal, blood pressure, and so on, should lead to a more informative description of the systematic dynamics. A study of how to extract the information on the interaction between different subsystems via the combination of the existing model and the SST algorithm is now ongoing. Specifically, although we now have a suitable method to extract information from different oscillatory physiological signals of different scales, finding their interactions and inferring more information remains an open problem. Third, the limitation inherent to the SST itself cannot be overlooked. Indeed, it is an intrinsic limitation of the SST that its estimation of the instantaneous frequency is less reliable when this instantaneous frequency has large local variations. To address this, we need a better theoretically rigorous approach to estimate the instantaneous frequency for such signals; work on this is ongoing. Finally, the study in the testbed has two limitations: it is retrospective, and the data have been collected for a small clinical population only, although the group of patients is homogeneous, in the sense that all patients are confirmed to be ready for weaning based on the RSBI. Yet it certainly warrants a follow-up prospective and large-scale clinical study to investigate its clinical applicability.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "Despite these shortcomings, our example supports that the criterion we propose (in the form of the WIN) has the potential to assist physicians in assessing weaning readiness. The result encourages its application to other different kinds of oscillatory signals, in particular to those with (relatively) long periods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "In conclusion, the proposed model and algorithm together efficiently relieve the difficulty shared by the traditional methods presently used to analyze physiological dynamics or more general oscillatory signals-the data length needed for analyzing the dynamics is significantly shortened, the effect of the inevitable noise is reduced, and the pattern of the oscillatory phenomenon does not play a significant role.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. DISCUSSION"
+        },
+        {
+            "text": "The main mathematical tool we apply to analyze the oscillatory physiological signal is the newly developed, mathematically rigorous proved, and adaptive time-frequency (TF) analysis referred to as the synchrosqueezing transform (SST) [20] , [21] , [23] , [27] , [31] - [34] .",
+            "cite_spans": [
+                {
+                    "start": 234,
+                    "end": 238,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 241,
+                    "end": 245,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 248,
+                    "end": 252,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 255,
+                    "end": 259,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 262,
+                    "end": 266,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 269,
+                    "end": 273,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "APPENDIX A REALLOCATION TECHNIQUE AND SYNCHROSQUEEZING TRANSFORM"
+        },
+        {
+            "text": "Besides the traditional analytic approach, for example, the Hilbert transform, there are many existing TF analysis method available to estimate \u03c6 (t) of the signal expressed in (9) [35] . Due to the Heisenberg uncertainty principal, the ambiguity in the TF representation is inevitable, and the reallocation technique was proposed for the sake of sharpening the TF representation [24] - [26] , [34] - [36] . SST is a special reallocation technique. In the following, we start from giving the precise conditions and definitions about the functional class modeling the oscillatory physiological signal, and then discuss the reallocation technique and its special case SST. We mention that we can also consider STFT, but here we focus on the CWT to simplify the discussion.",
+            "cite_spans": [
+                {
+                    "start": 181,
+                    "end": 185,
+                    "text": "[35]",
+                    "ref_id": null
+                },
+                {
+                    "start": 380,
+                    "end": 384,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 387,
+                    "end": 391,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 394,
+                    "end": 398,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 401,
+                    "end": 405,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "APPENDIX A REALLOCATION TECHNIQUE AND SYNCHROSQUEEZING TRANSFORM"
+        },
+        {
+            "text": "Fix a Schwartz function \u03c8 so that supp \u03c8 \u2282 [1 \u2212 \u0394, 1 + \u0394], where 0 < \u0394 < 1 which is commonly called the mother wavelet. Recall that the CWT [37] of a given f (t) \u2208 S is defined by",
+            "cite_spans": [
+                {
+                    "start": 140,
+                    "end": 144,
+                    "text": "[37]",
+                    "ref_id": "BIBREF36"
+                }
+            ],
+            "ref_spans": [],
+            "section": "APPENDIX A REALLOCATION TECHNIQUE AND SYNCHROSQUEEZING TRANSFORM"
+        },
+        {
+            "text": "where a > 0 and b \u2208 R. Here, we follow the convention in the wavelet literature that a means scale and b means time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "APPENDIX A REALLOCATION TECHNIQUE AND SYNCHROSQUEEZING TRANSFORM"
+        },
+        {
+            "text": "To ease the notation, the moments of \u03c8 are denoted as I",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "APPENDIX A REALLOCATION TECHNIQUE AND SYNCHROSQUEEZING TRANSFORM"
+        },
+        {
+            "text": "where",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "and is a small parameter chosen in the model; II) s : [0, 1] \u2192 R is C 1,\u03b1 , where \u03b1 > 1/2, and 1-periodic function with unit L 2 norm, | s(k)| \u2264 \u03b4| s(1)| for all k = 1, where \u03b4 \u2265 0 is a small parameter, and n> D |n s(n)| \u2264 \u03b8 for some small parameter \u03b8 \u2265 0 and D \u2208 N. Note that we assume that the signal has just one component, unlike the case in previous studies wherein the signals were considered to include several components [22] . We shall call \u03c6 the phase function of the signal f (t) and the derivative \u03c6 (t) of the phase function the instantaneous frequency (IF) of f (t). Next, we model the measured physiological signal as",
+            "cite_spans": [
+                {
+                    "start": 429,
+                    "end": 433,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "where s(t), A(t), and \u03c6(t) satisfy (I) and (II) and the following condition is satisfied: III) T : R \u2192 R is in C 1 (R) so that its Fourier transform exists in the distribution sense, and |T (\u03c8 a,b )|, |T (\u03c8 a,b )| \u2264 C T for all b \u2208 R and a \u2208 (0, 1+\u0394 c 1 ], for some C T \u2265 0 [21] . IV) \u03a6(t) is a stationary generalized random process (GRP) or \"almost\" stationary GRP [21] independent of A(t)s(\u03c6(t)), which is introduced to model the measurement error. To be more specific, the power spectrum d\u03b7 of the given GRP \u03a6 satisfies (1 + |\u03be|) \u22122l d\u03b7 < \u221e for some l > 0. Also assume \u03c3 \u2208 C \u221e so that \u03c3 L \u221e 1 and \u03c3 := max =1,...,max{1,l} { \u03c3 ( ) L \u221e } 1, and var\u03a6(\u03c8) = 1. Now we discuss the reallocation technique and the SST. Take the CWT of a given observation Y in (9)",
+            "cite_spans": [
+                {
+                    "start": 274,
+                    "end": 278,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 366,
+                    "end": 370,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "Note that (10) is well defined since \u03c3(t)\u03a6(t) is GRP and by the assumption of T . The reallocation technique \"sharpens\" W Y by \"reallocating\" the value at (t, \u03be) to a different point (t , \u03be ) according to some reassignment rules [25] , [26] , [34] , [35] , where t might be different from t. In contrast to the reallocation technique, in the SST, W Y is reallocated from (t, \u03be) to a different point (t, \u03be ) according to a different reassignment rules which only reallocates the frequency axis and preserves the time information. Note that it is important in biomedical application, in particular when prediction is the purpose, since in general we do not have the future information.",
+            "cite_spans": [
+                {
+                    "start": 229,
+                    "end": 233,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 236,
+                    "end": 240,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 243,
+                    "end": 247,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 250,
+                    "end": 254,
+                    "text": "[35]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "Here we detail the SST, which is separated into three steps. First, calculate W Y (a, b) . Second, calculate the reallocation rule \u03c9 Y defined on R + \u00d7 R:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 68,
+                    "end": 88,
+                    "text": "calculate W Y (a, b)",
+                    "ref_id": null
+                }
+            ],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "Third, the SST of Y (t) is defined by reallocating the coefficients of W Y (a, b) according to the reallocation rule \u03c9 f (a, b):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "where (b, \u03be) \u2208 R \u00d7 R + , \u0393 > 0 is the threshold chosen by the user, h is a kernel function which is smooth enough and decays fast enough. Intuitively, at each time point t, we collect all CWT coefficients with scales a at which \u03c9 Y (a, b) is close to \u03be and put them in the (b, \u03be) slot. As is shown in [20] - [22] , S \u0393 Y (b, \u03be) will only have dominant values around \u03c6 (b). This property allows us an accurate estimate of \u03c6 by, for example, the curve extraction technique. The estimated \u03c6 is denoted by \u03c6 .",
+            "cite_spans": [
+                {
+                    "start": 301,
+                    "end": 305,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 308,
+                    "end": 312,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "With the estimated \u03c6 , we can estimate A(t) and \u03c6(t) in (9) by the following reconstruction formula. Define",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "where R \u03c8 := \u03c8 (\u03b6 ) \u03b6 d\u03b6 and Re means taking the real part. Based on the theorem in [20] - [22] , the estimator of A(t) is defined as A(t) := | R(t)|. Then an estimator for \u03c6(t), denoted as \u03c6(t), can be obtained by unwrapping the phase of the complexvalued signal R(t)/ A(t). As is shown in [21, Th. 3.1] , these estimators are accurate and are robust to the existence of the trend T (t) and noise \u03c3(t)\u03a6(t).",
+            "cite_spans": [
+                {
+                    "start": 84,
+                    "end": 88,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 91,
+                    "end": 95,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 291,
+                    "end": 295,
+                    "text": "[21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 296,
+                    "end": 304,
+                    "text": "Th. 3.1]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "Notice that we can interpret (13) as an adaptive band-pass filter. Indeed, at each time t, the estimation of \u03c6 (t) by SST can be interpreted as the main frequency region corresponding to the physiological signal at time t. Then, the reconstruction of the physiological signal at time t is based on the chosen frequency band with bandwidth 1/3 .",
+            "cite_spans": [
+                {
+                    "start": 29,
+                    "end": 33,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "We summarize the theoretical results of SST relevant to this paper, and refer the reader to [20] , [21] , [23] for the precise statement of the theorem. P 1 : SST is robust to the several different kinds of noise, which might be slightly nonstationary. Thus, we are able to accurately estimate the IF and AM [21] , [23] . P 2 : Since SST is local in nature, we are able to detect components that do not exist all the time and hence the dynamical behavior of the signal [20] , [21] . P 3 : The time-frequency representation S \u0393 Y (b, \u03be) is visually informative. See Fig. 3 for example. P 4 : SST is \"adaptive\" to the data in the sense that the error in the estimation depends only on the first three moments of the mother wavelet instead of the profile of the mother wavelet. See [23, Fig. 6 ] for a visual demonstration. P 5 : The existence of the trend modeled in (9) do not interfere with the SST. Thus, we are able to separate the trend and periodic components. Note that a smooth function T \u2208 C \u221e \u2229 S so that its Fourier transform T is compactly supported in a small interval around 0 is a special case.",
+            "cite_spans": [
+                {
+                    "start": 92,
+                    "end": 96,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 99,
+                    "end": 103,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 106,
+                    "end": 110,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 308,
+                    "end": 312,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 315,
+                    "end": 319,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 469,
+                    "end": 473,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 476,
+                    "end": 480,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 865,
+                    "end": 868,
+                    "text": "(9)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 565,
+                    "end": 571,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 784,
+                    "end": 790,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "A continuous function is called an nonharmonic intrinsic mode function if it satisfies"
+        },
+        {
+            "text": "In this section, we provide the numerical implementation detail of SST. The MATLAB code is available in http://sites. google.com/site/hautiengwu/ and we refer the readers to [23] for more implementation details.",
+            "cite_spans": [
+                {
+                    "start": 174,
+                    "end": 178,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "APPENDIX B NUMERICAL IMPLEMENTATION OF SST"
+        },
+        {
+            "text": "Take a discretization of (9), denoted as Y \u2208 R N , with the sampling period \u03c4 > 0 from time \u03c4 to time N\u03c4 , that is, Y (n) = Y (n\u03c4 ). Here, we have to be careful about the meaning of Y (n\u03c4 ) when \u03a6 is a GRP. Theoretically, when \u03a6 is in the general sense, for example, the differentiation of the standard Brownian motion, it does not make sense to directly evaluate \u03a6 at a particular time [38] . Also, as is discussed in [21] and the references therein, the relationship between the continuous random process and discrete time series is not always one to one. For example, not every autoregressive and moving average time series (ARMA) can be embedded into a continuous ARMA random process. Thus, in the discrete case, sometimes the random error term needs to be modeled separately, that is,",
+            "cite_spans": [
+                {
+                    "start": 387,
+                    "end": 391,
+                    "text": "[38]",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 419,
+                    "end": 423,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "APPENDIX B NUMERICAL IMPLEMENTATION OF SST"
+        },
+        {
+            "text": "where n = 1, . . . , N, f, T and \u03c3 satisfy conditions (I), (II) and (III), and \u03a8 is a zero-mean stationary time series, which can be taken as an ARAM time series, generalized autoregressive conditional heteroskedasticity time series, etc. In the following, to simplify the discussion, we assume that the discretization of (9) can be carried out directly, and refer the reader to [21] for more theoretical results about discretization.",
+            "cite_spans": [
+                {
+                    "start": 379,
+                    "end": 383,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "APPENDIX B NUMERICAL IMPLEMENTATION OF SST"
+        },
+        {
+            "text": "In practice, to prevent boundary effects, we pad Y on both sides by reflecting the signal near the boundary so that its length is N = 2 L +1 , where L is the minimal integer such that N > N. Although it works well in practice, we emphasize that doing so is not the optimal solution. To ease the notation, in the following, we use the same notation Y to denote the padded signal and N to indicate the length of the padded signal.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "APPENDIX B NUMERICAL IMPLEMENTATION OF SST"
+        },
+        {
+            "text": "For the sake of implementing (10), we take the scales a j = 2 j /n v \u03c4, j = 1, . . . , Ln v , where n v is the \"voice number\" chosen by the user. In practice, n v = 32 performs well. We denote the implemented CWT as a N \u00d7 n a matrix W Y . We may directly follow the code available from wavelab 2 which imple-ments CWT in the Fourier domain, or directly implement it by convolution in the time domain.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Step 1: Numerically Implement the CWT"
+        },
+        {
+            "text": "To numerically implement the reallocation rule \u03c9 Y (a, b) (11), we have to discretize \u2202 b W Y (a, b) . It is evaluated directly by finite difference at the time axis b and we denote the result as a N \u00d7 n a matrix \u2202 b W Y . The \u03c9 Y (a, b) is then implemented as a N \u00d7 n a matrix \u03c9 Y by the following entrywise calculation:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 94,
+                    "end": 100,
+                    "text": "(a, b)",
+                    "ref_id": null
+                },
+                {
+                    "start": 223,
+                    "end": 237,
+                    "text": "The \u03c9 Y (a, b)",
+                    "ref_id": null
+                }
+            ],
+            "section": "B. Step 2: Numerically Implement \u03c9 Y (a, b)"
+        },
+        {
+            "text": "Note that although W Y (i, j) = 0 is numerically unstable, but this unstability will be taken care in the next step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Step 2: Numerically Implement \u03c9 Y (a, b)"
+        },
+        {
+            "text": "Step 3: Numerically Implement S \u0393 Y (b, \u03be). To implement the Synchrosqueezing transform S \u0393 Y (b, \u03be) (12), we discretize the frequency domain [ 1 N \u03c4 , 1 2\u03c4 ] by equally spaced intervals of length \u0394 \u03be = 1 N \u03c4 . Here, 1 N \u03c4 and 1 2\u03c4 are the minimal and maximal frequencies detectable by the Fourier transform theorem. Note that the dc (direct current) term is not considered in SST. Denote n \u03be =",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C."
+        },
+        {
+            "text": ", which is the number of the discretization of the frequency axis. Fix \u0393 > 0, the discretized S \u0393 Y (b, \u03be), denoted by a N \u00d7 n \u03be matrix S Y , is evaluated by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C."
+        },
+        {
+            "text": "where i = 1, . . . , N and j = 1, . . . , n \u03be . Notice that the number \u0393 is a hard thresholding parameter, which is chosen to reduce the influence of noise and numerical error encountered when W Y (i, j) is small. We choose \u0393 = 1e \u2212 3 in this study. If the error is Gaussian white noise, the choice of \u0393 is suggested in [23] . In general, more study is needed to adaptively choose \u0393 from a given time series.",
+            "cite_spans": [
+                {
+                    "start": 320,
+                    "end": 324,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C."
+        },
+        {
+            "text": "To visually see the time frequency representation of the SST, we may directly plot the N \u00d7 n \u03be matrix R Y defined by R Y (i, j) := |S Y (i, j)| 2 for all i = 1, . . . , N and j = 1, . . . , n \u03be , and observe its behavior.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C."
+        },
+        {
+            "text": "According to the theoretical statement, the SST time frequency representation will be dominant in the IF [21] , [23] . Thus, we estimate IF by fitting a discretized curve c * \u2208 Z N n \u03be , where Z n \u03be = {1, . . . , n \u03be } indexes the discretized frequency axis, to the dominant area of S Y . Precisely, we maximize the following functional over c \u2208 Z N n \u03be :",
+            "cite_spans": [
+                {
+                    "start": 105,
+                    "end": 109,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 112,
+                    "end": 116,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D. Step 4: Estimate IF, AM, and Trend From S Y"
+        },
+        {
+            "text": "where \u03bb > 0 determines the regularity of the estimated curve. The first term is aimed to capture the maximal value of S Y at each time and the second term is aimed to impose regularity of the extracted curve. In this study, we simply choose \u03bb = 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D. Step 4: Estimate IF, AM, and Trend From S Y"
+        },
+        {
+            "text": "Denote the maximizer of the functional in (14) as c * \u2208 R N . Then SSTIF, denoted as \u03c6 \u2208 R N , is given by where n = 1, . . . , N, f 1 (n) \u2208 C, and is the real part. The phase function \u03c6 is then estimated by unwrapping f 1 (n)/|f 1 (n)|. Note that estimating the phase by integrating the estimated IF is not recommended since the error might be accumulated. Lastly, the trend T (t) at time t = n\u03c4 can be estimated by",
+            "cite_spans": [
+                {
+                    "start": 42,
+                    "end": 46,
+                    "text": "(14)",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D. Step 4: Estimate IF, AM, and Trend From S Y"
+        },
+        {
+            "text": "where T \u2208 R N and \u03be l is chosen by the user, if recovering the trend is necessary.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D. Step 4: Estimate IF, AM, and Trend From S Y"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Hypertension in 2011: New insights-From risk factors to treatment implications",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bakris",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Nat. Rev. Cardiol",
+            "volume": "9",
+            "issn": "",
+            "pages": "75--77",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Physiologic parameters as biomarkers: What can we learn from physiologic variables and variation?",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Ferrer",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Artigas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Crit. Care. Clin",
+            "volume": "27",
+            "issn": "",
+            "pages": "229--240",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Breathing pattern in humans: Diversity and individuality",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Benchetrit",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Respir. Physiol",
+            "volume": "122",
+            "issn": "2-3",
+            "pages": "123--129",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Basic notions of heart rate variability and its clinical applicability",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Vanderlei",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Pastre",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Hoshi",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Carvalho",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Godoy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Rev. Bras. Cir. Cardiovasc",
+            "volume": "24",
+            "issn": "",
+            "pages": "205--217",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Circadian clock and cardiovascular disease",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Takeda",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Maemura",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "J. Cardiol",
+            "volume": "57",
+            "issn": "",
+            "pages": "249--256",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Neurophysiological and computational principles of cortical rhythms in cognition",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Physiol. Rev",
+            "volume": "90",
+            "issn": "",
+            "pages": "1195--1268",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Physiology of circadian entrainment",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Golombek",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rosenstein",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Physiol. Rev",
+            "volume": "90",
+            "issn": "",
+            "pages": "1063--1102",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Oscillation patterns in negative feedback loops",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pigolotti",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Krishna",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Jensen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Proc. Nat. Acad. Sci. USA",
+            "volume": "104",
+            "issn": "",
+            "pages": "6533--6537",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Clinical review: A review and analysis of heart rate variability and the diagnosis and prognosis of infection",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ahmad",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tejuja",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Newman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Seely",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Crit. Care",
+            "volume": "13",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Weaning from mechanical ventilation: a retrospective analysis leading to a multimodal perspective",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Casaseca-De-La Higuera",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mart\u00edn-Fern\u00e1ndez",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Alberola-L\u00f3pez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "IEEE Trans. Biomed. Eng",
+            "volume": "53",
+            "issn": "7",
+            "pages": "1330--1345",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Dyspnea and decreased variability of breathing in patients with restrictive lung disease",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Brack",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Jubran",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tobin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Amer. J. Respir. Crit. Care. Med",
+            "volume": "165",
+            "issn": "",
+            "pages": "1260--1264",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Approximate entropy of respiratory rate and tidal volume during weaning from mechanical ventilation",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Engoren",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Crit. Care Med",
+            "volume": "26",
+            "issn": "",
+            "pages": "1817--1823",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Instability of spontaneous breathing patterns in patients with persistent vegetative state",
+            "authors": [
+                {
+                    "first": "M.-Y",
+                    "middle": [],
+                    "last": "Bien",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-W",
+                    "middle": [],
+                    "last": "Yien",
+                    "suffix": ""
+                },
+                {
+                    "first": "S.-S",
+                    "middle": [],
+                    "last": "Hseu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J.-H",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-R",
+                    "middle": [],
+                    "last": "Kou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Respir. Physiol. Neurobiol",
+            "volume": "145",
+            "issn": "2-3",
+            "pages": "163--175",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Breathing pattern variability: A weaning predictor in postoperative patients recovering from systemic inflammatory response syndrome",
+            "authors": [
+                {
+                    "first": "M.-Y",
+                    "middle": [],
+                    "last": "Bien",
+                    "suffix": ""
+                },
+                {
+                    "first": "S.-S",
+                    "middle": [],
+                    "last": "Hseu",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-W",
+                    "middle": [],
+                    "last": "Yien",
+                    "suffix": ""
+                },
+                {
+                    "first": "I.-T",
+                    "middle": [],
+                    "last": "Kuo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-T",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "J.-H",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Kou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Intens. Care Med",
+            "volume": "30",
+            "issn": "",
+            "pages": "241--247",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Comparisons of predictive performance of breathing pattern variability measured during t-piece, automatic tube compensation, and pressure support ventilation for weaning intensive care unit patients from mechanical ventilation",
+            "authors": [
+                {
+                    "first": "M.-Y",
+                    "middle": [],
+                    "last": "Bien",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-S",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C.-H",
+                    "middle": [],
+                    "last": "Shih",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-L",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-W",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "K.-J",
+                    "middle": [],
+                    "last": "Bai",
+                    "suffix": ""
+                },
+                {
+                    "first": "J.-H",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Kou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Crit. Care Med",
+            "volume": "39",
+            "issn": "",
+            "pages": "2253--2262",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Reduced breathing variability as a predictor of unsuccessful patient separation from mechanical ventilation",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wysocki",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Cracco",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Teixeira",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mercat",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Diehl",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lefort",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Derenne",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Similowski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Crit. Care Med",
+            "volume": "34",
+            "issn": "",
+            "pages": "2076--2083",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Heart Rate Variability",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Malik",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Camm",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Effect of weight and age on respiratory complexity in premature neonates",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Engoren",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Courtney",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Habib",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Comput. Cardiol",
+            "volume": "106",
+            "issn": "",
+            "pages": "766--773",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Derivation of respiratory signals from multi-lead ecgs",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Moody",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Mark",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Zoccola",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mantero",
+                    "suffix": ""
+                }
+            ],
+            "year": 1985,
+            "venue": "Comput. Cardiol",
+            "volume": "12",
+            "issn": "",
+            "pages": "113--116",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Synchrosqueezed wavelet transforms: An empirical mode decomposition-like tool",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Daubechies",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Appl. Comput. Harmon. Anal",
+            "volume": "30",
+            "issn": "2",
+            "pages": "243--261",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Nonparametric and adaptive modeling of dynamic seasonality and trend with heteroscedastic and dependent errors",
+            "authors": [
+                {
+                    "first": "Y.-C",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M.-Y",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "J. Roy. Stat. Soc. B",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Instantaneous frequency and wave shape functions (I)",
+            "authors": [
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Appl. Comput. Harmon. Anal",
+            "volume": "35",
+            "issn": "",
+            "pages": "181--199",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "The synchrosqueezing algorithm for time-varying spectral analysis: Robustness properties and new paleoclimate applications",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Thakur",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Brevdo",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Fuckar",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Signal Process",
+            "volume": "93",
+            "issn": "",
+            "pages": "1079--1094",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Analysis of time-varying signals with small bt values",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kodera",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Gendrin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Villedary",
+                    "suffix": ""
+                }
+            ],
+            "year": 1978,
+            "venue": "IEEE Trans. Acoust., Speech, Signal Process",
+            "volume": "26",
+            "issn": "1",
+            "pages": "64--76",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Improving the readability of time-frequency and time-scale representations by the reassignment method",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Auger",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Flandrin",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "IEEE Trans. Signal Process",
+            "volume": "43",
+            "issn": "5",
+            "pages": "1068--1089",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Time-frequency/timescale reassignment",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Chassande-Mottin",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Auger",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Flandrin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Wavelets and Signal Processing",
+            "volume": "",
+            "issn": "",
+            "pages": "233--267",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "A nonlinear squeezing of the continuous wavelet transform based on auditory nerve models",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Daubechies",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Maes",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "Wavelets in Medicine and Biology",
+            "volume": "",
+            "issn": "",
+            "pages": "527--546",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Complications associated with mechanical ventilation",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pingleton",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Principles and Practice of Mechanical Ventilation",
+            "volume": "",
+            "issn": "",
+            "pages": "775--792",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Qualitative studies on the patient\u00d5s experience of weaning from mechanical ventilation",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Cook",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Meade",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Perry",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Chest",
+            "volume": "120",
+            "issn": "",
+            "pages": "469--473",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "A prospective study of indexes predicting the outcome of trials of weaning from mechanical ventilation",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tobin",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "N. Engl. J. Med",
+            "volume": "324",
+            "issn": "21",
+            "pages": "1445--1450",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "One or two frequencies? The synchrosqueezing answers",
+            "authors": [
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Flandrin",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Daubechies",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Adv. Adapt. Data Anal",
+            "volume": "3",
+            "issn": "",
+            "pages": "29--39",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Synchrosqueezing-based recovery of instantaneous frequency from nonuniform samples",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Thakur",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "SIAM J. Math. Anal",
+            "volume": "43",
+            "issn": "",
+            "pages": "2078--2095",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Using synchrosqueezing transform to discover breathing dynamics from ECG signals",
+            "authors": [
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-H",
+                    "middle": [],
+                    "last": "Chan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-T",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-H",
+                    "middle": [],
+                    "last": "Yeh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Appl. Comput. Harmon. Anal",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Recent advances in time-frequency reassignment and synchrosqueezing",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Auger",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Flandrin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-T",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mclaughlin",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Meignen",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Oberlin",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IEEE Trans. Signal Process",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Differential reassignment",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Chassande-Mottin",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Daubechies",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Auger",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Flandrin",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "IEEE Signal Process. Lett",
+            "volume": "4",
+            "issn": "10",
+            "pages": "293--294",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Society for Industrial and Applied Mathematics",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Daubechies",
+                    "suffix": ""
+                }
+            ],
+            "year": 1992,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Generalized Function Theory",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Vilenkin",
+                    "suffix": ""
+                }
+            ],
+            "year": 1964,
+            "venue": "",
+            "volume": "4",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "(Modeling the respiration signal) Panel (a) plots a cosine function, an overly simplified model of the respiration; moving to the right shows enrichment of this model by allowing nonconstant instantaneous frequency (b) amplitude modulation (c) and a more complex wave shape function (d). The (nonconstant) instantaneous frequency and the amplitude modulation function should capture how the oscillations vary in time, independent of whether the basic shape function is a simple trigonometric function or not.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Top row: the result of the Synchrosqueezing transform (SST) of the signal in Fig. 1 with the SSTIF (dashed curve) superimposed; bottom row: the 3-D version of the SST result. The instantaneous frequency corresponds to the dominant curve in the SST, and the amplitude modulation corresponds to the intensity upon the dominant curve (visible in the 3-D graph). Indeed, the spacing of respiration cycle is reflected by SSTIF: closer spacing corresponds to higher SSTIF values, and wider spacing to lower SSTIF values; the darker curve corresponds to higher SSTAM values, and lighter curve to lower SSTAM values. In conclusion, through reading the SST figure, we can visually see how the frequency and amplitude modulation vary according to time.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "ROC curve of the WIN index in the dataset of 68 patients. The cut-off point is marked in circle, where the WIN index value is 88.8841, the sensitivity is 0.7556, and the specificity is 0.6957.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "all 68 patients, the SST is applied to the first 3 min respiratory flow signal during SBT under the T-piece mode, from which the WIN indices are evaluated. The WIN indices of each subject and the ROC curve are shown in Figs. 4 and 5. The AUC is 0.76, and the 95% confidence interval is [0.65, 0.87]. The confidence interval is evaluated by 1000 bootstrap replicas. Based on the analysis of the ROC curve, we obtained a cut-off value of the WIN index, which is 88.8841 with a sensitivity of 0.7556 and specificity of 0.6957. The WIN indices of all 68 patients are",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "WIN indices of the 68 patients. The black circles are the WIN indices for the patients who succeeded in the weaning procedure (numbered 1 to 45 here), while the gray circles are for the patients who failed in the weaning procedure (numbered 46 to 68 here). The gray dashed line is the cut-off value 88.8841 determined by the ROC.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "(n) := c * (n)\u0394 \u03be , where n = 1, . . . , N. Here, \u03c6 (n) is the estimated IF at time n\u03c4 . With c * , SSTAM, denoted as A \u2208 R N , is evaluated byf 1 (n) := 2 R \u03c8 \u0394 \u03be c * (n )+ \u0394 /\u0394 \u03be i=c * (n )\u2212 \u0394 /\u0394 \u03be S Y (n, i), A(n) := |f 1 (n)|,",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The authors also like to thank anonymous referees for their helpful comments that led to a substantial improvement of the paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "ACKNOWLEDGMENT"
+        },
+        {
+            "text": "Authors' photographs and biographies not available at the time of publication.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "annex"
+        }
+    ]
+}

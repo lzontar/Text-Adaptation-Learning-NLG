@@ -1,0 +1,1020 @@
+{
+    "paper_id": "01d843b75376d444ae97c80989c0102995477c23",
+    "metadata": {
+        "title": "COUPLED: Calibration of a LiDAR and Camera Rig Using Automatic Plane Detection",
+        "authors": [
+            {
+                "first": "Omar",
+                "middle": [],
+                "last": "Montoya",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Instituto Polit\u00e9cnico Nacional",
+                    "location": {
+                        "addrLine": "Cerro Blanco 141",
+                        "postCode": "76030",
+                        "settlement": "Quer\u00e9taro",
+                        "region": "Cimatario",
+                        "country": "M\u00e9xico"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Octavio",
+                "middle": [],
+                "last": "Icasio",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Joaqu\u00edn",
+                "middle": [],
+                "last": "Salas",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Instituto Polit\u00e9cnico Nacional",
+                    "location": {
+                        "addrLine": "Cerro Blanco 141",
+                        "postCode": "76030",
+                        "settlement": "Quer\u00e9taro",
+                        "region": "Cimatario",
+                        "country": "M\u00e9xico"
+                    }
+                },
+                "email": "jsalasr@ipn.mx"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "LiDARs and cameras are two widely used sensors in robotics and computer vision, particularly for navigation and recognition in 3D scenarios. Systems combining both may benefit from the precise depth of the former and the high-density information of the latter, but a calibration process is necessary to relate them spatially. In this paper, we introduce COUPLED, a method that finds the extrinsic parameters to relate information between them. The method implies the use of a setup consisting of three planes with charuco patterns to find the planes in both systems. We obtain corresponding points in both systems through geometric relations between the planes. Afterward, we use these points and the Kabsch algorithm to compute the transformation that merges the planes between both systems. Compared to recent single plane algorithms, we obtain more accurate parameters, and only one pose is required. In the process, we develop a method to automatically find the calibration target using a plane detector instead of manually selecting the target in the LiDAR frame.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In the field of mobile robotics, sensors to understand the world around them are required. Two commonly used sensors are cameras and LiDARs (Light Detection and Ranging). Cameras allow proper feature extraction, but it is challenging to obtain depth information from a single camera. In contrast, LiDARs provide precise spatial details but at a much lower density, which makes feature extraction difficult. In our research, we study systems that combine both technologies to take advantage of their strengths. Nonetheless, one of the main challenges is that while each sensor outputs spatial data in its reference frame, typically we process their information in a common one, which requires a calibration process.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To calibrate a camera with a LiDAR, one usually finds corresponding points in both systems, which we use to calculate a transformation that relates them. Often, one uses the corner points of a checkerboard on a rectangular board. The LiDAR can capture the boards pose by finding its edges, and the camera can estimate the pose of the checkerboard. These methods typically suffer from noise in using edge points to find the corners in the LiDAR [3, 15] . Also, even though finding the target in the camera is easy, finding the target in the LiDAR frame is relatively more complicated. LiDARs typically use an array of angled lasers rotating over an axis to generate a point cloud that is denser in the horizontal direction than in the vertical one. This configuration makes it difficult to find the target with conventional plane detection methods. Thus, most calibration methods either manually find the target and isolate it [3, 10] , which can be timeconsuming when making acquisitions to reduce calibration error. Alternatively, other methods physically isolate the target from other objects to facilitate plane detection [15] , which is not ideal because we would need to reserve a dedicated area exclusively for calibration.",
+            "cite_spans": [
+                {
+                    "start": 444,
+                    "end": 447,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 448,
+                    "end": 451,
+                    "text": "15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 926,
+                    "end": 929,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 930,
+                    "end": 933,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1125,
+                    "end": 1129,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper, we introduce COUPLED, a method for calibrating a LiDARcamera rig that uses three planes. In the process, we develop an approach to automatically find the target in the LiDAR reference frame using a plane detector. Combining both, we develop a system for automatic calibration, no longer requiring a dedicated area or manually selecting the target for the LiDAR frame. We divide the rest of the paper into a review of related literature, followed by our methodology, then our experiments, and finally, a conclusion summarizing the relevant findings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We review the literature on two fronts: Methods for the automatic detection of planar surfaces and the calibration of a LiDAR-camera rig.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Literature"
+        },
+        {
+            "text": "Plane Detection with LiDAR. Finding planes within 3D point clouds is a fundamental step for complex algorithms. The introduction of LiDAR and other light-based distance sensors has made this activity vital. Usually, when working with dense homogenous point clouds, Hough transform and RANSAC are tried and true approaches [1, 16] . However, the mechanical workings of certain LiDAR and MLS (Mobile Laser Scanning) sensors do not output point clouds favorable for these techniques, so novel methods are required.",
+            "cite_spans": [
+                {
+                    "start": 322,
+                    "end": 325,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 326,
+                    "end": 329,
+                    "text": "16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Literature"
+        },
+        {
+            "text": "Commonly, LiDARs have an array of angled lasers rotating on an axis from point clouds that are sparse on its vertical axis relative to its horizontal axis. The path traced by any of the lasers forms a cone, and when a plane intersects the cone, we get a conic section. Grant et al. [7] segments the LiDAR lines into conic sections and then uses a Hough transform where they accumulate the planes that can be formed by each line, and the planes with enough votes are taken. Another sensor that presents problems with classic plane detection methods is MLS since it usually has its laser head perpendicular to the trajectory of a carrier vehicle. Nguyen et al. [13] uses a similar approach segmenting scan points into straight lines, then parallel lines are grouped, and the singular vectors for each group are obtained to determine whether the grouped lines form a plane.",
+            "cite_spans": [
+                {
+                    "start": 282,
+                    "end": 285,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 659,
+                    "end": 663,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Literature"
+        },
+        {
+            "text": "LiDAR-Camera Rig Calibration. In mobile robotics, combining sensors such as multiple cameras or cameras and LiDAR has become common [2, 5, 8] . Many techniques have been developed to accomplish this task. Single checkerboards are the most usually involved [10, 15] but also researchers have developed techniques using different kinds of targets [3, 11] or no targets at all [9, 12] .",
+            "cite_spans": [
+                {
+                    "start": 132,
+                    "end": 135,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 136,
+                    "end": 138,
+                    "text": "5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 139,
+                    "end": 141,
+                    "text": "8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 256,
+                    "end": 260,
+                    "text": "[10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 261,
+                    "end": 264,
+                    "text": "15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 345,
+                    "end": 348,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 349,
+                    "end": 352,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 374,
+                    "end": 377,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 378,
+                    "end": 381,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Literature"
+        },
+        {
+            "text": "Practitioners have created variations using a single checkerboard. For instance, Verma et al. [15] detect the centroid of the target, in at least three poses, and its normal, then they use genetic algorithms to obtain the parameters. Kim et al. [10] proposed another technique that requires three poses. In their case, they employ the normals and use an energy function to calculate the rotation and the translation that minimizes the distance to the camera and the LiDAR's plane. K\u00fcmmerle et al. [11] use a spherical target because its center can be more accurately extracted relative to checkerboards. Chai et al. [3] use a cube with aruco markers printed on its sides. The LiDAR detects the three sides, and the aruco markers are used to detect the poses of the sides in the camera.",
+            "cite_spans": [
+                {
+                    "start": 94,
+                    "end": 98,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 245,
+                    "end": 249,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 497,
+                    "end": 501,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 616,
+                    "end": 619,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Literature"
+        },
+        {
+            "text": "Researchers have developed techniques that require no target at all to allow calibration when no target is available. For instance, Kang et al. [9] use edge detection in both the camera and LiDAR to find the transformation between both sets of edges. Similarly, Nagy et al. [12] use structure from motion to create a 3D point cloud for the camera reference frame. Then, they detect objects in both systems by grouping near points.",
+            "cite_spans": [
+                {
+                    "start": 144,
+                    "end": 147,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 274,
+                    "end": 278,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Literature"
+        },
+        {
+            "text": "Calibrating our LiDAR-camera rig means finding the parameters of a rotation matrix R L c \u2208 SO(3) and translation vector t L c \u2208 R 3 that transforms a 3D point set P = {p 1 , p 2 , ..., p m } in the camera reference frame into Q = {q 1 , q 2 , ..., q m }, its corresponding in the LiDAR reference frame, as R L c p i + t L c = q i , \u2200 i = 1, . . . , m. Because of noise in the sensors, a perfect solution normally does not exist, so we instead minimize the sum of squares as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Method"
+        },
+        {
+            "text": "First, we need a target for which we can find corresponding points in the LiDAR and the camera. We propose to use a pattern that consists of three planes with charuco boards [6] . We use OpenCV to find the planes by detecting the charucos for the camera, and plane fitting to find the three planes in the LiDAR. However, to find precise point to point correspondences, we use geometric relations such as the vertex common to the three planes, and the lines formed by the intersection of a pair of planes, as there are three pair combinations we obtain three lines. With this, we can obtain four point correspondences and proceed to obtain the parameters minimizing (1).",
+            "cite_spans": [
+                {
+                    "start": 174,
+                    "end": 177,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Calibration Pattern"
+        },
+        {
+            "text": "To compute the pose of our target planes in the camera reference frame, we use charuco markers printed on our pattern. Our design combines aruco markers and checkerboards into charuco [6] . It uses the aruco markers to interpolate the corners of the checkerboards, and since each aruco has a unique ID, each checkerboard corner can also be identified even if part of the checkerboard is occluded. Then, we refine the position of the checkerboard corners with subpixel accuracy. Finally, we compute the pose of the board, as with regular checkerboards, using PnP (Fig. 1) . ",
+            "cite_spans": [
+                {
+                    "start": 184,
+                    "end": 187,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 562,
+                    "end": 570,
+                    "text": "(Fig. 1)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Calibration Pattern"
+        },
+        {
+            "text": "To find the target in the LiDAR reference frame, we developed an algorithm to detect the planes in the point cloud sensed by the LiDAR and segment the three planes belonging to our target. There exist many methods to find planes within a point cloud [1, 16] , but for some LiDARs, with few lasers, the problem is particularly challenging. Take, for instance, the VLP-16 sensor, which consists of 16 laser range finders spinning along an axis, making the density of points much higher horizontally than vertically. This arrangement causes problems with RANSAC and Hough transform-based plane finders, when the best fits for a plane erroneously end up being horizontal planes that contain all the points of a single beam. Note that rotating laser LiDAR beams form cones as they spin. When a cone is intersected by a plane, a conic section is formed. This observation is the basis of our algorithm, which consists in finding the curves, grouping them into planes and segmenting the target from the planes found.",
+            "cite_spans": [
+                {
+                    "start": 250,
+                    "end": 253,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 254,
+                    "end": 257,
+                    "text": "16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Automatic Target Detection for LiDAR"
+        },
+        {
+            "text": "Curve Finding. The first step for our plane detection is finding the conic sections. Because fitting such a high number of points to a conic section equation is computationally intensive, we use an approximation and instead look for smooth curves. We start by sampling each of the lasers separately. First, we take a single beam and treat its points as a 1D signal ordered by the azimuth given by the LiDAR, which starts at positive Y and runs along the Z axis clockwise. Then, we apply a spatial Gaussian filter with a standard deviation \u03c3 to reduce the noise in the point cloud. Now, to segment parts of the 1D signal that have a smooth trajectory, we apply a custom kernel k that was made empirically to simulate a Laplacian to help detect rapid changes in the signal. We run the kernel through the signal and threshold to highlight where we separate the curves. We also discard segments that have less than a certain number of points p to avoid short curves. Finally, we combine curves by verifying whether their direction is similar, and they are close enough together.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Automatic Target Detection for LiDAR"
+        },
+        {
+            "text": "Grouping Plane Proposals. Once we have curves, we need to find a way to group lines belonging to the same plane. To do this, we take a random line, and the nearest line to it. We calculate the principal components for the group of points of the two curves via SVD (Singular Value Decomposition). Then, we test whether the ratio between the first and second singular values is below a certain threshold r 12 to avoid planes formed from very narrow lines, which can be noisy. Next, we test wether the ratio r 23 between the second and third components is large to determine that the points form a valid flat plane. If both tests are passed, the normal vector of the plane is saved in an accumulator. We repeat this process for the lines within a certain maximum distance l max from our original line. Finally, we assign the normal vector with the most votes. We do this for each line, so the lines end up with a normal vector assigned. We then group lines by normal vectors in the same direction using DBSCAN [4] (see Fig. 2 ). After this process, we have groups of lines likely belonging to one or more planes with the same normal as the lines. We can now easily segment applying RANSAC on each group.",
+            "cite_spans": [
+                {
+                    "start": 1007,
+                    "end": 1010,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1016,
+                    "end": 1022,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Automatic Target Detection for LiDAR"
+        },
+        {
+            "text": "Finding the Target. We have now extracted the planes in our point cloud, but for our application, we need the planes that correspond to our target. To isolate these planes, we use OpenCV to calculate the pose of our three target planes in the camera frame. We also calculate the center of the target planes. So now, we can calculate the angles between the normals and the distances between centroids of any two planes of the target. With this, we end up with three angles and three distances that we use as a descriptor for the target. Finally, we use brute force matching to find the combination of three planes found by our detector that best matches the descriptor of our target.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Automatic Target Detection for LiDAR"
+        },
+        {
+            "text": "Once we have our target in the LiDAR and the cameras, we get the poses in the camera reference frame using the charucos. OpenCV gives us a translation and rotation from a reference frame with its origin on one of the outer most corners of the board, and its X and Y axis aligned with the sides of the board to the camera frame [6] . We obtain a vector normal to the board in the camera reference frame using n c i = R c r e z , where n ci is the vector normal to plane i in the camera frame, R c r is the rotation from the charuco i frame to the camera frame, and e T z = (0, 0, 1). With this rotation, we obtain the normals for the planes containing the targets. For the LiDAR, we get the principal components of the planes obtained in the previous section.",
+            "cite_spans": [
+                {
+                    "start": 327,
+                    "end": 330,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Camera and LiDAR Calibration"
+        },
+        {
+            "text": "Next, we calculate the vertex between the three planes and the three intersections from two planes. The intersections can be defined as vectors of unitary magnitude. Now, we have four corresponding points to obtain the extrinsic parameters, P points in the camera frame, and Q points in the LiDAR frame. We use Kabsch algorithm [14] to obtain the rotation and translation from the camera to the LiDAR that minimizes the mean square error expressed in (1).",
+            "cite_spans": [
+                {
+                    "start": 328,
+                    "end": 332,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Camera and LiDAR Calibration"
+        },
+        {
+            "text": "We call COUPLED to our method to calibrate the LiDAR-camera rig using automatic plane detection.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Camera and LiDAR Calibration"
+        },
+        {
+            "text": "To test our algorithm, we took 40 readings with our system, moving the LiDARcamera rig to different positions, making sure that the target remains within the fields of view of both sensors. To show the relevance of COUPLED, we compare our results with a method recently introduced.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "For our experiments, we used a Velodyne VLP/16 LiDAR. It consists of 16 lasers operating at a wavelength of 903 nm and turning at a programmable rotational speed between 5 and 20 Hz. With a range of 100 m, it has a range accuracy of \u00b13 cm and a vertical field of view of \u00b115 \u2022 . Also, we employed a MicaSense Parrot Sequoia multispectral camera, which weighs about 72 g (the additional sunshine sensor weights 35 g). It produces images with spectral response peaking at 550 nm (green), 660 nm (red), 735 nm (red edge), and 790 nm (near infrared). Each of these images has a spatial resolution of 1,280 (horizontal) \u00d7 960 (vertical) pixels. Also, the Sequoia includes an RGB color camera with a resolution of 4,068 (h) \u00d7 3,456 (v) pixels resolution. We print the charucos targets on 3 mm thick mirror surfaces measuring 0.5 m per side each (Fig. 3) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 839,
+                    "end": 847,
+                    "text": "(Fig. 3)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Experimental Setup"
+        },
+        {
+            "text": "In our experiments, the Gaussian filter has a spread of \u03c3 = 0.08. We discard segments with fewer than p = 5 points. Also, we set the distance between endpoints d = 10 cm. In addition the angle between them has to be \u03b1 < 5 \u2022 . To filter out elongated segments, we set r 12 = 1/80 and r 23 = 1/200. Finally, we define the maximum distance between lines at 40 cm.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Setup"
+        },
+        {
+            "text": "With the data, we used three procedures to find the calibration target. In the first one, we manually selected the three planes of our target from the LiDAR point cloud. In the second one, we automatically found the target by introducing the entire point cloud to our plane detector and finding the best three planes (the method introduced in this paper). In the third procedure, we limited the point cloud to an azimuth between 230 \u2022 and 330 \u2022 and automatically find the planes within the limited point cloud (we call this procedure restricted). We know the target is in this azimuth because this direction is required in our rig for the camera to see the target.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "LiDAR-Camera Rig Calibration"
+        },
+        {
+            "text": "We calculated the extrinsic parameters for the 40 views using the three procedures described. Moreover, to verify the effect of using multiple views, we calculate the accumulated extrinsic parameters in which we use the Kabsch algorithm on the points from the concatenation of the current frame points and the previous frames. Although our target detection algorithm finds the correct target for most of the frames, there are still outliers. We eliminated the outliers by using the DBSCAN clustering algorithm on the translation vectors, knowing that the correct translation will form the largest cluster. After the clustering step, 10 out of the 40 frames were discarded in the fully automatic procedure, while only 4 out of 40 were discarded in the restricted procedure. We compared our method against Kim et al. [10] who uses a checkerboard and fits a normal vector to his target, but only uses one plane. In Fig. (4a) , we plot the results of accumulated acquisitions. We can see that the estimation of rotation is similar, deviating by a maximum of three degrees. At the same time, the translation differs by as much as 12 cm and does not converge after 40 acquisitions. In Fig. (4b) , we plot the error between the calculated translation and the one we measured, we can see that our method allows us to obtain extrinsic parameters with a single acquisition compared with the three acquisitions required by Kim et al.' s method and is more accurate. Both methods run in a couple of seconds.",
+            "cite_spans": [
+                {
+                    "start": 815,
+                    "end": 819,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1412,
+                    "end": 1423,
+                    "text": "Kim et al.'",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 912,
+                    "end": 921,
+                    "text": "Fig. (4a)",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1179,
+                    "end": 1188,
+                    "text": "Fig. (4b)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "LiDAR-Camera Rig Calibration"
+        },
+        {
+            "text": "In this paper, we present COUPLED, a method to obtain the extrinsic parameters of a LiDAR-camera rig that uses three planes with charuco boards printed on them. We use the charuco boards to find the pose of the planes and a plane detection algorithm to find the planes in the LiDAR frame. Our experimental results show its benefits when compared with the manual selection of the target or the region of interest.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "By using multiple frames, we can refine the extrinsic parameter calibration. Here, using the automatic target detector can be very beneficial because it allows us to quickly find our target in multi-capture settings instead of manually selecting it. However, notice that using the automatic detector with a restricted azimuth is an excellent middle ground as it only requires the input of the azimuth, and it has a better performance than the plane detector on the full point cloud. We also presented a new method for plane detection in point clouds generated by LiDARs. Rotational LiDARs have a much higher horizontal density compared to vertical density, which makes it challenging to use traditional methods such as RANSAC and Hough Transform. Our system combines both methods, allowing for automatic calibration by using the plane detector to find the target in the LiDAR frame as opposed to manually selecting it. This permits smooth refinement since we can quickly capture many frames and compute the extrinsic parameters using the points from the different frames.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "The 3D Hough Transform for plane detection in point clouds: a review and a new accumulator design. 3D Res",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Borrmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Elseberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Lingemann",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "N\u00fcchter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3DRes.02(2011)3"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "LiDAR-camera fusion for road detection using fully convolutional neural networks",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Caltagirone",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bellone",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Svensson",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wahde",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Robot. Auton. Syst",
+            "volume": "111",
+            "issn": "",
+            "pages": "125--131",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A novel method for LiDAR camera calibration by plane fitting",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Chai",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Xiong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International Conference on Advanced Intelligent Mechatronics",
+            "volume": "",
+            "issn": "",
+            "pages": "286--291",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "A density-based algorithm for discovering clusters in large spatial databases with noise",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ester",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Kriegel",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sander",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "In: KDD",
+            "volume": "96",
+            "issn": "",
+            "pages": "226--231",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Object classification using CNN-based fusion of vision and LiDAR in autonomous vehicle environment",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IEEE Trans. Ind. Inform",
+            "volume": "14",
+            "issn": "9",
+            "pages": "4224--4231",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Automatic generation and detection of highly reliable fiducial markers under occlusion",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Garrido-Jurado",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Mu\u00f1oz-Salinas",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Madrid-Cuevas",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mar\u00edn-Jim\u00e9nez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Pattern Recogn",
+            "volume": "47",
+            "issn": "6",
+            "pages": "2280--2292",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Finding planes in LiDAR point clouds for real-time registration",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Grant",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Voorhies",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Itti",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "RSJ International Conference on Intelligent Robots and Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "4347--4354",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Fast multiple objects detection and tracking fusing color camera and 3D LiDAR for intelligent vehicles",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hwang",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Choi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Kweon",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "International Conference on Ubiquitous Robots and Ambient Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "234--239",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Automatic Targetless camera-LiDAR calibration by aligning edge with Gaussian mixture model",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kang",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Doh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J. Field Robot",
+            "volume": "37",
+            "issn": "1",
+            "pages": "158--179",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Extrinsic calibration of a camera-LiDAR multi sensor system using a planar chessboard",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Park",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "International Conference on Ubiquitous and Future Networks",
+            "volume": "",
+            "issn": "",
+            "pages": "89--91",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Automatic calibration of multiple cameras and depth sensors with a spherical target",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "K\u00fcmmerle",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "K\u00fchner",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Lauer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International Conference on Intelligent Robots and Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "1--8",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Online targetless end-to-end camera-LiDAR self-calibration",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Nagy",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kov\u00e1cs",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Benedek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "International Conference on Machine Vision Applications",
+            "volume": "",
+            "issn": "",
+            "pages": "1--6",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Planar surface detection for sparse and heterogeneous mobile laser scanning point clouds",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Belton",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Helmholz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "J. Photogramm. Remote Sens",
+            "volume": "151",
+            "issn": "",
+            "pages": "141--161",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Least-squares rigid motion using SVD",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Sorkine-Hornung",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rabinovich",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Computing",
+            "volume": "1",
+            "issn": "1",
+            "pages": "1--5",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Automatic extrinsic calibration between a camera and a 3D Lidar using 3D point and plane correspondences",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Verma",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Berrio",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Worrall",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Nebot",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Intelligent Transportation Systems Conference (ITSC)",
+            "volume": "",
+            "issn": "",
+            "pages": "3906--3912",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "A survey of RANSAC enhancements for plane detection in 3D point clouds",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Zeineldin",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "El-Fishawy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Menoufia J. Electron. Eng. Res",
+            "volume": "26",
+            "issn": "2",
+            "pages": "519--537",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Calibration pattern. (a) Each plane has a different set of charuco markers for the camera to detect. (b) The full point cloud: The calibration target is enclosed in the green rectangle. (c) Zooming in on the target in the previous point cloud: The calibration pattern is enclosed in the green rectangle.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Illustration of the steps of the plane detection process. (a) The point cloud is segmented into smooth curves with a normal vector assigned to them. (b) We group the lines by similar normals. We end up with groups containing one or more parallel planes. (c) We use RANSAC plane fitting to segment the points to their appropriate planes.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Our LiDAR-camera rig, consisting of a VLP-16 LiDAR and a Sequoia Multispectral camera. (Color figure online)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Results of 40 calibrations (best seen in color). The blue, green, red and yellow lines show when we manually select the LiDAR planes, give the entire point cloud to the target detector, provided the target detector a reduced azimuth point cloud knowing that the target is within that cloud, and for Kim et al.[10] method for comparison.(a) Calibration results for accumulated acquisitions to demonstrate convergence. (b) Plotted error from the accumulated calibration.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

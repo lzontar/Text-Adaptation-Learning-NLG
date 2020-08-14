@@ -1,0 +1,757 @@
+{
+    "paper_id": "1d328af6559b5f8318319ec2cedcf5ea4fa911b1",
+    "metadata": {
+        "title": "Analyzing the Spatial Distribution of Acute Coronary Syndrome Cases Using Synthesized Data on Arterial Hypertension Prevalence",
+        "authors": [
+            {
+                "first": "Vasiliy",
+                "middle": [
+                    "N"
+                ],
+                "last": "Leonenko",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "ITMO University",
+                    "location": {
+                        "addrLine": "49 Kronverksky Pr",
+                        "postCode": "197101",
+                        "settlement": "St. Petersburg",
+                        "country": "Russia"
+                    }
+                },
+                "email": "vnleonenko@yandex.ru"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "In the current study, the authors demonstrate the method aimed at analyzing the distribution of acute coronary syndrome (ACS) cases in Saint Petersburg. The employed approach utilizes a synthetic population of Saint Petersburg and a statistical model for arterial hypertension prevalence. The number of ACS-related emergency services calls in an area is matched with the population density and the prospected number of individuals with arterial hypertension, which makes it possible to find locations with excessive ACS incidence. Three categories of locations, depending on the joint distribution of the above-mentioned indicators, are proposed as a result of data analysis. The method is implemented in Python programming language, the visualization is made using QGIS open software. The proposed method can be used to assess the prevalence of certain health conditions in the population and to match them with the corresponding severe health outcomes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Acute coronary syndrome (ACS) is a range of health conditions associated with a sudden reduced blood flow to the heart. This condition is treatable if diagnosed quickly, but since the fast diagnostics is not always possible, the death toll of ACS in the world population is dramatic [6] . The modeling approach for forecasting the distribution of ACS cases would allow the healthcare specialists to be better prepared for the ACS cases, both in emergency services and in stationary healthcare facilities [3] . One of the simple forecasting methods is related to the application of statistical analysis to the retrospective EMS calls data associated with acute heart conditions. However, if the corresponding time series data set is not long, the accurate prediction is impossible without using additional data related to the possible prerequisites for acute coronary syndrome calls, such as health conditions that increase the risk of ACS.",
+            "cite_spans": [
+                {
+                    "start": 283,
+                    "end": 286,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 504,
+                    "end": 507,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "One of the factors in the population which might raise the probability of acute coronary syndrome is arterial hypertension (or, shortly, AH)-a medical condition associated with elevated blood pressure [14] . Arterial hypertension is one of the main factors leading to atherogenesis and the development of vulnerable plaques, which in turn might be responsible for the development of acute coronary syndromes [10] . Thus, we might assume that the urban area populated predominantly by individuals with AH might demonstrate higher rates of ACS. Based on that assumption, it might be possible to use spatially explicit AH data as an additional predictor of prospective ACS cases. Unfortunately, the data on AH prevalence with the geographical matching are rarely found, and for Russian settings, they are virtually non-existent. Nevertheless, they could be generated synthetically, which adds uncertainty to the analysis but, on the other hand, makes possible the analysis itself.",
+            "cite_spans": [
+                {
+                    "start": 201,
+                    "end": 205,
+                    "text": "[14]",
+                    "ref_id": null
+                },
+                {
+                    "start": 408,
+                    "end": 412,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper, we describe methods and algorithms to analyze the distribution of ACS-associated emergency medical service calls (shortly, EMS calls) by matching them with synthesized data on arterial hypertension prevalence. Using Saint Petersburg as a case study, we address the following question: may the synthesized AH data combined with EMS calls dataset provide additional information connected with ACS distribution in the population, compared to absolute data and relative data on EMS calls alone? The EMS data we used in the research contain 5125 ACS-related EMS calls registered in Saint Petersburg from January to November 2015 [7] . The backof-the-envelope analysis of the time series corresponding to daily number of calls ( Fig. 1 ) and the weekly EMS calls distribution (Fig. 2 ) did not reveal any statistically significant patterns connected with distribution of calls over time, although it is clear that the number of EMS calls has a decline in the weekends. Thus, there is no straightforward prediction method to forecast fluctuations of the cumulative number of daily EMS calls connected with ACS.",
+            "cite_spans": [
+                {
+                    "start": 639,
+                    "end": 642,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 738,
+                    "end": 744,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 785,
+                    "end": 792,
+                    "text": "(Fig. 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "The spatial distribution of calls for the whole time period based on the addresses from the database is shown in Fig. 3 . The histogram for cumulative distribution was built by calculating the total number of EMS calls in a given spatial cell with the size 250 m \u00d7 250 m, with empty cells (0 EMS calls) excluded from the distribution. It was established that the form of the histogram does not change significantly if the cell sizes vary (up to 2 km \u00d7 2 km). It can be seen that the predominant majority of the spatial cells had 1 to 5 EMS calls, and only for single cells this number exceeds 8. Based on general knowledge, we assumed that the increased concentration of the EMS calls within particular cells may be caused by one of the following reasons:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 113,
+                    "end": 119,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "EMS Calls"
+        },
+        {
+            "text": "-The cell has higher population density compared to the other cells; -The cell has higher concentration of people with arterial hypertension, which might cause higher ACS probability; -The cell includes people who are more prone to acute coronary syndrome due to unknown reasons.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "EMS Calls"
+        },
+        {
+            "text": "To distinguish these cases and thus to be able to perform a more meaningful analysis of EMS calls distribution, we assess the spatial distribution of city dwellers and people with high blood pressure using the synthetic population approach.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "EMS Calls"
+        },
+        {
+            "text": "A \"synthetic population\" is a synthesized, spatially explicit human agent database (essentially, a simulated census) representing the population of a city, region or country. By its cumulative characteristics, this database is equivalent to the real population, but its records does not correspond to real people. Statistical and mechanistic models built on top of the synthetic populations helped tackle a variety of research problems, including those connected with public health. In this study, we have used a synthetic population generated according to the standard of RTI International [13] .",
+            "cite_spans": [
+                {
+                    "start": 591,
+                    "end": 595,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Synthetic Population"
+        },
+        {
+            "text": "According to the standard of RTI International, the principal data for any given synthetic population is stored in four files: people.txt (each record contains id, age, gender, household id, workplace id, school id), households.txt (contains id and coordinates), workplaces.txt (contains id, coordinates and capacity of the workplaces), and schools.txt (contains id, coordinates, capacity). Our synthetic population is based on 2010 data from \"Edinaya sistema ucheta naseleniya Sankt Peterburga\" (\"Unified population accounting system of Saint Petersburg\") [4] , which was checked for errors and complemented by the coordinates of the given locations. The schools records were based on the school list from the official web-site of the Government of Saint Petersburg [5] . The distribution of working places for adults and their coordinates were derived from the data obtained with the help of Yandex.Auditorii API [15] . The detailed description of the population generation can be found in [8] . Further on we assess the probability for an individual in the synthetic population to have arterial hypertension. Each individual receives two additional characteristics [9] : -The AH risk (the probability of having arterial hypertension). Based on [12] , we assumed that the mentioned probability depends on age and gender of an individual. The corresponding cumulative distribution function was found using the data of 4521 patients during 2010-2015 and is shown in Fig. 4 . -The actual AH status (positive or negative). The corresponding value (0 or 1)",
+            "cite_spans": [
+                {
+                    "start": 557,
+                    "end": 560,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 767,
+                    "end": 770,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 915,
+                    "end": 919,
+                    "text": "[15]",
+                    "ref_id": null
+                },
+                {
+                    "start": 992,
+                    "end": 995,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1168,
+                    "end": 1171,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1247,
+                    "end": 1251,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1466,
+                    "end": 1472,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Synthetic Population"
+        },
+        {
+            "text": "is generated by the Monte Carlo algorithm according to the AH risk calculated in the previous step. The AH status might be used in simulation models which include demographic processes and population-wide simulation of the onset and development of AH.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assessing AH Risk and Individual AH Status"
+        },
+        {
+            "text": "The proportion of the synthetic population affected by arterial hypertension is found to be 26.6% which roughly correlates with the AH prevalence data in the USA according to American Heart Association Statistical Fact Sheet 2013 Update (1 out of every 3) [1] and is lower than the estimate for the urban population in Russia (47.5%) [11] . The cumulative and spatial distributions of AH+ individuals in Saint Petersburg are shown in Fig. 5 . It can be seen that the non-uniformity in ages and genders of the citizens potentially causes an uneven distribution of individuals exposed to arterial hypertension.",
+            "cite_spans": [
+                {
+                    "start": 256,
+                    "end": 259,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 334,
+                    "end": 338,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 434,
+                    "end": 440,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assessing AH Risk and Individual AH Status"
+        },
+        {
+            "text": "Further in the paper we match the number of AH+ dwellers of every cell with the number of EMS calls within this same cell and propose an indicator to analyze the relation between them.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assessing AH Risk and Individual AH Status"
+        },
+        {
+            "text": "We convert the coordinates of EMS calls location from degrees to meters using Mercator projection. After this, we form a grid with a fixed cell size (250 m \u00d7 250 m) which covers the urban territory under consideration. Finally, using the EMS calls dataset, we calculate the overall number of EMS calls which was made within each cell of the grid. In the same way, we calculate the overall number of dwellers and AH+ individuals for the cells. This algorithm was implemented as a collection of scripts written in Python 3.7 with the libraries numpy, matplotlib, and pandas. The output of the algorithm is a .txt file with the coordinates of the cells and the cell statistics (overall number of individuals, number of AH+ individuals, overall number of EMS calls).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Calculating the Indicators Related to EMS Calls"
+        },
+        {
+            "text": "In order to understand the relationship between the numbers of AH+ users and the number of EMS calls, we follow our earlier research [2] , where the ratio r 1 between the overdose-related EMS calls and the assessed number of opioid drug users was studied. In this paper, we compare r 1 with the alternative indicator r 2 which depends on the cumulative number of people in the cell under study instead of the assessed quantity of AH+ individuals. The formulas to calculate the mentioned ratios are the following: r 1 = n ems + 1 n ah + 1 and r 2 = n ems + 1 n p + 1",
+            "cite_spans": [
+                {
+                    "start": 133,
+                    "end": 136,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Calculating the Indicators Related to EMS Calls"
+        },
+        {
+            "text": "where n ems is the number of registered EMS calls in a cell, n ah is the assessed number of AH+ users in a cell, and n p is the number of dwellers in a cell based on the synthetic population data. These quantities represent the number of calls per AH+ individual and calls per dweller, respectively. By adding 1 to the numerator and denominator we are able to avoid a divide by zero error, and although it provides a small skew in the data, its consistent application across all cells leaves the results and their interpretations unhindered. We use the ratio r 1 to understand which cells have large differences in the orders of magnitude compared to other cells. The ratio r 2 is introduced to compare its distribution with r 1 and thus decide whether the statistical model for AH+ probability assessment helps more accurately detect the anomalies connected with EMS calls distribution. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Calculating the Indicators Related to EMS Calls"
+        },
+        {
+            "text": "In Fig. 6 , the aggregated distributions of the r 1 and r 2 values for our data are shown. On the left graph, the distributions are given in their original form, and in the right one the standardized distributions are demonstrated, i.e. with means equal to 0 and standard deviations equal to 1. Although the shape of the histograms is similar, the difference between the corresponding distributions is statistically significant, which is supported by the results of Chi-square test performed for the standardized samples. The crucial difference is in the histogram tails, i.e. in the extreme values of the indicators, which, as it will be shown further in the paper, is also accompanied by their different spatial distribution.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 9,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "Cumulative Distribution"
+        },
+        {
+            "text": "In Fig. 7 , a distribution of 20 cells with the highest values of r 1 and r 2 is shown (shades of blue and shades of green correspondingly). The lighter shades corresponds to the bigger cell side lengths (250, 500, 1000 and 2000 m).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 9,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                }
+            ],
+            "section": "Spatial Distribution"
+        },
+        {
+            "text": "The results demonstrate that the locations of high r 1 values change less with the change of cell side length, compared to r 2 (it is demonstrated on the map by several points with different shades of blue situated one near another). Also it is notable that the high r 2 values were found in lined up adjacent cells (see left and right edges of the map). This peculiarity of r 2 distribution requires further investigation, because it hampers the meaningful usage of the indicator.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Spatial Distribution"
+        },
+        {
+            "text": "The locations marked with three blue points represent concentration of high EMS calls in the isolated neighborhood with few assessed number of AH+ individuals. Most of these locations happen to be near the places connected with tourism and entertainment (1 -Gazprom Arena football stadium, 2 -Peterhof historical park) or industrial facilities (3 -bus park, trolleybus park, train depot; 4 -Izhora factory, Kolpino bus park). Location 5 corresponds to Pulkovo airport, a major transport hub (it is marked by only two blue points though). Location 6 is the one which cannot be easily connected with excessive EMS calls-it is situated in a small suburb with plenty of housing. The possible interpretation of why it demonstrates high r 1 is the discrepancy between the actual number of dwellers for 2015 (a year for EMS calls data) compared to the 2010 information (a year for populational data). This zone was a rapidly developing construction site and subsequently witnessed a fast increase in the number of dwellers. Location 7 is also an expectational one -it is the only one which is marked by three green points (high r 2 ). Additionally, this zone was not marked by high r 1 , although it is easily interpreted as yet another industrial district (Lenpoligraphmash printing factory). Increasing the number of points in a distribution to 100 does not change significantly the results: isolated areas with meaningful interpretation are mostly marked by the blue points, except Lenpoligraphmash at location 7.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Spatial Distribution"
+        },
+        {
+            "text": "Whereas the exceptional values of r 1 indicate isolated non-residential areas (industrial objects and places of mass concentration of people) which might be connected with the increased risk of ACS and thus require attention from healthcare services, the extreme values of r 2 indicator might be useful when we need to assess the excess of EMS calls in the densely populated residential areas. In Fig. 8 , where r 1 and r 2 values are plotted against a heatmap of EMS call numbers, we see that there are two types of peak concentrations of EMS calls (bright red color). Ones are not marked with green dots (the r 2 values are not high) and thus might be explained by high concentration of dwellers in general. Others, marked with green dots, show the locations with high number of EMS calls relative to population. In case the locations does not demonstrate high r 1 values (no blue dots in the same place), they might correspond to the category of neighborhoods with ACS risk factors not associated with arterial hypertension (to be more precise, not associated with the old age of dwellers, since it is the main parameter of the statistical model for AH prevalence used in this study).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 397,
+                    "end": 403,
+                    "text": "Fig. 8",
+                    "ref_id": null
+                }
+            ],
+            "section": "Spatial Distribution"
+        },
+        {
+            "text": "In this paper, we demonstrated a statistical approach which uses synthetic populations and statistical models of arterial hypertension prevalence to distinguish several cases of ACS-associated EMS call concentration in the urban areas:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "-High r 1 values for any corresponding number of EMS calls (Fig. 7) might indicate locations where acute coronary syndrome cases happen despite the low AH+ population density (for instance, particular industrial zones). -Average to low r 2 values for high number of EMS calls (Fig. 8 , red spots without green points) correspond to areas with high population density. -High r 2 values and low r 1 values for high number of EMS calls (Fig. 8, red spots with green points) might indicate areas where the excessive number of ACS cases cannot be explained neither by the high population density, nor by AH prevalence, thus they might indicate neighborhoods with unknown negative factors.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 59,
+                    "end": 67,
+                    "text": "(Fig. 7)",
+                    "ref_id": null
+                },
+                {
+                    "start": 276,
+                    "end": 283,
+                    "text": "(Fig. 8",
+                    "ref_id": null
+                },
+                {
+                    "start": 433,
+                    "end": 445,
+                    "text": "(Fig. 8, red",
+                    "ref_id": null
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "It is worth noting that due to the properties of our EMS dataset (see Sect. 2.1 and Fig. 3 ) most of the locations with extremely high r 1 and r 2 correspond to the number of EMS calls in a grid cell equal to 1. Ascribing EMS calls to one or another property of the area based on such a small number of observations is definitely premature, and thus our interpretations given earlier in the text should be continuously tested using the new data on EMS calls. Despite the fact that we cannot draw any definite and final conclusions, in the author's opinion, the study successfully introduces the application of the concept of using synthesized data for health conditions of unknown prevalence (arterial hypertension) to categorize spatial distribution of their acute repercussions (acute coronary syndrome). As it was demonstrated by the authors before [2] , the same approach can be successfully used in case of opioid drug usage, and we expect to broaden the scope of its application by applying it in other domains.",
+            "cite_spans": [
+                {
+                    "start": 852,
+                    "end": 855,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 84,
+                    "end": 90,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "As to the current research, we plan the following directions of its further development:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "-Currently, the time periods of the EMS calls information and synthetic population data do not match, which might cause the bias in the estimated values of the indicators. We plan to reproduce the results of this study using the actualized data sets. -The enhanced statistical model for AH is considered to make the calculation of the number of AH+ individuals more accurate. -The values of r 1 are almost the same for the cases of (a) 1 EMS call in presence of 0 AH+ individuals, and (b) 2n calls in presence of n AH+ individuals, so those cases cannot be distinguished by using indicators such as r 1 , although they are essentially different. We want to explore the possibility of using a yet another indicator which will take into account the absolute number of dwellers in the neighborhood and will have a meaningful interpretation. -We have access to a number of health records of the people hospitalized with ACS in a human-readable format, which contains information about their AH status. Using natural language processing tools, we plan to obtain a digital version of this data set and consequently to assess numerically the connection between AH and ACS cases in Saint Petersburg. This result will help reduce uncertainty in the results of the current study connected with analyzing the distribution of r 1 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "AHA: American heart association statistical fact sheet 2013 update",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "10",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Using synthetic populations to understand geospatial patterns in opioid related overdose and predicted opioid misuse",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Bates",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Leonenko",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rineer",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bobashev",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Comput. Math. Organ. Theory",
+            "volume": "25",
+            "issn": "1",
+            "pages": "36--47",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10588-018-09281-2"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Simulation of emergency care for patients with ACS in Saint Petersburg for ambulance decision making",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Derevitskiy",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Krotov",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Voloshin",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Yakovlev",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Kovalchuk",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Karbovskii",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Procedia Comput. Sci",
+            "volume": "108",
+            "issn": "",
+            "pages": "2210--2219",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Government of Saint Petersburg: Labor and employment committee",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "13",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Government of Saint Petersburg: Official web-site",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Catastrophic health expenditure on acute coronary events in asia: a prospective study",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Jan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Bull. World Health Organ",
+            "volume": "94",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Towards model-based policy elaboration on city scale using game theory: application to ambulance dispatching",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Kovalchuk",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Moskalenko",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Yakovlev",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "ICCS 2018",
+            "volume": "10860",
+            "issn": "",
+            "pages": "404--417",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-93698-7_31"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Spatial modeling of influenza outbreaks in Saint Petersburg using synthetic populations",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Leonenko",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Lobachev",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bobashev",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ICCS 2019",
+            "volume": "11536",
+            "issn": "",
+            "pages": "492--505",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-22734-0_36"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Analyzing the spatial distribution of individuals predisposed to arterial hypertension in Saint Petersburg using synthetic populations",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Leonenko",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Kovalchuk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "ITM Web of Conferences",
+            "volume": "31",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "The impact of hypertension on patients with acute coronary syndromes",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Picariello",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Lazzeri",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Attan\u00e0",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Chiostri",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Gensini",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Valente",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Int. J. Hypertens",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.4061/2011/563657"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Arterial hypertension among individuals of 25-64 years old: prevalence, awareness, treatment and control. by the data from ECCD",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Boytsov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Cardiovasc. Ther. Prev",
+            "volume": "13",
+            "issn": "4",
+            "pages": "4--14",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Data-driven identification of hypertensive patient profiles for patient population simulation",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Semakova",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Zvartau",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Procedia Comput. Sci",
+            "volume": "136",
+            "issn": "",
+            "pages": "433--442",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Synthesized population databases: a US geospatial database for agent-based models",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Wheaton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "WHO: Hypertension. Fact sheet",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "The daily dynamics of emergency service calls connected with acute coronary syndrome (Jan -Nov, 2015) The cumulative number of ACS emergency service calls in different weekdays.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "The spatial distribution of ACS emergency service calls in Saint Petersburg",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "The cumulative distribution function used to define the AH status of an individual, based on data from[12].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The aggregated and geospatial distributions of AH+ individuals in Saint Petersburg The distributions of r1 and r2 (original and standardized).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Points of high r1 and r2 (Color figure online) Heatmap of EMS calls matched against high r1 and r2 locations (Color figure online)",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

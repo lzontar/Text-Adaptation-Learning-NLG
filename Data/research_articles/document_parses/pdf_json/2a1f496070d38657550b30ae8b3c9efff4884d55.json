@@ -1,0 +1,1768 @@
+{
+    "paper_id": "2a1f496070d38657550b30ae8b3c9efff4884d55",
+    "metadata": {
+        "title": "Sequential data assimilation of the stochastic SEIR epidemic model for regional COVID-19 dynamics S E I R !SI aE gI",
+        "authors": [
+            {
+                "first": "Ralf",
+                "middle": [],
+                "last": "Engbert",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Research Focus Data-Centric Sciences",
+                    "location": {}
+                },
+                "email": ""
+            },
+            {
+                "first": "Maximilian",
+                "middle": [
+                    "M"
+                ],
+                "last": "Rabe",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Reinhold",
+                "middle": [],
+                "last": "Kliegl",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Sebastian",
+                "middle": [],
+                "last": "Reich",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Research Focus Data-Centric Sciences",
+                    "location": {}
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Newly emerging pandemics like COVID-19 call for better predictive models to implement early and precisely tuned responses to their deep impact on society. Standard epidemic models provide a theoretically well-founded description of dynamics of disease incidence. For COVID-19 with infectiousness peaking before and at symptom onset, the SEIR model explains the hidden build-up of exposed individuals which challenges containment strategies, in particular, due to delayed epidemic responses to non-pharmaceutical interventions. However, spatial heterogeneity questions the adequacy of modeling epidemic outbreaks on the level of a whole country. Here we show that sequential data assimilation of a stochastic version of the standard SEIR epidemic model captures dynamical behavior of outbreaks on the regional level. Such regional modeling of epidemics with relatively low numbers of infected and realistic demographic noise accounts for both spatial heterogeneity and stochasticity. Based on adapted regional models, population level short-term predictions can be achieved. More realistic epidemic models that include spatial heterogeneity are within reach via sequential data assimilation methods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The evolving spread of the novel coronavirus in Germany [1] resulted in containment measures based on reduced traveling and social distancing [3] . In epidemic standard models [2, 14] , which provide a dynamical description of epidemic outbreaks [7, 20] , containment measures aim at a reduction of the contact parameter. Since the contact parameter is one of the critical parameters that determine the speed of increase of the number of infectious individuals, estimation of the contact parameter is a key basis of epidemic modeling [17] . The current situation of COVID-19 is characterized by extreme spatial heterogeneity [1] . In the initial phase of the outbreak, this heterogeneity is caused by random travel-based imports of infectious cases and enhanced by local events with increased contacts. As a consequence, the assumption of homogeneous mixing must be relaxed [12] and coupled dynamics of regional models seem to be a more adequate description [15] . However, when modeling a relatively small region with population size N = 10 5 compared to the country level with N = 10 7 to 10 9 , demographic stochasticity [9, 12] must be addressed (see The stochastic SEIR model). The combination of dynamical modeling with substantial fluctuations calls for sequential data assimilation methods for parameter inference [5, 19] . We investigate the stochastic SEIR epidemic model [2] for application to regional data of COVID-19 incidence. The model assumes S, E, I, and R compartments representing susceptible, exposed, infectious, and recovered individuals (Fig. 1) . This model is particularly important for the description of the spread of COVID-19, since infectiousness seems to peak on or before symptom onset S E I R !SI aE gI Figure 1 : The SEIR model. The population is composed of four compartments that represent susceptible, exposed, infectious, and recovered individuals. The contact parameter \u03b2 is critical for disease transmission, 1/a and 1/g are the average duration of exposed and infectious periods, resp. Different from the standard model, birth and death processes are neglected for the short-term simulations discussed throughout the current study. [13] , such that models without the exposed compartment cannot adequately address the time-delay between build-up of exposed and infectious individuals.",
+            "cite_spans": [
+                {
+                    "start": 56,
+                    "end": 59,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 176,
+                    "end": 179,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 180,
+                    "end": 183,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 246,
+                    "end": 249,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 250,
+                    "end": 253,
+                    "text": "20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 534,
+                    "end": 538,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 625,
+                    "end": 628,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 874,
+                    "end": 878,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 958,
+                    "end": 962,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1124,
+                    "end": 1127,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1128,
+                    "end": 1131,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1322,
+                    "end": 1325,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1326,
+                    "end": 1329,
+                    "text": "19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1382,
+                    "end": 1385,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 2173,
+                    "end": 2177,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1561,
+                    "end": 1569,
+                    "text": "(Fig. 1)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1736,
+                    "end": 1744,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": ""
+        },
+        {
+            "text": "Since we are interested in short-term modeling (weeks to months), we neglect birth and death processes as a first-order approximation for the dynamics of the model. Disease-related model parameters are the rate parameters a = 1/Z (with average latency period Z) and g = 1/D (with mean infectious period D), which can be estimated independently from analysis of infected cases [13, 15] . Therefore, the time-dependent contact parameter \u03b2 is the most critical parameter that needs to be determined via data assimilation [19] . The contact parameter \u03b2 is directly related to the basic reproductive rate R 0 in a SEIR-type model (see SEIR model and basic reproductive rate). Therefore, non-pharmaceutical interventions that aim at R 0 < 1 translate into the relation \u03b2 < g in the model. In the following, we will use a combination of sequential data assimilation and stochastic modeling on the regional level to estimate spatial heterogeneity in epidemics spread and show how to use such a combined approach for epidemics prediction and uncertainty quantification.",
+            "cite_spans": [
+                {
+                    "start": 376,
+                    "end": 380,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 381,
+                    "end": 384,
+                    "text": "15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 518,
+                    "end": 522,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "The key motivation of the current study was to apply sequential data assimilation of the stochastic SEIR model to estimate the contact parameter. Using simulated data, we successfully applied an ensemble Kalman filter [10, 19] for recovery of the contact parameter from data (see Parameter recovery from simulated data). When applied to empirical data on the level of a region, the estimation of the contact parameter produces a comparable evidence profile (see Application to empirical data).",
+            "cite_spans": [
+                {
+                    "start": 218,
+                    "end": 222,
+                    "text": "[10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 223,
+                    "end": 226,
+                    "text": "19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Results"
+        },
+        {
+            "text": "In the early phase of the outbreak of COVID-19 in Germany, the reported cumulative numbers of cases strongly increase (Fig. 2a,b) , however, epidemic dynamics vary on the regional level. Such spatial heterogeneity is due to different onset times of the disease in different regions, but is also enhanced by variations in the local contact parameters \u03b2. In response to containment measures, we expect \u03b2 to change over time.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 118,
+                    "end": 129,
+                    "text": "(Fig. 2a,b)",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "Estimation of the time-dependence of the contact parameter is done via the model's best fit. An approximative instantaneous negative log-likelihood L(t k , \u03b2) of the contact parameter \u03b2 at observation time t k is obtained from the ensemble Kalman filter (see Model inference based on sequential data assimilation). Thus, by determining the minimum of L(t k , \u03b2) with respect to \u03b2 at time t k we estimate the time-dependence of the best fit \u03b2 * (t k ) (Fig. 2c) . The black line reports the average time dependence for all 320 regions included in the analysis; standard deviations are indicated by the grey area. Results for the two example regions are given by their corresponding colors. The non-pharmaceutical interventions in the spread of COVID-19 were implemented at slightly varying points in time across Germany. In the majority of regions, closings of schools and other educational institutions started on March 16th, while large-scale contact bans was implemented on March 22th. Since these social distancing measures will have an impact on the contact parameter, we expected to observe a related drop in the contact parameter over time. Before we present a corresponding analysis, it should be made clear that any of these measures cannot produce an immediate effect on the observed cases of infected individuals because of the latency period. To use a reliable estimate of the contact parameter, the related interval should be as long as possible, since sequential data assimilation will need several data points to adapt the model to the data. Therefore, we selected the average value of \u03b2 * (t k ) over the three days from March 17th to March 19th as a pre-intervention value. The average over March 31st to April 2nd is taken as an estimate of the post-intervention value. To analyze the effect across regions, we computed average values \u03b2 pre (March [17] [18] [19] and \u03b2 post (March 31-April 2) of the relevant \u03b2 * (t k ) for all regions. A scatter plot indicated a clear reduction of the numerical value of the contact parameter from \u03b2 pre to \u03b2 post (Fig. 2d) . The reduction is statistical significant (Wilcoxon test, p < 0.01).",
+            "cite_spans": [
+                {
+                    "start": 1865,
+                    "end": 1869,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1870,
+                    "end": 1874,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1875,
+                    "end": 1879,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 451,
+                    "end": 460,
+                    "text": "(Fig. 2c)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 2066,
+                    "end": 2075,
+                    "text": "(Fig. 2d)",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Time-dependence of the contact parameter"
+        },
+        {
+            "text": "Finally, the overall time-dependence \u03b2 * (t k ) shows a decreasing trend, however, Figure 2c suggests that there is an additional weekly cycle with local minima at weekends (March 22 and 29). Both of the example regions show this effect as well. For the RKI data, we do not expect that seemingly reduced contact parameters are a simple consequence of increased reporting delay over the weekend, since this database is continuously updating the reported cases back in time (see RKI data on COVID-19 in Germany).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 83,
+                    "end": 92,
+                    "text": "Figure 2c",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Time-dependence of the contact parameter"
+        },
+        {
+            "text": "The contact parameter \u03b2 is the most critical parameter determining the dynamics of the stochastic SEIR model. After time-resolved estimation of the best fit \u03b2 * (t k ), we are able to generate simulations from an initial state to predict the future trajectory (Fig. 3 ). Simulations I are started from the first epidemic day in the corresponding region with greater than or equal to 30 cases. The initial numbers of infected I 0 were set to the observed number of cases y obs (t 0 ), while the initial numbers of exposed were set to E 0 = g/a \u00b7 I 0 , which would hold at epidemic equilibrium. The initial number of infected people was disturbed by noise representing uncertainties in the initial model states.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 260,
+                    "end": 267,
+                    "text": "(Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Simulations with time-varying contact parameter"
+        },
+        {
+            "text": "Forward iteration with the estimated time-varying contact parameter show that the slope of the epidemic curve is approximately reproduced by the model (Fig. 3a ,c; grey lines indicate the ensemble of simulated trajectories; blue points are observed data). At March 26th, we started simulations II which exploits the full potential of sequential data assimilation. The sequential data assimilation approach via the ensemble Kalman filter (see Ensemble Kalman filter) is based on the forward modeling of an ensemble of trajectories. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 151,
+                    "end": 159,
+                    "text": "(Fig. 3a",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Simulations with time-varying contact parameter"
+        },
+        {
+            "text": "The forward simulations discussed in the previous section demonstrated the predictive power of the SEIR model after sequential data assimilation. In the next step, we generated simulations under two different scenarios. In scenario I, we started with the adapted ensemble of internal model states after data assimilation (April 4th) and iterated the model forward with the mean contact parameter estimated in the week March 29th to April 4th after implementation of interventions (Fig. 4 , green area). The simulations smoothly continue the time-course of infected cases for both example regions (Fig. 4a,b) . Daily reported case numbers show a decline for both regions (Fig. 4c,d) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 480,
+                    "end": 487,
+                    "text": "(Fig. 4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 596,
+                    "end": 607,
+                    "text": "(Fig. 4a,b)",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 670,
+                    "end": 681,
+                    "text": "(Fig. 4c,d)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Predictions for two different scenarios"
+        },
+        {
+            "text": "In scenario II, we assumed that all governmental intervention measures were terminated. Therefore, we used the estimated in the week March 15th to March 21st. Again we started simulations with the adapted ensemble of internal states after sequential data assimilation (Fig. 4 , red area). For both example regions, we observe a strong increase in infected cases under scenario II (Fig. 4c,d) . The dramatic increase can be seen most clearly in the plot of daily numbers of new cases (for more examples see Supplementary Information Appendix). q q q q q q q q q q q q q q q q q q q q q q q q q q ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 268,
+                    "end": 275,
+                    "text": "(Fig. 4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 380,
+                    "end": 391,
+                    "text": "(Fig. 4c,d)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Predictions for two different scenarios"
+        },
+        {
+            "text": "The ongoing worldwide spread of the new coronavirus exerts enormous pressure on health systems, societies and governments. Therefore, predicting the epidemic dynamics under the influence of nonpharmaceutical interventions (NPI) is an important problem from a data science and mathematical modeling perspective [18] . The motivation of the current work was to explore the potential of sequential data assimilation [19] for a regional epidemic model as a forecasting tool. Standard epidemic SEIR-type models implement a compartmental description under the assumption of homogeneous mixing of individuals [2] . More realistic modeling approaches require spatial heterogeneity due to time-varying disease onset times, regionally different contact rates, and the time-dependence of the contact rates due to implementation of containment strategies. However, regional descriptions require models that include effects of demographic stochasticity due to limited population sizes and cases numbers in the region considered [6] . Effects of such statistical fluctuations are inherently reproduced via stochastic versions of the standard epidemic models [9, 12] .",
+            "cite_spans": [
+                {
+                    "start": 310,
+                    "end": 314,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 413,
+                    "end": 417,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 602,
+                    "end": 605,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1015,
+                    "end": 1018,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1144,
+                    "end": 1147,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1148,
+                    "end": 1151,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "We demonstrated the potential of sequential data assimilation for COVID-19 dynamics at the level of a regional, stochastic model. Based an the ensemble Kalman filter [10] , we successfully recovered the contact parameter from simulated data and obtained reliable estimates from empirical data. The contact parameter is the most critical free parameter in the stochastic SEIR model, since other parameters (mean exposed and infectious duration) can be estimated independently from observed time series [13, 15] . Moreover, the contact parameter of the SEIR model is directly related to the basic reproductive rate R 0 [16] . Therefore, our approach could also be framed as model-based method for statistical inference of the basic reproductive rate.",
+            "cite_spans": [
+                {
+                    "start": 166,
+                    "end": 170,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 501,
+                    "end": 505,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 506,
+                    "end": 509,
+                    "text": "15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 617,
+                    "end": 621,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "5"
+        },
+        {
+            "text": "The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint Next, we ran time-resolved analyses that generated estimates of the time-dependence of the contact parameter. The drop in mean contact rates from an early (\u03b2 pre , March 17-19) to a later period (\u03b2 post , March 31-April 2) indicated the effect of non-pharmaceutical interventions. We also generated model prediction under two different scenarios. In scenario I, started simulations from April 4th with sampling from the assimilated ensemble as initials conditions and the contact parameter estimated for the post-intervention period (March 29-April 4). In scenario II, we replaced the post-intervention contact parameter by its pre-intervention value (March 15-21). As a results, the two scenarios predict rather different temporal developments (decline of daily new cases for scenario I, and strong increase for scenario II). Therefore, our model predictions suggest that lifting off the current interventions would clear switch the epidemic dynamics to the exponential increase before implementation of non-pharmaceutical interventions. Such predictions can easily be scaled up to the federal state level (Bundesl\u00e4nder) or to the country level; a corresponding predictive model will be potentially quite 6 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 85,
+                    "text": "13.20063768",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": "The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint robust because of explicit modeling of spatial and temporal heterogeneities, captured by a separate time-course of the contact parameter for each region. The recent simulation study Li et al. [15] used a similar approach of sequential data assimilation for dynamic epidemic models. However, the deterministic SEIR model was implemented and extended by additional noise assumptions. We proposed the usage of the stochastic SEIR model in the formulation of a master equation [9] which can be simulated exactly and numerically efficiently using Gillespie's algorithm [11] . A more complex spatiotemporal stochastic model has been considered in [4] . Furthermore, the state-parameter estimation in [15] utilises the ensemble Kalman filter directly on an augmented state space [19] . Contrary to that study, we found a direct application of the ensemble Kalman filter to the augmented state space (X, \u03b2) not suitable because of the strongly nonlinear interaction between the model states X and the contact parameter \u03b2. This led us to the two stage approach, as presented in this study, combining the ensemble Kalman filter for state estimation with a likelihood based inference of the contact parameter \u03b2. Our current study was mainly motivated by the methodological problem of a possible contribution from data assimilation to epidemics modeling based on a stochastic SEIR model. There are obvious limitations in our current modeling framework, which we did not address because of the methodological focus. Longer-term predictions (\u223c months) are important, but clearly dependent critically on the estimation of undocumented infections (see Li et al. [15] ). Such hidden infections create, after recovery, an unknown reduction in the number of susceptibles that slows down epidemic dynamics; such an effect is currently not included in our current model. However, it seems compatible with our framework to extend the SEIR model by an additional class of undocumented infected individuals [15] . Another important limitation of these results comes from the simplifying assumption that there is no coupling to neighboring regions. As a consequence, regional differences in the contact parameter might in fact be due to differences in contacts between regions. Introducing couplings between regions [15] could also be integrated in our modeling framework. However, the no-coupling approximation might be realistic in the current situation of social distancing and contact ban. Linking back to the potential of NPI to control COVID19 until vaccination or medicine is available we close with an observation relating to a recent study [8] . Our analyses covered the same time span as Dehning et al. [8] and we also picked up a systematic pattern of contact reduction which we interpret as a weekly cycle (see Statistical modeling of trends and weekly oscillations). Indeed, the dates of the interventions analyzed by Dehning et al. are confounded with day of the week; the three dates refer to three Sundays in March. It is reasonable to assume that in Germany there is much less contact to persons outside the family context on weekends than during working days. Of course, there are also other reasons why certified reports of COVID19 infections are less frequent for weekends. For example, people are more likely to go to their GP on Monday than to the emergency room on Sunday, especially as long as the symptoms are mild. No reason, in our opinion, is a lack of recording at the RKI; the cases reported for the weekend are added on Monday and Tuesday. One advantage of the method proposed here is that we recover effects with comparatively little date at the level of regions, not an entire country. In the absence of a vaccine or of medication, having such an epidemic forcasting tool seems almost like a necessary precondition for selective and optimal timing of tightening and loosening of NPI-based containment measures.",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 85,
+                    "text": "13.20063768",
+                    "ref_id": null
+                },
+                {
+                    "start": 300,
+                    "end": 304,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 581,
+                    "end": 584,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 672,
+                    "end": 676,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 749,
+                    "end": 752,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 802,
+                    "end": 806,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 880,
+                    "end": 884,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1754,
+                    "end": 1758,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 2091,
+                    "end": 2095,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 2399,
+                    "end": 2403,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 2732,
+                    "end": 2735,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 2796,
+                    "end": 2799,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": "The Robert Koch Institute (RKI), the central scientific institution in the field of biomedicine within the portfolio of the Federal Ministry of Health, provides daily access to the number of confirmed cases, deaths, and recovered patients, broken down by 412 counties, six age groups, and sex. As they are official records, only cases certified by doctors or labs according to a strict medical protocol in accordance with the Infection Protection Act are entered into the data base. The exact time of an infection is usually not known. The associated time stamp refers to the date on which the local 7 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RKI data on COVID-19 in Germany"
+        },
+        {
+            "text": "The copyright holder for this preprint . https://doi.org/10.1101/2020.04.13.20063768 doi: medRxiv preprint health authority became aware of the case and recorded it electronically. As records are passed from the physician or lab via local and state health authorities to the RKI, there is a delay of several days before cases are available on the website. Statistics relating to the most recent three or four days are incomplete and cannot be interpreted; retrospective updates and corrections are possible for all days of the pandemic spell as they become available. We use data inclusive April 4, as reported on April 8, 2020; they are included as part of the supplement.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": "The SEIR epidemic model is a four-compartment model with susceptibles, which are able to contract the disease, exposed, those who are infected but not yet infectious, infectious individual, and recovered individuals who are immune. The model is typically formulated as a system of ordinary differential equations (ODE), i.e.,\u1e60",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR model and basic reproductive rate"
+        },
+        {
+            "text": "where the total number of individual N = S + E + I + R is constant under temporal evolution due to\u1e44 = 0. The ODE system, Eq. (1-4), has a non-trivial equilibrium point, denoted as epidemic equilibrium (S 0 , E 0 , I 0 , R 0 ), where the number of susceptibles S 0 at equilibrium is related to basic reproductive rate. Since we aim at a short-term description of the system, we neglect birth and death processes here, equivalent to the limit m \u2192 0, we obtain",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SEIR model and basic reproductive rate"
+        },
+        {
+            "text": "We use a numerical values of g = 1/3, equivalent to an average infectious period of D = 3 days, and a = 0.192, or an average latency period Z = 5.2 [13] . As a consequence, the critical condition for disease containment R 0 < 1 is obtained for \u03b2 < \u03b2 crit = 1/3 in our model.",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 152,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "SEIR model and basic reproductive rate"
+        },
+        {
+            "text": "While the classical model is formulated as a system of ordinary differential equations, we are exploring the application to relatively low numbers of cases in the early phase of the current epidemics on the regional level with population sizes from 10 5 to 10 6 . Therefore, we use the stochastic SEIR model in the form of a master equation [9] , which is particularly useful for modeling small numbers of infected individuals occuring in smaller regions or in the beginning of epidemics. The demographic SEIR model contains four variables denoted by X = (S, E, I, R) T \u2208 N 4 representing the number of individuals in each of the four classes with constant population size N = S + E + I + R. The transition rate of the ODE compartmental model translate into transition probabilities in the master equation formulation for the evolution of the model's conditional probability density, that is,",
+            "cite_spans": [
+                {
+                    "start": 341,
+                    "end": 344,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The stochastic SEIR model"
+        },
+        {
+            "text": "with transition probabilities given in Table 1 and initial condition X 0 . Single trajectories for the model's temporal evolution can be simulated exactly and numerically efficiently [9] using Gillespie's algorithm [11] .",
+            "cite_spans": [
+                {
+                    "start": 183,
+                    "end": 186,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 215,
+                    "end": 219,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 39,
+                    "end": 46,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "The stochastic SEIR model"
+        },
+        {
+            "text": "Publicly available data on the cumulative number of infected individuals is used to infer the model states X = (S, E, I, R) T and the contact parameter \u03b2 of the stochastic SEIR model. Note that the cumulative number of infected individuals corresponds to Y = I + R in the SEIR model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model inference based on sequential data assimilation"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "8"
+        },
+        {
+            "text": "The copyright holder for this preprint . https://doi.org/10.1101/2020.04.13.20063768 doi: medRxiv preprint Table 1 : Transitions and transition probabilities in the stochastic SEIR model. Transition are from state X = (S, E, I, R) T to X with probability W X\u2192X .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 107,
+                    "end": 114,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": "In the present study we combine sequential data assimilation for the model states with an approximate log-likelihood function for the contact parameter [19] . The basic algorithmic idea is to propagate an ensemble of M model forecasts using Gillespie's algorithm up to the next available observation point t k . The forecast ensemble is denoted by X a (t k ). This step is implemented via the ensemble Kalman filter [19] . While the forecast ensemble is used to compute the temporary negative log-likelihood L(t k , \u03b2) of the model's contact parameter \u03b2 at time t k , the adjusted model states serve as starting values for the next Gillespie prediction cycle. The above algorithm is run over a fixed range of contact parameters \u03b2 \u2208 [\u03b2 min , \u03b2 max ] and over a fixed time window [t initial , t final ] of available data points y obs (t k ). The best fit contact parameter \u03b2 * (t k ) at any time any t k is found as the one that minimises the temporary negative log-likelihood function, that is,",
+            "cite_spans": [
+                {
+                    "start": 152,
+                    "end": 156,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 416,
+                    "end": 420,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": "with L(t k , \u03b2) defined by (13) below.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": "The observed cumulative number of infected individuals y obs (t k ) is linked to the model states X = (S, E, I, R) T via",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Ensemble Kalman filter"
+        },
+        {
+            "text": "i.e., H = (0, 0, 1, 1). As initial condition, we set I 1 as the number of infected cases, R 1 = 0, so that y obs (t 0 ) = I 1 +R 1 , and E 1 = g/a\u00b7I 1 with additive noise. We assume that the errors in the observed y obs (t k ) is additive Gaussian with mean zero and variance \u03c1. We set \u03c1 = 10 in our experiments. The analysis step of the ensemble Kalman filter is now based on the empirical mean",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Ensemble Kalman filter"
+        },
+        {
+            "text": "and the empirical covariance matrix",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Ensemble Kalman filter"
+        },
+        {
+            "text": "of the forecast ensemble. These two quantities are used to quantify the forecast uncertainty. Combining the forecast uncertainty with the assumed data error model leads to the linear regression formula",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Ensemble Kalman filter"
+        },
+        {
+            "text": "with the Kalman gain defined by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Ensemble Kalman filter"
+        },
+        {
+            "text": "The resulting analysis ensemble X ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Ensemble Kalman filter"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. Model evidence The model's negative log-likelihood at an observation time t k is approximated by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "9"
+        },
+        {
+            "text": "Note that the first contribution penalises the data misfit while the second penalises model uncertainty.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "9"
+        },
+        {
+            "text": "The smaller the negative log-likelihood the better the chosen model parameter \u03b2 fits the data y k at time t k . The best parameter fit over a time window [t min , t max ] is defined as the value of \u03b2 which minimises the cumulative negative log-likelihood",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "9"
+        },
+        {
+            "text": "that is, \u03b2 * := arg min \u03b2 L cum (\u03b2).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "9"
+        },
+        {
+            "text": "Parameter recovery from simulated data To test the inference scheme, we simulated data for 20 days. In Figure 6 , the black line indicates the evolution of the SEIR model's predicted cumulative numbers of infected individuals, Y (t k ) = HX(t k ) = I(t k ) + R(t k ). Red dots represent the daily number of reported cases as in real data. In the simulation, the contact rate was chosen as \u03b2 true = 0.6. In the following, we analyzed whether this true value could be recovered using the inference procedures described above. We varied the contact rate \u03b2 and determined the cumulative negative log likelihood values L cum (\u03b2), Eq. (14) . The position of the minimum of L cum (\u03b2) indicates the best estimate for the numerical value of the underlying contact rate \u03b2 * , Eq. (15) . The position of the minimum turns out to be close to the true value, \u03b2 * \u2248 \u03b2 true = 0.6 (Fig. 6b) . Thus, parameter recovery can be demonstrated for a relatively short time series of 10 observations, which represents a typical data-set in the early phase of newly emerging epidemics. Next, we apply our inference scheme to real data.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 103,
+                    "end": 111,
+                    "text": "Figure 6",
+                    "ref_id": "FIGREF8"
+                },
+                {
+                    "start": 865,
+                    "end": 874,
+                    "text": "(Fig. 6b)",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "9"
+        },
+        {
+            "text": "Application to empirical data Since parameter inference was successful for simulated data, the next step was an application to empirical observations. We applied the inference framework to two regional data sets from the RKI data base. As an example, we selected the COVID-19 time series for K\u00f6ln (RKI data, population size N = 1, 085, 664), which includes 27 days of observations with more than 30 cases and is plotted in Figure 7 . Parameter estimation yields an estimate for the contact rate of \u03b2 * \u2248 0.7 (Fig. 7b) . Thus, analysis of the negative log-likelihood function produced 10 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. qualitatively similar results for simulated SEIR time series and empirical data for a representative region. In the main text, we carry out an estimation of the time-resolved instantaneous optimal parameter values \u03b2 * (t k ) using the instantaneous negative log-likelihood function L(t k , \u03b2), Eq. (13). We found that our results were relatively insensitive to the choice of the measurement error variance \u03c1 appearing in (12) and (13) . At the same time, we emphasise that the errors in the reported cumulative numbers of infected individuals are complex, may vary over time, and will certainly impact on the inferred parameters. The same applies to the unknown initial model states X(t 0 ) = (S(t 0 ), E(t 0 ), I(t 0 ), R(t 0 )) T and their uncertainties.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 423,
+                    "end": 431,
+                    "text": "Figure 7",
+                    "ref_id": "FIGREF9"
+                },
+                {
+                    "start": 508,
+                    "end": 517,
+                    "text": "(Fig. 7b)",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "9"
+        },
+        {
+            "text": "Statistical modeling of trends and weekly oscillations Mean certified cases, computed across regions per day, reveal a strong daily profile with local minima always falling on Sundays. The corresponding mean of log contact parameters reveals the same oscillation. The negative slopes are compatible with the expectation that a decrease in contact rates causes a decrease in daily cases. These illustrative analyses imply two considerations. If evaluated against statistics of daily cases, obviously containment measures must take the weekly cycle into account and avoid confounds in the design. There are many potential sources for this cycle, some of them possibly quite trivial (e.g., the number of tests carried out). However, if experimental research and statistical modeling can establish that part of these fluctuations are indeed due to reduced contact rates beyond the family context on weekends, then dynamical models may help with the prediction of the timing of tightening and loosening decisions in local contexts. For example, one may consider moving to a three-or fourworkday week for some time, in well-defined contexts, and in targeted regions to facilitate this dynamic.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "9"
+        },
+        {
+            "text": "This work was supported by a grant from Deutsche Forschungsgemeinschaft, Germany (SFB 1294, project no. 318763901).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgments"
+        },
+        {
+            "text": "Data and source code for simulations, analyses, and figures is available via Open Science Framework (OSF) at https://osf.io/7dshm/",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data and Code Availability"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "11"
+        },
+        {
+            "text": "This PDF file includes additional examples for regional modeling. 14 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Supplementary Information Appendix"
+        },
+        {
+            "text": "The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint q q q q qq q q q q q q q q q q q q q q q q q q q q q q q q q q q q q qq q q q q q q q q q q q q q q q q q q q q q q q q q ",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 85,
+                    "text": "13.20063768",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "15"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "16"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. 18 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "17"
+        },
+        {
+            "text": "The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint ",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 85,
+                    "text": "13.20063768",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not peer-reviewed)"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "19"
+        },
+        {
+            "text": "(which was not peer-reviewed) The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint ",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 115,
+                    "text": "13.20063768",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "19"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "20"
+        },
+        {
+            "text": "(which was not peer-reviewed) The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint ",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 115,
+                    "text": "13.20063768",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "20"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "21"
+        },
+        {
+            "text": "(which was not peer-reviewed) The copyright holder for this preprint . https://doi.org/10.1101/2020.04. 13.20063768 doi: medRxiv preprint ",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 137,
+                    "text": "13.20063768 doi: medRxiv preprint",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "21"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "COVID-19 Data for Germany",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "2020--2024",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Infectious diseases of humans: dynamics and control",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Roy M Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert M",
+                    "middle": [],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "May",
+                    "suffix": ""
+                }
+            ],
+            "year": 1992,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "How will country-based mitigation measures influence the course of the COVID-19 epidemic? The Lancet",
+            "authors": [
+                {
+                    "first": "Hans",
+                    "middle": [],
+                    "last": "Roy M Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Don",
+                    "middle": [],
+                    "last": "Heesterbeek",
+                    "suffix": ""
+                },
+                {
+                    "first": "T D\u00e9irdre",
+                    "middle": [],
+                    "last": "Klinkenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Hollingsworth",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "395",
+            "issn": "",
+            "pages": "931--934",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "A mathematical model for the spatiotemporal epidemic spreading of COVID19",
+            "authors": [
+                {
+                    "first": "Alex",
+                    "middle": [],
+                    "last": "Arenas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wesley",
+                    "middle": [],
+                    "last": "Cota",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jesus",
+                    "middle": [],
+                    "last": "Gomez-Gardenes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sergio",
+                    "middle": [],
+                    "last": "G\u00f3mez",
+                    "suffix": ""
+                },
+                {
+                    "first": "Clara",
+                    "middle": [],
+                    "last": "Granell",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joan",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Matamalas",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Soriano-Panos",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benjamin",
+                    "middle": [],
+                    "last": "Steinegger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "The quiet revolution of numerical weather prediction",
+            "authors": [
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Bauer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alan",
+                    "middle": [],
+                    "last": "Thorpe",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gilbert",
+                    "middle": [],
+                    "last": "Brunet",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Nature",
+            "volume": "525",
+            "issn": "7567",
+            "pages": "47--55",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Containment strategy for an epidemic based on fluctuations in the sir model",
+            "authors": [
+                {
+                    "first": "Philip",
+                    "middle": [],
+                    "last": "Bittihn",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ramin",
+                    "middle": [],
+                    "last": "Golestanian",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.08784"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Space, persistence and dynamics of measles epidemics",
+            "authors": [
+                {
+                    "first": "Benjamin",
+                    "middle": [],
+                    "last": "Bolker",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bryan",
+                    "middle": [
+                        "Thomas"
+                    ],
+                    "last": "Grenfell",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Philosophical Transactions of the Royal Society of London. Series B: Biological Sciences",
+            "volume": "348",
+            "issn": "",
+            "pages": "309--320",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Inferring covid-19 spreading rates and potential change points for case number forecasts",
+            "authors": [
+                {
+                    "first": "Jonas",
+                    "middle": [],
+                    "last": "Dehning",
+                    "suffix": ""
+                },
+                {
+                    "first": "Johannes",
+                    "middle": [],
+                    "last": "Zierenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Paul",
+                    "middle": [],
+                    "last": "Spitzner",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Wibral",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joao",
+                    "middle": [
+                        "Pinheiro"
+                    ],
+                    "last": "Neto",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Wilczek",
+                    "suffix": ""
+                },
+                {
+                    "first": "Viola",
+                    "middle": [],
+                    "last": "Priesemann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2004.01105"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Chance and chaos in population biology-models of recurrent epidemics and food chain dynamics",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Engbert",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Drepper",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Chaos, Solitons & Fractals",
+            "volume": "4",
+            "issn": "7",
+            "pages": "1147--1169",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Data Assimilation. The Ensemble Kalman Filter",
+            "authors": [
+                {
+                    "first": "Geir",
+                    "middle": [],
+                    "last": "Evensen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "A general method for numerically simulating the stochastic time evolution of coupled chemical reactions",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Daniel",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Gillespie",
+                    "suffix": ""
+                }
+            ],
+            "year": 1976,
+            "venue": "Journal of Computational Physics",
+            "volume": "22",
+            "issn": "4",
+            "pages": "403--434",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Spatial heterogeneity, nonlinear dynamics and chaos in infectious diseases",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bryan T Grenfell",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kleczkowski",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Gilligan",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bolker",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Statistical Methods in Medical Research",
+            "volume": "4",
+            "issn": "2",
+            "pages": "160--183",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Temporal dynamics in viral shedding and transmissibility of covid-19",
+            "authors": [
+                {
+                    "first": "Xi",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Eric",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peng",
+                    "middle": [],
+                    "last": "Lau",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xilong",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jian",
+                    "middle": [],
+                    "last": "Deng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xinxin",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yiu",
+                    "middle": [
+                        "Chung"
+                    ],
+                    "last": "Hao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jessica",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Lau",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yujuan",
+                    "middle": [],
+                    "last": "Wong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xinghua",
+                    "middle": [],
+                    "last": "Guan",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Tan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Early dynamics of transmission and control of covid-19: a mathematical modelling study. The Lancet Infectious Diseases",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Adam",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Kucharski",
+                    "suffix": ""
+                },
+                {
+                    "first": "Charlie",
+                    "middle": [],
+                    "last": "Russell",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yang",
+                    "middle": [],
+                    "last": "Diamond",
+                    "suffix": ""
+                },
+                {
+                    "first": "John",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sebastian",
+                    "middle": [],
+                    "last": "Edmunds",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rosalind",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Funk",
+                    "suffix": ""
+                },
+                {
+                    "first": "Fiona",
+                    "middle": [],
+                    "last": "Eggo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mark",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "James",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Jit",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Munday",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Substantial undocumented infection facilitates the rapid dissemination of novel coronavirus (SARS-CoV2)",
+            "authors": [
+                {
+                    "first": "Ruiyun",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sen",
+                    "middle": [],
+                    "last": "Pei",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bin",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yimeng",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tao",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wan",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jeffrey",
+                    "middle": [],
+                    "last": "Shaman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "The reproductive number of covid-19 is higher compared to sars coronavirus",
+            "authors": [
+                {
+                    "first": "Ying",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Albert",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Gayle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Annelies",
+                    "middle": [],
+                    "last": "Wilder-Smith",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joacim",
+                    "middle": [],
+                    "last": "Rockl\u00f6v",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of Travel Medicine",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Fundamental principles of epidemic spread highlight the immediate need for large-scale serological surveys to assess the stage of the sars-cov-2 epidemic",
+            "authors": [
+                {
+                    "first": "Jos\u00e9",
+                    "middle": [],
+                    "last": "Louren\u00e7o",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert",
+                    "middle": [],
+                    "last": "Paton",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mahan",
+                    "middle": [],
+                    "last": "Ghafari",
+                    "suffix": ""
+                },
+                {
+                    "first": "Moritz",
+                    "middle": [],
+                    "last": "Kraemer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Craig",
+                    "middle": [],
+                    "last": "Thompson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Simmonds",
+                    "suffix": ""
+                },
+                {
+                    "first": "Paul",
+                    "middle": [],
+                    "last": "Klenerman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sunetra",
+                    "middle": [],
+                    "last": "Gupta",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Effective containment explains sub-exponential growth in confirmed cases of recent covid-19 outbreak in mainland china",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Benjamin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Dirk",
+                    "middle": [],
+                    "last": "Maier",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Brockmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2002.07572"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Probabilistic forecasting and Bayesian data assimilation",
+            "authors": [
+                {
+                    "first": "Sebastian",
+                    "middle": [],
+                    "last": "Reich",
+                    "suffix": ""
+                },
+                {
+                    "first": "Colin",
+                    "middle": [],
+                    "last": "Cotter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Infinite subharmonic bifurcation in an SEIR epidemic model",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ira",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Schwartz",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Smith",
+                    "suffix": ""
+                }
+            ],
+            "year": 1983,
+            "venue": "Journal of Mathematical Biology",
+            "volume": "18",
+            "issn": "3",
+            "pages": "233--253",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "After each time step (1 day), the ensemble of trajectory is compared to the next observation and adjusted via a linear regression step. Therefore, we obtained an adapted ensemble of internal model states at each epidemic day. Here we exploit this fact in a forward simulation with initial conditions from the assimilated ensemble of internal model states. The corresponding forward simulations are close to the real timeevolution of the epidemics in the two example regions(Fig. 3a,c;grey lines indicate the ensemble of simulated trajectories; blue points are observed data). A related plot of the daily reported new cases indicates approximately constant level of numbers of new cases for Heinsberg(Fig. 3b)and slowly decreasing daily new cases for M\u00fcnster(Fig. 3d); both predictions are in agreement with empirical observations.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Analysis of time-dependent contact best fit contact parameters \u03b2 * (t k ). (a) For two regions (LK Heinsberg and LK M\u00fcnster), the cumulative numbers show strong increase after different disease onset times. (b) Semi-logarithmic scaling suggests approximate exponential growth in early as well as later regimes. (c) The time dependent contact parameter \u03b2 * (t k ) indicates a small decrease over time due to social distancing interventions (black: average for 320 regions; red, blue: contact parameter for the examples above; grey shading: standard deviation across regions. (c) Scatter plot of the time averaged contact parameter \u03b2 pre before intervention and \u03b2 post after intervention. Note that the critical value for disease containment is \u03b2 crit = 1/3 in our model (red lines).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Simulations of the stochastic SEIR model for two example regions. Simulations I indicate an ensemble of 100 runs of the model with initial conditions from the first epidemic day with number of cases greater than or equal to 30 (grey: ensemble of trajectories; blue: observations). Simulations II start on March 26th, using an ensemble size of 100 after data assimilation (grey: ensemble of trajectories; red: observations). (a) Cumulative cases of infected individuals over time for LK Heinsberg. (b) Daily reported new cases for Heinsberg. (c) Cumulative cases for LK M\u00fcnster. (d) Daily new cases for M\u00fcnster.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Model predictions for COVID-19 after data assimilation. In scenario I (green area), an assimilated ensemble of internal model states starts the forecast with contact parameter \u03b2 post (continuation of social distancing interventions). In scenario II (red area), the equivalent forcase is generated with contact parameter \u03b2 pre (termination of interventions).(a) Predictions for cumulative case numbers in Heinsberg. (b) Predictions of daily new cases in Heinsberg. (c) Predictions of cumulative cases for M\u00fcnster. (d) Predictions of daily new cases for M\u00fcnster.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "t k ) with n \u2208 {1, . . . , M }. We used an ensemble size of M = 100 in this study. The reported cumulative number of infected individuals y obs (t k ) is then used via a linear regression approach to obtain adjusted model states X",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "(t k ) \u2208 R 4 , n \u2208 {1, . . . , N }, can be mapped back onto the integers N 4 if needed.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Parameter recovery analysis. (a) Simulated data with b = 0.6. (b) Negative log-likelihood L cum (\u03b2) indicates a minimum at about the true parameter value.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Contact parameter estimates for real data. (a) Data for K\u00f6ln. (b) Negative log-likelihood L total (\u03b2) for K\u00f6ln give a minimum at \u03b2 * \u2248 0.7.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Weekly cycles in contact parameter estimates and daily reported cases. (a) Log contact parameter estimates; (b) Confirmed daily cases. Black: means across regions; red: simple regression of means on date; blue: smoothing with span 0.28 days;grey bands are 95% confidence intervals. RKI data from 10 April 2020.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF10": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF11": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF12": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF13": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF14": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF15": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF16": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF17": {
+            "text": "Model predictions for COVID-19 after data assimilation. For details of modeling scenarios I and II see main text andFigure 4.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

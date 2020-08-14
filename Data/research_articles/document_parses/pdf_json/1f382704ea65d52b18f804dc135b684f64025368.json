@@ -1,0 +1,1616 @@
+{
+    "paper_id": "1f382704ea65d52b18f804dc135b684f64025368",
+    "metadata": {
+        "title": "A model-based evaluation of the e cacy of COVID-19 social distancing, testing and hospital triage policies",
+        "authors": [
+            {
+                "first": "Audrey",
+                "middle": [],
+                "last": "Mccombs",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Iowa State University",
+                    "location": {
+                        "postCode": "50011",
+                        "settlement": "Ames",
+                        "region": "IA",
+                        "country": "United States"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Claus",
+                "middle": [],
+                "last": "Kadelka",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Iowa State University",
+                    "location": {
+                        "postCode": "50011",
+                        "settlement": "Ames",
+                        "region": "IA",
+                        "country": "United States"
+                    }
+                },
+                "email": "ckadelka@iastate.edu"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "We present a stochastic compartmental network model of SARS-CoV-2 and COVID-19 exploring the e\u21b5ects of policy choices in three domains: social distancing, hospital triaging, and testing. We distinguished between high-risk and low-risk members of the population, and modeled di\u21b5erences in social interactions due to context, risk level, infection status, and testing status. The model incorporates many of the currently important characteristics of the disease, including overcapacity in the healthcare system and uncertainties surrounding the proportion and transmission potential of asymptomatic cases. We compared current policy guidelines from public health agencies with alternative options, and investigated the e\u21b5ects of policy decisions on the overall proportion of COVID-19-related deaths. Our results support current policies to contain the outbreak but also suggest possible refinements, including emphasizing the need to reduce public, random contacts more than private contacts, and testing low-risk symptomatic individuals before high-risk symptomatic individuals. Our model furthermore points to interactions among the three policy domains; the e cacy of a particular policy choice depends on other implemented policies. Finally, our results provide an explanation for why societies like Germany, with lower average rates of social contact, are more successful at containing the outbreak than highly social societies such as Italy, despite the implementation of similar policy measures.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "On December 31, 2019, a pneumonia of unknown cause was reported to the World Health Organization (WHO) Country O ce in China. The WHO named the disease COVID-19, caused by the novel coronavirus SARS-CoV-2, and declared the outbreak a pandemic on March 11, 2020. As of the time of this writing, , the WHO has reported 2,241,359 confirmed cases and 152,551 deaths in 210 countries [1] . There is currently no vaccine for SARS-CoV-2 and no antiviral medication that specifically targets the virus. In response to the pandemic, public health organizations have deployed plans developed to respond to a possible pandemic similar to the influenza outbreak of 1918, which killed an estimated 50 million people world-wide [2] . These plans describe, among other things, policies related to social distancing and the allocation of scarce healthcare resources. Policy guidelines for testing individuals for exposure to SARS-CoV-2 are less well-developed, and a shortage of available tests and testing facilities has hampered response e\u21b5orts in many countries.",
+            "cite_spans": [
+                {
+                    "start": 379,
+                    "end": 382,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 714,
+                    "end": 717,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The spread of an infectious disease can be strongly influenced by human behavior [3] [4] [5] [6] [7] [8] [9] . One study estimates that three to four months of moderate social distancing could save 1.7 million lives in the United States by October 1, 2020 [10] . In an examination of di\u21b5erent non-pharmaceutical interventions, other researchers found that a combination of case isolation, home quarantine, and social distancing of high-risk individuals could halve the number of deaths in the United State and Great Britain [3] . Another recent 1 study projects that prolonged or intermittent social distancing may be necessary into 2022 in order to avoid exceeding hospital capacity thresholds [11] . Because the e\u21b5ects of COVID-19 seem dependent on demographics such as age, allowing for di\u21b5erences in social interaction behaviors due to demography is an important aspect of modeling this disease.",
+            "cite_spans": [
+                {
+                    "start": 81,
+                    "end": 84,
+                    "text": "[3]",
+                    "ref_id": null
+                },
+                {
+                    "start": 85,
+                    "end": 88,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 89,
+                    "end": 92,
+                    "text": "[5]",
+                    "ref_id": null
+                },
+                {
+                    "start": 93,
+                    "end": 96,
+                    "text": "[6]",
+                    "ref_id": null
+                },
+                {
+                    "start": 97,
+                    "end": 100,
+                    "text": "[7]",
+                    "ref_id": null
+                },
+                {
+                    "start": 101,
+                    "end": 104,
+                    "text": "[8]",
+                    "ref_id": null
+                },
+                {
+                    "start": 105,
+                    "end": 108,
+                    "text": "[9]",
+                    "ref_id": null
+                },
+                {
+                    "start": 256,
+                    "end": 260,
+                    "text": "[10]",
+                    "ref_id": null
+                },
+                {
+                    "start": 524,
+                    "end": 527,
+                    "text": "[3]",
+                    "ref_id": null
+                },
+                {
+                    "start": 695,
+                    "end": 699,
+                    "text": "[11]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "A defining characteristic of the current COVID-19 pandemic is a shortage of healthcare resources. Individual hospitals as well as local, state, and federal agencies have developed guidelines to help healthcare workers decide which patients will receive scarce, life-saving resources such as ventilators [12] [13] [14] [15] [16] . Guidelines are based on ethical principles and societal norms, and governing principles generally include the duty to care and the duty to treat people fairly. Strategies for determining who will receive scarce resources include: 1) first-come first-served, 2) randomized allocation (e.g., lottery), and 3) clinical judgment [12] [13] [14] . The purpose of these guidelines is to relieve individual clinicians of the burden of deciding on-the-spot how to allocate resources.",
+            "cite_spans": [
+                {
+                    "start": 303,
+                    "end": 307,
+                    "text": "[12]",
+                    "ref_id": null
+                },
+                {
+                    "start": 308,
+                    "end": 312,
+                    "text": "[13]",
+                    "ref_id": null
+                },
+                {
+                    "start": 313,
+                    "end": 317,
+                    "text": "[14]",
+                    "ref_id": null
+                },
+                {
+                    "start": 318,
+                    "end": 322,
+                    "text": "[15]",
+                    "ref_id": null
+                },
+                {
+                    "start": 323,
+                    "end": 327,
+                    "text": "[16]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 655,
+                    "end": 659,
+                    "text": "[12]",
+                    "ref_id": null
+                },
+                {
+                    "start": 660,
+                    "end": 664,
+                    "text": "[13]",
+                    "ref_id": null
+                },
+                {
+                    "start": 665,
+                    "end": 669,
+                    "text": "[14]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Public health o cials must balance the needs for accessibility and accuracy when determining testing policy during a pandemic [17] . False positives during the initial stages of the pandemic and false negatives during the later phases can lead to biased estimates of infection prevalence and dynamics [18] . Guidelines from the Centers for Disease Control and Prevention (CDC) currently prioritize testing for hospitalized patients and healthcare facility workers with symptoms [19] . Individuals with second priority include highrisk individuals and first responders with symptoms, while third priority goes to other individuals with symptoms as well as health care workers and first responders. Current guidelines recommend testing people without symptoms only when the testing needs of higher-priority individuals have been met.",
+            "cite_spans": [
+                {
+                    "start": 126,
+                    "end": 130,
+                    "text": "[17]",
+                    "ref_id": null
+                },
+                {
+                    "start": 301,
+                    "end": 305,
+                    "text": "[18]",
+                    "ref_id": null
+                },
+                {
+                    "start": 478,
+                    "end": 482,
+                    "text": "[19]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "While many models examine the e\u21b5ects of a single policy domain on the dynamics of an infectious disease, e.g., [3, 5, 15, [20] [21] [22] [23] , to our knowledge there are no studies examining several policy domains simultaneously. Considering policy domains together can provide crucial insight into how di\u21b5erent policy decisions interact. For example, a mandatory quarantine of symptomatic individuals combined with an e cient testing regime may reduce the total number of deaths more than would be expected if the e\u21b5ects of these policies were modeled individually. Policies can also interfere with each other, so that the combined e\u21b5ect is weaker than expected. Our model provides a tool for investigating these interaction e\u21b5ects among three policy domains that have received recent attention from public o cials and the media: social distancing, hospital triaging, and testing.",
+            "cite_spans": [
+                {
+                    "start": 111,
+                    "end": 114,
+                    "text": "[3,",
+                    "ref_id": null
+                },
+                {
+                    "start": 115,
+                    "end": 117,
+                    "text": "5,",
+                    "ref_id": null
+                },
+                {
+                    "start": 118,
+                    "end": 121,
+                    "text": "15,",
+                    "ref_id": null
+                },
+                {
+                    "start": 122,
+                    "end": 126,
+                    "text": "[20]",
+                    "ref_id": null
+                },
+                {
+                    "start": 127,
+                    "end": 131,
+                    "text": "[21]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 132,
+                    "end": 136,
+                    "text": "[22]",
+                    "ref_id": null
+                },
+                {
+                    "start": 137,
+                    "end": 141,
+                    "text": "[23]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Classical compartmental di\u21b5erential equation models are an invaluable tool for understanding the general course of an infectious disease at a population level. However, these models assume that any two individuals interact with equal probability (homogeneous mixing), which is not the case in real physical interaction networks and can result in significantly di\u21b5erent disease dynamics [24] [25] [26] . A further simplifying assumption frequently made in compartmental models is that transition rates are constant (Poisson assumption), implying Markovian memorylessness and exponentially distributed transition times [27] . For COVID-19, this is clearly not the case [28, 29] . Our study avoids both these pitfalls by implementing a non-Markovian compartmental disease model evaluated on an interaction network, adopting a flexible modeling framework for more realistic disease dynamics [30] .",
+            "cite_spans": [
+                {
+                    "start": 386,
+                    "end": 390,
+                    "text": "[24]",
+                    "ref_id": null
+                },
+                {
+                    "start": 391,
+                    "end": 395,
+                    "text": "[25]",
+                    "ref_id": null
+                },
+                {
+                    "start": 396,
+                    "end": 400,
+                    "text": "[26]",
+                    "ref_id": null
+                },
+                {
+                    "start": 617,
+                    "end": 621,
+                    "text": "[27]",
+                    "ref_id": null
+                },
+                {
+                    "start": 667,
+                    "end": 671,
+                    "text": "[28,",
+                    "ref_id": null
+                },
+                {
+                    "start": 672,
+                    "end": 675,
+                    "text": "29]",
+                    "ref_id": null
+                },
+                {
+                    "start": 887,
+                    "end": 891,
+                    "text": "[30]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our stochastic compartmental network model simulates how the SARS-CoV-2 virus spreads through an abstract community of 1000 individuals. A 2-layer interaction network represents private and public social contacts as small-world and fully-connected graphs, respectively (Fig. 1a) . Upon infection, susceptibles (S) transition through contagious compartments (exposed (E), asymptomatic (A), infected (I) and hospitalized (H)), finally resulting in death (D) or recovery (R) (Fig. 1b) . Our model incorporates important characteristics of the current COVID-19 outbreak such as early transmissibility of the virus, asymptomatic cases (Fig. 1c) , and age-dependent di\u21b5erential risk. We modeled behavioral di\u21b5erences associated with risk level and infection status, as well as the reduction in care caused by hospitals operating beyond their capacity thresholds (Fig. 1d) . Our model also incorporates the uncertainty surrounding key epidemiological parameters such as the proportion and transmissibility of asymptomatic cases [31] .",
+            "cite_spans": [
+                {
+                    "start": 1021,
+                    "end": 1025,
+                    "text": "[31]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 269,
+                    "end": 278,
+                    "text": "(Fig. 1a)",
+                    "ref_id": null
+                },
+                {
+                    "start": 472,
+                    "end": 481,
+                    "text": "(Fig. 1b)",
+                    "ref_id": null
+                },
+                {
+                    "start": 630,
+                    "end": 639,
+                    "text": "(Fig. 1c)",
+                    "ref_id": null
+                },
+                {
+                    "start": 856,
+                    "end": 865,
+                    "text": "(Fig. 1d)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "The primary goal of this study was to evaluate the e\u21b5ects of various policies regarding social distancing, triaging, and testing on the disease dynamics of COVID-19. The abstract nature of our model enables a reliable evaluation of the relative, qualitative e cacy of di\u21b5erent policy decisions in reducing COVID-19-related mortality, despite current uncertainty in various key parameters. The model can be easily updated and expanded once more accurate parameter estimates are available, and can be tailored to a specific community or country in order to evaluate the quantitative e\u21b5ects of policies being considered for implementation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We modeled the spread of an imported case of SARS-CoV-2 across a multi-layered physical interaction network of size N = 1000 as an abstract proxy for a town or local community. We considered a closed population, and given the short time frame also chose not to include birth, deaths, or migration events. We distinguished between two types of interactions: First, private (local) interactions (e.g., friends, school and work colleagues) were modeled using a Watts-Strogatz small-world network with average connectivity of k neighbors and 5% probability of edge rewiring (Fig. 1a) . (Edge rewiring refers to the replacement of edges in a regular network according to a stochastic algorithm so that properties of small-world networks, such as clustering and short path lengths, are achieved [32] .) Second, public (global) interactions (e.g., grocery shopping, banking) were modeled using a fully connected network [33] . We assumed that, in the absence of an epidemic, an individual has on average the same number of k private and k public interactions, and thus assigned a weight of k/(N 1) to each edge in the public interaction network. A multi-national study found, on average, between 8 and 20 per-person per-day contacts [9] , so we considered k 2 {4, 6 (baseline), 10}.",
+            "cite_spans": [
+                {
+                    "start": 789,
+                    "end": 793,
+                    "text": "[32]",
+                    "ref_id": null
+                },
+                {
+                    "start": 913,
+                    "end": 917,
+                    "text": "[33]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1226,
+                    "end": 1229,
+                    "text": "[9]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 570,
+                    "end": 579,
+                    "text": "(Fig. 1a)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model description"
+        },
+        {
+            "text": "We modeled the di\u21b5erential risk associated with COVID-19 by distinguishing between high-risk individuals (older individuals or individuals with known comorbidities [34] ) and low-risk individuals (younger individuals without known comorbidities). Each node represented a high-risk (low-risk) individual with probability p high-risk = 1/3 (p low-risk = 2/3). Our model includes seven qualitatively di\u21b5erent compartments: S = susceptible, E = exposed (infectivity increases), A = asymptomatic (low infectivity), I = symptomatic (high infectivity), H = requiring hospitalization due to severe infection (high infectivity), and two final compartments R = recovered (no infectivity) and D = died from COVID-19 infection (Fig. 1b) . The length of time recovered individuals remain immune is currently unknown, however given the short time frame (weeks to months) of this model, we assumed no reinfections. To model the spread of an imported case of the virus in a fully susceptible community, we initialized the simulation with one random node in compartment E; all others started in S.",
+            "cite_spans": [
+                {
+                    "start": 164,
+                    "end": 168,
+                    "text": "[34]",
+                    "ref_id": "BIBREF31"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 715,
+                    "end": 724,
+                    "text": "(Fig. 1b)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model description"
+        },
+        {
+            "text": "Model inputs related to the specific characteristics of SARS-CoV-2 and COVID-19 were derived from published literature where available (Table 1) . Virus and disease parameters without established estimates were included as random variables from broad uniform distributions. We considered time to be discrete with one unit of time corresponding to a day. The lengths of time individuals spend in a contagious compartment were modeled as Poisson random variables with parameters derived from the literature ( Table 2) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 135,
+                    "end": 144,
+                    "text": "(Table 1)",
+                    "ref_id": null
+                },
+                {
+                    "start": 507,
+                    "end": 515,
+                    "text": "Table 2)",
+                    "ref_id": "TABREF2"
+                }
+            ],
+            "section": "Model description"
+        },
+        {
+            "text": "Upon infection, individuals transition from one compartment to the next -until they recover or die -based on a stochastic process (Fig. 1b) . Susceptible individuals become infected (and transition to the exposed compartment E) through contact with contagious individuals. Contrary to SARS [35] , recent reports indicate that SARS-CoV-2 can be transmitted before the onset of symptoms and by asymptomatic cases [36] [37] [38] . To account for this early transmissibility in our model, individuals in compartments E, A, I and H may all transmit the virus, with transmission rates dependent on the time since infection. We assumed that exposed individuals (compartment E) become contagious 2 days before peak viral load, which coincides with symptom onset in symptomatic cases (i.e., the latent period is two days shorter than the incubation period). Transmission rates over time typically follow a Gamma distribution [39] . Based on preliminary data [40] , we used a Gamma-distributed transmission rate with shape=2 and scale=2 (Fig. 1c) . We further assumed that asymptomatic cases cannot be more contagious than symptomatic ones. SARS-CoV-2 transmission rates are currently not well understood [29] , so we considered a range of values for the peak transmission rate of symptomatic cases (at symptom onset), I 2 U (0.05, 0.4) and a dependent range for asymptomatic ones, A 2 U (0, I ).",
+            "cite_spans": [
+                {
+                    "start": 290,
+                    "end": 294,
+                    "text": "[35]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 411,
+                    "end": 415,
+                    "text": "[36]",
+                    "ref_id": null
+                },
+                {
+                    "start": 416,
+                    "end": 420,
+                    "text": "[37]",
+                    "ref_id": null
+                },
+                {
+                    "start": 421,
+                    "end": 425,
+                    "text": "[38]",
+                    "ref_id": null
+                },
+                {
+                    "start": 916,
+                    "end": 920,
+                    "text": "[39]",
+                    "ref_id": null
+                },
+                {
+                    "start": 949,
+                    "end": 953,
+                    "text": "[40]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1195,
+                    "end": 1199,
+                    "text": "[29]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 130,
+                    "end": 139,
+                    "text": "(Fig. 1b)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1027,
+                    "end": 1036,
+                    "text": "(Fig. 1c)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model description"
+        },
+        {
+            "text": "Once exposed individuals reach peak infectivity they transition to the asymptomatic (A) or symptomatic (I) compartment. The proportion of asymptomatic COVID-19 infections is currently unknown; we therefore sampled the overall proportion of asymptomatic infections from a uniform distribution, 1 p E!I = p E!A \u21e0 U (0.05, 0.5), and further sampled the ratio of asymptomatic infections in low-risk versus high-risk individuals from another uniform distribution, p low-risk",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model description"
+        },
+        {
+            "text": ". A proportion of symptomatic individuals develop a severe infection requiring hospitalization; this rate may depend on the underlying health of the individual. We thus included two hospitalization parameters in the model (Table 1) : p I!H = 1 p I!R describes the overall proportion of symptomatic cases that even-3 . CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 222,
+                    "end": 231,
+                    "text": "(Table 1)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model description"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. . a b d c Figure 1 : (a) Example of the two-layer interaction network used in this study. The private, small-world network (red edges) is shown on top of the public, fully-connected network (gray edges). Low-risk (blue circles) and high-risk (black squares) individuals are distinguished. (b) Illustration of the stochastic transmission model with compartments S = susceptible, E = exposed, A = asymptomatic, I = symptomatic, H = hospitalized, R = recovered, D = deceased. Individuals in I and H may received a positive test (green \"tested\" oval). Edges that are influenced by policy decisions are colored: red = social distancing, green = testing, blue = hospital triage. Branching probabilities at E, I and H are risk-group dependent and the edge of the respectively more likely transition is thicker. (c) Illustration of the time-dependent transmission rate of an exposed individual increasing until peak viral shedding, which coincides with transition to compartment I (if symptomatic) or A (otherwise). (d) Average care per person (blue solid line) and total care provided (red dashed line) by a health care system with a capacity threshold of 100% operating at a certain level of (over)capacity. Once the capacity threshold is reached, the average care per person is 1/ p hospital capacity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 85,
+                    "end": 93,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "4 . CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. describes the increased likelihood of a high-risk individual requiring hospitalization. We fixed p I!H = 7% and considered a range [4, 10] for the di\u21b5erential risk ratio [3, 41, 42] .",
+            "cite_spans": [
+                {
+                    "start": 206,
+                    "end": 209,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 210,
+                    "end": 213,
+                    "text": "10]",
+                    "ref_id": null
+                },
+                {
+                    "start": 245,
+                    "end": 248,
+                    "text": "[3,",
+                    "ref_id": null
+                },
+                {
+                    "start": 249,
+                    "end": 252,
+                    "text": "41,",
+                    "ref_id": null
+                },
+                {
+                    "start": 253,
+                    "end": 256,
+                    "text": "42]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We fit the overall proportion of hospitalized individuals dying from COVID-19, p H!D , to align with a COVID-19 infection fatality rate (IFR) of 1% [3, 42] . That is,",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 151,
+                    "text": "[3,",
+                    "ref_id": null
+                },
+                {
+                    "start": 152,
+                    "end": 155,
+                    "text": "42]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "As before, we introduced a ratio describing the di\u21b5erential risk of dying from COVID-19 for high-and low-risk individuals, p high-risk H!D /p low-risk H!D \u21e0 U (4, 10). To simulate deaths in our network model, we made the simplifying assumption that each day a severely infected person has the same chance of dying from COVID-19 (i.e., the time to death is geometrically distributed with the distribution parameter corresponding to a per-day death rate). We fit the per-day death rate for low-risk and high-risk individuals to align with p low-risk H!D and p high-risk H!D , respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Each day, the network model updates simultaneously as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "\u2022 Susceptibles may become infected through private or public interactions with contagious individuals. The interaction probabilities are based on the multi-layered interaction network.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "\u2022 Newly infected individuals move to the compartment E and risk-group-dependent random variables are drawn describing the future course and transition times of the infection.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "\u2022 Hospitalized individuals die at a risk-group-dependent per-day death rate.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "\u2022 The transition times to the next compartment of all contagious individuals are reduced by a day. Individuals with a transition time of zero transition to the next compartment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "To investigate the e\u21b5ects of social distancing, triaging, and testing, we added additional features to this base stochastic network model, described in the next section.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We modeled the general e\u21b5ects of social distancing policies with two parameters, private activity level a private and public activity level a public , which describe the average degree to which an individual without symptoms (in compartments S, E, A or R) reduces private and public interactions. An individual who has not adopted social distancing behaviors has activity levels of 1, while perfect isolation corresponds to activity levels of 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Social distancing"
+        },
+        {
+            "text": "We assumed that symptomatic individuals (in compartment I) further reduce their private and public activity levels due to symptoms and empathetic fear of infecting others at an average rate of r symptoms \u21e0 U (0, 1). Similarly, we assumed that severely infected individuals requiring hospitalization (in compartment H) are completely isolated. Finally, we assumed that individuals in the high-risk group may, independently of their compartment, choose to reduce their activity levels more than the low-risk group. We therefore included an additional high-risk activity reduction, r high-risk \u21e0 U (0, 1).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Social distancing"
+        },
+        {
+            "text": "The probability that two individuals who practice social distancing still meet, with the potential to infect one another, is given by a mass action-like product of their respective activity levels. For example, the probability that a symptomatic, low-risk individual meets a high-risk friend is given by a private (1 r symptoms ) \u00b7 a private (1 r high-risk ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Social distancing"
+        },
+        {
+            "text": "In reality, each person decides individually how to adapt her social behavior in response to COVID-19. For this reason we assigned activity levels to an individual (node) rather than a contact (edge). To compare policy e cacies, however, we combined all individual-based activity levels into an overall, population-wide contact reduction rate. In a community without symptomatic infections (i.e., at the start of the simulation, before community members contract COVID-19), this overall contact reduction rate is a function of the underlying interaction network, the private and public activity levels, the additional activity reduction of high-risk individuals and the proportion of high-risk individuals.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Social distancing"
+        },
+        {
+            "text": ". CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "5"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. . 6 . CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The baseline model assumes unlimited healthcare resources, but in reality the number of hospital beds, ICU beds, ventilators, and trained health care professionals are all limited. We modeled limited healthcare resources by adding a capacity threshold under which the healthcare system can provide perfect care (3 beds for every 1000 individuals [51] ). We assumed that this capacity threshold doubles during times of emergency, but the increase is not large enough to provide perfect care for all hospitalized individuals.",
+            "cite_spans": [
+                {
+                    "start": 346,
+                    "end": 350,
+                    "text": "[51]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Hospital Triaging"
+        },
+        {
+            "text": "In the absence of data, we modeled the decrease in the average care provided per person with a square-root function, where average care per person = 1/ p hospital capacity. Once the number of individuals requiring hospitalization (in compartment H) rises above the capacity threshold, overall care is inadequate and triaging questions regarding resource allocation arise (Fig. 1d) . We evaluated four options: (1) fill empty beds based on a wait list (corresponding to a first-come first-served strategy), (2) fill empty beds randomly (e.g., lottery), (3) fill empty beds with least-severely infected based on clinical judgment (in the model, clinical judgement corresponds to the known remaining time to recovery), and (4) provide the same level of imperfect care to each individual (e.g., sharing of a single ventilator among multiple patients). Under the first three policies, patients receiving care will receive perfect care until they recover or die, and the sole di\u21b5erence among these three policies is how empty beds are allocated.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 371,
+                    "end": 380,
+                    "text": "(Fig. 1d)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Hospital Triaging"
+        },
+        {
+            "text": "In the baseline model, each hospitalized individual (in compartment H) who does not die on a given day moves closer to recovery. Under the imperfect care scenario, hospitalized individuals only move a partial day closer to recovery, corresponding to the amount of imperfect care they receive on that day. Individuals who receive perfect care move a full day closer to recovery, while individuals who receive only palliative care do not progress towards recovery.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Hospital Triaging"
+        },
+        {
+            "text": "To evaluate the e cacy of testing policies in reducing COVID-19-related deaths, we assumed a fixed maximum number of tests available per day, and that testing begins as soon as the first person becomes symptomatic. We further assumed that, per CDC guidelines, severely infected individuals arriving at a hospital (compartment H) receive priority testing [52] . Remaining available tests are administered to symptomatic individuals (compartment I), and a shortage of tests precludes testing of individuals without symptoms (compartments S, E, A, and R). We compared two primary testing policies for symptomatic individuals: (i) test high-risk individuals first, or (ii) test low-risk individuals first. Further, within each primary testing policy, we compared two secondary testing policies: (i) test individuals in the order in which they developed symptoms (i.e., test first symptomatic first), or (ii) test individuals in the reverse order in which they developed symptoms (i.e., test recent symptomatic first). Finally, we included in the model a delay in test results of up to seven days.",
+            "cite_spans": [
+                {
+                    "start": 354,
+                    "end": 358,
+                    "text": "[52]",
+                    "ref_id": "BIBREF49"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Testing"
+        },
+        {
+            "text": "While testing hospitalized individuals serves an essential clinical role, testing symptomatic individuals is solely preventive. Individuals who test positive are currently placed under quarantine, which in theory completely prevents virus transmission. In reality this is not always the case, especially when self-quarantine is conducted at home. We therefore included the average activity reduction of a positively tested individual as a further model parameter, and assumed a positive test yields a 80% 100% reduction in activity levels for the duration of the infection, in addition to the already-reduced activity levels due to symptoms, (i.e., r positive \u21e0 U (0.8, 1)). For example, a high-risk, symptomatic individual who tested positive meets a low-risk friend with probability a private (1 r high-risk )(1 r symptoms )(1 r positive ) \u00b7 a private .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Testing"
+        },
+        {
+            "text": "Because the true values of many virus-and disease-related parameters are currently uncertain, we sampled all unknown parameters from a broad uniform distribution. For most analyses (Figs. 2,S5,3a,4a,b) , we ran the model 10 6 times, each time with a di\u21b5erent parameter setting picked at random from the parameter space. To ensure su cient coverage of the high-dimensional parameter space, for most analyses we opted for a large number of sample points versus replication. We sampled most parameters uniformly from their respective range. Only for the private and public activity levels as well as the additional high-risk contact reduction, we diverted from this approach and did not sample uniformly at random from [0, 1], in order to ensure that the distribution of overall contact reduction, which is derived from these three parameters and the underlying network, was wide enough to be representative (Table S1) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 181,
+                    "end": 201,
+                    "text": "(Figs. 2,S5,3a,4a,b)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 905,
+                    "end": 915,
+                    "text": "(Table S1)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model analysis"
+        },
+        {
+            "text": "When comparing the e\u21b5ect of triage policies we balanced coverage with precision by sampling 10 3 parameter settings and running the model 250 times for each parameter setting for each triage policy. We initialized the runs of each triage policy with the same 250 random seeds to ensure our estimates were comparable. This approach works particularly well for the triage policies as triage choices do not a\u21b5ect the model until hospitals operate at overcapacity. To compare primary and secondary testing policies (Fig. 4c) we followed the same approach, except that we sampled from a lower-dimensional parameter space. We fixed the maximum number of tests per day at ten, assumed no delay, and considered only three and twenty levels of additional contact reduction by symptomatic individuals and high-risk individuals, respectively (details in second-to-last column of Table S1 ). Finally, when comparing the interaction between all policy domains (Fig. 5) , we sampled 10 3 parameter settings and ran the model 100 times for each parameter setting and each of the 2 \u00b7 2 \u00b7 4 = 16 combinations of policy choices (0 vs. 40 maximal tests per day; triage policies: imperfect but equal care vs. treat least severely infected first; four contact reduction levels: 0%, 25%, 50%, 75%; details in last column of Table S1 ).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 511,
+                    "end": 520,
+                    "text": "(Fig. 4c)",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 868,
+                    "end": 876,
+                    "text": "Table S1",
+                    "ref_id": null
+                },
+                {
+                    "start": 947,
+                    "end": 955,
+                    "text": "(Fig. 5)",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1302,
+                    "end": 1310,
+                    "text": "Table S1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model analysis"
+        },
+        {
+            "text": "The primary model outcome considered in this study is the average number of deaths, or relatively speaking, the proportion of the population that dies from COVID-19. Related model outcomes, considered in Figs. S1, S2, S3, include the proportion of the population infected with SARS-CoV-2, the COVID-19 infection fatality rate (%dead / %infected), the COVID-19 case fatality rate (%dead / %symptomatic), the peak hospital (over)capacity (peak %hospitalized / capacity threshold), the initial basic reproductive number (average number of secondary infections caused by the individual who initially imports SARS-CoV-2 into the community), the time at which half of all infections happened (a measure of \"flattening the curve\" [53] ), the average disease generation time (the time between infection of an individual and the time when the infecting person was infected), and the proportion of transmissions caused by asymptomatic cases (in compartment E or A).",
+            "cite_spans": [
+                {
+                    "start": 723,
+                    "end": 727,
+                    "text": "[53]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model outcomes"
+        },
+        {
+            "text": "The model was implemented and all model analyses were run entirely in Python 3.7 [54] . The countour plots in Figs. 2, 3a, S5 were generated by binning the data using a 20x20 equidistant grid, and subsequent smoothing using a 2-dimensional Savitzky-Golay filter [55, 56] . To avoid over-smoothing, we chose a small window size of 5 and used only linear functions. Similarly, we used a one-dimensional Savitzky-Golay filter with window size 200 and linear functions to serve as a generalized moving average of the 1000 data points presented in Fig. 3b . In Figs. 4b,c, we summarized the raw data using a linear regression line.",
+            "cite_spans": [
+                {
+                    "start": 81,
+                    "end": 85,
+                    "text": "[54]",
+                    "ref_id": "BIBREF51"
+                },
+                {
+                    "start": 262,
+                    "end": 266,
+                    "text": "[55,",
+                    "ref_id": null
+                },
+                {
+                    "start": 267,
+                    "end": 270,
+                    "text": "56]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 543,
+                    "end": 550,
+                    "text": "Fig. 3b",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Quantitative analysis"
+        },
+        {
+            "text": "All model outcomes we investigated (Fig. S1 ,S2) were highly correlated (Fig. S3) , therefore our results focus mainly on the proportion dead. Variation of virus-and disease-related parameters across the parameter space (Table S1 ) yielded an average initial basic reproductive number (R 0 ) of 2.76 and an average disease generation time of 5.29 days (Fig. S2) , both within the range of current estimates [3, 7, 48] . Higher transmissibility and higher R 0 values were associated with faster generation times, which in turn were associated with hospital overcapacity and a faster spread of the virus (Fig. S4) . Asymptomatic cases (truly asymptomatic or not yet symptomatic) caused most infections, which explains the ease with which SARS-CoV-19 is spreading across the world (Fig. S5) . Interestingly, the average contact reduction of symptomatic cases influenced the proportion of infections caused by asymptomatic cases more than the rate of actual asymptomatic cases.",
+            "cite_spans": [
+                {
+                    "start": 407,
+                    "end": 410,
+                    "text": "[3,",
+                    "ref_id": null
+                },
+                {
+                    "start": 411,
+                    "end": 413,
+                    "text": "7,",
+                    "ref_id": null
+                },
+                {
+                    "start": 414,
+                    "end": 417,
+                    "text": "48]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 35,
+                    "end": 43,
+                    "text": "(Fig. S1",
+                    "ref_id": null
+                },
+                {
+                    "start": 72,
+                    "end": 81,
+                    "text": "(Fig. S3)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 220,
+                    "end": 229,
+                    "text": "(Table S1",
+                    "ref_id": null
+                },
+                {
+                    "start": 352,
+                    "end": 361,
+                    "text": "(Fig. S2)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 602,
+                    "end": 611,
+                    "text": "(Fig. S4)",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 778,
+                    "end": 787,
+                    "text": "(Fig. S5)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "As expected, social distancing measures reduced the number of deaths. When we considered interaction networks with the same number of public and private contacts, a reduction in public contacts had a stronger e\u21b5ect on the number of deaths than an equal reduction in private contacts (Figure 2) . The behavioral response of symptomatic individuals influences the level of overall contact reduction needed to keep hospitals under their capacity threshold (Figure 3a) . However, hospitals quickly reach and surpass their capacity unless very 8 . CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 283,
+                    "end": 293,
+                    "text": "(Figure 2)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 453,
+                    "end": 464,
+                    "text": "(Figure 3a)",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. . CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. (c) Impact of policies regarding testing prioritization of symptomatic individuals on the average percentage of averted deaths (compared to the worst policy). The primary policy decision involves which risk group to prioritize (low-risk (green) or high-risk (orange)). The secondary policy decision involves who to test first within each risk group (newly symptomatic (solid lines) or first-symptomatic (dashed lines)). The results are stratified for three di\u21b5erent levels of additional contact reduction due to symptoms (subplots) as well as for varying levels of additional contact reduction of high-risk individuals (x-axis). Linear regression fits are shown.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": ". CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "10"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. strong levels of overall social distancing are implemented, even assuming perfect isolation of symptomatic individuals.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We compared di\u21b5erent triage policies found in the literature to a worst-case scenario in which hospitals operating at overcapacity provide an imperfect but equal level of care to all patients (Fig. 3b) [12, 13, 16] . Current hospital policy of providing limited resources to the least-severely infected patients (based on clinical judgment) proved the most successful in reducing the proportion dead. Of the policies we investigated, the next most successful was to fill empty beds on a first-come first-served basis, while a policy which fills empty beds randomly resulted in a very similar number of deaths as imperfect-but-equal-care.",
+            "cite_spans": [
+                {
+                    "start": 202,
+                    "end": 206,
+                    "text": "[12,",
+                    "ref_id": null
+                },
+                {
+                    "start": 207,
+                    "end": 210,
+                    "text": "13,",
+                    "ref_id": null
+                },
+                {
+                    "start": 211,
+                    "end": 214,
+                    "text": "16]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 192,
+                    "end": 201,
+                    "text": "(Fig. 3b)",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Increasing the availability of testing and reducing the delay between administering a test and receiving results both reduce the total number of deaths (Fig. 4a) . We investigated the e\u21b5ect of a reduction in social activity by infected individuals who have tested positive under e cient and ine cient testing scenarios. In an e cient testing scenario, 20 to 40 symptomatic individuals (2 4% of the community) are tested per day and there is at most a one day delay between test administration and results, while under ine cient testing only one or two individuals are tested per day and results take 6 to 7 days. Our model indicates that e\u21b5ective quarantining of positively tested individuals (i.e., increased contact reduction) results in a meaningful reduction in deaths when testing is e cient, while it proved to have only a small e\u21b5ect when testing is ine cient (Fig. 4b) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 152,
+                    "end": 161,
+                    "text": "(Fig. 4a)",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 867,
+                    "end": 876,
+                    "text": "(Fig. 4b)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Our model only considers the e\u21b5ect of testing on social behavior and not clinical outcomes, but within this framework we found that prioritizing testing of low-risk individuals consistently reduces the number of deaths more than testing high-risk individuals first (Fig. 4c) . When we analyzed the di\u21b5erence between testing recently-infected individuals first versus prioritizing individuals who have been infected longer, we found that testing recently infected individuals first is more e\u21b5ective.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 265,
+                    "end": 274,
+                    "text": "(Fig. 4c)",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Our results point to interaction e\u21b5ects among the three policy domains we investigated. Policies influence each other: the e cacy of a particular policy choice depends on what other policies are implemented (Fig. 5) . When social distancing is low, the choice of triage policy makes the biggest di\u21b5erence to the number of deaths, more so than the choice of testing policy. When social distancing is high however, triaging choices hardly matter, while testing becomes proportionately more important.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 207,
+                    "end": 215,
+                    "text": "(Fig. 5)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": ". CC-BY-NC-ND 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "11"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted April 23, 2020. . https://doi.org/10.1101/2020.04. 20.20073213 doi: medRxiv preprint Consistent with other COVID-19 related modeling studies (e.g. [3, 7, 20, 21] ), our model results generally support current policies to reduce the public health impacts of the SARS-CoV-2 virus and COVID-19 infection.",
+            "cite_spans": [
+                {
+                    "start": 110,
+                    "end": 143,
+                    "text": "20.20073213 doi: medRxiv preprint",
+                    "ref_id": null
+                },
+                {
+                    "start": 206,
+                    "end": 209,
+                    "text": "[3,",
+                    "ref_id": null
+                },
+                {
+                    "start": 210,
+                    "end": 212,
+                    "text": "7,",
+                    "ref_id": null
+                },
+                {
+                    "start": 213,
+                    "end": 216,
+                    "text": "20,",
+                    "ref_id": null
+                },
+                {
+                    "start": 217,
+                    "end": 220,
+                    "text": "21]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "A possible refinement of current social distancing policies is suggested by our comparison of interaction networks. We found that, for equally connected networks, a reduction in public contacts has a stronger e\u21b5ect on the number of deaths than an equal reduction in private contacts (Figure 2 ). This may be because public encounters allow the virus to spread randomly throughout the entire community, while private contacts enable only local spread. Based on these findings, future public health notices could increase their emphasis on the need to reduce contact with random individuals in the community.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 283,
+                    "end": 292,
+                    "text": "(Figure 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Considering interaction networks with di\u21b5erent levels of social connection ( Figure 2 ) may provide an explanation for di\u21b5erences in the impact of the virus in di\u21b5erent countries. A seminal study conducted in eight European countries found average per-day contact numbers of about 8 in Germany, 14 on average, and 20 in Italy [9] . At the time of this writing, Italy has su\u21b5ered devastating e\u21b5ects from COVID-19 while Germany has weathered the pandemic relatively well. Because of the cultural di\u21b5erences in social connectivity, if Germany and Italy (for example) both reduce their contacts by the same percentage, Germany will avert a higher percentage of deaths. Our results suggest that more social societies must reduce their contacts more in order to attain the same level of reduction, and that a potentially fruitful avenue for future research might investigate whether these results hold more broadly across di\u21b5erent cultures.",
+            "cite_spans": [
+                {
+                    "start": 326,
+                    "end": 329,
+                    "text": "[9]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 77,
+                    "end": 85,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Currently, CDC guidelines prioritize the testing of symptomatic high-risk over low-risk individuals. Their goal is to ensure that individuals with a higher risk of complications are identified early and appropriately triaged [52] . Our model does not account for heterogeneity in clinical outcomes due to testing; the only e\u21b5ect of testing is on behavior through the reduction in social activity as the result of a positive test. Under this framework, our results indicate that prioritizing the testing of low-risk individuals more e\u21b5ectively reduces the overall death count than prioritizing the testing of high-risk individuals. Low-risk individuals have higher contact rates than high-risk individuals [9] , so reducing the social activity of infected low-risk individuals slows the spread of the disease. Recognizing these di\u21b5erences in social activity levels may be important to the CDC when considering testing guidelines, as there may exist a trade-o\u21b5 between a short-term reduction in deaths due to appropriate triage of high-risk individuals and a long-term, overall higher death count caused by this choice.",
+            "cite_spans": [
+                {
+                    "start": 225,
+                    "end": 229,
+                    "text": "[52]",
+                    "ref_id": "BIBREF49"
+                },
+                {
+                    "start": 705,
+                    "end": 708,
+                    "text": "[9]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The importance of testing policy is further highlighted by our interaction analysis. Several of our results suggest that policies influence each other, so that the e cacy of a particular policy choice depends on what other policies are implemented. The strength of social distancing of symptomatic individuals a\u21b5ects whether symptomatics or asymptomatics drive disease dynamics (Fig. S5 ), as well as the level of overall contact reduction needed to keep hospitals below capacity (Fig. 3a) . Examining all three policy domains together, the relative e cacy of testing and triaging depends on the level of social distancing (Fig. 5) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 378,
+                    "end": 386,
+                    "text": "(Fig. S5",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 480,
+                    "end": 489,
+                    "text": "(Fig. 3a)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 623,
+                    "end": 631,
+                    "text": "(Fig. 5)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In order to keep the model both tractable and understandable, we considered a basic contact network that di\u21b5erentiates between private and public contacts as well as high-risk and low-risk individuals. We did not consider heterogeneity in connectivity or individual risk behavior (e.g., super-spreaders [26] ), or adaptation of policies over time. These homogeneities may explain the bimodal posterior distribution of the proportion of infected individuals (Fig. S2) . Future studies may reveal if and how our results might change in more realistic interaction networks [57] , which may include temporal movement of individuals [58] , age-assortative mixing [21, 30] , or the presence of individual-based heterogeneity in risk behavior.",
+            "cite_spans": [
+                {
+                    "start": 303,
+                    "end": 307,
+                    "text": "[26]",
+                    "ref_id": null
+                },
+                {
+                    "start": 570,
+                    "end": 574,
+                    "text": "[57]",
+                    "ref_id": "BIBREF54"
+                },
+                {
+                    "start": 628,
+                    "end": 632,
+                    "text": "[58]",
+                    "ref_id": null
+                },
+                {
+                    "start": 658,
+                    "end": 662,
+                    "text": "[21,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 663,
+                    "end": 666,
+                    "text": "30]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 457,
+                    "end": 466,
+                    "text": "(Fig. S2)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Many key parameters of the COVID-19 epidemic are still unknown and may vary from community to community. We therefore ran our stochastic transmission model for a large variety of parameter settings. Due to the inherent uncertainty in many model parameters however, the model-generated, absolute values of the response variables may not be explicitly meaningful, as they depend on the particularities of the underlying parameter space. The goal of our study is not to report model predictions such as the expected absolute number of deaths; rather, our model is a tool that can be used, despite the uncertainty in key parameters, to compare the e cacy of various policies aimed at reducing the societal impact of COVID-19. We have focused on relative comparisons of three policy domains, as relative findings are more robust to inaccuracies in the underlying parameter space.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The presented model considers a variety of important factors in the current COVID-19 pandemic, in-cluding high-risk versus low-risk groups, di\u21b5ering social distancing behaviors, and the uncertainty around the proportion and infectivity of asymptomatic cases. Importantly, the model can be easily expanded and updated as more details about SARS-CoV-2 and COVID-19 emerge. Our results support current policies to contain the outbreak and suggest possible refinements to public health policy and education. Our results also provide a possible explanation for why some societies are more successful at containing the outbreak despite the implementation of similar policy measures. Follow-ups to this study could deepen our understanding of how heterogeneity in network structure and risk behavior a\u21b5ect the interplay of policy decisions and disease dynamics.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "WHO 2020",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "CDC 2020",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "The Lancet Global Health",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Hellewell",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Abbott",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Gimma",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Bosse",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Jarvis",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Russell",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Munday",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Kucharski",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Edmunds",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Disaster Medicine and Public Health Preparedness",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Powell",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Christ",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Birkhead",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "2",
+            "issn": "",
+            "pages": "20--26",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "CDC Evaluating and testing persons for coronavirus disease 2019 (COVID-19)",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "The Lancet Public Health",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Prem",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Russell",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Kucharski",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Eggo",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Davies",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Flasche",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cli\u21b5ord",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Pearson",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Munday",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "CDC National Center for Immunization and Respiratory Diseases (NCIRD) Division of Viral Diseases 2020",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "WHO Consensus document on the epidemiology of severe acute respiratory syndrome (SARS); tech. rep.; World Health Organization",
+            "authors": [],
+            "year": 2003,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "globalhealth-policy/issue-brief/how-many-adults-are-at-risk-of-serious-illness-if-infected-with-coronavirus/ accessed",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Koma",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Neuman",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Claxton",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rae",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kates",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Michaud",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "CDC 2020",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "Python: A dynamic, open source programming language",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Team",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF54": {
+            "ref_id": "b54",
+            "title": "Proceedings of the National Academy of Sciences",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Salath\u00e9",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kazandjieva",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Levis",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Feldman",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Jones",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "107",
+            "issn": "",
+            "pages": "22020--22025",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "E\u21b5ect of overall private and public contact reduction on the average proportion dead (red, top row) and the average percentage of averted deaths (green, bottom row). The latter is computed by comparison with no contact reduction. Results are shown for communities with k private and k public average contacts per day, for di\u21b5erent values of k.b a",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "(a) E\u21b5ect of overall contact reduction and additional contact reduction of symptomatic individuals on the projected peak hospital capacity. To the left of the hospital capacity threshold (red line), not all hospitalized individuals receive perfect care, resulting in longer recovery times and higher mortality. (b) Relative e cacy of four hospital triage policies for varying degrees of outbreak severity summarized by the average proportion of deaths (x-axis). E cacies are computed by pairwise comparison of the projected death count with the imperfect-but-equal-care scenario.9.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "(a) E\u21b5ect of increased numbers of tests (x-axis) and processing delays (y-axis) on the average percentage of averted deaths (compared to no testing; left-most column). (b) E\u21b5ect (linear regression) of the average contact reduction by individuals with positive test results on the percentage of averted deaths under an e cient testing scenario (blue box lower right, panel a) and an ine cient testing scenario (orange box upper left, panel a).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Interactions of the three policy domains on COVID-19-related deaths. The level of social contact reduction (x-axis) is plotted against combinations of testing policies (solid lines, gold: maximum testing, blue: no testing) and triage policies (dashed lines, circles: treat least severely infected first; solid lines, crosses: imperfect but equal care). (a) Policy choices versus proportion dead in the community. (b) Relative e\u21b5ects of policy choices in reducing the proportion dead, compared to the worst-case scenario of no testing and imperfect-but-equal-care triage policy.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "tually develop a severe infection and require hospitalization, while p high-risk",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Table 1: Model parameters with reported estimates and sample sizes (n) from the literature where applicable and available. The third column shows the value we used or the range we sampled uniformly. ?[43] considers only the U.S. adult population. Adding 0-17 year-olds with an assumed high-risk rate of 21.2% (the estimate for 18-59yr olds) and projected 2020 US census data[44] yields an overall high-risk estimate of around 1/3.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We thank Rana Parshad and Zhijun Wu for fruitful initial discussions, Bernard Lidicky and Miles Aronnax for help with high performance computing, Katharina Kusejko, Nancy Boury, Philip Dixon, and Carolyn Seyler for helpful conversations, comments, and clarifications.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgement"
+        },
+        {
+            "text": "The complete Python implementation of the model is available at Github at https://github.com/ckadelka/COVID19network-model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data availability"
+        }
+    ]
+}

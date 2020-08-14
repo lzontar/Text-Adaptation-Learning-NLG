@@ -1,0 +1,2178 @@
+{
+    "paper_id": "1a294f9691d1ae7332592240a8b82b729764186f",
+    "metadata": {
+        "title": "Multilevel Typed Graph Transformations",
+        "authors": [
+            {
+                "first": "Uwe",
+                "middle": [],
+                "last": "Wolter",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Bergen",
+                    "location": {
+                        "settlement": "Bergen",
+                        "country": "Norway"
+                    }
+                },
+                "email": "uwe.wolter@uib.no"
+            },
+            {
+                "first": "Fernando",
+                "middle": [],
+                "last": "Mac\u00edas",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "IMDEA Software Institute",
+                    "location": {
+                        "settlement": "Madrid",
+                        "country": "Spain"
+                    }
+                },
+                "email": "fernando.macias@imdea.org"
+            },
+            {
+                "first": "Adrian",
+                "middle": [],
+                "last": "Rutle",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Applied Sciences",
+                    "location": {
+                        "settlement": "Bergen",
+                        "country": "Norway"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Multilevel modeling extends traditional modeling techniques with a potentially unlimited number of abstraction levels. Multilevel models can be formally represented by multilevel typed graphs whose manipulation and transformation are carried out by multilevel typed graph transformation rules. These rules are cospans of three graphs and two inclusion graph homomorphisms where the three graphs are multilevel typed over a common typing chain. In this paper, we show that typed graph transformations can be appropriately generalized to multilevel typed graph transformations improving preciseness, flexibility and reusability of transformation rules. We identify type compatibility conditions, for rules and their matches, formulated as equations and inequations, respectively, between composed partial typing morphisms. These conditions are crucial presuppositions for the application of a rule for a match-based on a pushout and a final pullback complement construction for the underlying graphs in the category Graph-to always provide a well-defined canonical result in the multilevel typed setting. Moreover, to formalize and analyze multilevel typing as well as to prove the necessary results, in a systematic way, we introduce the category Chain of typing chains and typing chain morphisms.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Multilevel modeling (MLM) extends conventional techniques from the area of Model-Driven Engineering by providing model hierarchies with multiple levels of abstraction. The advantages of allowing multiple abstraction levels (e.g. reducing accidental complexity in software models and avoiding synthetic type-instance anti-patterns) and flexible typing (e.g. multiple typing, linguistic extension and deep instantiation), as well as the exact nature of the techniques used for MLM are well studied in the literature [1, [4] [5] [6] 8, 10, 17] . Our particular approach [19, 20] to MLM facilitates the separation of concerns by allowing integration of different multilevel modeling hierarchies as separate aspects of the system to be modelled. In addition, we enhance reusability of concepts and their behaviour by allowing the definition of flexible transformation rules which are applicable to different hierarchies with a variable number of levels. In this paper, we present a revised and extended formalisation of these rules using graph theory and category theory. As models are usually represented abstractly as graphs, we outline in this paper the graph theoretic foundations of our approach to MLM using multilevel typed graphs, prior to introducing our formalisation of multilevel typed rule definition and application. Multilevel models are organized in hierarchies, where any graph G is multilevel typed over a typing chain of graphs (see Fig. 1 ). The typing relations of elements within each graph are represented via graph morphisms. Since we allow for deep instantiation [4] [5] [6] 8] , which refers to the ability to instantiate an element at any level below the level in which it is defined, these morphisms need to be partial graph homomorphisms. Moreover, more than one model can be typed by the same typing chain (or, conversely, models can be instantiated more than once), hence, all the paths that contain such typing relations constitute a full, treeshaped multilevel modelling hierarchy (see Example 1) . Finally, the topmost model G 0 in any hierarchy is fixed, and the typing relations of all models (and the elements inside them) must converge, directly or via a sequence of typing morphisms, into G 0 . Therefore, the graph morphisms into G 0 are always total.",
+            "cite_spans": [
+                {
+                    "start": 514,
+                    "end": 517,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 518,
+                    "end": 521,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 522,
+                    "end": 525,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 526,
+                    "end": 529,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 530,
+                    "end": 532,
+                    "text": "8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 533,
+                    "end": 536,
+                    "text": "10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 537,
+                    "end": 540,
+                    "text": "17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 567,
+                    "end": 571,
+                    "text": "[19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 572,
+                    "end": 575,
+                    "text": "20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1583,
+                    "end": 1586,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1587,
+                    "end": 1590,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1591,
+                    "end": 1594,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1595,
+                    "end": 1597,
+                    "text": "8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 2014,
+                    "end": 2024,
+                    "text": "Example 1)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1447,
+                    "end": 1453,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "Multilevel typed graph transformation rules are cospans L I R \u03bb \u03c1 of inclusion graph homomorphisms, with I = L \u222a R, where the three graphs are multilevel typed over a common typing chain MM. A match of the left-hand side L of the rule in a graph S , at the bottom of a certain hierarchy, multilevel typed over a typing chain T G, is given by a graph homomorphism \u03bc : L \u2192 S and a flexible typing chain morphism from MM into T G. The typing chain MM is local for the rules and is usually different from T G which is determined by the path from S to the top of the hierarchy (see Fig. 1 ). To apply these rules we rely on an adaptation of the Sesqui pushout (Sq-PO) approach [7] to cospans. We construct first the pushout and then the final pullback complement (FPBC) of the underlying graph homomorphisms in the category Graph as shown in Fig. 2 . Based on these traditional constructions we want to build, in a canonical way, type compatible multilevel typings of the result graphs D and T over the typing chain T G. For this to work, we need quite reasonable type compatibility conditions for rules and relatively flexible conditions for matches, formulated as equations and inequations, resp., between composed partial typing morphisms.",
+            "cite_spans": [
+                {
+                    "start": 672,
+                    "end": 675,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 577,
+                    "end": 583,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 837,
+                    "end": 843,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "We introduce typing chain morphisms, and the corresponding category Chain of typing chains and typing chain morphisms, to formalize flexible matching and application of multilevel typed rules. The composition of partial graph homomorphisms is based on pullbacks in the category Graph, thus type compatibility conditions can be equivalently expressed by commutativity and pullback conditions in Graph. Therefore, we formalize and analyze multilevel typing as well as describe constructions and prove the intended results, in a systematic way, within the category Chain. Especially, we show that the first step in a rule application can be described by a pushout in Chain. Moreover, the second step is described as a canonical construction in Chain, however, it is an open question whether this is a final pullback construction in Chain or not.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "A preliminary version of typing chains are an implicit constituent of the concept \"deep metamodeling stack\" introduced in [22] to formalize concepts like parallel linguistic and ontological typing, linguistic extensions, deep instantiation and potencies in deep metamodeling. We revised this earlier version and further developed it to a concept of its own which serves as a foundation of our approach to multilevel typed model transformations in [20, 26] . Compared to [20] , we present in this paper a radically revised and extended theory of multilevel typed graph transformations. In particular, the theory is now more powerful, since we drop the condition that typing chain morphisms have to be closed (see Definition 5) . Moreover, we detail the FPBC step which is missing in [20] . Due to space limitations, we will not present the background results concerning the equivalence between the practice of individual direct typing -which are used in applications and implementations -and our categorical reformulation of this practice by means of typing chains. These equivalence results as well as examples and proofs can be found in [26] .",
+            "cite_spans": [
+                {
+                    "start": 122,
+                    "end": 126,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 447,
+                    "end": 451,
+                    "text": "[20,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 452,
+                    "end": 455,
+                    "text": "26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 470,
+                    "end": 474,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 712,
+                    "end": 725,
+                    "text": "Definition 5)",
+                    "ref_id": null
+                },
+                {
+                    "start": 782,
+                    "end": 786,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1138,
+                    "end": 1142,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Graph denotes the category of (directed multi-) graphs G = (G N , G A , sc G , tg G ) and graph homomorphisms \u03c6 = (\u03c6 N ,\u03c6 A ) : G \u2192 H [12] . We will use the term element to refer to both nodes and arrows.",
+            "cite_spans": [
+                {
+                    "start": 134,
+                    "end": 138,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Typing Chains and Multilevel Typing of Graphs"
+        },
+        {
+            "text": "Multilevel typed graphs are graphs typed over a typing chain, i.e., a sequence [G n , G n\u22121 , . . . , G 1 , G 0 ] of graphs where the elements in any of the graphs G i , with n \u2265 i \u2265 1, are, on their part, multilevel typed over the sequence [G i\u22121 , . . . , G 1 , G 0 ]. Paths in our MLM hierarchies give rise to typing chains. The indexes i refer to the abstraction levels in a modeling hierarchy where 0 denotes the most abstract top level.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Typing Chains and Multilevel Typing of Graphs"
+        },
+        {
+            "text": "Following well-established approaches in the Graph Transformations field [12] , we define typing by means of graph homomorphisms. This enables us to establish and develop our approach by reusing, variating, and extending the wide range of constructions and results achieved in that field. Moreover, this paves the way to generalize the present \"paradigmatic\" approach, where models are just graphs, to more sophisticated kinds of diagrammatic models, especially those that take advantage of diagrammatic constraints [22, 23] .",
+            "cite_spans": [
+                {
+                    "start": 73,
+                    "end": 77,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 516,
+                    "end": 520,
+                    "text": "[22,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 521,
+                    "end": 524,
+                    "text": "23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Typing Chains and Multilevel Typing of Graphs"
+        },
+        {
+            "text": "We allow typing to jump over abstraction levels, i.e., an element in graph G i may have no type in G i\u22121 but only in one (or more) of the graphs G i\u22122 , . . . , G 1 , G 0 . Two different elements in the same graph may have their types located in different graphs along the typing chain. To formalize this kind of flexible typing, we use partial graph homomorphisms that we introduced already in [22] . Note that we use, in abuse of notation, the same name for both the partial and the corresponding total graph homomorphisms. To express transitivity of typing and later also compatibility of typing, we need as well the composition of partial graph homomorphisms as a partial order between partial graph homomorphisms. ",
+            "cite_spans": [
+                {
+                    "start": 395,
+                    "end": 399,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Typing Chains and Multilevel Typing of Graphs"
+        },
+        {
+            "text": "More abstractly, the composition of two partial graph homomorphisms is defined by the following commutative diagram of total graph homomorphisms.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Typing Chains and Multilevel Typing of Graphs"
+        },
+        {
+            "text": "Now, we can define typing chains as a foundation for our investigation of multilevel typed graph transformations in the rest of the paper. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3. For any two partial graph homomorphisms"
+        },
+        {
+            "text": "of partial graph homomorphisms, called typing morphisms, satisfying the following properties:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3. For any two partial graph homomorphisms"
+        },
+        {
+            "text": "-Total: All the morphisms \u03c4 G j,0 : G j \u2192 G 0 with n \u2265 j \u2265 1 are total.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3. For any two partial graph homomorphisms"
+        },
+        {
+            "text": "-Transitive:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3. For any two partial graph homomorphisms"
+        },
+        {
+            "text": ") and the following commutative diagram of total graph homomorphisms",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Due to Definitions 2 and 3, transitivity and connexity together mean that"
+        },
+        {
+            "text": "Remark 1. For any element e in any graph G i in a typing chain, with i > 0, there exists a unique index m e , with i > m e \u2265 0, such that e is in the domain of the typing morphism \u03c4 G i,me but not in the domain of any typing morphism \u03c4 G",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Due to Definitions 2 and 3, transitivity and connexity together mean that"
+        },
+        {
+            "text": "Example 1. Figure 3 depicts the typing morphisms between the graphs in a simplified sample hierarchy. The direct types for nodes and arrows are indicated with blue and cursive labels, respectively. All typing morphisms in the simple typing chain T G, determined by the sequence [hammer plant, generic plant, Ecore] of graphs, are total except the one from hammer plant to generic plant, since the direct type of has is located in Ecore. We have chosen Ecore as the top-most graph since it provides implementation support through the Eclipse Modeling Framework [24] . This enables our approach to MLM to exploit the best from fixed-level and multi-level concepts [18] .",
+            "cite_spans": [
+                {
+                    "start": 560,
+                    "end": 564,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 662,
+                    "end": 666,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 11,
+                    "end": 19,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Due to Definitions 2 and 3, transitivity and connexity together mean that"
+        },
+        {
+            "text": "To describe later the flexible matching of multilevel typed rules and the result of rule applications, we need a corresponding flexible notion of morphisms between typing chains.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Due to Definitions 2 and 3, transitivity and connexity together mean that"
+        },
+        {
+            "text": ", and -a family of total graph homomorphisms \u03c6 = (\u03c6 i : i.e., due to Definitions 2 and 3, we assume for any n \u2265 j > i \u2265 0 the existence of a total graph homomorphism \u03c6 j|i that makes the diagram of total graph homomorphisms displayed in Fig. 4 commutative.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 237,
+                    "end": 243,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Definition 5. A typing chain morphism"
+        },
+        {
+            "text": "i.e., the right lower square in Fig. 4 is a pullback. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 32,
+                    "end": 38,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Definition 5. A typing chain morphism"
+        },
+        {
+            "text": "Chain denotes the category of typing chains and typing chain morphisms. A natural way to define multilevel typing of a graph H over a typing chain G would be a family \u03c3 = (\u03c3 i : H \u2022 \u2212\u2192 G i | n \u2265 i \u2265 0) of partial graph homomorphisms satisfying certain properties. However, as shown in [26] , those families are not appropriate to state adequate type compatibility requirements for rules and matches and to construct the results of rule applications. Therefore, we employ the sequence of the domains of definition of the \u03c3 i 's as a typing chain and describe multilevel typing by means of typing chain morphisms. The following Lemma describes how any sequence of subgraphs gives rise to a typing chain.",
+            "cite_spans": [
+                {
+                    "start": 285,
+                    "end": 289,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 5. A typing chain morphism"
+        },
+        {
+            "text": "H j D(\u03c4 H j,i ) = H j \u2229 H i H i \u03c4 H j,i .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "and the span of total inclusion graph homomorphisms"
+        },
+        {
+            "text": "A multilevel typing of a graph H over a typing chain G = (G, n, \u03c4 G ) is given by an inclusion chain H = (H , n, \u03c4 H ) on H (of the same length as G) and a typing chain morphism (\u03c3 H , id [n] ) : H \u2192 G.",
+            "cite_spans": [
+                {
+                    "start": 188,
+                    "end": 191,
+                    "text": "[n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "We call the typing chain H = (H , n, \u03c4 H ) an inclusion chain on H ."
+        },
+        {
+            "text": "Underlying Graph Transformation. To meet the characteristics of our application areas [19] [20] [21] we work with cospans L I R \u03bb \u03c1 of inclusion graph homomorphisms, where I = L \u222a R, as the underlying graph transformation rule of a multilevel typed rule. To apply such a rule [7, 12, 13] , we have to find a match \u03bc : L \u2192 S of L in a graph S at the bottom-most level of an MLM hierarchy. To describe the effect of a rule application, we adapt the Sq-PO approach [7] to our cospan-rules: First, we construct a pushout and, second, a final pullback complement (FPBC) to create the graphs D and T , resp. (see Fig. 2 ). The details behind choosing cospan rules and Sq-PO, as opposed to span rules and double-pushout (DPO), are out of the scope of this paper. In short, however: (i) cospan rules are more suitable from an implementation point-ofview since they allow for first adding new elements then deleting (some of the) old elements [13] , and (ii) having both old and new elements in I allows us to introduce constraints on new elements depending on old constraints involving elements to be deleted [23] . Moreover, we apply the rules using our variant of Sq-PO [7, 13] since (i) the pushout complement in DPO, even if it exists, may not be unique, in contrast the FPBC, if it exists, is always unique (up to isomorphism), (ii) FPBC allows faithful deletion in unknown context, i.e., dangling edges may be deleted by applying the rules, however, the co-match \u03bd is always total, i.e., if the match \u03bc identifies elements to be removed with elements to be preserved, the FPBC will not exist and the application will not be allowed.",
+            "cite_spans": [
+                {
+                    "start": 86,
+                    "end": 90,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 91,
+                    "end": 95,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 96,
+                    "end": 100,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 276,
+                    "end": 279,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 280,
+                    "end": 283,
+                    "text": "12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 284,
+                    "end": 287,
+                    "text": "13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 462,
+                    "end": 465,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 934,
+                    "end": 938,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1101,
+                    "end": 1105,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 1164,
+                    "end": 1167,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1168,
+                    "end": 1171,
+                    "text": "13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 607,
+                    "end": 613,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Multilevel Typed Graph Transformations"
+        },
+        {
+            "text": "We augment the cospan rule to a multilevel typed rule by chosing a typing chain MM = (MM, n, \u03c4 MM ), the typing chain of the rule, together with coherent multilevel typings over MM of L and R, respectively. That is, we choose an inclusion chain L = (L, n, \u03c4 L ) on L, an inclusion chain R = (R, n, \u03c4 R ) on R and typing chain morphisms (\u03c3 L , id [n] ) :",
+            "cite_spans": [
+                {
+                    "start": 346,
+                    "end": 349,
+                    "text": "[n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multilevel Typed Rule."
+        },
+        {
+            "text": "The inclusion chain I = (I , n, \u03c4 I ) on the union (pushout) I = L\u222aR is simply constructed by level-wise unions (pushouts):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 5. Rule morphisms and their type compatibility"
+        },
+        {
+            "text": "; thus, we have I 0 = I . Since Graph is an adhesive category [12] , the construction of I by pushouts and the coherence condition ensure that we get for any i \u2208 [n] two pullbacks as shown in Fig. 6 . The existence of these pullbacks implies, according to the following Lemma, that we can reconstruct the inclusion chains L and R, respectively, as reducts of the inclusion chain I. Fig. 6 . Type compatibility of rule morphisms level-wise",
+            "cite_spans": [
+                {
+                    "start": 62,
+                    "end": 66,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 192,
+                    "end": 198,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 382,
+                    "end": 388,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "Fig. 5. Rule morphisms and their type compatibility"
+        },
+        {
+            "text": "Finally, we have to construct a typing chain morphism (\u03c3 I , id [n] ) : I \u2192 MM making the diagram in Fig. 5 commute: For all i \u2208 [n], we constructed the union (pushout) I i := L i \u222a R i . Moreover, \u03c3 L i and \u03c3 R i coincide on L i \u2229 R i , by coherence assumption, thus we get a unique \u03c3 I i : I i \u2192 MM i such that (see Fig. 6 )",
+            "cite_spans": [
+                {
+                    "start": 64,
+                    "end": 67,
+                    "text": "[n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 101,
+                    "end": 107,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                },
+                {
+                    "start": 318,
+                    "end": 324,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "Fig. 7. Reduct of inclusion chains"
+        },
+        {
+            "text": "Since Graph is adhesive, Lemma 2 ensures that the family \u03c3 I = (\u03c3 I i :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 7. Reduct of inclusion chains"
+        },
+        {
+            "text": ") of graph homomorphisms establishes indeed a typing chain morphism (\u03c3 I , id [n] ) : I \u2192 MM while the Eq. 2 ensure that the diagram in Fig. 5 ",
+            "cite_spans": [
+                {
+                    "start": 78,
+                    "end": 81,
+                    "text": "[n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 136,
+                    "end": 142,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Fig. 7. Reduct of inclusion chains"
+        },
+        {
+            "text": "Example 2. Figure 8 shows a multilevel typed rule CreatePart from a case study [20] . This rule can be used to specify the behaviour of machines that create parts, by matching an existing type of machine that generates a certain type of parts, and in the instance at the bottom, generating such a part. META defines a typing chain MM of depth 3. It declares the graph ( M1 P1 cr ) that becomes MM 2 . The declaration of the direct types Machine, creates, Part for the elements in MM 2 declares, implicitly, a graph MM 1 := ( Machine Part creates ) that is in turn, implicitly, typed over MM 0 := ECore. All the morphisms in \u03c4 MM are total and uniquely determined thus we have, especially, \u03c4 MM 2,0 = \u03c4 MM 2,1 ; \u03c4 MM 1,0 . FROM and TO declare as well the left-hand side L := ( m1 ) and the righthand-side R := ( m1 p1 c ), resp., of the rule and the direct types of the elements in L and R. These direct types are all located in MM 2 thus L 2 = L and R 2 = R where the direct types define nothing but the typing morphisms \u03c3 L 2 : L 2 \u2192 MM 2 and \u03c3 R 2 : R 2 \u2192 MM 2 , resp. The other typing morphisms are obtained by \"transitive closure\", i.e., \u03c3 L",
+            "cite_spans": [
+                {
+                    "start": 79,
+                    "end": 83,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 11,
+                    "end": 19,
+                    "text": "Figure 8",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "commutes indeed."
+        },
+        {
+            "text": "For the \"plain variant\" of the rule CreatePart (in Fig. 15 ), MM consists only of the graphs MM 1 = ( M1 P1 cr ), MM 0 = ECore and the trivial \u03c4 MM 1,0 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 51,
+                    "end": 58,
+                    "text": "Fig. 15",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "commutes indeed."
+        },
+        {
+            "text": "In the multilevel typed setting all the graphs S , D, T are multilevel typed over a common typing chain T G = (T G, m, \u03c4 T G ), with n \u2264 m, that is determined by the path from S to the top of the current MLM hierarchy (see Fig. 1 ). ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 223,
+                    "end": 229,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Multilevel Typed Match."
+        },
+        {
+            "text": ") (see Fig. 9 ). -Type compatibility: (\u03c3 L , id [n] ); (\u03b2, f ) = (\u03bc, f ); (\u03c3 S , id [m] ), i.e., we require",
+            "cite_spans": [
+                {
+                    "start": 48,
+                    "end": 51,
+                    "text": "[n]",
+                    "ref_id": null
+                },
+                {
+                    "start": 84,
+                    "end": 87,
+                    "text": "[m]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 7,
+                    "end": 13,
+                    "text": "Fig. 9",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "Multilevel Typed Match."
+        },
+        {
+            "text": "(\u03bc, f ) ) could match with hammer plant or stool plant. We will observe later that for the plain version of the rule CreatePart in Fig. 15 we could match MM 1 = ( M1 P1 cr ) either with T G 2 = hammer plant or T G 1 = generic plant in the hierarchy in Fig. 3 , where the second match would lead to undesired results (see Example 4). Fig. 10) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 131,
+                    "end": 138,
+                    "text": "Fig. 15",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 252,
+                    "end": 258,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF5"
+                },
+                {
+                    "start": 333,
+                    "end": 341,
+                    "text": "Fig. 10)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Multilevel Typed Match."
+        },
+        {
+            "text": "We get also a type compatible typing chain morphism from D into T G: The back triangle in Fig. 10 commutes due to the type compatibility of the rule (see Fig. 5 ). The roof square commutes since the match is type compatible (see Fig. 9 ). This gives us (\u03bc, f ); (\u03c3 S , id [ ",
+            "cite_spans": [
+                {
+                    "start": 272,
+                    "end": 273,
+                    "text": "[",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 90,
+                    "end": 97,
+                    "text": "Fig. 10",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 154,
+                    "end": 160,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                },
+                {
+                    "start": 229,
+                    "end": 235,
+                    "text": "Fig. 9",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "Fig. 10. Pushout step"
+        },
+        {
+            "text": "Step. As shown later, the final pullback complement",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pullback Complement"
+        },
+        {
+            "text": "in Graph extends, in a canonical way, to a sequence of",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pullback Complement"
+        },
+        {
+            "text": "in Chain such that the bottom square in Fig. 11 commutes. the rule does not impose anything thus we let the subgraphs at those levels untouched. In terms of typing chain morphisms, this means that we factorize the reduct morphism (\u03bc, f ) into two reduct morphisms and that we will construct the resulting inclusion chain D in two pushout steps (see Fig. 12 ) where",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 40,
+                    "end": 47,
+                    "text": "Fig. 11",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 349,
+                    "end": 356,
+                    "text": "Fig. 12",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pullback Complement"
+        },
+        {
+            "text": "just a shorthand for the defining statement: The reduct morphism (id S \u2193f , f) : S \u2193f \u2192 S is a level-wise identity and just embeds an inclusion chain of length n + 1 into an inclusion chain of length m + 1, i.e., id",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pullback Complement"
+        },
+        {
+            "text": "). In the pushout step (1) we will construct a pushout of inclusion chains of equal length and obtain a chain",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pullback Complement"
+        },
+        {
+            "text": ". In the pushout step (2) we will fill the gaps in D \u2193f with the corresponding untouched graphs from the original inclusion chain S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pullback Complement"
+        },
+        {
+            "text": "Our constructions and proofs rely on the standard construction of pushouts in Graph for a span of an inclusion graph homomorphism \u03c6 : G \u2192 H and an arbitrary graph homomorphism \u03c8 : G \u2192 K where we assume that H and K are disjoint. The pushout P is given by P N := K N \u222a H N \\ G N , P A := K A \u222a H A \\ G A and sc P (e) := sc K (e), if e \u2208 K A , and sc P (e) := \u03c8 A (sc H (e)), if e \u2208 H A \\ G A . tg P is defined analogously. \u03c6 * : K \u2192 P is an inclusion graph homomorphism by construction and \u03c8 * :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "The pair G \\ H := (H N \\ G N , H A \\ G A ) of subsets of nodes and arrows of H is, in general, not establishing a subgraph of H . We will nevertheless use the notation P = K + H \\ G to indicate that P is constructed as described above. \u03c8 * can be described then as a sum of two parallel pairs of mappings",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "Pushout for Inclusion Chains with Equal Depth. We consider now the span",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "of reduct morphisms in Chain (see Fig. 12 ). For each level i \u2208 [n] we construct the corresponding pushout of graph homomorphisms. This ensures, especially,",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 34,
+                    "end": 41,
+                    "text": "Fig. 12",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "\u03bci \u03b4i Fig. 13 . Level-wise pushout construction We look at an arbitrary level n \u2265 i \u2265 1 together with the base level 0 (see Fig. 13 ). We get a cube where the top and bottom square are pushouts by construction. In addition, the left and back square are pullbacks since (\u03bc, id [n] ) and (\u03bb, id [n] ), respectively, are reduct morphisms. We get a unique graph homomorphism \u03c4 D f (i),0 : D f (i) \u2192 D that makes the cube commute. By the uniqueness of mediating morphisms and the fact that the top pushout square has the Van Kampen property (see [12, 25] ), we can conclude that the front and the right square are pullbacks as well. That the back square is a pullback means nothing but L i = L \u2229 I i . This entails I i \\ L i \u2286 I \\ L thus \u03c4 D f (i),0 turns out to be the sum of the two inclusions \u03c4 S f (i),0 : S f (i) \u2192 S and \u03c4 I i,0\u2193I i \\L i : I i \\ L i \u2192 I \\ L and is therefore an inclusion itself.",
+            "cite_spans": [
+                {
+                    "start": 276,
+                    "end": 279,
+                    "text": "[n]",
+                    "ref_id": null
+                },
+                {
+                    "start": 293,
+                    "end": 296,
+                    "text": "[n]",
+                    "ref_id": null
+                },
+                {
+                    "start": 541,
+                    "end": 545,
+                    "text": "[12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 546,
+                    "end": 549,
+                    "text": "25]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 6,
+                    "end": 13,
+                    "text": "Fig. 13",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 124,
+                    "end": 131,
+                    "text": "Fig. 13",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "The sequence [D f (n) , D f (n\u22121) , . . . , D f (1) , D 0 ] of subgraphs of D = D 0 defines the intended inclusion chain D \u2193f . Since the front and right squares in Fig. 13 are pullbacks, Lemma 2 ensures that the family",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 165,
+                    "end": 172,
+                    "text": "Fig. 13",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "of inclusion graph homomorphisms constitutes a reduct morphism (\u03c2 \u2193f , id [n] ) : S \u2193f \u2192 D \u2193f while the family \u03b4 = (\u03b4 i :",
+            "cite_spans": [
+                {
+                    "start": 74,
+                    "end": 77,
+                    "text": "[n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": ") of graph homomorphisms constitutes a reduct morphism (\u03b4, id [n] ) : I \u2192 D \u2193f . Finally, Eq. 5 ensures that the resulting square (1) of reduct morphisms in Fig. 12 commutes. The proof that we have constructed a pushout in Chain is given in [26] . Fig. 12 that commutes trivially. In [26] it is shown that square (2) is also a pushout in Chain.",
+            "cite_spans": [
+                {
+                    "start": 62,
+                    "end": 65,
+                    "text": "[n]",
+                    "ref_id": null
+                },
+                {
+                    "start": 241,
+                    "end": 245,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 284,
+                    "end": 288,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 157,
+                    "end": 164,
+                    "text": "Fig. 12",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 248,
+                    "end": 255,
+                    "text": "Fig. 12",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "Pullback Complement. We construct the reduct of D = (D, m, \u03c4 D ) along \u03b8 : T \u2192 D and id [m] by level-wise intersection (pullback) for all n \u2265 i \u2265 1 (see the pullback square below). Due to Lemma 2, we obtain, in such a way, an inclusion chain T = (T , m, \u03c4 T ) together with a reduct morphism (\u03b8, id [m] ) : T \u2192 D. The multilevel typing of T is simply borrowed from D, that is, we define (see Fig. 11 )",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 91,
+                    "text": "[m]",
+                    "ref_id": null
+                },
+                {
+                    "start": 299,
+                    "end": 302,
+                    "text": "[m]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 392,
+                    "end": 399,
+                    "text": "Fig. 11",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "and this gives us trivially the intended type compatibility of (\u03b8, id [m] ). The typing chain morphism (\u03bd, f ) :",
+            "cite_spans": [
+                {
+                    "start": 70,
+                    "end": 73,
+                    "text": "[m]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "is simply given by pullback composition and decomposition in Graph: For each n \u2265 i \u2265 1 we consider the following incomplete cube on the right-hand side:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "The back square, the left square as well as the front square are pullbacks since (\u03c1, id [n] ), (\u03b4, f ) and (\u03b8, id [m] ), respectively, are reduct morphisms. The top square is constructed as a pullback complement. The diagonal square from",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 91,
+                    "text": "[n]",
+                    "ref_id": null
+                },
+                {
+                    "start": 114,
+                    "end": 117,
+                    "text": "[m]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "is a pullback due to the composition of the back pullback and the left pullback. The decomposition of this diagonal pullback w.r.t. the front pullback gives us \u03bd i : R i \u2192 T i making the cube, and especially the bottom square, commute and making the right square to a pullback as well.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "According to Lemma 2 the family \u03bd = (\u03bd i :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": ") of graph homomorphisms defines a reduct morphism (\u03bd, f ) : R \u2192 T where condition 7 is simply satisfied by construction. Finally, (\u03bd, f ) is also type compatible since conditions 6 and 7 ensure that the roof square in Fig. 11 commutes.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 219,
+                    "end": 226,
+                    "text": "Fig. 11",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Pushouts of Graphs for Inclusion Graph Homomorphisms."
+        },
+        {
+            "text": "To present a non-trivial rule application for our example, we discuss the undesired application of the plain version of rule CreatePart (see Fig. 14) , mentioned in Example 3, for a state of the hammer configuration with only one node ghead, as shown in hammer config 0 in Fig. 15 . So, we have f : [1] \u2192 [2] , with f (0) = 0, f(1) = 1, and the \"undesired match\" of MM 1 = ( M1  P1  cr  ) with T G 1 = generic plant = ( Machine Part creates ) together with the trivial match of the left-hand side L = ( m1 ) of the rule with hammer config 0 = ( ghead ). The resulting inclusion chains S, L, R and two reduct morphisms between them are depicted in Fig. 14 . Note, that the ellipse and cursive labels indicate here the corresponding typing chain morphisms (\u03c3 S , id [2] ), (\u03c3 L , id [1] ) and (\u03c3 R , id [1] ), respectively.",
+            "cite_spans": [
+                {
+                    "start": 299,
+                    "end": 302,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 305,
+                    "end": 308,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 764,
+                    "end": 767,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 781,
+                    "end": 784,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 801,
+                    "end": 804,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 141,
+                    "end": 149,
+                    "text": "Fig. 14)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 273,
+                    "end": 280,
+                    "text": "Fig. 15",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 373,
+                    "end": 388,
+                    "text": "( M1  P1  cr  )",
+                    "ref_id": null
+                },
+                {
+                    "start": 647,
+                    "end": 654,
+                    "text": "Fig. 14",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Example 4."
+        },
+        {
+            "text": "For the two levels in f (",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 4."
+        },
+        {
+            "text": "we construct the pushouts D 0 and D 1 while D 2 is just taken as S 2 . The lowest level in D, where the new elements p1 and c appear, is level 1 thus the constructed direct types of p1 and c are Part and creates, resp., as shown in hammer config 1 in Fig. 15 . [2] ) (\u03bc, f ) (\u03bb, id [ Our approach to multilevel modeling enhances reusability of concepts and their behaviour by allowing the definition of flexible transformation rules which are applicable to different hierarchies with a variable number of levels. In this paper, we have presented a formalization of these flexible and reusable transformation rules based on graph transformations. We represent multilevel models by multilevel typed graphs whose manipulation and transformation are carried out by multilevel typed graph transformation rules. These rules are cospans of three graphs and two inclusion graph homomorphisms where the three graphs are multilevel typed over a common typing chain. As these rules are represented as cospans, their application is carried out by a pushout and a final pullback complement construction for the underlying graphs in the category Graph. We have identified type compatibility conditions, for rules and their matches, which are crucial for rule applications. Moreover, we have shown that typed graph transformations can be generalized to multilevel typed graph transformations improving preciseness, flexibility and reusability of transformation rules.",
+            "cite_spans": [
+                {
+                    "start": 261,
+                    "end": 264,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 282,
+                    "end": 283,
+                    "text": "[",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 251,
+                    "end": 258,
+                    "text": "Fig. 15",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Example 4."
+        },
+        {
+            "text": "Related work. The theory and practise of graph transformations are wellstudied, and the concept of model transformations applied to MLM is not novel. Earlier works in the area have worked in the extension of pre-existing model transformation languages to be able to manipulate multilevel models and model hierarchies. In [3] , the authors adapt ATL [15] to manipulate multilevel models built with the Melanee tool [2] . In a similar manner, [11] proposes the adaptation of ETL [16] and other languages from the Epsilon family [14] for the application of model transformation rules into multilevel hierarchies created with MetaDepth [8] . These works, however, tackle the problem from the practical point of view. That is, how to reuse mature off-the-shelf tools for model transformation in the context of MLM, via the manipulation of a \"flattened\" representation of the hierarchy to emulate multilevel transformations. Our approach, on the contrary, has been developed from scratch with a multilevel setting in mind, and we believe it can be further extended to tackle all scenarios considered by other approaches. Therefore, to the best of our knowledge, there are no formal treatments of multilevel typed graph transformations in the literature except for our previous works [19, 20, 26] (see Sect. 4 in [26] ). Hence, we consider our approach the first approximation to formally address the challenges which come with multilevel modeling and multilevel model transformations.",
+            "cite_spans": [
+                {
+                    "start": 321,
+                    "end": 324,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 349,
+                    "end": 353,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 414,
+                    "end": 417,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 441,
+                    "end": 445,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 477,
+                    "end": 481,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 526,
+                    "end": 530,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 632,
+                    "end": 635,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1277,
+                    "end": 1281,
+                    "text": "[19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1282,
+                    "end": 1285,
+                    "text": "20,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1286,
+                    "end": 1289,
+                    "text": "26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 1306,
+                    "end": 1310,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Example 4."
+        },
+        {
+            "text": "Common for our work and [9] is that the concepts of typing chains, multilevel typed graphs and multilevel models originate in [22] . However, [9] presents partial morphisms as spans of total morphisms and does not use the composition of those spans explicitly. Wrt. typing chains, a multilevel model in [9] is a sequence of graphs [G n , G n\u22121 , . . . , G 1 , G 0 ] together with the subfamily (\u03c4 G i+1,i : G i+1 \u2022 \u2212\u2192 G i | n \u2265 i \u2265 0) of typing morphisms.",
+            "cite_spans": [
+                {
+                    "start": 24,
+                    "end": 27,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 126,
+                    "end": 130,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 303,
+                    "end": 306,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Example 4."
+        },
+        {
+            "text": "Although it is trivial to see that the bottom square in the cube for the pullback complement step becomes a pullback for all n \u2265 i \u2265 1, we leave it for future work to prove that we indeed have constructed a final pullback complement in Chain. A utilization of our theory to deal with coupled transformations [21] in the setting of multilevel typed modelling is also desirable. Furthermore, it would be interesting to investigate the category Chain for its own; e.g., study its monomorphisms and epimorphisms, possible factorization systems, and the conditions for existence of general pushouts and pullbacks.",
+            "cite_spans": [
+                {
+                    "start": 308,
+                    "end": 312,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Future work."
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Multi-level modelling (Dagstuhl Seminar 17492)",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "P A"
+                    ],
+                    "last": "Almeida",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Frank",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "K\u00fchne",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Dagstuhl Reports",
+            "volume": "7",
+            "issn": "12",
+            "pages": "18--49",
+            "other_ids": {
+                "DOI": [
+                    "10.4230/DagRep.7.12.18"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Flexible deep modeling with melanee",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Atkinson",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Gerbig",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Gesellschaft f\u00fcr Informatik",
+            "volume": "2",
+            "issn": "",
+            "pages": "117--122",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Enhancing classic transformation languages to support multi-level modeling",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Atkinson",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Gerbig",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Tunjic",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Software Syst. Model",
+            "volume": "14",
+            "issn": "2",
+            "pages": "645--666",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10270-013-0384-y"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "The essence of multilevel metamodeling",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Atkinson",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "K\u00fchne",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "UML 2001",
+            "volume": "2185",
+            "issn": "",
+            "pages": "19--33",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-45441-1_3"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Rearchitecting the UML infrastructure",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Atkinson",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "K\u00fchne",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "ACM Trans. Model. Comput. Simul",
+            "volume": "12",
+            "issn": "4",
+            "pages": "290--321",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/643120.643123"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Reducing accidental complexity in domain models",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Atkinson",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "K\u00fchne",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Software Syst. Model",
+            "volume": "7",
+            "issn": "3",
+            "pages": "345--359",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10270-007-0061-0"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Sesqui-pushout rewriting",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Corradini",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Heindel",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hermann",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "K\u00f6nig",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Corradini",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ehrig",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Montanari",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Ribeiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "ICGT 2006",
+            "volume": "4178",
+            "issn": "",
+            "pages": "30--45",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11841883_4"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Deep meta-modelling with MetaDepth",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "De Lara",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Guerra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "TOOLS 2010",
+            "volume": "6141",
+            "issn": "",
+            "pages": "1--20",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-13953-6_1"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Multi-level model product lines",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "De Lara",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Guerra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "FASE 2020",
+            "volume": "12076",
+            "issn": "",
+            "pages": "161--181",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-45234-6_8"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "When and how to use multilevel modelling",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "De Lara",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Guerra",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Cuadrado",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "ACM Trans. Softw. Eng. Methodol",
+            "volume": "24",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/2685615"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Model-driven engineering with domainspecific meta-modelling languages",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "De Lara",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Guerra",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Cuadrado",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Software Syst. Model",
+            "volume": "14",
+            "issn": "1",
+            "pages": "429--459",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10270-013-0367-z"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Implementation of typed attributed graph transformation by AGG. Fundamentals of Algebraic Graph Transformation. MTCSAES",
+            "authors": [],
+            "year": 2006,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "305--323",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-31188-2_15"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Cospan DPO approach: an alternative for DPO graph transformations",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ehrig",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hermann",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Prange",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Bulletin EATCS",
+            "volume": "98",
+            "issn": "",
+            "pages": "139--149",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "The Eclipse Foundation",
+            "authors": [],
+            "year": 2012,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "ATL: a model transformation tool",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Jouault",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Allilaire",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "B\u00e9zivin",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Kurtev",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Sci. Comput. Program",
+            "volume": "72",
+            "issn": "1-2",
+            "pages": "31--39",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.scico.2007.08.002"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "The epsilon transformation language",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Kolovos",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Paige",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "A C"
+                    ],
+                    "last": "Polack",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "ICMT 2008",
+            "volume": "5063",
+            "issn": "",
+            "pages": "46--60",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-69927-9_4"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Multilevel modelling and domain-specific languages",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mac\u00edas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "MultEcore: combining the best of fixed-level and multilevel metamodelling",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mac\u00edas",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rutle",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Stolz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "MULTI, CEUR Workshop Proceedings",
+            "volume": "1722",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "An approach to flexible multilevel modelling",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mac\u00edas",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rutle",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Stolz",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rodriguez-Echeverria",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Enterp. Model. Inf. Syst. Archit",
+            "volume": "13",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.18417/emisa.13.10"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Multilevel coupled model transformations for precise and reusable definition of model behaviour",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mac\u00edas",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rutle",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Dur\u00e1n",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rodriguez-Echeverria",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "J. Log. Algebr. Meth. Program",
+            "volume": "106",
+            "issn": "",
+            "pages": "167--195",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.jlamp.2018.12.005"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Co-evolving meta-models and their instance models: a formal approach based on graph transformation",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mantz",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Taentzer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lamo",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Sci. Comput. Program",
+            "volume": "104",
+            "issn": "",
+            "pages": "2--43",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.scico.2015.01.002"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "A formalisation of deep metamodelling",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rossini",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "De Lara",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Guerra",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rutle",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Formal Aspects Comput",
+            "volume": "26",
+            "issn": "6",
+            "pages": "1115--1152",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00165-014-0307-x"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "A formal approach to the specification and transformation of constraints in MDE",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rutle",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rossini",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lamo",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "J. Log. Algebr. Program",
+            "volume": "81",
+            "issn": "4",
+            "pages": "422--457",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.jlap.2012.03.006"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "EMF: Eclipse Modeling Framework",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Steinberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Budinsky",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Paternostro",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Merks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Fibred amalgamation, descent data, and van kampen squares in topoi",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "K\u00f6nig",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Appl. Categor. Struct",
+            "volume": "23",
+            "issn": "3",
+            "pages": "447--486",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10485-013-9339-2"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "The category of typing Chains as a foundation of multilevel typed model transformations",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Wolter",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mac\u00edas",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rutle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "MLM terminology",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Rule structure and basic constructions for rule application",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "A partial graph homomorphism \u03d5 : G \u2022 \u2212\u2192 H is given by a subgraph D(\u03d5) G, called the domain of definition of \u03d5, and a graph homomorphism \u03d5 : D(\u03d5) \u2212 \u2192 H .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The composition \u03d5; \u03c8 : G \u2022 \u2212\u2192 K of two partial graph homomorphisms \u03d5 : G \u2022 \u2212\u2192 H and \u03c8 : H \u2022 \u2212\u2192 K is defined as follows:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "A typing chain G = (G, n, \u03c4 G ) is given by a natural number n, a sequence G = [G n , G n\u22121 , . . . , G 1 , G 0 ] of graphs of length n + 1 and a family",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Multilevel modeling hierarchy with typing morphisms",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Establishing a morphism between two typing chains, level-wiseTyping morphisms are composed by the composition of commutative squares. Definition 6. The composition (\u03c6, f ); (\u03c8, g) : G \u2192 K of two typing chain morphisms (\u03c6, f ) : G \u2192 H, (\u03c8, g) : H \u2192 K between typing chains G = (G, n, \u03c4 G ),",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Let be given two inclusion chains G = (G, n, \u03c4 G ) and H = (H , m, \u03c4 H ) with n \u2264 m and a function f : [n] \u2192 [m] such that f (0) = 0 and j> i implies f (j) \u2212 f (i) \u2265 j \u2212 i for all i, j \u2208 [n]. For any family \u03c6 = (\u03c6 i : G i \u2192 H f (i) | i \u2208 [n]) of graph homomorphisms the following two requirements are equivalent:1. For all n \u2265 j > 0 the left-hand square inFig. 7is a pullback.2. The pair (\u03c6, f ) constitutes a closed typing chain morphism (\u03c6, f ) : G \u2192 Hwhere for all n \u2265 j > i \u2265 0 the right-hand diagram inFig. 7consists of two pullbacks.Given a closed typing chain morphism (\u03c6, f ) : G \u2192 H between inclusion chains, as described in Lemma 2, we call G the reduct of H along \u03c6 0 : G 0 \u2192 H 0 and f : [n] \u2192 [m] while (\u03c6, f ) : G \u2192 H is called a reduct morphism. Note that the composition of two reduct morphisms is a reduct morphism as well. Lemma 2 ensures that the families (\u03bb i : L i \u2192 I i | i \u2208 [n]) and (\u03c1 i : R i \u2192 I i | i \u2208 [n]) of inclusion graph homomorphisms establish reduct morphisms (\u03bb, id [n] ) : L \u2192 I and (\u03c1, id [n] ) : R \u2192 I, resp., as shown in Fig. 5.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "CreatePart: a sample rule A match of the multilevel typed rule into a graph S with a given multilevel typing over T G, i.e., an inclusion chain S = (S, m, \u03c4 S ) with S 0 = S and a typing chain morphism (\u03c3 S , id [m] ) : S \u2192 T G, is given by a graph homomorphism \u03bc : L \u2192 S and a typing chain morphism (\u03b2, f ) : MM \u2192 T G such that the following two conditions are satisfied: -Reduct: L is the reduct of S along \u03bc : L \u2192 S and f : [n] \u2192 [m], i.e., \u03bc 0 := \u03bc : L 0 = L \u2212\u2192 S 0 = S extends uniquely (by pullbacks) to a reduction morphism (\u03bc, f ) : L \u2192 S with \u03bc = (\u03bc i :",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Conditions for multilevel typEd MatchApplication of a Multilevel Typed Rule -Objectives. The basic idea is to construct for a given application of a graph transformation rule, as shown inFig. 2, a unique type compatible multilevel typing of the result graphs D and T . The parameters of this construction are typing chains MM, T G; a coherent multilevel typing of the graph transformation rule over MM; a multilevel typing of the graph S over T G and a typing chain morphism (\u03b2, f ) : MM \u2192 T G extending the given match \u03bc : L \u2192 S of graphs to a multilevel typed match satisfying the two respective conditions for multilevel typed matches. Example 3 (Multilevel Typed Match). To achieve precision in rule application the elements Machine, creates, Part in the original rule CreatePart are constants required to match syntactically with elements in the hierarchy. In such a way, MM 1 = ( Machine Part creates )has to match with generic plant while MM 2 = ( M1 P1 cr",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF10": {
+            "text": "Pushout step. As shown later, the pushout of the span S L I \u03bb \u03bc in Graph extends, in a canonical way, to a pushout of the spanS L I (\u03bc, f ) (\u03bb, id [n] ) of reduct morphisms in Chain such that the result typing chain D = (D, m, \u03c4 D ) is an inclusion chain and the typing chain morphisms (\u03c2, id [m] ) : S \u2192 D and (\u03b4, f ) : I \u2192 D become reduct morphisms (see the bottom in",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF11": {
+            "text": "m] ) = (\u03bb, id [n] ); (\u03c3 I , id [n] ); (\u03b2, f ), thus the universal property of the pushout bottom square provides a unique chain morphism (\u03c3 D , id [m] ) : D \u2192 T G such that both type compatibility conditions (\u03c2, id [m] ); (\u03c3 D , id [m] ) = (\u03c3 S , id [m] ) and (\u03b4, f ); (\u03c3 D , id [m] ) = (\u03c3 I , id [n] ); (\u03b2, f ) are satisfied.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF12": {
+            "text": "Pullback complement step Pushout of Reduct Morphisms -Two Steps. We discuss the intended pushout of the span S L I (\u03bc, f ) (\u03bb, id [n] ) of reduct morphisms in Chain. The reduct morphism (\u03bb, id [n] ) is surjective w.r.t. levels, thus the pushout inclusion chain D should have the same length as S. The rule provides, however, only information how to extend the subgraphs of S 0 = S at the levels f ([n]) \u2286 [m]. For the subgraphs in S at levels in [m] \\ f ([n])",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF13": {
+            "text": "Two pushout steps to construct the inclusion chain D",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF14": {
+            "text": "Only one pushout). \u03c2 f (i) and \u03b4 i are jointly surjective for all n \u2265 i \u2265 1 thus we can describe D f (i) as the union D f (i) = \u03c2(S f (i) )\u222a\u03b4(I i ). Hence in practice, there is no need for an explicit construction of pushouts at all the levels n \u2265 i \u2265 1; these are all constructed implicitly by the pushout construction at level 0.Pushout by Chain Extension. To obtain an inclusion chain D of length m + 1, we fill the gaps in D \u2193f by corresponding subgraphs of S: D a := D a if a \u2208 f ([n]) and D a := S a if a \u2208 [m] \\ f ([n]) and obtain the intended inclusion chain D = (D, m, \u03c4 D ). The family idD \u2193f = (id D f (i) : D f (i) \u2192 D f (i) | i \u2208 [n])of identities defines trivially a reduct morphism (IdD \u2193f , f) : D \u2193f \u2192 D. One can show that the family \u03c2 = (\u03c2 a : S a \u2192 D a | a \u2208 [m]) of graph homomorphisms defined by \u03c2 a := \u03c2 a : S a \u2192 D a if a \u2208 f ([n]) id S a : S a \u2192 D a = S a if a \u2208 [m] \\ f ([n]) establishes a reduct morphism (\u03c2, id [m] ) : S \u2192 D. The two reduct morphisms (id D \u2193f , f) : D \u2193f \u2192 D and (\u03c2, id [m] ) : S \u2192 D establish square (2) in",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF15": {
+            "text": "Inclusion chains for the plain version of CreatePart Plain version of CreatePart and its application 4 Conclusions, Related and Future Work Conclusion. Multilevel modeling offers more flexibility on top of traditional modeling techniques by supporting an unlimited number of abstraction levels.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

@@ -1,0 +1,1217 @@
+{
+    "paper_id": "1e6795c64890ea18af10b5a28e9ec55710f31795",
+    "metadata": {
+        "title": "A Broker-Based Framework for the Recommendation of Cloud Services: A Research Proposal",
+        "authors": [
+            {
+                "first": "Raoul",
+                "middle": [],
+                "last": "Hentschel",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "esp. IS in Trade and Industry, TU Dresden",
+                    "location": {
+                        "settlement": "Dresden",
+                        "country": "Germany"
+                    }
+                },
+                "email": "raoul.hentschel@tu-dresden.de"
+            },
+            {
+                "first": "Susanne",
+                "middle": [],
+                "last": "Strahringer",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "esp. IS in Trade and Industry, TU Dresden",
+                    "location": {
+                        "settlement": "Dresden",
+                        "country": "Germany"
+                    }
+                },
+                "email": "susanne.strahringer@tu-dresden.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Finding and comparing appropriate cloud services that best fit cloud service consumer requirements can be a complex, time-consuming and costintensive process, especially for small and medium-sized enterprises. Since there is no \"one-fits-all\" cloud service provider, companies face the challenge of selecting and combining services from different vendors to meet all their requirements. Therefore, this paper calls for the design of a cloud brokering framework that would enable faster and easier selection of cloud services by recommending appropriate services through a matchmaking system. Drawing on previously conducted studies and considering current issues and practical experiences both from provider and user perspectives, we propose a framework that would identify, rank and recommend cloud services from multiple modules and components to individual consumers. Furthermore, we contribute an earlystage design of a cloud broker framework that considers cloud-service consumers' sourcing preferences while making new cloud-sourcing decisions and that can be used in the selection and adoption phase of implementing cloud services and/or as part of a multicloud strategy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Cloud computing (CC) is a driving force in the current digitization debate that offers companies of all sizes new benefits such as consuming computing resources (e.g., networks, servers, storage, applications, and services) with low/minimal entry costs, pay-per-use options, great flexibility, and scalability. Due to the recent proliferation of CC, the number of cloud services on the market is increasing rapidly. Therefore, the selection and implementation of suitable cloud services is a challenging, knowledgeintensive process that requires widespread participation and ownership among heterogeneous stakeholder groups (e.g., business managers, IT units, etc.) [1] . The variety of available services is further complicated by a lack of informational transparency concerning product characteristics, technology, QoS, pricing and their intercorrelations (e.g., price/quality trade-offs). This makes it difficult to compare cloud services and select the option that best fits the cloud service consumers' (CSC) requirements. Finding a suitable cloud service provider (CSP) that matches all the CSC's requirements is a complex, time-consuming and cost-intensive process that can prevent the adoption of CC especially in small and medium-sized enterprises (SME) [2] . The reasons for this are manifold: a lack of universal definitions and standards for cloud services [3] , the challenge of comparing the characteristics and performance metrics of cloud services over different maturity levels and quality standards, and different naming conventions for the same services, an understanding of which requires domain-specific knowledge of CSCs [4, 5] .",
+            "cite_spans": [
+                {
+                    "start": 666,
+                    "end": 669,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 1263,
+                    "end": 1266,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1369,
+                    "end": 1372,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1643,
+                    "end": 1646,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1647,
+                    "end": 1649,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "As a result, CSCs increasingly need guidance support systems [6] that enable faster, easier and more reliable cloud services selection by helping SMEs choose (the best) services from a wealth of alternatives. We define these alternatives as service configuration options (SCO). To the best of our knowledge, there is currently no approach available that specifically supports the (semi-)automated identification and recommendation of cloud service alternatives for SMEs using a cloud brokering and matchmaking system. In order to address this problem, we propose a cloud service broker framework called \"ViBROS\" as a starting point for supporting CSCs in their decision-making process by recommending appropriate cloud services based on CSC requirements using dynamic and extensible matching methods. Thus, our research question (RQ) is: How should a cloud-service brokering framework be designed to support cloud service consumers in SMEs in the selection and adoption phase of implementing cloud services? In order to answer this RQ, the remainder of the paper is organized as follows: the introduction and definition of the problem included above (Sect. 1) are followed by the theoretical background (Sect. 2) and the proposal of a new framework (Sect. 3). The paper ends with the conclusion and future recommendations (Sect. 4).",
+            "cite_spans": [
+                {
+                    "start": 61,
+                    "end": 64,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "CC is an alternative approach to IT sourcing that enables companies to access a shared pool of managed and scalable IT resources (e.g., networks, servers, storage, applications, and services) that are accessible via the internet on a pay-per-use basis without necessitating long-term investments [2] . CC services are typically classified by the type of service differentiated by a given resource (e.g., application (SaaS), platform (PaaS) and infrastructure (IaaS) level) [7] . In addition to the more technical characteristics, more business-oriented classifications have also emerged to differentiate these services from one another. B\u00f6hm et al. [8] identified eight common market actors that interact in a cloud value network. Additionally, the NIST defines five major actors: cloud consumer, cloud provider, cloud auditor, cloud broker, and cloud carrier where each entity (a person or organization) performs tasks in CC [9] .",
+            "cite_spans": [
+                {
+                    "start": 296,
+                    "end": 299,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 473,
+                    "end": 476,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 649,
+                    "end": 652,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 926,
+                    "end": 929,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Cloud Computing"
+        },
+        {
+            "text": "A cloud broker (CB) is an entity who acts as an intermediary between the CSP and the CSC and performs tasks that involve the selection, integration, or delivery of cloud services. Additionally, CBs also fulfill functions such as aggregating information concerning goods and fostering trust between cloud providers and cloud consumers [9] . There are many examples of markets in which two or more groups interact via intermediaries or platforms to benefit each other and potentially create cross-platform network effects (e.g., Airbnb, Uber, etc.) [10, 11] . All these so-called multi-sided platforms (MSP) have one thing in common: they can only be successful when the \"chicken-and-egg problem\" can be solved by convincing both sides of the market to engage their services [12] . Matchmaking platforms, such as cloud brokering platforms, can also be seen as two-sided in the sense that the matching \"platform\" is more attractive when more participants on the other end of the market participate [13] [14] [15] ; hence, a successful CB will be of value for both consumers and vendors [16] . Two of the main benefits of CBs from a consumer's point of view are its ability to minimize search time, thereby saving costs, and its providing an opportunity to interact with an expert instead of working with numerous CSPs [17] . Consumers also benefit from the support provided for activities such as the selection, implementation and management of cloud services and can thereby avoid being \"locked-in\" to a single provider. For CSPs, cooperation with a CB may enhance market visibility and result in a higher rate of revenue growth [18] .",
+            "cite_spans": [
+                {
+                    "start": 334,
+                    "end": 337,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 547,
+                    "end": 551,
+                    "text": "[10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 552,
+                    "end": 555,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 773,
+                    "end": 777,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 995,
+                    "end": 999,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1000,
+                    "end": 1004,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1005,
+                    "end": 1009,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1083,
+                    "end": 1087,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1315,
+                    "end": 1319,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1627,
+                    "end": 1631,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Cloud Brokering and Two-Sided Platforms"
+        },
+        {
+            "text": "The need for brokering mechanisms for cloud services first arises when using cloud federation architectures, such as Intercloud [19] or Stratos [20] . There are various concepts about and frameworks for cloud brokering that have been discussed in prior research [21] , including those dealing with service intermediation between CSPs and CSCs [19, 22] . However, most of the literature focuses on building cloud brokerage systems where users either provide low-level specifications (e.g. resource requirements for applications or QoS requirements for applications) that are measurable and comparable functional requirements [23] or are limited to technical issues that can be solved using multiple-criteria decision-making (MCDM) methods [24] . However, the literature does not consider organizational or environmental aspects. Additionally, we were unable to find any approaches specific to the needs of SMEs [25] . We argue that startups and SMEs need cloud brokering systems that are not only designed for large cloud implementation projects but are also better aligned with the nature of cloud services (e.g. flexible, automated) in terms of type and cost. Also, the selection and integration of new services is a very dynamic process that will affect daily business operations.",
+            "cite_spans": [
+                {
+                    "start": 128,
+                    "end": 132,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 144,
+                    "end": 148,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 262,
+                    "end": 266,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 343,
+                    "end": 347,
+                    "text": "[19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 348,
+                    "end": 351,
+                    "text": "22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 624,
+                    "end": 628,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 738,
+                    "end": 742,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 910,
+                    "end": 914,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Cloud Brokering and Two-Sided Platforms"
+        },
+        {
+            "text": "The goal of our research is to address the gap in the literature and, as a first step, to propose a framework that considers the functional and non-functional requirements of cloud consumers on the technical, organizational and environmental levels. This will enable SMEs to make a reasonable decision about CSPs, even without domain-specific knowledge, while achieving lower costs and saving time in comparison to traditional consultants and cloud brokers. Second, we propose a prototype that enables a (semi-) automated selection of cloud services as part of a recommendation system. To do so, we follow a design science research (DSR) approach. DSR is an important paradigm in IS research as it serves as a guideline for the process of constructing socio-technical artifacts in the IS domain [26] . We follow the process of Peffers et al. [27] for creating design science artifacts and then map these artifacts onto the digital innovation roles in DSR, as proposed by [28] . In order to adequately consider current issues and practical experiences, the requirements of SMEs for such a framework were analyzed from both the provider and user perspectives in a previous work [25, 29] . Based on the findings of that piece and an extensive literature review on existing frameworks, we have iteratively developed the first version of our Virtual Broker as a Service Framework, called ViBROS, as part of our design-oriented approach (see Fig. 1 ). ViBROS discovers and ranks cloud services for CSCs based on one or more Decision Components and filters the results to finally make a recommendation at the user's request.",
+            "cite_spans": [
+                {
+                    "start": 795,
+                    "end": 799,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 842,
+                    "end": 846,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 971,
+                    "end": 975,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 1176,
+                    "end": 1180,
+                    "text": "[25,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1181,
+                    "end": 1184,
+                    "text": "29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1436,
+                    "end": 1442,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Proposal of a New Cloud Brokering Framework"
+        },
+        {
+            "text": "Inputs are (feature) requirements and a textual description in natural language of the desired features of the cloud service. These provided inputs (Requirements Components) can then be prioritized and processed by a discovery service called ViBROS Cloud Matchmaker that uses the back-end Decision Components for the subsequent matchmaking. The Decision Components are defined by the platform owner and can be dynamically added and/or removed and are accessible via API (e.g., RESTful Web services). Each component can be addressed and enriched with information provided by CSPs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposal of a New Cloud Brokering Framework"
+        },
+        {
+            "text": "Finally, the ViBROS Cloud Matchmaker generates options determined by users' preferences, makes a pairwise comparison of every SCO using the AHP method, and recommends those that are suitable. It thus finds a match between the appropriate cloud services and the SME looking for one. Since not every CSC is willing or able to sign a contract with a CSP immediately, the CSC can also evaluate the cloud SCOs proposed by a neutral expert (i.e., consultants, integrators, etc.). Thus, the expert has the option to support the consumer in steps that go beyond the selection of a CSP (e.g. in the implementation of services) and thereby generates more business. As a result, the CSC receives a bundle of suitable cloud services, ranked according to their specific suitability with the option of having them evaluated by an expert, before finally selecting one or more cloud services to implement.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposal of a New Cloud Brokering Framework"
+        },
+        {
+            "text": "The current state of our research shows that many existing frameworks only provide partial guidance in the selection phase of cloud services. This research-in-progress article addresses this gap and proposes a new framework called ViBROS as a starting point for providing a more reliable and cost-efficient approach for SMEs to use while selecting appropriate cloud services. Since there is no \"one-fits-all\" CSP, CSCs can benefit from receiving recommendations for cloud SCOs, which will therefore reduce search costs while taking sourcing preferences (e.g., requirements, priorities, etc.) into consideration in the selection and adoption phases. Researchers can use key components of the framework to support their own cloud brokering problems. In future work, the back-end Decision Components and Cloud Matchmaker algorithms of the framework must be designed in more detail in order to instantiate a prototype of ViBROS. Also, the handling of the heterogeneity of cloud services must be addressed in more detail. Currently, the framework is not limited to a particular CC service type (SaaS, PaaS, IaaS). However, an initial focus on one of these types in order to limit the number of SCOs could be beneficial for a first prototypical implementation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion and Future Work"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Horizontal allocation of decision rights for on-premise applications and software-as-a-service",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Winkler",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Brown",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "J. Manag. Inf. Syst",
+            "volume": "30",
+            "issn": "",
+            "pages": "13--48",
+            "other_ids": {
+                "DOI": [
+                    "10.2753/MIS0742-1222300302"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "A descriptive literature review and classification of cloud computing research",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tate",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Commun. Assoc. Inf. Syst",
+            "volume": "31",
+            "issn": "",
+            "pages": "35--60",
+            "other_ids": {
+                "DOI": [
+                    "10.17705/1CAIS.03102"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Cloud computing services: taxonomy and comparison",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "H\u00f6fer",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Karagiannis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "J. Internet Serv. Appl",
+            "volume": "2",
+            "issn": "",
+            "pages": "81--94",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s13174-011-0027-x"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Cloud computing service metrics description",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "De Vaulx",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Simmon",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Bohn",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Special Publication (NIST SP",
+            "volume": "",
+            "issn": "",
+            "pages": "500--307",
+            "other_ids": {
+                "DOI": [
+                    "10.6028/NIST.SP.500-307"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "A domain specific language and a pertinent business vocabulary for cloud service selection",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Slawik",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "K\u00fcpper",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "GECON 2014",
+            "volume": "8914",
+            "issn": "",
+            "pages": "172--185",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-14609-6_12"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "A review of the nature and effects of guidance design features",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Morana",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Schacht",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Scherp",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Maedche",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Decis. Support Syst",
+            "volume": "97",
+            "issn": "",
+            "pages": "31--42",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.dss.2017.03.003"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The NIST definition of cloud computing",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Mell",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Grance",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Special Publication (NIST SP",
+            "volume": "",
+            "issn": "",
+            "pages": "800--145",
+            "other_ids": {
+                "DOI": [
+                    "10.6028/NIST.SP.800-145"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Towards a generic value network for cloud computing",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "B\u00f6hm",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Koleva",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Leimeister",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Riedl",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Krcmar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "GECON 2010",
+            "volume": "6296",
+            "issn": "",
+            "pages": "129--140",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-15681-6_10"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "NIST cloud computing standards roadmap. Special Publication",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Hogan",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Sokol",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Jin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "500--291",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Competition in two-sided markets",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Armstrong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "RAND J. Econ",
+            "volume": "37",
+            "issn": "",
+            "pages": "668--691",
+            "other_ids": {
+                "DOI": [
+                    "10.1111/j.1756-2171.2006.tb00037.x"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Let a thousand flowers bloom? An early look at large numbers of software app developers and patterns of innovation",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Boudreau",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Organ. Sci",
+            "volume": "23",
+            "issn": "",
+            "pages": "1409--1427",
+            "other_ids": {
+                "DOI": [
+                    "10.1287/orsc.1110.0678"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Platform competition in two-sided markets",
+            "authors": [
+                {
+                    "first": "J.-C",
+                    "middle": [],
+                    "last": "Rochet",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Tirole",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "J. Eur. Econ. Assoc",
+            "volume": "1",
+            "issn": "",
+            "pages": "990--1029",
+            "other_ids": {
+                "DOI": [
+                    "10.1162/154247603322493212"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "The economics of two-sided markets",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rysman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "J. Econ. Perspect",
+            "volume": "23",
+            "issn": "",
+            "pages": "125--143",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Chicken & egg: competition among intermediation service providers",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Caillaud",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Jullien",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "RAND J. Econ",
+            "volume": "34",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.2307/1593720"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Competing matchmaking",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Damiano",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Hao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "J. Eur. Econ. Assoc",
+            "volume": "6",
+            "issn": "",
+            "pages": "789--818",
+            "other_ids": {
+                "DOI": [
+                    "10.1162/JEEA.2008.6.4.789"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Motives for e-marketplace participation: differences and similarities between buyers and suppliers",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rask",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Kragh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Electron. Mark",
+            "volume": "14",
+            "issn": "",
+            "pages": "270--283",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "A strategic analysis of electronic marketplaces",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Bakos",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "MIS Q",
+            "volume": "15",
+            "issn": "",
+            "pages": "295--310",
+            "other_ids": {
+                "DOI": [
+                    "10.2307/249641"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Some empirical aspects of multi-sided platform industries",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Evans",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Rev. Netw. Econ",
+            "volume": "2",
+            "issn": "",
+            "pages": "1--19",
+            "other_ids": {
+                "DOI": [
+                    "10.2202/1446-9022.1026"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Algorithms and Architectures for Parallel Processing",
+            "authors": [
+                {
+                    "first": "C.-H",
+                    "middle": [],
+                    "last": "Hsu",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Park",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Yeo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "6081",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-13119-6"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Introducing STRATOS: a cloud broker service",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Pawluk",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Simmons",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Smit",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Litoiu",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mankovski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "2012 Proceedings of the IEEE 5th International Conference on Cloud Computing (CLOUD 2012)",
+            "volume": "",
+            "issn": "",
+            "pages": "891--898",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/CLOUD.2012.24"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Intercloud architecture framework for heterogeneous cloud based infrastructure services provisioning on-demand",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Demchenko",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "2013 27th International Conference on Advanced Information Networking and Applications Workshops",
+            "volume": "",
+            "issn": "",
+            "pages": "777--784",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/WAINA.2013.237"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Towards secure cloud bursting, brokerage and aggregation",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Nair",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "2010 Eighth IEEE European Conference on Web Services",
+            "volume": "",
+            "issn": "",
+            "pages": "189--196",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/ECOWS.2010.33"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "QBROKAGE: a genetic approach for QoS cloud brokering",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Anastasi",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Carlini",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Coppola",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Dazzi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "IEEE International Conference on Cloud Computing (CLOUD)",
+            "volume": "",
+            "issn": "",
+            "pages": "304--311",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Multiple Criteria Decision Making",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cochrane",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zeleny",
+                    "suffix": ""
+                }
+            ],
+            "year": 1973,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Critical success factors for the implementation and adoption of cloud services in SMEs",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Hentschel",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Leyh",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Baumhauer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the 52nd Hawaii International Conference on System Sciences",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.24251/hicss.2019.882"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Positioning and presenting design science research for maximum impact",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Gregor",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Hevner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "MIS Q",
+            "volume": "37",
+            "issn": "",
+            "pages": "337--355",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "A design science research methodology for information systems research",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Peffers",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Tuunanen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Rothenberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Chatterjee",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "J. Manag. Inf. Syst",
+            "volume": "24",
+            "issn": "",
+            "pages": "45--77",
+            "other_ids": {
+                "DOI": [
+                    "10.2753/MIS0742-1222240302"
+                ]
+            }
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Roles of digital innovation in design science research",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Hevner",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vom Brocke",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Maedche",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Bus. Inf. Syst. Eng",
+            "volume": "61",
+            "issn": "",
+            "pages": "3--8",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s12599-018-0571-z"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Current cloud challenges in Germany: the perspective of cloud service providers",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Hentschel",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Leyh",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Petznick",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "J. Cloud Comput",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/s13677-018-0107-6"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "TABREF0": {
+            "text": "Th ird -Par t y Actor sContr act signingContr act EvaluationFig. 1. Virtual Broker as a Service Framework (ViBROS)",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

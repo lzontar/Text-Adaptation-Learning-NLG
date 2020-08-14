@@ -1,0 +1,1798 @@
+{
+    "paper_id": "2afdd2df5fdc5dc7161bc904a06078de26b6e9ab",
+    "metadata": {
+        "title": "A Decision Procedure for String to Code Point Conversion",
+        "authors": [
+            {
+                "first": "Andrew",
+                "middle": [],
+                "last": "Reynolds",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "The University of Iowa",
+                    "location": {
+                        "settlement": "Iowa City",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Andres",
+                "middle": [],
+                "last": "N\u00f6tzli",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Stanford University",
+                    "location": {
+                        "settlement": "Stanford",
+                        "country": "USA"
+                    }
+                },
+                "email": "noetzli@cs.stanford.edu"
+            },
+            {
+                "first": "Clark",
+                "middle": [],
+                "last": "Barrett",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Stanford University",
+                    "location": {
+                        "settlement": "Stanford",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Cesare",
+                "middle": [],
+                "last": "Tinelli",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "The University of Iowa",
+                    "location": {
+                        "settlement": "Iowa City",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "In text encoding standards such as Unicode, text strings are sequences of code points, each of which can be represented as a natural number. We present a decision procedure for a concatenation-free theory of strings that includes length and a conversion function from strings to integer code points. Furthermore, we show how many common string operations, such as conversions between lowercase and uppercase, can be naturally encoded using this conversion function. We describe our implementation of this approach in the SMT solver CVC4, which contains a high-performance string subsolver, and show that the use of a native procedure for code points significantly improves its performance with respect to other state-of-the-art string solvers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "String processing is an important part of many kinds of software. In particular, strings often serve as a common representation for the exchange of data at interfaces between different programs, between different programming languages, and between programs and users. At such interfaces, strings often represent values of types other than strings, and developers have to be careful to sanitize and parse those strings correctly. This is a challenging task, making the ability to automatically reason about such software and interfaces appealing. Applications of automated reasoning about strings include finding or proving the absence of SQL injections and XSS vulnerabilities in web applications [27, 30, 33] , reasoning about access policies in cloud infrastructure [7] , and generating database tables from SQL queries for unit testing [31] . To make this type of automated reasoning scalable, several approaches for reasoning natively about string constraints have been proposed [3, 4, 11, 20, 21] .",
+            "cite_spans": [
+                {
+                    "start": 697,
+                    "end": 701,
+                    "text": "[27,",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 702,
+                    "end": 705,
+                    "text": "30,",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 706,
+                    "end": 709,
+                    "text": "33]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 768,
+                    "end": 771,
+                    "text": "[7]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 839,
+                    "end": 843,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 983,
+                    "end": 986,
+                    "text": "[3,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 987,
+                    "end": 989,
+                    "text": "4,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 990,
+                    "end": 993,
+                    "text": "11,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 994,
+                    "end": 997,
+                    "text": "20,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 998,
+                    "end": 1001,
+                    "text": "21]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To reason about complex string operations such as conversions between strings and numeric values, string solvers typically reduce these operations to operations in some basic fragment of the theory of strings which they support natively. The scalability of a string solver thus depends on the efficiency of the This work was partially funded by Amazon Web Services. reductions as well as the performance of the solver over the basic constraints. In such approaches, the set of operations in the basic fragment of strings has to be chosen carefully. If the set is too extensive, the implementation becomes complex and its performance as well as its correctness may suffer as a result. On the other hand, if the set is too restrictive, the reductions may become too verbose or only approximate, also leading to suboptimal performance. In current string solvers, basic constraints typically include only word equations (i.e., equalities between concatenations of variables and constants) and length constraints. Certain operations, however, such as conversions between strings and numeric values, cannot be represented efficiently in this fragment because the encoding requires reasoning by cases on the concrete characters that may occur in the string values assigned to a string variable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this work, we investigate extending the set of basic operators supported in a modern string solver to bridge the gap between character and integer domains. We assume a finite character domain of some cardinality n and, similarly to the Unicode standard, we assume a bijective mapping between its character set and the first n natural numbers which associates each character with a unique code point. We introduce then a new string operator, code, from characters strings to integers which can be used to encode the code point value of strings of length one and, more generally, reason about the code point of any character in a string. We propose an approach that involves extending a previous decision procedure with native support for this operator, obtaining a new decision procedure which avoids splitting on character values. Using the code operator, we can succinctly represent string operations including common string transducers, conversion between strings and integers, lexicographic ordering on strings, and regular expression membership constraints involving character ranges. We have implemented our proposed decision procedure in the state-of-the-art SMT solver cvc4 as an extension of its decision procedure for word equations by Liang et al. [21] . We have modified cvc4's reductions to take advantage of code. Using benchmarks generated by the concolic execution of Python code, we show that our technique provides significant benefits compared to doing case splitting on values.",
+            "cite_spans": [
+                {
+                    "start": 1261,
+                    "end": 1265,
+                    "text": "[21]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To summarize, our contributions are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "-We provide a decision procedure for a simple set of string operations containing length and a code point conversion function code, and prove its correctness. We describe how it can be combined with existing procedures for other string operators. -We demonstrate how the code operator can be used in the reductions of several classes of useful string constraints. -We implement and evaluate our approach in cvc4, showing that it leads to significant performance gains with respect to the state of the art.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In the following, we discuss related work. We then describe a fragment of the theory of strings in Sect. 2 that includes code. In Sect. 3, we provide a decision procedure for this fragment, prove its correctness, and describe how it can be integrated with existing decision procedures. Finally, we discuss applications of reasoning about code points in Sect. 4 and evaluate our implementation in Sect. 5.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Related Work. The study of the decidability of different fragments of string constraints has a long history. We know that solvability of word equations over unbounded strings is decidable [23] , whereas the addition of quantifiers makes the problem undecidable [25] . The boundary between decidable and undecidable fragments, however, remains unclear-a long-standing open question is whether word equations combined with equalities over string lengths are decidable [14] .",
+            "cite_spans": [
+                {
+                    "start": 188,
+                    "end": 192,
+                    "text": "[23]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 261,
+                    "end": 265,
+                    "text": "[25]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 466,
+                    "end": 470,
+                    "text": "[14]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Adding extended string operators such as replace [13] or conversions between strings and integers [18] leads to undecidability. Weakly chaining string constraints make up one decidable fragment. This fragment requires that the graph of relational constraints appearing in the constraints only contains limited types of cycles. It generalizes the straight-line fragment [22] , which disallows equalities between initialized string variables, and the acyclic fragment [5] , which disallows equalities involving multiple occurrences of a string variable and does not include transducers.",
+            "cite_spans": [
+                {
+                    "start": 49,
+                    "end": 53,
+                    "text": "[13]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 98,
+                    "end": 102,
+                    "text": "[18]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 369,
+                    "end": 373,
+                    "text": "[22]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 466,
+                    "end": 469,
+                    "text": "[5]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In practice, string solvers have to deal with undecidable fragments or fragments of unknown decidability, so current solvers for strings such as cvc4 [9] , z3 [16] , z3str3 [11] and Trau [3] implement efficient semi-decision procedures. In this work, we present a decision procedure that can be combined modularly with those procedures.",
+            "cite_spans": [
+                {
+                    "start": 150,
+                    "end": 153,
+                    "text": "[9]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 159,
+                    "end": 163,
+                    "text": "[16]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 173,
+                    "end": 177,
+                    "text": "[11]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 187,
+                    "end": 190,
+                    "text": "[3]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We work in the context of many-sorted first-order logic with equality and assume the reader is familiar with the notions of signature, term, literal, (quantified) formula, and free variable (see, e.g., [17] ). We consider many-sorted signatures \u03a3 that contain an (infix) logical symbol \u2248 for equality-which has type \u03c3 \u00d7 \u03c3 for all sorts \u03c3 in \u03a3 and is always interpreted as the identity relation. A theory is a pair T = (\u03a3, I) where \u03a3 is a signature and I is a class of \u03a3-interpretations, the models of T . A \u03a3-formula \u03d5 is satisfiable (resp., unsatisfiable) in T if it is satisfied by some (resp., no) interpretation in I. Given a (set of) terms S, we write T (S) to denote the set of subterms of S. By convention and unless otherwise stated, we use letters x, y, z to denote variables and s, t to denote terms.",
+            "cite_spans": [
+                {
+                    "start": 202,
+                    "end": 206,
+                    "text": "[17]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "We consider a theory T AS of strings with length and code point functions, with a signature \u03a3 AS given in Fig. 1 . We fix a finite totally ordered set A of characters as our alphabet and define T AS as a set of \u03a3 AS -structures with universe A * (the set of all words over A) which differ only on the value they assign to variables. The signature includes the sorts Str and Int, interpreted as A * and Z, respectively. Figure 1 partitions the signature \u03a3 AS into the subsignatures \u03a3 A and \u03a3 S , as indicated. The first includes the usual symbols of linear integer arithmetic, interpreted as expected. We will write t 1 t 2 , with \u2208 {>, <, }, as syntactic sugar for the equivalent inequality between t 1 and t 2 expressed using only . The subsignature \u03a3 S includes: all the words of A * (including the empty word ) as constant symbols, or string constants, each interpreted as itself; a function symbol len : Str \u2192 Int, interpreted as the word length function; and a code point function whose semantics is defined as follows. Definition 1. Given alphabet A and its associated total order <, let (c 0 , . . . , c n\u22121 ) be the enumeration of A induced by < (with c i < c i+1 for all i = 0 . . . , n \u2212 2). For each character c i in the enumeration, we refer to i as its code point. The function symbol code : Str \u2192 Int is interpreted in T AS as the unique code point function code such that:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 106,
+                    "end": 112,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 419,
+                    "end": 427,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "1. for all words w \u2208 A 1 , code(w) is the code point of the (single) character of w, and 2. for all other words w \u2208 A * , code(w) is \u22121.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "The code point function can be used in practice to reason about the code point values of Unicode strings. 1 We will see in Sect. 4 that this operator is very useful for encoding constraints that occur in applications. We stress, however, that the procedure presented in this paper is agnostic with respect to the concrete alphabet A and its character ordering.",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 107,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Note that we do not consider string concatenation in the signature above. This omission is for the sake of modularity; also, procedures for word equations have been addressed in a number of recent works [4, 21] . In practice, our procedure for string constraints involving code can be naturally combined with existing procedures for a signature that includes string concatenation, as we discuss in Sect. 3.1.",
+            "cite_spans": [
+                {
+                    "start": 203,
+                    "end": 206,
+                    "text": "[4,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 207,
+                    "end": 210,
+                    "text": "21]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "An atomic term is either a constant or a variable. A string term is either a constant or one that contains function symbols from \u03a3 S only. Notice that integer constants are string terms. A string constraint is a (dis)equality between string terms. An arithmetic constraint is an inequality or (dis)equality between linear combinations of atomic and/or string terms with integer sort. Notice that the equality code(x) \u2248 code(y) with variables x and y is both a string constraint and an arithmetic constraint.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "In this section, we introduce a decision procedure for a fragment of string constraints involving code but not containing string concatenation. In particular, we introduce a decision procedure for sets of (quantifier-free) \u03a3 AS -constraints for the signature introduced in Fig. 1 . A key property of this procedure is that it is able to reason about terms of the form code(x) without having to do case splitting on concrete values for string x. Following Liang et al. [21] , we describe this procedure as a set of derivation rules that modify configurations of the form A, S , where A is a set of arithmetic constraints, and S is a set of string constraints. At a high level, the procedure can be understood as a cooperation between two subsolvers, an arithmetic subsolver and a string subsolver, which handle these two sets respectively. Our procedure assumes the following preconditions on A, S and maintains them as an invariant for all derived configurations: 1. A \u222a S contains no terms of the form len(l) or code(l) for any string literal l. 2. For every string literal l \u2208 T (A \u222a S), the set S contains x \u2248 l for some variable x.",
+            "cite_spans": [
+                {
+                    "start": 468,
+                    "end": 472,
+                    "text": "[21]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 273,
+                    "end": 279,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "The above restrictions come with no loss of generality since terms of the form len(l) and code(l) can be replaced by an equivalent (constant) integer, and fresh variables can be introduced as necessary for the second requirement.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "We present the rules of the procedure in two parts, given in Figs. 2 and 3. The rules are given in guarded assignment form, where the top of the rule describes the conditions under which the rule can be applied, and the bottom of the rule either is unsat, or otherwise describes the resulting modifications to the components of our configuration. A rule may have multiple, alternative conclusions separated by . In the premises of the rules, we write S |= \u03d5 to denote that S entails formula \u03d5 in the empty theory. This can be checked using a standard algorithm for congruence closure, where string literals are treated as distinct values; thus S |= l 1 \u2248 l 2 for any S, l 1 = l 2 . Observe that, for f \u2208 {len, code},",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "An application of a rule is redundant if it has a conclusion where each component in the derived configuration is a subset of the corresponding component in the premise configuration. A configuration other than unsat is saturated if every possible application of a derivation rule to it is redundant. A derivation tree is a tree where each node is a configuration whose children, if any, are obtained by a non-redundant application of a rule of the calculus. A derivation tree is closed if all of its leaves are unsat. We show later that a closed derivation tree with root node A, S is a proof that A \u222a S is unsatisfiable in T AS . In contrast, a derivation tree with root node A, S and a saturated leaf is a witness that A \u222a S is satisfiable in T AS . Figure 2 presents rules adapted from previous work [21, 26] that model the interaction between the string and arithmetic subsolvers. First, either subsolver can report that the current set of constraints is unsatisfiable by the rules A-Conf or S-Conf. For the former, the entailment |= LIA can be checked by a standard procedure for linear integer arithmetic. The rules A-Prop and S-Prop correspond to a form of Nelson-Oppen-style theory combination between the two subsolvers. In particular, each theory solver propagates entailed equalities between terms of type Int. The next two rules ensure that length constraints are satisfied. In particular, L-Intro ensures that the length of a term x is equal to the length of string literals x is equated to in S. We write (len(l))\u2193 to denote the constant integer corresponding to the result of evaluating the expression len(l). The rule L-Valid has two conclusions. It ensures that either x is the empty string or the value assigned to len(x) is positive. Finally, since our alphabet is finite, the rule Card is used to determine when a length constraint is implied due to the number of distinct terms of a given length. In particular, if there are n distinct variables x 1 , . . . , x n whose length is the same, then either x i is equal to x j for some i = j, or their length must be large enough so that they each can be assigned a unique string value. The lower bound on their length is determined by taking the floor of the logarithm of n \u2212 1 base the cardinality of the alphabet, where this expression denotes an integer constant. 2 Figure 3 lists rules for reasoning about the code point function. In C-Intro, if a string variable x is equal to a string literal of length one, we add to S an equality between code(x) and the concrete value of the code point of l. An equality of this form is also added via the rule C-Collapse if a string term x is equated in S to a string literal and, in addition, code(x) occurs in S. Rule C-Valid splits on whether an instance of code(x) from S is equal to a valid code point. The left conclusion considers the case where the code point is \u22121, which means that x must have a length different from 1. The right conclusion considers the case where the code point is between 0 and |A| \u2212 1, meaning that x is a one-character string. Finally, rule C-Inj reflects the fact that code denotes an injective function over the domain of strings of length 1. More precisely, it captures the fact that for any pair of string values l x and l y for x and y respectively, one of the following (non-necessarily disjoint) cases always holds: (i) l x has a length different from 1, (ii) l x has length 1 and differs from l y , and has a different code point from that of l y , or (iii) l x and l y are the same.",
+            "cite_spans": [
+                {
+                    "start": 804,
+                    "end": 808,
+                    "text": "[21,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 809,
+                    "end": 812,
+                    "text": "26]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 753,
+                    "end": 761,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 2337,
+                    "end": 2345,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "We now demonstrate the procedure with a few simple examples. Recall that we assume a fixed alphabet A and write c n to denote a character from this alphabet whose code point is some n between 0 and the cardinality of A minus one.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": ", code(x) 0} and let S 0 be \u2205. We can generate the following closed derivation tree with root A 0 , S 0 . At each node, we list the new constraint that is added to the configuration at that node. All the leaf nodes are derived by A-Conf (not shown in the tree).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": ", we apply A-Prop which adds the equality code(x) \u2248 code(y) to S. Subsequently, since code(x), code(y) \u2208 T (S), we apply C-Inj which considers three cases. The first two branches result in the arithmetic component of our configuration A being unsatisfiable, and thus unsat may be derived by A-Conf. In the third branch, we consider the case where x is equal to y. We have that S entails that len(x) \u2248 len(y), and hence, by S-Prop, this equality is added to A. Since len(x) > len(y) is already in A, we can derive unsat in this branch by A-Conf as well. Since there is a closed derivation tree with root",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "We may obtain a derivation tree with root A 0 , S 0 and a saturated configuration A, S where A extends A 0 with the constraints:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "The constraints code(x) \u2248 code(y) and code(x) \u2248 code(z) may be obtained by C-Inj, and code(y) \u2248 97 and code(z) \u2248 106 may be obtained by C-Intro. Since a saturated configuration exists in a derivation tree with root node A 0 , S 0 , we have that A 0 \u222a S 0 is satisfiable in T AS . As we show in Theorem 1 (below), a model for A 0 \u222a S 0 can be obtained by constructing an arbitrary model for A \u222a S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "In particular, notice that due to our derived constraints, it must be the case that Instead, as we later describe in Definition 2, our procedure assigns a value to x based on the value that the arithmetic subsolver gives to code(x).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": ", len(x) < 1} and let S 0 be \u2205. We may obtain the following closed derivation tree with root A 0 , S 0 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "Since x is a string term from T (A \u222a S), we apply L-Valid. The left branch considers the case where x is empty. Since S |= x \u2248 , we apply C-Collapse which adds code(x) \u2248 code( )\u2193 = \u22121 to A. This makes A unsatisfiable, and we can derive unsat by A-Conf. In the right branch, we consider the case that len(x) > 0, which results in a case where A is unsatisfiable since",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "These constraints are obtained by considering the right branch of an application of C-Valid since code(x) \u2208 T (S) (after the trivial propagation",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "We now discuss the formal properties of our calculus, proving that it is refutationsound, model-sound, and terminating for any set of \u03a3 AS -constraints, and thus yields a decision procedure. We also show that, for any saturated configuration, it is possible to construct a model for the input constraints based on the procedure given in the following definition. In each step, we argue the well-formedness of this construction. In the subsequent theorem, we show that the constructed model indeed satisfies our input constraints. Notice that l is unique since S-Conf does not apply to our configuration.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Decision Procedure for String to Code Point Conversion"
+        },
+        {
+            "text": "(c) For all string equivalence classes e \u2208 S, such that Z(u len(z) ) = 1 and code(z) \u2208 T (S) for some z \u2208 e, we let M(y) = c k for each variable y \u2208 e, where k = Z(u code(z) ). Since C-Valid cannot be applied to our configuration, it must be the case that A contains the constraint 0 u code(z) < |A|. Since Z satisfies A , the value of Z(u code(z) ) is guaranteed to be a valid code point and thus c k is indeed a character in A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "(d) For all remaining unassigned string equivalence classes e \u2208 S, we have that len(z) \u2208 T (A) for all variables z \u2208 e, since L-Valid cannot be applied to our configuration. We choose some l of length Z(u len(z) ), such that l is not already assigned to any other string variable in M, and set M(y) = l for all variables y \u2208 e. Since our configuration is saturated with respect to Card, we know that at least one such string literal exists: if the set of string literals of length Z(u len(z) ) were each in the range of M, it would imply that there are |A| Z(u len(z) ) + 1 distinct terms whose length is Z(u len(z) ), in which case Card would require len(z) to be greater than the value of log |A| (|A| Z(u len(z) ) + 1 \u2212 1) = Z(u len(z) ). However, this is not the case since A is satisfiable in LIA. Proof. To show (1), assume there exists a model M of A 0 \u222a S 0 . It is straightforward to show that for every rule of the calculus, applying that rule to any node A, S results in a tree where at least one child A , S is such that M also satisfies A \u222a S . Thus, by induction on the size of the derivation tree, there exists at least one terminal node that is not closed. Thus, if there exists a closed derivation tree with root node A 0 , S 0 , then it must be the case that no model exists for",
+            "cite_spans": [
+                {
+                    "start": 381,
+                    "end": 386,
+                    "text": "Card,",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "To show (2), assume there exists a derivation tree with a saturated configuration A, S . Let M be the model constructed based on the procedure in Definition 2. Below, we argue that M is a model for A \u222a S, which is a superset of A 0 \u222a S 0 and thus satisfies M. Let U and Z respectively be the set of terms and model as computed in Step 1 of Definition 2. Below, we show that M is a model for each constraint in A \u222a S.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "\u2022 Consider the case x = u len(y) for some y, that is, x is a variable introduced in Step 1 of Definition 2 for an application of a length term. If y was assigned a value in Step 2(b) of Definition 2, then M(y) = l for some l such that S |= y \u2248 l. Since L-Intro cannot be applied to our configuration, we have that len(y) \u2248 (len(l))\u2193 \u2208 A, and hence Z(u len(y) ) = Z(len(l)\u2193) = M(len(y)). If y was assigned in Step 2(c) or 2(d), we have that M(y) = l for some l whose length is Z(u len(y) ), and hence Z(u len(y) ) = M(len(y)). \u2022 Consider the case x = u code(y) for some y. If y was assigned in Step 2(b) of Definition 2, then M(y) = l for some l such that S |= y \u2248 l. Since C-Collapse cannot be applied to our configuration, we have that code(y) \u2248 (code(l))\u2193 \u2208 A and hence Z(u code(y) ) = M(code(l)\u2193) = M(code(y)). If y was assigned in Step 2(c) or 2(d), we have that M(y) = l for some l whose length is Z(u len(y) ). If it was assigned in Step 2(c), we have that l = c k for k = Z(u code(y) ) and hence Z(u code(y) ) = M(code(y)). If y was assigned in",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "Step 2(d), we have that code(y) \u2208 T (S). Since y was not assigned in",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "Step 2(c), it must be the case that Z(u len(y) ) = 1. Since C-Valid cannot be applied, and since code(y) \u2208 T (S), we have, by its left conclusion, that len(y) \u2248 1 and code(y) \u2248 \u22121 are in A. Due to the former constraint, Z(u len(y) ) = 1 and the length of l is not one, and thus M(code(y)) = \u22121.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "Due to the latter constraint, Z(u code(y) ) = \u22121 as well. \u2022 For all other x : Int, we have that Z(x) = M(x) by Step 2(a) of Definition 2. In all cases above, we have shown that Z(x) = M(t) where t = x \u00b7 \u03c3. Since all free variables of A are of integer type and since Z is a model for A , we have that M satisfies A \u00b7 \u03c3 = A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "-To show M satisfies the equalities between terms of type Int in S, since our configuration is saturated with respect to S-Prop, equalities between integer terms are a subset of those in A, and since M satisfies A, it satisfies these equalities as well. Furthermore, S does not contain disequalities between terms of type Int by construction. -To show M satisfies the equalities between terms of type Str in S, notice that s \u2248 t \u2208 S implies that s and t reside in the same equivalence class of e \u2208 S. By construction of M every variable in e is assigned the same value and that value is the same value as the string literal in e if one exists. Thus M(s) = M(t) for all terms s, t of type Str that reside in the same equivalence class, and thus M satisfies s \u2248 t. -To show that M satisfies the disequalities s \u2248 t between terms of string type in S, it suffices to show that distinct values are assigned to variables in each distinct equivalence class of S. Moreover, by assumption of the configurations, each equivalence class of terms of type string has at least one variable in it. Let x and y be variables residing in two distinct equivalence classes of S, and without loss of generality, assume y was assigned after x in the construction of M. We show M(x) = M(y) in the following. If y was assigned in Step 2(d) of Definition 2, then the statement holds since by construction, its value was chosen to be distinct from the value of string variables in previous equivalence classes, including the one containing x. If both x and y were assigned in Step 2(b), the statement holds since S-Conf does not apply. Otherwise, y must have been assigned in Step 2(c) to a string literal of length one. If x was assigned in",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "Step 2(b) and S |= x \u2248 l for some string literal l not of length one, then x and y are assigned different values trivially. Otherwise, x is assigned (either by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "Step 2(b) or Step 2(c)) to a string of length one. Moreover, code(z) is a term in S for some z such that S |= x \u2248 z: if x was assigned in Step 2(b), since C-Intro cannot be applied we have code(x) \u2248 code(l)\u2193 \u2208 S; if x was assigned in Step 2(c) it holds by construction. Since C-Inj cannot be applied, either code(y) \u2248 \u22121 \u2208 A, code(z) \u2248 code(y) \u2208 A, or z \u2248 y \u2208 S. The first case cannot hold since M satisfies A, and thus M(code(y)) is not equal to \u22121. In the second case, since M satisfies A, we have that M(code(z)) = M(code(y)), and hence, since code is injective over the domain of strings of length one, Thus, M satisfies all constraints in A \u222a S and the part (2) of the theorem holds. To show (3), it is enough to show that only finitely many constraints can be generated by the rules of the calculus. Let T * be the (finite) set of terms that includes T (A 0 \u222a S 0 ) \u222a { , \u22121} and contains len(x) and code(x) for all variables x \u2208 T (A 0 \u222a S 0 ) of type Str, and (len(l))\u2193 and (code(l))\u2193 for all string literals l \u2208 T (A 0 \u222a S 0 ). Let A * be the set containing A 0 , equalities between terms from T * of type Int, literals of the form len(x) > 0, 0 code(x) < |A|, len(x) \u2248 1 for all variables x \u2208 T (A 0 \u222a S 0 ) of type Str, and inequalities of the form len(x) > log |A| (n \u2212 1) where n is any positive integer less than or equal to the number of terms of type Str in T (A 0 \u222a S 0 ). Let S * be the set containing S 0 and equalities between string terms from T * . Notice that both A * and S * are finite. By definition of the rules of our calculus, and by induction on the size of the derivation tree, one can show that all derived configurations A, S are such that A \u222a S is a subset of A * \u222a S * . Since no application of a derivation rule in a tree is redundant, each node in the derivation tree contains at least one more constraint from this set than its parent. Thus, the depth of any tree is bounded by the cardinality of A * \u222a S * , and the statement holds.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "An immediate consequence of Theorem 1 is that any strategy for applying the derivation rules in Figs. 2 and 3 is a decision procedure for \u03a3 AS -constraints. We stress that, thanks to the constructiveness of the proof of Part 2, the procedure can also compute a satisfying assignment for the free variables of M when it halts with a saturated configuration.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 96,
+                    "end": 109,
+                    "text": "Figs. 2 and 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Definition 2 (Model Construction"
+        },
+        {
+            "text": "The procedure in this section can be integrated into the DPLL(T ) solving architecture [24] used by modern SMT solvers such as cvc4. In the most basic version of this architecture, given an arbitrary quantifier-free \u03a3 AS -formula, an incremental propositional SAT solver first searches for a truth assignment for the literals of this formula that satisfies the formula at the propositional level. If none can be found, the input is declared unsatisfiable. Otherwise, the found assignment is given as a set of \u03a3 AS -literals to a theory solver that implements the calculus above. If the solver finds a saturated configuration, then the input is declared satisfiable. Otherwise, either a conflict clause or a lemma is asserted to the SAT solver in the form of additional T AS -valid constraints and the process restarts with the extended set of formulas.",
+            "cite_spans": [
+                {
+                    "start": 87,
+                    "end": 91,
+                    "text": "[24]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementation in an SMT Solver"
+        },
+        {
+            "text": "We have integrated the procedure in cvc4. cvc4's linear arithmetic subsolver acts as the arithmetic subsolver of our procedure and reports a conflict clause when the rule A-Conf is applied. Similarly, the string subsolver reports conflict clauses when S-Conf is applied. The rules A-Prop and S-Prop are implemented using the standard Nelson-Oppen theory combination mechanism. Rules with multiple conclusions are implemented via the splitting-on-demand paradigm [10] , where the conclusions of the rule are sent as a disjunctive lemma to the SAT solver. The remaining rules are implemented using a solver whose core data structure implements congruence closure, where additional (dis)equalities are added to this structure based on the specific rules of the calculus.",
+            "cite_spans": [
+                {
+                    "start": 462,
+                    "end": 466,
+                    "text": "[10]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementation in an SMT Solver"
+        },
+        {
+            "text": "We remark that the procedure presented in this section can be naturally combined with procedures for other kinds of string constraints. While the rules we presented had premises of the form S |= s \u2248 t denoting entailment in the empty theory, the procedure can be applied in the same manner for premises S |= TS s \u2248 t for any extension T S of the core theory of strings. In practice, our theory solver interleaves reasoning about code points with reasoning about other string operators, e.g., string concatenation and regular expressions operators, via the procedure by Liang et al. [21] .",
+            "cite_spans": [
+                {
+                    "start": 582,
+                    "end": 586,
+                    "text": "[21]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementation in an SMT Solver"
+        },
+        {
+            "text": "The derivation rules of the calculus are applied with consideration to combinations with the other subsolvers of cvc4. For the rules in Fig. 2 , we follow the strategy used by Liang et al., which applies L-Intro and L-Valid eagerly and Card only after a configuration is saturated with respect to all other rules. Moreover, since Card is very expensive, we split on equalities between string terms (x 1 , . . . , x n in the premise of this rule) if some x i , x j such that neither x i \u2248 x j or x i \u2248 x j is in our current set of assertions. Among the rules in Fig. 3 , C-Valid and C-Collapse are applied eagerly, the former when a term code(x) is registered with the string subsolver, and the latter as soon as our congruence closure procedure puts that term in the same equivalence class as a string literal. Rules C-Intro and C-Inj are applied lazily, only after the arithmetic subsolver determines A is satisfiable in LIA and the string subsolver is finished computing the set of equalities that are entailed by S.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 136,
+                    "end": 142,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 561,
+                    "end": 567,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Implementation in an SMT Solver"
+        },
+        {
+            "text": "In this section, we describe how a number of common string functions can be implemented efficiently using reductions involving the code function. Previous work has focused on efficient techniques for handling extended string functions, which include operators like substring (substr) and string replace (replace), among others [26] . Here we consider the alphabet A to be the set of all Unicode characters and interpret code as mapping one-character strings to the character's Unicode code point.",
+            "cite_spans": [
+                {
+                    "start": 327,
+                    "end": 331,
+                    "text": "[26]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "A few commonly used extended functions are listed in Fig. 4 . In the following, we say a string l is numeric if it is non-empty, all of its characters are in the range \"0\" . . . \"9\", and it its has no leading zeroes, that is, it starts with \"0\" only if it has length 1. 4 At a high level, the semantics of the operators in Fig. 4 is the following. First, substr(x, n, m) is interpreted as the maximal substring of x starting at position n with length at most m, or the empty string if n is outside the interval [0, |x| \u2212 1] or m is negative; to int(x) is the non-negative integer represented by x in decimal notation if x is numeric, and is \u22121 otherwise; from int(n) is the result of converting the value of n to its decimal notation if n is non-negative, and is otherwise; x y holds if x is equal to y or precedes it lexicographically, that is, in the lexicographic extension of the character ordering < introduced in Definition 1; to upper(x) maps each lower case letter character from the Basic Latin Unicode block (code points 97 to 122) in x to its uppercase version and all the other characters to themselves. The inverse function to lower(x) is similar except that it maps upper case letters (code points 65 to 90) to their lower case version.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 53,
+                    "end": 59,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF7"
+                },
+                {
+                    "start": 323,
+                    "end": 329,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF7"
+                },
+                {
+                    "start": 348,
+                    "end": 370,
+                    "text": "First, substr(x, n, m)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Applications"
+        },
+        {
+            "text": "Note that our restriction to the Latin alphabet to upper(x) and to lower is only for simplicity since case conversions for the entire Unicode alphabet depend on the locale and follow complex rules. However, our definition and reduction can be extended as needed depending on the application.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "Generally speaking, current string solvers handle the additional functions above using lazy reductions to a core language of string constraints. We say \u03c1 is a reduction predicate for an extended function f if \u03c1 does not contain f and is equivalent to \u03bbx, y. f(x) \u2248 y where x, y consist of distinct variables. All applications of f can be eliminated from a quantifier-free formula \u03d5 by replacing their occurrences with fresh variables y and conjoining \u03d5 with the appropriate applications of the reduction predicate. Reduction predicates are chosen so that their dependencies are not circular (for instance, we do not use reduction predicates for two functions that each introduce applications of the other). In practice, reduction predicates often may contain universally quantified formulas over (finite) integer ranges, which can be handled via a finite model finding strategy that incrementally sets upper bounds on the lengths of strings [26] . These reductions often generate constraints that are both large and hard to reason about. Further-more, the reduction of certain extended functions cannot be expressed concisely. For example, a reduction for the to upper(s) function naively requires splitting on 26 cases to ensure that \"a\" is converted to \"A\", \"b\" to \"B\", and so on, for each character in s. As part of this work, we have revisited these reductions and incorporated the use of code. The new reduction predicates are more concise and lead to significant performance gains in practice as we demonstrate in Sect. 5.",
+            "cite_spans": [
+                {
+                    "start": 941,
+                    "end": 945,
+                    "text": "[26]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "Conversions to Lower/Upper Case. The equality to lower(s) \u2248 r is equivalent to:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "where r i is substr(r, i, 1), s i is substr(s, i, 1) and ite is the if-then-else operator. Intuitively, the formula above states that the result of to upper(s) is a string r of the same length as s such that for all positions i in s, the character at that position has a code point that is 32 less than the character at the same position in s if that character is a lowercase character; otherwise it has the same code point. Similarly, the equality to lower(s) \u2248 r is equivalent to:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "More generally, the code operator allows us to concisely encode many common string transducers, which have been studied in a number of recent works [6, 19, 22] .",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 151,
+                    "text": "[6,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 152,
+                    "end": 155,
+                    "text": "19,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 156,
+                    "end": 159,
+                    "text": "22]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "String to Integer Conversion. The equality to int(s) \u2248 r is equivalent to:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "where sti s is an (uninterpreted) function of type Int \u2192 Int, \u03d5 is num s is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "s i is substr(s, i, 1), and \u03d5 sti s is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "In the above reduction, the formula \u03d5 is num s states that s is numeric. It must be non-empty, and each of its characters must have a code point in the interval [48, 57] , which corresponds to the characters for digits \"0\" through \"9\". The term ite(len(s) > 1 \u2227 i \u2248 0, 49, 48) insists that the code point of the first index of s be at least 49 to exclude the possibility that its first character is \"0\" if the string has length greater than 1.",
+            "cite_spans": [
+                {
+                    "start": 161,
+                    "end": 165,
+                    "text": "[48,",
+                    "ref_id": null
+                },
+                {
+                    "start": 166,
+                    "end": 169,
+                    "text": "57]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "For a numeric string s, the formula \u03d5 sti s ensures that for each non-zero position i in s, the value of sti s (i) is the result of converting the first i characters in s to the integer it denotes. The definition of \u03d5 sti s first constrains that sti s (0) is zero. Then, for each i 0, the value of sti s (i + 1) is determined by shifting the previously considered characters to the left by a digits place (10 * sti s (i)) and adding the integer interpretation of the current character (code(s i ) \u2212 48). In the end, the above formula ensures that the value of sti s (len(s)) is equivalent to the overall value of to int(s), which is constrained to be equal to the result r in the above reduction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "Given these definitions, it is straightforward to define the opposite reduction from integers to strings. The equality from int(n) \u2248 r is equivalent to the following:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "(n < 0 \u21d2 r \u2248 ) \u2227 (n 0 \u21d2 (\u03d5 is num r \u2227 n \u2248 sti r (len(r)))) \u2227 \u03d5 sti r By definition, from int maps negative integers to the empty string. For nonnegative integers, the above reduction states that the result of converting integer n to a string is a string r that is a string representation of an integer (due to \u03d5 is num r ), and moreover is such that sti r for this string results in n. We additionally insist that the formula constraining the semantics of this conversion (\u03d5 sti r ) holds. In practice, these reductions are implemented by introducing a fresh uninterpreted function of type Int \u21d2 Int to represent sti s for each string s. The functions above are introduced during solving as needed for strings that occur as arguments to to int or those that represent the result of from int according to the above reduction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "Lexicographic Ordering. The (Boolean) equality (x y) \u2248 r is equivalent to:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "where x k is substr(x, k, 1), y k is substr(y, k, 1), and \u03d5 diff k,x,y is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "Above, \u03d5 diff k,x,y states that x and y are different and k is the first position at which they differ. If x is a prefix of y or vice versa, then k is the length of the shorter of the two.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "The reduction above considers two cases. First, if x and y are the same string, then x y is trivially true. If x and y are different, then they must differ at some smallest position k. The value of r is equivalent to the comparison of code(x k ) and code(y k ). This definition correctly handles cases when k refers to the end position of x or y. If x is a strict prefix of y, k must be len(x), x k is the empty string and hence code(x k ) must be \u22121. In this case, r must be true since y k is non-empty and hence the value of code(y k ) is non-negative; indeed x y is true when x is a prefix of y. Similarly, r must be false if y is a strict prefix of x; indeed x y is false when y is a strict prefix of x.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications"
+        },
+        {
+            "text": "In practice, the theory of strings is often extended with memberships constraints of the form x \u2208 R, where \u2208 is an infix binary predicate whose first argument is a string and whose second argument R is a regular expression denoting a sublanguage L(R) of A * . This constraint holds if x is a member of L(R).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regular Expression Ranges."
+        },
+        {
+            "text": "The code operator can be used for regular expressions that occur often in applications. In particular, the constraint x \u2208 range(c m , c n ), where m n and c i is is singleton string constant with code point i, states that x consists of one character whose code point is in the interval [m, n] . This is equivalent to n code(x) \u2227 code(x) m. Our implementation of regular expressions in cvc4 utilizes this as a rewrite rule on membership constraints since it can eliminate the expensive computation of certain regular expression intersections. For example, consider the following equivalent formulas:",
+            "cite_spans": [
+                {
+                    "start": 286,
+                    "end": 292,
+                    "text": "[m, n]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Regular Expression Ranges."
+        },
+        {
+            "text": "x \u2208 range(\"A\", \"M\") \u2227 x \u2208 range(\"J\", \"Z\")",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regular Expression Ranges."
+        },
+        {
+            "text": "(1)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regular Expression Ranges."
+        },
+        {
+            "text": "A naive approach to regular expression solving may compute the intersection of the two regular expressions above by explicitly splitting on characters in the ranges of (1). Our approach instead reasons about the arithmetic constraints in (2) and infers the constraint 74 code(x) 77 without expensive case splits. If the latter constraint persists in a saturated configuration, our procedure will then assign x a character in range(\"J\", \"M\").",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regular Expression Ranges."
+        },
+        {
+            "text": "In this section, we evaluate whether our approach is practical and whether code can enable more efficient implementations of common string functions. 5 As outlined in Sect. 3.1, we have implemented our approach in cvc4, which has a stateof-the-art subsolver for the theory of strings with length and regular expressions. We evaluated it on 21,573 benchmarks [1] originating from the concolic execution of Python code involving int() using Py-Conbyte [8, 32] . The benchmarks make extensive use of to int, from int and regular expression ranges. They are divided into four sets, one for each solver used to generate the benchmarks (cvc4, Trau [3] , z3 [16] , and z3str3).",
+            "cite_spans": [
+                {
+                    "start": 150,
+                    "end": 151,
+                    "text": "5",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 358,
+                    "end": 361,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 450,
+                    "end": 453,
+                    "text": "[8,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 454,
+                    "end": 457,
+                    "text": "32]",
+                    "ref_id": null
+                },
+                {
+                    "start": 642,
+                    "end": 645,
+                    "text": "[3]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 651,
+                    "end": 655,
+                    "text": "[16]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Evaluation"
+        },
+        {
+            "text": "We compare two configurations of cvc4 to show the impact of our approach: A configuration (cvc4+c) that uses the reductions from Sect. 4 and a configuration (cvc4) that disables all code-derivations and uses reductions without code. For regular expression ranges, cvc4 disables the rewrite to inequalities involving code and uses its regular expression solver to process them. The reductions in cvc4 use nested ite terms of the form ite(c = \"9\", 9, ite(c = \"8\", 8, . . .)), i.e., do case splitting on the 10 concrete string values that correspond to valid digits, instead of the code operator but keep the reductions the same otherwise. As a point of reference, we also compare against z3 version 4.8.7, another state-of-theart string solver. We omit a comparison against z3str3 4.8.7 and z3-Trau We ran our experiments on a cluster with Intel Xeon E5-2637 v4 CPUs running Ubuntu 16.04 and allocated one CPU core, 8 GB of RAM, and 300 s for each job. Figure 5 summarizes the results of our experiments. The table lists the number of satisfiable and unsatisfiable answers as well as timeouts/memouts (\u00d7). z3 ran out of memory on a benchmark but had no other memouts. The figure shows two scatter plots comparing the performance of cvc4+c and cvc4 and comparing cvc4+c and z3. Configuration cvc4 solves more unsatisfiable benchmarks than z3 and fewer satisfiable ones, which suggests that cvc4 is a reasonable baseline. Our new approach performs significantly better than both cvc4 and z3. Compared to cvc4, configuration cvc4+c times out on an order of magnitude fewer benchmarks (64 versus 788) and also improves performance on commonly solved benchmarks, as the scatter plot indicates. While cvc4 performs worse than z3 on satisfiable benchmarks, cvc4+c performs significantly better than both on those benchmarks. The scatter plot indicates that z3 manages to solve a subset of the benchmarks quickly. However, when z3 is not able to solve a bench-mark quickly, it is unlikely that it solves it within our timeout. This results in cvc4+c having significantly fewer timeouts overall. The results indicate that our new approach is practical and capable of improving the performance of state-ofthe-art solvers by enabling more efficient encodings.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 951,
+                    "end": 959,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF8"
+                }
+            ],
+            "section": "Evaluation"
+        },
+        {
+            "text": "We have presented a decision procedure for a fragment of strings that includes a string to code point conversion function. We have shown that models can be generated for satisfiable inputs, and that existing techniques for handling strings in SMT solvers can be extended with this procedure. Due to its use for encoding extended string functions, our implementation in cvc4 significantly improves on the state of the art for benchmarks involving string-to-integer conversions and regular expression ranges.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "In future work, we plan to extend cvc4 to solve new constraints of interest to user applications. This includes instrumenting our string solver to be capable of generating proofs based on the procedure described in this paper. Further directions such as configuring the solver to generate interpolants for constraints in the theory of strings combined with linear arithmetic could also be explored. Finally we conjecture that efficient support for reasoning about string-to-code conversions can be leveraged for further extensions, such as handling user-defined string transducers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "str int benchmarks",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Flatten and conquer: a framework for efficient analysis of string constraints",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Abdulla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Cohen and Vechev",
+            "volume": "15",
+            "issn": "",
+            "pages": "602--617",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "String constraints for verification",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Abdulla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Biere and Bloem",
+            "volume": "12",
+            "issn": "",
+            "pages": "150--166",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Norn: an SMT solver for string constraints",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Abdulla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "CAV 2015",
+            "volume": "9206",
+            "issn": "",
+            "pages": "462--469",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-21690-4_29"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Chain-free string constraints",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Abdulla",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Atig",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Diep",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Hol\u00edk",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Jank\u016f",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ATVA 2019",
+            "volume": "11781",
+            "issn": "",
+            "pages": "277--293",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-31784-3_16"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Semantic-based automated reasoning for AWS access policies using SMT",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Backes",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Formal Methods in Computer Aided Design",
+            "volume": "",
+            "issn": "",
+            "pages": "1--9",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Deconstructing dynamic symbolic execution",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Ball",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Daniel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "NATO Science for Peace and Security Series, D: Information and Communication Security",
+            "volume": "",
+            "issn": "",
+            "pages": "26--41",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "CAV 2011",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "6806",
+            "issn": "",
+            "pages": "171--177",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-22110-1_14"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Splitting on demand in SAT modulo theories",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Nieuwenhuis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Oliveras",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "LPAR 2006",
+            "volume": "4246",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11916277_35"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Z3str3: a string solver with theory-aware heuristics",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Berzish",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Ganesh",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "55--59",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "CAV 2014",
+            "authors": [],
+            "year": 2014,
+            "venue": "",
+            "volume": "8559",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-08867-9"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Path feasibility analysis for stringmanipulating programs",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bj\u00f8rner",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tillmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Voronkov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "TACAS 2009",
+            "volume": "5505",
+            "issn": "",
+            "pages": "307--321",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-00768-2_27"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Definability in the existential theory of concatenation and undecidable extensions of this theory",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "B\u00fcchi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Senger",
+                    "suffix": ""
+                }
+            ],
+            "year": 1988,
+            "venue": "Math. Log. Q",
+            "volume": "34",
+            "issn": "4",
+            "pages": "337--342",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation",
+            "authors": [],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "18--23",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Z3: an efficient SMT solver",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "De Moura",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bj\u00f8rner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "TACAS 2008",
+            "volume": "4963",
+            "issn": "",
+            "pages": "337--340",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-78800-3_24"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "A mathematical Introduction to Logic",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Enderton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Undecidability of a theory of strings, linear arithmetic over length, and string-number conversion",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Ganesh",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Berzish",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Automatic program inversion using symbolic transducers",
+            "authors": [
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "D&apos;antoni",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Cohen and Vechev",
+            "volume": "15",
+            "issn": "",
+            "pages": "376--389",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "HAMPI: a solver for word equations over strings, regular expressions, and context-free grammars",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kiezun",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Ganesh",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Artzi",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Guo",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Hooimeijer",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Ernst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "ACM Trans. Softw. Eng. Methodol",
+            "volume": "21",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "A DPLL(T) theory solver for a theory of strings and regular expressions",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Reynolds",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Deters",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Biere and Bloem",
+            "volume": "12",
+            "issn": "",
+            "pages": "646--662",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "String solving with word equations and transducers: towards a logic for analysing mutation XSS",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Barcel\u00f3",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the 43rd Annual ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages",
+            "volume": "",
+            "issn": "",
+            "pages": "123--136",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "The problem of solvability of equations in a free semigroup",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Makanin",
+                    "suffix": ""
+                }
+            ],
+            "year": 1977,
+            "venue": "Matematicheskii Sbornik",
+            "volume": "145",
+            "issn": "2",
+            "pages": "147--236",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Solving SAT and SAT modulo theories: from an abstract Davis-Putnam-Logemann-Loveland Procedure to DPLL(T)",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Nieuwenhuis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Oliveras",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J. ACM",
+            "volume": "53",
+            "issn": "6",
+            "pages": "937--977",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Concatenation as a basis for arithmetic",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "V O"
+                    ],
+                    "last": "Quine",
+                    "suffix": ""
+                }
+            ],
+            "year": 1946,
+            "venue": "J. Symb. Log",
+            "volume": "11",
+            "issn": "4",
+            "pages": "105--114",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Scaling up DPLL(T) string solvers using context-dependent simplification",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Reynolds",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Woo",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Barrett",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Brumley",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Liang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tinelli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "CAV 2017",
+            "volume": "10427",
+            "issn": "",
+            "pages": "453--474",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-63390-9_24"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "A symbolic execution framework for Javascript",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Saxena",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Akhawe",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hanna",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mao",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mccamant",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "31st IEEE Symposium on Security and Privacy",
+            "volume": "2010",
+            "issn": "",
+            "pages": "513--528",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "The Unicode Consortium. The Unicode Standard",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "S3: a symbolic string solver for vulnerability detection in web applications",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Trinh",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Chu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Jaffar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Proceedings of the",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "ACM SIGSAC Conference on Computer and Communications Security",
+            "authors": [],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "1232--1243",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Qex: symbolic SQL query explorer",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Veanes",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tillmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "De Halleux",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "LPAR 2010",
+            "volume": "6355",
+            "issn": "",
+            "pages": "425--446",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-17511-4_24"
+                ]
+            }
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Stranger: an automata-based string analysis tool for PHP",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Alkhalaf",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Bultan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "TACAS 2010",
+            "volume": "6015",
+            "issn": "",
+            "pages": "154--157",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-12002-2_13"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Functions in signature \u03a3 AS . Str and Int denote strings and integers, respectively.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Core derivation rules.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Code point derivation rules.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "code(x) is assigned a value in the range [98 . . . 105]. Indeed, a model M exists for A 0 \u222a S 0 , where M(x) = c k , M(y) = c 97 , and M(z) = c 106 , for any k in the range [98 . . . 105]. Note that we do not explicitly case split on the value of x.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Construct M by assigning values to the variables in A \u222a S in the following order. Below, let S denote the congruence closure of S. 3 (a) For all integer variables x, set M(x) = Z(x). (b) For all string equivalence classes e \u2208 S that contain a string constant l (including the case where l = ), set M(y) = l for all variables y \u2208 e.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Let M = A 0 \u222a S 0 be a set of \u03a3 AS -constraints where A 0 are arithmetic constraints and S 0 are non-arithmetic constraints. The following statements hold.1. There is a closed derivation tree with rootA 0 , S 0 only if M is unsatisfiable in T AS . 2.There is a derivation tree with root A 0 , S 0 containing a saturated configuration only if M is satisfiable in T AS . 3. All derivation trees with root A 0 , S 0 are finite.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "we have that M(z) = M(y). Since M(z) = M(x), it then follows that M(x) = M(y). The third case cannot hold since z and y are in distinct equivalence classes. Thus, variables in distinct equivalence classes are assigned distinct values. All disequalities s \u2248 t \u2208 S are such that s and t are in different equivalence classes since S-Conf cannot be applied. Thus, M satisfies s \u2248 t.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "A sample of the extended string functions.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Number of solved problems per benchmark set and scatter plots comparing the different solvers and configurations on a log-log scale. Best results are in bold. All benchmarks ran with a timeout of 300 s.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "). Let A, S be a saturated configuration. Construct a model M for A \u222a S based on the following steps. 1. Let U be the set of terms of the form len(x) or code(x) that occur in A. Let Z be a model of A , where A is the result of replacing in A each of its subterms t \u2208 U with a fresh integer variable u t . Notice that Z exists, since A-Conf does not apply to our configuration, meaning that A (and hence A ) is satisfiable in LIA.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "1.0 [2] (the new version of Trau) because our experiments have shown that the current versions are unsound. 6",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

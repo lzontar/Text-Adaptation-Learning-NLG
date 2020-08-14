@@ -1,0 +1,1534 @@
+{
+    "paper_id": "1acd23a75fa9ba49857160774a45554e1f84551f",
+    "metadata": {
+        "title": "ON THE MINIMIZATION OF SOBOLEV NORMS OF TIME-VARYING GRAPH SIGNALS: ESTIMATION OF NEW CORONAVIRUS DISEASE 2019 CASES",
+        "authors": [
+            {
+                "first": "Jhony",
+                "middle": [
+                    "H"
+                ],
+                "last": "Giraldo",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Laboratoire MIA",
+                    "institution": "La Rochelle Universit",
+                    "location": {
+                        "country": "France"
+                    }
+                },
+                "email": "jgiral01@univ-lr.fr"
+            },
+            {
+                "first": "Thierry",
+                "middle": [],
+                "last": "Bouwmans",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Laboratoire MIA",
+                    "institution": "La Rochelle Universit",
+                    "location": {
+                        "country": "France"
+                    }
+                },
+                "email": "tbouwman@univ-lr.fr"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The mathematical modeling of infectious diseases is a fundamental research field for the planning of strategies to contain outbreaks. The models associated with this field of study usually have exponential prior assumptions in the number of new cases, while the exploration of spatial data has been little analyzed in these models. In this paper, we model the number of new cases of the Coronavirus Disease 2019 (COVID-19) as a problem of reconstruction of time-varying graph signals. To this end, we proposed a new method based on the minimization of the Sobolev norm in graph signal processing. Our method outperforms state-of-the-art algorithms in two COVID-19 databases provided by Johns Hopkins University. In the same way, we prove the benefits of the convergence rate of the Sobolev reconstruction method by relying on the condition number of the Hessian associated with the underlying optimization problem of our method.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The Coronavirus Disease 2019 (COVID- 19) brought an unprecedented sanitarian crisis around the world in 2020 [1] with a pandemic. Several developed countries such as the United States of America (USA), Italy, Spain, France, the United Kingdom, among others, have had problems trying to contain the outbreak. The capacity of some countries to detect new cases has been overwhelmed by the exponential number of cases, leading to a poor and unreliable estimation of the number of new cases. As a matter of fact, Colombia slowed down the testing of suspected new cases of COVID-19 between March 25th and 27th in 2020 because of a failure in an essential machine for the COVID-19 diagnosis.",
+            "cite_spans": [
+                {
+                    "start": 37,
+                    "end": 40,
+                    "text": "19)",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 109,
+                    "end": 112,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "The mathematical modeling of infectious diseases is an old and well-established research field [2, 3] , these infectious models are either stochastic or deterministic and use basic assumptions. Specifically in COVID-19, Wang et al. [4] used a Susceptible, Exposed, Infectious, and Removed (SEIR) model to estimate the epidemic trend in Wuhan, China. How-ever, this model does not take into account the underlying spatial information of the problem, i.e., the model does not associate the number of new cases in nearby localities. In the same way, not all countries are able to effectively sample the number of infected people in their population.",
+            "cite_spans": [
+                {
+                    "start": 95,
+                    "end": 98,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 99,
+                    "end": 101,
+                    "text": "3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 232,
+                    "end": 235,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "In this work, we model the number of new COVID-19 cases as a reconstruction of time-varying graph signals [5] [6] [7] . Our algorithm associates a graph to the geographical localization of cities or countries, and the number of new COVID-19 cases is represented by a graph signal that evolves in time [8] [9] [10] . Intuitively, the prior assumption of this work is that the number of new COVID-19 cases is smooth both in the graph and in time, i.e., the number of new COVID-19 cases should be similar in nearby localities, and the change in time is progressive. Unlike previous mathematical models of infectious diseases, this paper takes into account the underlying spatial information of the problem. In the same way, we propose a new time-varying graph signals reconstruction algorithm based on the minimization of the Sobolev norm of Graph Signal Processing (GSP) [11] . Our method outperforms state-of-the-art algorithms in time-varying graph signals, while showing convergence rate benefits based on the Hessian of the underlying problem. The main contributions of this paper are summarized as follows:",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 109,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 110,
+                    "end": 113,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 114,
+                    "end": 117,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 301,
+                    "end": 304,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 305,
+                    "end": 308,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 309,
+                    "end": 313,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 869,
+                    "end": 873,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "\u2022 To the best of our knowledge, concepts of GSP are introduced for the first time in the domain of infectious diseases modeling. \u2022 A new algorithm based on the minimization of the Sobolev norm is introduced in the problem of timevarying graph signals reconstruction. \u2022 We show the convergence rate benefits on the minimization of the Sobolev norm for the reconstruction of time-varying graph signals.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "The rest of the paper is organized as follows. Section 2 explains the basic concepts and the proposed method. Section 3 introduces the experimental framework. Finally, Sections 4 and 5 present the results and conclusions, respectively. Graph with the regions in the world with confirmed cases of COVID-19 by April 6, 2020. This graph was constructed with k-nearest neighbors with k = 5.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "This section presents the mathematical notation, basic concepts of this paper, as well as the proposed Sobolev norm reconstruction algorithm. Figure 1 shows a graph with the regions in the world with confirmed cases of COVID-19 by April 6, 2020.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 142,
+                    "end": 150,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "TIME-VARYING GRAPH SIGNALS RECONSTRUCTION"
+        },
+        {
+            "text": "In this paper, uppercase boldface letters such as X represent matrices, and lowercase boldface letters such as x denote vectors. Calligraphic letters such as E represent sets. The Hadamard and Kronecker products between matrices are denoted by \u2022 and \u2297, respectively. (\u00b7) T denotes transposition. The vectorization of a matrix A is denoted as vec (A), while diag(x) is a diagonal matrix with entries x 1 , x 2 , . . . , x n . The trace and Frobenius norm of a matrix are represented by tr(\u00b7) and \u00b7 F , respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Notation"
+        },
+        {
+            "text": "Let G = (V, E) be a graph with V = {1, . . . , N } the set of N nodes. E = {(i, j)} represents the set of edges, where (i, j) is an edge between the nodes i and j. W \u2208 R N \u00d7N is the weighted adjacency matrix of G, with W(i, j) > 0 \u21d4 {i, j} \u2208 E. This paper is focused in undirected graphs, then W is symmetric, i.e., the edges (i, j) and (j, i) have the same weight. D \u2208 R N \u00d7N is a diagonal matrix such that D(i, i) = N j=1 W(i, j) \u2200 i = 1, . . . , N . Furthermore, L = D \u2212 W is the positive semi-definite combinatorial Laplacian operator of G, with eigenvalues 0 = \u03bb 1 \u2264 \u03bb 2 \u2264 \u00b7 \u00b7 \u00b7 \u2264 \u03bb N and corresponding eigenvectors {u 1 , u 2 , . . . , u N }. And finally, a graph signal is a function in V such that x : V \u2192 R, and it can be represented as a vector x \u2208 R N where x(i) is the value of the function in the node i \u2208 V.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "The sampling and reconstruction of graph signals play a central role in GSP [12] [13] [14] [15] . Several algorithms for sampling and recovery assume that the graph signal is smooth in the graph. One well-known measure of smoothness in G is the graph Laplacian quadratic form defined as S 2 (x) = x T Lx. For example in reconstruction, Puy et al. [16] used this Laplacian quadratic form as a regularization term in the formulation of their optimization problem. However, the graph Laplacian quadratic form S 2 (x) is limited to static graph signals in G. Qiu et al. [10] extended the definition of S 2 to time-varying graph signals. Let X = [x 1 , x 2 , . . . , x M ] be a time-varying graph signal, where x t is a graph signal in G at time t. The smoothness of time-varying graph signals X is such that [10] :",
+            "cite_spans": [
+                {
+                    "start": 76,
+                    "end": 80,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 81,
+                    "end": 85,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 86,
+                    "end": 90,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 91,
+                    "end": 95,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 347,
+                    "end": 351,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 566,
+                    "end": 570,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 804,
+                    "end": 808,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "Equation (1) sums all the Laplacian quadratic form for each 1 < t < M , i.e., there is not a temporal relationship between graph signals in different times t.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "Qiu et al. [10] introduced the temporal difference operator D h \u2208 R M \u00d7(M \u22121) with the purpose of including temporal information in the problem of time-varying graph signal reconstruction such that:",
+            "cite_spans": [
+                {
+                    "start": 11,
+                    "end": 15,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "and the temporal difference signal as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "Qiu et al. [10] also proposed two time-varying graph signal reconstruction batch methods. The first method is focused in the noiseless case, while the second method approaches the noisy case. In this paper we focus in the noisy case defined as follows:",
+            "cite_spans": [
+                {
+                    "start": 11,
+                    "end": 15,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "where J \u2208 {0, 1} N \u00d7M is the sampling matrix for the whole time-varying graph signal, and Y \u2208 R N \u00d7M is the matrix of observed values (the data that we know). J is defined as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "where S t is the set of sampled nodes at time t. Basically, Eqn.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "(4) is trying to reconstruct a time-varying graph signalX with a small error J\u2022X\u2212Y 2 F while minimizing the smoothness of the temporal difference graph signal.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Background"
+        },
+        {
+            "text": "Let M \u2208 R N \u00d72 be the matrix of locations of all nodes in V such that M = [m 1 , . . . , m N ] T , where m i \u2208 R 2 is the vector with latitude and longitude of node i. A k-nearest neighbors algorithm with k = 10 is used to connect the nodes in the graph for the experiments in this paper. The weight of",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Graph Construction"
+        },
+        {
+            "text": "is the euclidean distance between nodes (i, j), and \u03c3 2 is the standard deviation of the Gaussian function computed as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Graph Construction"
+        },
+        {
+            "text": "In this paper, we propose a new time-varying graph signals reconstruction algorithm inspired by the minimization of the Sobolev norm in GSP. The definition of this norm was given by Pesenson et al. [11] , who used the Sobolev norm to introduce the variational problem in graphs.",
+            "cite_spans": [
+                {
+                    "start": 198,
+                    "end": 202,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "Definition 1 For a fixed \u2265 0, the Sobolev norm is defined as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "When L is symmetric, Eqn. (7) can be rewritten as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "Giraldo and Bouwmans [17] found that the term (L + I) in the Sobolev norm in Eqn. (7) has a better condition number than L, they used the following theorems:",
+            "cite_spans": [
+                {
+                    "start": 21,
+                    "end": 25,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "Theorem 1 Let \u03a8 \u2208 R N \u00d7N be a perturbation matrix. Given a combinatorial Laplacian matrix L, the term L + \u03a8 has a lower and upper bound in the condition number such that:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "where \u03ba(L + \u03a8) is the condition number of L + \u03a8. Proof: see [17] . ",
+            "cite_spans": [
+                {
+                    "start": 60,
+                    "end": 64,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "Proof: see [18] .",
+            "cite_spans": [
+                {
+                    "start": 11,
+                    "end": 15,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "From Theorem 1, we can notice that the condition number of (L + I) is lower bounded by \u03c3 max (L + I)/ , i.e., greater values of could end up in better condition numbers. In the same way, we have that \u03ba(L + I) < \u221e since \u03c3 min (L + \u03a8) is strictly greater than zero according to Theorem 2, while \u03ba(L) = \u221e because the first eigenvalue of L is zero, i.e., we are improving the condition number of L when adding the perturbation matrix I. In this paper, we use this fact to show that the convergence rate of the Sobolev norm is better than the graph Laplacian quadratic form when solving with gradient descent. Firstly, we need to extend the definition of the Sobolev norm to time-varying graph signals as follows (given that L is a symmetric matrix):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "The Sobolev reconstruction problem for time-varying graph signals is formulated as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "where we used the temporal difference operator in Eqn. (2) , and the Sobolev norm of time-varying graph signals in Eqn. (11) . Equation (12) is solved with conjugate gradient method in this paper.",
+            "cite_spans": [
+                {
+                    "start": 55,
+                    "end": 58,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 120,
+                    "end": 124,
+                    "text": "(11)",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Sobolev Norm Reconstruction of Time-Varying Graph Signals"
+        },
+        {
+            "text": "The rate of convergence of the Sobolev norm reconstruction in Eqn. (12) is better than the rate of convergence of the method involving the graph Laplacian quadratic form in Eqn. (4) . Intuitively, we are improving the condition number of the Sobolev norm with respect to the Laplacian quadratic form as shown in Section 2.4. As a consequence, one can expect that the Sobolev reconstruction problem is better conditioned, and then a gradient descent method can arrive faster to the global minimum (when the optimization problem is convex).",
+            "cite_spans": [
+                {
+                    "start": 67,
+                    "end": 71,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 178,
+                    "end": 181,
+                    "text": "(4)",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "Formally, the rate of convergence of a gradient descent method is at best linear. This rate can be accelerated if the condition number of the Hessian of the cost function is reduced [19] . Qiu et al. [10] showed that the problem in Eqn. (4) can be rewritten as follows:",
+            "cite_spans": [
+                {
+                    "start": 182,
+                    "end": 186,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 200,
+                    "end": 204,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "where Q = diag(vec (J)) \u2208 R M N \u00d7M N , and z = vec (X). In the same way, the Hessian matrix of f (z) in Eqn. (13) is such that:",
+            "cite_spans": [
+                {
+                    "start": 109,
+                    "end": 113,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "Using a similar rationale, the Hessian matrix associated with the Sobolev reconstruction problem is such that:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "If we analyze the condition number of the second term in Eqn. (14) we get:",
+            "cite_spans": [
+                {
+                    "start": 62,
+                    "end": 66,
+                    "text": "(14)",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "where we applied the following property [20] :",
+            "cite_spans": [
+                {
+                    "start": 40,
+                    "end": 44,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": ". (17) Similarly, the condition number of the second term in Eqn. (15) is:",
+            "cite_spans": [
+                {
+                    "start": 66,
+                    "end": 70,
+                    "text": "(15)",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "Then for \u03b2 = 1 and > 0, we know from Section 2.4 that \u03ba(L + I) < \u03ba(L) and then:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "As a consequence, we have that:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "In other words, we are improving the convergence rate of the Sobolev reconstruction with respect to the problem with the Laplacian quadratic form by reducing the condition number of the Hessian associated to these optimization problems.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rate of Convergence"
+        },
+        {
+            "text": "This section introduces the databases used in this paper, and the experiments to validate our proposed method.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "EXPERIMENTAL FRAMEWORK"
+        },
+        {
+            "text": "We use the global and the USA COVID-19 databases provided by the Johns Hopkins University [21] . The databases were used between the dates January 22, 2020 and April 6, 2020. The global dataset contains the cumulative number of COVID-19 cases for each day and each locality between January 22 and April 6, as well as the geographical localization of 259 places including some regions of the world ( Figure 1 shows the localities in the database). In the same way, the USA database contains information of 3149 localities about COVID-19 in the United States. Figure 2 shows the graph G used in this paper for the USA COVID-19 database. The sampling period of both databases is 1 day. We pre-processed the COVID-19 databases to get the number of new cases each day instead of the cumulative number of cases. We also use a database of sea surface temperature, and a dataset of daily mean concentration of Particulate Matter (PM) 2.5 in California for reference purposes. These databases were used in the paper of Qiu et al. [10] . [21] . This graph was constructed with k-nearest neighbors with k = 10.",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 94,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 1021,
+                    "end": 1025,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1028,
+                    "end": 1032,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 399,
+                    "end": 407,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 558,
+                    "end": 566,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Databases"
+        },
+        {
+            "text": "We compare our Sobolev method against Qiu's algorithm [10] , and Natural Neighbor Interpolation (NNI) [22] . For each database, we make one experiment to check the performance in all methods, and one additional experiment to check the convergence rate of our Sobolev algorithm and Qiu's method. In the first experiment, for Qiu's method we first search the best \u03bb parameter in Eqn. (4) by performing 5 reconstruction for each \u03bb in the set M = {1 \u00d7 10 \u22123 , 1 \u00d7 10 \u22122 , 2 \u00d7 10 \u22122 , 5 \u00d7 10 \u22122 , 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 1 \u00d7 10 2 , 2 \u00d7 10 2 , 5 \u00d7 10 2 }, and with sampling densities: {0.1, 0.2, . . . , 0.9} for the databases of sea surface temperature and PM 2.5, and {0.5, 0.6, . . . , 0.9, 0.995} for the COVID-19 datasets. We use a random sampling strategy for J, ensuring that each time graph signal x i has the same amount of sampled nodes for all 1 < i < M . Secondly, we execute the algorithm with the best \u03bb parameter 100 times (with different J matrices) for each sampling density. For our Sobolev method in Eqn. (12) we use the same strategy, but in this case the best parameters are searched in the cartesian product M \u00d7 M for \u03bb \u2208 M and \u2208 M. Finally, for NNI we perform the experiment 100 times for each sampling density.",
+            "cite_spans": [
+                {
+                    "start": 54,
+                    "end": 58,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 102,
+                    "end": 106,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1030,
+                    "end": 1034,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "The second experiment records the number of iterations required to converge for the reconstruction method in Eqn. (4) and in Eqn. (12) . This experiment is repeated 100 times for each sampling density using the best parameters \u03bb and found in the first experiment for the Sobolev method. For a fair comparison, both reconstruction methods use the same J and \u03bb in each repetition. Figure 3 shows the average mean square error in the four databases using Qiu's method [10] , NNI [22] , and our Sobolev algorithm. Figure 3 shows that our method is better than Qiu's algorithm and NNI in both global and USA COVID-19 datasets. The results of NNI are not displayed in the USA COVID-19 database because its performance is Fig. 3 . Average mean square error using the reconstruction method proposed by Qiu et al. in [10] , natural neighbor interpolation [22] , and our method with Sobolev norm, versus the sampling density considering the reconstruction in 4 databases with 100 different sampling matrices J. very far from Qiu and Sobolev methods. Our method also outperforms NNI in the sea surface temperature and PM 2.5 concentration, while having relatively the same performance with respect to Qiu's algorithm. Moreover, Figure 4 shows the average number of iterations with both Qiu's method and our proposed Sobolev algorithm, in this case the Sobolev reconstruction clearly performs better than Qiu's method for the COVID-19 databases, and slightly better in the PM 2.5 concentration dataset. The behavior in the number of iterations of both methods in Figure 4 is expected according to the proofs in Section 2.5. Then, we can argue that our Sobolev method is better for time-varying graph signals reconstruction than Qiu's method [10] for the estimation of new COVID-19 cases.",
+            "cite_spans": [
+                {
+                    "start": 130,
+                    "end": 134,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 465,
+                    "end": 469,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 476,
+                    "end": 480,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 808,
+                    "end": 812,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 846,
+                    "end": 850,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1729,
+                    "end": 1733,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 379,
+                    "end": 387,
+                    "text": "Figure 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 510,
+                    "end": 518,
+                    "text": "Figure 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 715,
+                    "end": 721,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 1217,
+                    "end": 1225,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1551,
+                    "end": 1559,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Experiments"
+        },
+        {
+            "text": "It is also important to remark that the estimation of new COVID-19 in the USA dataset shows promising results. This algorithm could be useful in two scenarios. Firstly, we can use the Sobolev norm minimization to estimate the number of possible COVID-19 cases in certain regions without confirmed cases, i.e., we can add a node in G with the desired location and perform the Sobolev reconstruction. Secondly, the minimization of the Sobolev norm could be incorporated for leveraging spatio-temporal information in well-established models of infectious diseases [2, 3] , which we leave for future work.",
+            "cite_spans": [
+                {
+                    "start": 561,
+                    "end": 564,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 565,
+                    "end": 567,
+                    "text": "3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "RESULTS AND DISCUSSION"
+        },
+        {
+            "text": "This paper introduces an estimation method of new COVID-19 cases. This estimation is performed using spatio-temporal data embedded in a time-varying graph signal. Our method is based in the minimization of the Sobolev norm, and outperforms state-of-the-art algorithms in time-varying graph signals reconstruction. Most importantly, we show the benefits of the convergence rate of our method by relying on the condition number of the Hessian associated with the problem.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CONCLUSIONS"
+        },
+        {
+            "text": "The present work opens up several questions for future research. For example, what is the role of GSP in the field of the mathematical modeling of infectious disease? Or, what is the importance of the Sobolev norm for the acceleration of the convergence rate in the underlying optimization problems of mainstream applications in GSP such as graph convolutional neural networks [23, 24] , active learning [25, 26] , among others,",
+            "cite_spans": [
+                {
+                    "start": 377,
+                    "end": 381,
+                    "text": "[23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 382,
+                    "end": 385,
+                    "text": "24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 404,
+                    "end": 408,
+                    "text": "[25,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 409,
+                    "end": 412,
+                    "text": "26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "CONCLUSIONS"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Pathological findings of covid-19 associated with acute respiratory distress syndrome",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet respiratory medicine",
+            "volume": "8",
+            "issn": "",
+            "pages": "420--422",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Epidemic modelling: an introduction",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Daley",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "15",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "The mathematics of infectious diseases",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Hethcote",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "SIAM review",
+            "volume": "42",
+            "issn": "4",
+            "pages": "599--653",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Phase-adjusted estimation of the number of coronavirus disease 2019 cases in wuhan, china",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Cell Discovery",
+            "volume": "6",
+            "issn": "1",
+            "pages": "1--8",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "The emerging field of signal processing on graphs: Extending high-dimensional data analysis to networks and other irregular domains",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Shuman",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Narang",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Frossard",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ortega",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Vandergheynst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IEEE Signal Processing Magazine",
+            "volume": "30",
+            "issn": "3",
+            "pages": "83--98",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Discrete signal processing on graphs",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Sandryhaila",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M F"
+                    ],
+                    "last": "Moura",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IEEE Transactions on Signal Processing",
+            "volume": "61",
+            "issn": "7",
+            "pages": "1644--1656",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Graph signal processing: Overview, challenges, and applications",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ortega",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Frossard",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kova\u010devi\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M F"
+                    ],
+                    "last": "Moura",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Vandergheynst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of the IEEE",
+            "volume": "106",
+            "issn": "5",
+            "pages": "808--828",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Frequency analysis of timevarying graph signals",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Loukas",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Foucard",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Global Conference on Signal and Information Processing",
+            "volume": "",
+            "issn": "",
+            "pages": "346--350",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Towards stationary time-vertex signal processing",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Perraudin",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Loukas",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Grassi",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Vandergheynst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "International Conference on Acoustics, Speech and Signal Processing",
+            "volume": "",
+            "issn": "",
+            "pages": "3914--3918",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Time-varying graph signal reconstruction",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Qiu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Mao",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Shen",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "IEEE Journal of Selected Topics in Signal Processing",
+            "volume": "11",
+            "issn": "6",
+            "pages": "870--883",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Variational splines and Paley-Wiener spaces on combinatorial graphs",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Pesenson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Constructive Approximation",
+            "volume": "29",
+            "issn": "1",
+            "pages": "1--21",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Discrete signal processing on graphs: Sampling theory",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Varma",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Sandryhaila",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kova\u010devi\u0107",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "IEEE Transactions on Signal Processing",
+            "volume": "63",
+            "issn": "24",
+            "pages": "6510--6523",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Efficient sampling set selection for bandlimited graph signals using graph spectral proxies",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Anis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Gadde",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ortega",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "IEEE Transactions on Signal Processing",
+            "volume": "64",
+            "issn": "14",
+            "pages": "3775--3789",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Kernel-based reconstruction of graph signals",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Romero",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Giannakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "IEEE Transactions on Signal Processing",
+            "volume": "65",
+            "issn": "3",
+            "pages": "764--778",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Blue-noise sampling on graphs",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Parada-Mayorga",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Lau",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Giraldo",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Arce",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE Transactions on Signal and Information Processing over Networks",
+            "volume": "5",
+            "issn": "3",
+            "pages": "554--569",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Random sampling of bandlimited signals on graphs",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Puy",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Tremblay",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Gribonval",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Vandergheynst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Applied and Computational Harmonic Analysis",
+            "volume": "44",
+            "issn": "2",
+            "pages": "446--475",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "GraphBGS: Background subtraction via recovery of graph signals",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Giraldo",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Bouwmans",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2001.06404"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Matrix analysis",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Horn",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Johnson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "More on numerical methods for unconstrained optimum design",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Arora",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "455--509",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "On perturbation bounds of kronecker product linear systems and their level-2 condition numbers",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Xiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Diao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wei",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Journal of computational and applied mathematics",
+            "volume": "183",
+            "issn": "1",
+            "pages": "210--231",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "An interactive webbased dashboard to track COVID-19 in real time",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Dong",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Du",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gardner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet infectious diseases",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "A brief description of natural neighbour interpolation",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Sibson",
+                    "suffix": ""
+                }
+            ],
+            "year": 1981,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Semi-supervised classification with graph convolutional networks",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Kipf",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Welling",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1609.02907"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Geometric deep learning: going beyond euclidean data",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Bronstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Bruna",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lecun",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Szlam",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Vandergheynst",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "IEEE Signal Processing Magazine",
+            "volume": "34",
+            "issn": "4",
+            "pages": "18--42",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "semi-supervised learning using sampling theory for graph signals",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Gadde",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Anis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ortega",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "International Conference on Knowledge Discovery and Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "492--501",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "A sampling theory perspective of graph-based semi-supervised learning",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Anis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "El"
+                    ],
+                    "last": "Gamal",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Avestimehr",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ortega",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IEEE Transactions on Information Theory",
+            "volume": "65",
+            "issn": "4",
+            "pages": "2322--2342",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Fig. 1. Graph with the regions in the world with confirmed cases of COVID-19 by April 6, 2020. This graph was constructed with k-nearest neighbors with k = 5.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Let L and \u03a8 be Hermitian matrices with set of eigenvalues {\u03bb 1 , . . . , \u03bb N } and {\u03c8 1 , . . . , \u03c8 N }, respectively. The matrix L+\u03a8 has a set of eigenvalues {\u03bd 1 , . . . , \u03bd N } where the following inequalities hold for i = 1, . . . , N :",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Graph with the cities in the United States in the Johns Hopkins University database",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Average number of iterations in logarithmic scale in the y-axis, using the reconstruction method proposed by Qiu et al. in[10] and our method with Sobolev norm, versus the sampling density considering the reconstruction in 4 databases with 100 different sampling matrices J.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

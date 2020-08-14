@@ -1,0 +1,1201 @@
+{
+    "paper_id": "0f051b5288429fae09c0aaa6f4b90b84a9ec6702",
+    "metadata": {
+        "title": "A Real-Time Statistical Model for Tracking and Forecasting COVID-19 Deaths, Prevalence and Incidence",
+        "authors": [
+            {
+                "first": "Jack",
+                "middle": [
+                    "A"
+                ],
+                "last": "Syage",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "ImmunogenX",
+                    "location": {
+                        "addrLine": "1600 Dove Street, Suite 330",
+                        "postCode": "92660",
+                        "settlement": "Newport Beach",
+                        "region": "CA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Background: Pandemics do not occur frequently and when they do there is a paucity of predictive tools that could help drive government responses to mitigate worst outcomes. Here we provide a forecasting model that is based on measurable variables and that strives for simplicity over complexity to obtain stable convergent forecasts of death, prevalence, incidence, and safe days for social easing.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Methods: We assume, based on prior pandemic data, that death rate rise and fall approximately follows a Gaussian distribution, which can be asymmetric, which we describe. By taking daily death data for foreign countries and U.S. states and fitting it to an appropriate Gaussian function provides an estimate of where in the cycle a particular population lies. From that time point one can integrate remaining time to obtain a final total death. By also using measured values for the time from infection to recovery or death and a mortality factor, the prevalence (active cases) and incidence (new cases) totals and rate curves can be constructed. It is also possible by setting a downward threshold on prevalence that an estimate of a minimum date to begin relaxing social restrictions may be considered.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Results: To demonstrate the model we chose the most severe hot-bed countries and U.S. states as a testbed to evolve and improve our model and to compare with other models. The model can readily be applied to other countries by inputting data from public data bases. We also compare our forecasts to the University of Washington (UW) IHME model and are reassuringly similar yet show less variability on a weekly basis. The sum of squares for error (SSE) for international and U.S. states, respectively, that we track are: 34% and 33% for our model vs. 49% and 59% for the IHME model. Conclusions: Our model appears closest to the UW IHME model; however, there are important differences and while both models forecast many of the same results of interest, each one offers unique benefits that the other does not. We believe that the model reported here excels for its simplicity, which makes the model easy to use.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Most of the world was caught unprepared by the severity of COVID-19, though retrospectively, there were collective sighs of \"we should have seen it coming,\" and many did, but these warnings were more opinion than grounded in hard data that the world's leadership could act on. The number of recorded deaths due to COVID-19 around the world (excluding China) for each month from January to April were 0, 84, 33,878, 189,086, respectively. There is clearly a great need for predictive tools to provide real-time forecasts in order to implement mitigation efforts quicker.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "In this paper we describe a real-time statistical model for forecasting COVID-19 deaths, as well as estimating and forecasting the actual number of cases (prevalence) and rate of new cases (incidence). These values are generally greatly understated since they are confirmed by testing that is never in sufficient supply. So, reports of new cases are really reports of new tests of old cases. This model also can set criteria for which some degree of easing of social restrictions can occur on a gradual basis along with check-gate measurements for when these restrictions can be progressively eased. The model can also forecast the consequences of socially easing prematurely. The motivation for this work is to provide predictive tools that are reasonable and devoid of excessive complications that hinder some other models leading to potential inaccuracies and instabilities in the outcome results.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "The traditional approach to modeling is epidemiological in nature and seeks to understand known behavior, which for an epidemic, would be after the fact. Conventional epidemiological models include SIR, SEIR and SEIRS (susceptible, exposed, infectious, recovered, susceptible) models 1,2 and are characterized as being mathematically complex and having many variables that are difficult to define. 3, 4 They are also not well suited to real-time forecasting as new epidemics have their own distinct properties and further it is difficult for them to consider implementation of social restrictions or changes in social behavior due to government easing and/or public rebellion due to economic and social pressures. Our focus here is on a very different approach that uses real-time data to dynamically and statistically forecast important variables of an epidemic as they develop thereby automatically incorporating the epidemic properties and social response as they are embedded in the real-time data. 5 We do note the development of hybrid epidemiological models for COVID-19 that try to incorporate real-time data, but they still appear to be dependent on many difficult-to-define variables and are very complex. 6, 7, 8, 9, 10 We also note epidemiological models that have used China COVID-19 data to extrapolate forecasts for the rest of the world. 11 Several real-time statistical models have emerged that specifically address the unique properties and behavior of COVID-19, knowledge that is only learned by following daily trends. 12, 13, 14, 15 Most of these models are being reported, reviewed and critiqued in the public (digital) forum, justifiably prior to being peer reviewed and published. The rationale for this approach is to provide useful information to help inform policy makers and public implementers on immediate responses that need to be taken, e.g., in deciding when it is prudent to ease social restrictions as they weigh against other considerations, such as the health of the economy. That real-time statistical models often update their forecasts is a strength, not a weakness as long as it is within reason; the adjustments reflect the latest reality, which should not be ignored.",
+            "cite_spans": [
+                {
+                    "start": 1003,
+                    "end": 1004,
+                    "text": "5",
+                    "ref_id": null
+                },
+                {
+                    "start": 1216,
+                    "end": 1218,
+                    "text": "6,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1219,
+                    "end": 1221,
+                    "text": "7,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 1222,
+                    "end": 1224,
+                    "text": "8,",
+                    "ref_id": null
+                },
+                {
+                    "start": 1225,
+                    "end": 1227,
+                    "text": "9,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1228,
+                    "end": 1230,
+                    "text": "10",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1354,
+                    "end": 1356,
+                    "text": "11",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1539,
+                    "end": 1542,
+                    "text": "12,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1543,
+                    "end": 1546,
+                    "text": "13,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1547,
+                    "end": 1550,
+                    "text": "14,",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1551,
+                    "end": 1553,
+                    "text": "15",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "The most widely cited and utilized model for COVID-19 is from the Institute for Health Metrics and Evaluation (IHME) at the University of Washington (UW) 11 and therefore we consider it a worthy benchmark for our model though we respect other models that attempt to provide similar information. As best as we can determine the IHME model uses the integrated total death curve (S-curve) to determine where on the time progression a population lies in order to integrate to total deaths. Alternatively, we use the death rate curve (1 st derivative of the total death curve) as it is more sensitive to detection of the inflection point for peak death rate. 5 This approach has also been taken by Luo, 16 however, that model uses new cases (incidence) rather than death, which we consider to be a misleading variable as it is a convolution of actual . CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. (which was not certified by peer review)",
+            "cite_spans": [
+                {
+                    "start": 154,
+                    "end": 156,
+                    "text": "11",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 693,
+                    "end": 697,
+                    "text": "Luo,",
+                    "ref_id": null
+                },
+                {
+                    "start": 698,
+                    "end": 700,
+                    "text": "16",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "On March 14, 2020 we launched a website blog to report our developing model for COVID-19. 5 We assume, based on prior pandemic data (e.g., COVID-19 in China and 1918 Spanish Flu 17 ), that death rate rises and falls approximately following a Gaussian distribution. (We challenge this assumption shortly.) By taking daily death data for foreign countries and U.S. states and fitting it to a Gaussian provides an estimate of where in the cycle a particular population lies. From that time point one can integrate remaining time to obtain a final total death. By also using measured values for the time from infection to recovery or death and a mortality factor, the prevalence (active cases) and incidence (new cases) totals and rate curves can be constructed. It is also possible by setting a downward threshold on prevalence that an estimate of a minimum date to relax social restrictions may be considered.",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 91,
+                    "text": "5",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": "The general algorithm is to use death rate data and an assumed symmetric or asymmetric Gaussian rise and fall curve to forecast total deaths by estimating where on the Gaussian curve the actual death rate curve lies. Other functions besides a Gaussian could work (and we discuss some of them in the Discussion), but don't have the mathematical simplicity and the COVID-19 data currently doesn't provide a compelling reason to consider more complicated functions. We show how this model can accommodate an asymmetric Gaussian or other function, e.g., kinetic curves associated with compartmental approaches. However, a Gaussian is convenient to demonstrate the model and we proceed as such.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": "The operating equations are as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": "(2)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": "Where DR and DT are death rates (e.g., daily) and total deaths, respectively. We first define f(t) as a Gaussian function as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": "where a = peak death rate (e.g., daily) t = time relative to the peak death rate time t0 \u03c3 = width of the Gaussian where 2.3548\u03c3 is the full width at half maximum (FWHM) Figure 1 shows the basic premise of our algorithm with regard to the relationship of DR and DT and how final total deaths are calculated. Figure 1a shows a Gaussian DR function fitted to data for Italy up to April 2, 2020, which in retrospect is very close to its peak death rate. The integral of Eq. (1) is the non-analytic error function, but which is easily computed (Figure 1b ) as follows:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 170,
+                    "end": 178,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 308,
+                    "end": 317,
+                    "text": "Figure 1a",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 540,
+                    "end": 550,
+                    "text": "(Figure 1b",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "METHOD"
+        },
+        {
+            "text": "Where i is the increment of time used for the calculation (e.g., days, weeks). To compute the rate of new cases (incidence), CR, and the number of current active cases (prevalence), CT, we make assumptions based on measurable and statistical information. The operating equations are:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": ". CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "METHOD"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Where tD and tH are the times from infection (new case) to death and healed, respectively, and M is the mortality rate. The total active cases for ti is computed similarly for deaths in Eq. (4) except that we subtract the total cases from tH time ago as being those patient cases who have run their course and either recovered/healed or died. Data from Italy for 4/2/20 is superimposed by best fit. Abscissa is plotted relative to \u03c3, which for the example shown is assumed to be 2 weeks. The dotted lines show range of uncertainty and how they transpose to cumulative deaths. Figure 2 shows the relationships between DR, DT, CR and CT. For the purposes of this example we assume that tD = 2.5 weeks and tH = 3.5 weeks based on published data for China. 18 We also assume that the We now summarize some interesting and sometimes non-intuitive observations:",
+            "cite_spans": [
+                {
+                    "start": 753,
+                    "end": 755,
+                    "text": "18",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 576,
+                    "end": 584,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "CT(ti) = CR(ti-1) + CR(ti) -CT(ti-tH)"
+        },
+        {
+            "text": "\u2022 As assumed by the tD = 2.5 weeks, the CR curve peaks 2.5 weeks earlier than the DR curve.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CT(ti) = CR(ti-1) + CR(ti) -CT(ti-tH)"
+        },
+        {
+            "text": "\u2022 The DT curve asymptotically reaches a final value.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CT(ti) = CR(ti-1) + CR(ti) -CT(ti-tH)"
+        },
+        {
+            "text": "\u2022 The CT curve decreases due to recoveries and peaks about halfway between the DR and CR curves.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CT(ti) = CR(ti-1) + CR(ti) -CT(ti-tH)"
+        },
+        {
+            "text": "The above explanation used the simple symmetric Gaussian function and treated many of the variables, e.g., \u03c3, tD, tH as constants, based on reported data, in order to provide a basic understanding of the principles to this statistical, real-time model. In the Results section next, we introduce several refinements.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CT(ti) = CR(ti-1) + CR(ti) -CT(ti-tH)"
+        },
+        {
+            "text": ". CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CT(ti) = CR(ti-1) + CR(ti) -CT(ti-tH)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint Figure 2 . Plots of (a) new deaths and cases, DR and CR and (b) total deaths and active cases, DT and CT. Time is relative to \u03c3, but in this example we set that to 2 weeks since we are putting real time in for tD = 2.5 wk and tH = 3.5 wk. We assume M = 1.0%. The arrows denote peaks in the curves. The ordinate is plotted on a log scale in order to cover the large dynamic range of the calculation.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 141,
+                    "end": 149,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF9"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "As an example of the unknowable changing dynamics of COVID-19 and the effects of social response to the disease we show in Figure 3 the death rate plot for Italy that has progressed well past its peak (shown also in Fig. 1 ). Clearly the ascent and descent are very asymmetric as evidenced by the poor fit to a symmetric Gaussian function on the downslope. Also shown is an asymmetric Gaussian model that incorporates two key refinements:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 123,
+                    "end": 131,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 216,
+                    "end": 222,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "RESULTS"
+        },
+        {
+            "text": "\u2022 An asymmetric Gaussian function based on a non-constant \u03c3 value.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RESULTS"
+        },
+        {
+            "text": "\u2022 The potential to functionalize \u03c3 to include social factors, e.g., the degree of social distancing and in turn other contributing factors, e.g., population density, mobility, and contract frequency. The latter best fit curve corresponds to \u03c3a and \u03c3b values of 10 and 24 days, respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RESULTS"
+        },
+        {
+            "text": ". CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RESULTS"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The shape of a Gaussian function is fixed, but its width and asymmetry are embodied by the value \u03c3, which is normally a constant value. We consider non-constant treatments for \u03c3 to try to represent the actual death rate behavior for different global populations. Figure 4 shows two examples of asymmetric Gaussian functions. Figure 4a shows the case for a two-side Gaussian for which there are separate constant \u03c3 values for the ascending (\u03c3a) and descending (\u03c3d) sides of the death rate curve, DR. The example shown is for values of \u03c3d = 2\u03c3a, (14 and 28 days if not on a relative abscissa scale), the \u03c3d value giving a slower descent as representative of the real-time data that we are observing for COVID-19 around the world and in U.S. states. Figure 4b shows the case for a linearly changing \u03c3 value with a functional form",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 263,
+                    "end": 271,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 325,
+                    "end": 334,
+                    "text": "Figure 4a",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 747,
+                    "end": 756,
+                    "text": "Figure 4b",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Asymmetric Gaussian Functions"
+        },
+        {
+            "text": "An important observation is how the shape of the Gaussian influences the final total death count DT, which is the integral of the DR death rate curve. For the symmetric Gaussian in Figure 1 , the DT is equal to 35.1 times the peak death rate (in daily units). For the two-sided asymmetric Gaussian in Figure 4a , where the ascending and descending behaviors are described by \u03c3 and 2\u03c3, respectively, the DT is equal to 52.6 times the peak death rate. In Figure 4b various functions are plotted for various values of \u03c3i and s and the final death count DT is given. As the descending part of the curve becomes more extended the integral value DT becomes greater. This has strong implications for populations to continue to practice social isolation to expedite the descent as long as is reasonable weighed against social and economic pressures. We note that Eq. (7) is just one functional form for \u03c3(t) and others may be proposed, which could be utilized to model behavioral changes in the population during the epidemic due to social distancing and other factors. We propose some interesting avenues of development in the Discussion section, but don't develop this term any further here. It should be noticed though that this linearized (and continuously increasing) function \u03c3(t) has the effect of flattening the entrance wing and extending the exit tail of the total curve. While this is less representative of the death rate growth shape, it has minor impact on the integrated death count; however, the elongated and non-converging tail can have large integrated value, which we do not yet have evidence is a good representation. We discuss in the Discussion other functional forms that can represent reported statistic data as well as anticipated social behavior.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 181,
+                    "end": 189,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 301,
+                    "end": 310,
+                    "text": "Figure 4a",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 453,
+                    "end": 462,
+                    "text": "Figure 4b",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Asymmetric Gaussian Functions"
+        },
+        {
+            "text": ". CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Asymmetric Gaussian Functions"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "As this manuscript is being prepared in a middle of a pandemic, we can only provide progress on our capability to track and forecast deaths, prevalence, incidence, and safe easing dates. We have been reporting weekly updates for the most serious hotbed countries and U.S. states in a running blog where some details of this model are also presented. 5 The international data is from the European Center for Disease Prevention and Control (ECDC) 19 and the U.S. data is obtained from Worldometer.com. 20 Death rate plots are presented in the Supplemental Material section (Figure S-1) as of May 12, 2020. An example for Italy is given in Figure 3 . The results of our calculations and forecasts for international and U.S. populations (as of May 12, 2020) are presented in Table I.   Table 1 . Death, prevalence, incidence and easing dates forecasted from the Asymmetric Gaussian model We have not yet evaluated an ideal functional form for \u03c3(t), for which Eq. (7) is just one and probably not the best representation, so here we instead use the 2-sided Gaussian model (Figure 4a ) and optimize the \u03c3a and \u03c3d values as this function fits well to essentially all death rate data we are following (the \u03c3a and \u03c3d values for each country and U.S. state are presented in Supplemental Material, Table S-1. Notable results in Table I include:",
+            "cite_spans": [
+                {
+                    "start": 350,
+                    "end": 351,
+                    "text": "5",
+                    "ref_id": null
+                },
+                {
+                    "start": 445,
+                    "end": 447,
+                    "text": "19",
+                    "ref_id": null
+                },
+                {
+                    "start": 500,
+                    "end": 502,
+                    "text": "20",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 571,
+                    "end": 583,
+                    "text": "(Figure S-1)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 637,
+                    "end": 645,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 771,
+                    "end": 789,
+                    "text": "Table I.   Table 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 1067,
+                    "end": 1077,
+                    "text": "(Figure 4a",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1317,
+                    "end": 1324,
+                    "text": "Table I",
+                    "ref_id": null
+                }
+            ],
+            "section": "Application to COVID-19"
+        },
+        {
+            "text": "\u2022 The U.S. is forecasted to exceed 100,000 total deaths, but the per capita forecast of 346 deaths per million people is below several European countries, though all within a factor of 2x. \u2022 U.S. states tell a different story than the aggregate for the U.S. The forecasted per capita total deaths for New York and New Jersey exceed by many multiples those for the above stated foreign countries. However, we haven't broken these countries down to states or cities, but on a population basis (N.Y and N.J. at 28.3M vs. 10.1M to 67.9M for all other countries shown except China) one can conclude that N.Y. and N.J. were/are the most deadly large populations on earth.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Application to COVID-19"
+        },
+        {
+            "text": ". CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Application to COVID-19"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Social, economic, and political pressure will ensure that relaxing of social restrictions will occur and probably prematurely. We have developed a protocol to forecast dates for which gradual and measured easing of social restrictions may begin. The easing date is based on the date for which the prevalence per million people drops to 200 or 2 active case per 10,000 people (0.02%). This is a somewhat arbitrary threshold, but seems reasonable based on that approximate value on the front-end was enough to start exponential outbreaks. So, assuming prevalence continues to drop and we don't revert back to full normal social interactions we should be able to ease while maintaining and even reducing the prevalence. By maintaining the prevalence and assuming a mortality rate of 1% corresponds to one death per million over the course of an infection (about 18 days) and for the U.S. with a population of 331M, would compute to about 18 deaths/day. If we can define a tolerable death rate (perhaps greater than this), then we can back out a different prevalence threshold for social easing. The flatten-the-curve approach is to maintain a death rate sufficiently low to not overload the healthcare system and wait until a vaccine or herd immunity reduces the death rate. However, society may not have the heart to deliberately sustain this level of deaths. This is all weighed against the need to feed economic activity. So ultimately the acceptable death rate comes down to the decision of how many jobs is a death worth. That is a topic outside the scope of this manuscript.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Safe Easing of Social Restrictions"
+        },
+        {
+            "text": "This model can also estimate the dependence of death rate and total deaths on the date when social distancing is implemented. We all recall how frightening it was to be seeing exponential growth in deaths and reading about its doubling every so many days. These deaths of course reflected exponential growth of new cases about 2.5 weeks earlier representing the date of the infection that led to these deaths. This alone drives home the point that swift action to reduce contact exposure could have huge significance on reducing overall deaths, but we can also semi-quantify this reality. . CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Importance of Prompt Government Intervention"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We do not compare ourselves to epidemiology models as explained in the Introduction because the purpose of our development is very different, namely providing forecasting information based on latest data, so there will necessarily be changes in the forecasts as new data is reported. The former approach is too rigid to be a forecasting tool, but essential for understanding the properties of an epidemic once all the facts are known. Real-time statistical forecasting models are an invention of their times as each pandemic, rare in themselves, are different and therefore a model has to react to these differences. For COVID-19 the most widely cited and utilized model is from the Institute for Health Metrics and Evaluation (IHME) at the University of Washington (UW) 12 and therefore we consider it a worthy benchmark for our model. We have been reporting our forecasts relative to the IHME forecasts on a weekly basis. 5 Figure 6 . Plots of total death forecasts by the IHME and Syage models for hotbed countries. Figure 6 shows the total death forecasts for hotbed international countries by the two models and shows that there is more similarity than differences. (Results for U.S. states are given in Figure S -2 in Supplemental Material.) Still there are differences and that underlines the need to endorse multiple models, even if similar, to provide a range of outcomes representing different, even if subtle, algorithms and assumptions. A true comparison awaits the end of this wave of the pandemic or picking a target date as IHME has for August 4, 2020. Our forecasts extrapolate to the end of the Gaussian tail, but there is very little integration value beyond August 4, 2020 so our comparison is suitable. At this present time, one figure of merit for the stability of a model is how much variation or volatility it has from one time point to the next. In Figure 7 we plot the sum of squares for error (SSE) measure of variability for the weekly forecasts presented in Figure 6 . We caution that variability is necessary because it responds to real-time changes and results, but if excessive can also be detrimental for policy and planning purposes. ",
+            "cite_spans": [
+                {
+                    "start": 771,
+                    "end": 773,
+                    "text": "12",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 926,
+                    "end": 934,
+                    "text": "Figure 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 1019,
+                    "end": 1027,
+                    "text": "Figure 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 1209,
+                    "end": 1217,
+                    "text": "Figure S",
+                    "ref_id": null
+                },
+                {
+                    "start": 1873,
+                    "end": 1881,
+                    "text": "Figure 7",
+                    "ref_id": "FIGREF6"
+                },
+                {
+                    "start": 1986,
+                    "end": 1994,
+                    "text": "Figure 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "Comparison to Other Models"
+        },
+        {
+            "text": "Where tp is present time and ti are previous time periods. Updated to 5/12/20.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Comparison to Other Models"
+        },
+        {
+            "text": ". CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Comparison to Other Models"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05. 16.20104430 doi: medRxiv preprint By this SSE measure the IHME model forecasts have varied greater from week to week than the present model for all but one of the cases shown (France). If averaged for the international and U.S. states, respectively, that we track the SSE's are: 34% and 33% for our model vs. 49% and 59% for the IHME model. At present we do not see a penalty to the present model's relative stability, but time will tell.",
+            "cite_spans": [
+                {
+                    "start": 108,
+                    "end": 141,
+                    "text": "16.20104430 doi: medRxiv preprint",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The above results describe a predictive model that is simple in principle, but with capability to address more subtle dynamics of the on-going COVID-19 pandemic. We now discuss some of these present and future refinements. Clearly the Gaussian model is simple and instructive for informing how to structure a data-driven statistical predictive model. However, it is now clear that whereas it is very descriptive of the growth phase of the epidemic, it does not represent the recovery side very well, at least not in its symmetric construction. We have shown that simple asymmetric Gaussian functions so far appear to fit well to the recovery side.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DISCUSSION"
+        },
+        {
+            "text": "We are satisfied with the asymmetric function with an ascent and descent sigma values, \u03c3a and \u03c3d ( Figure   4 left), even though it somewhat violates our sense of an abruptly changing sigma value. Alternatively, the linear sigma functional construct (Eq. (7) and Fig. 4 right) had detriments in the wings and the tails.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 99,
+                    "end": 109,
+                    "text": "Figure   4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 263,
+                    "end": 269,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "DISCUSSION"
+        },
+        {
+            "text": "We have explored other functions. Gamma and Poisson distributions have convenient and computable asymmetric shapes that could be fitted to real-time data, but we do not see an advantage over using an asymmetric Gaussian with a functionalized sigma \u03c3(t). Many manifestations of SIR models have the basics of bi-exponential functionality. However, the bi-exponential growth phase does not show an exponential rise or an inflection point as it progresses to a peak rate, but rather has a progressively decreasing rate from inception so we dismiss this functional form. Of course, any of these functions can be modified to build in the dynamical characteristics of a true epidemic response, but the math becomes very complex.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DISCUSSION"
+        },
+        {
+            "text": "We are intrigued by the use of asymmetric Gaussian functions, particularly by functionalizing the sigma value \u03c3(t) beyond the two-valued and the linear constructs discussed above. In future work we plan to explore how to functionalize \u03c3(t) in such a way that it can incorporate social isolation time dependences.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DISCUSSION"
+        },
+        {
+            "text": "This may include a sum of displaced Gaussians to represent different waves and outbreaks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DISCUSSION"
+        },
+        {
+            "text": "It is also useful to consider other means to identify the approach to death rate and other peaks. We became aware of an interesting log-log plot that we have applied to death rate DR vs. total deaths, DT, which is shown in Figure 8 . CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 223,
+                    "end": 231,
+                    "text": "Figure 8",
+                    "ref_id": null
+                }
+            ],
+            "section": "DISCUSSION"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint Figure 8 shows downward deviations representing exit from exponential behavior. This is followed soon by peaking and downward recovery, which are not evident in the log-log plots, but are clearly evident in the rate curves, e.g., Figures 1a and 3 . However, the rate curves do not show exiting from exponential growth very well so the combination of these plots provides a better estimation of the progression of an epidemic and where the current death rate lies on the fitting function f(t). Exiting from exponential growth generally occurs about 2 weeks before reaching peak death rate so this information.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 141,
+                    "end": 149,
+                    "text": "Figure 8",
+                    "ref_id": null
+                },
+                {
+                    "start": 371,
+                    "end": 387,
+                    "text": "Figures 1a and 3",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Finally, we address the uncertainty of defining a mortality factor, M. That can never be known for sure until after the pandemic has run its course though there are ways to infer it, which is necessary for improving accuracy for calculating and forecasting true prevalence, not just confirmed tested cases. M will also obviously vary depending on the demographics of the populations (e.g., age distribution, healthcare system) and even change for a particular population due to changing dynamics such as crossing the threshold for overwhelming the healthcare system both on the way and down the epidemic curve. We have made adjustments to our M value, particularly for Spain and Italy varying it between 2.0 to 1.5%. Most determinations in the literature are placing this value in the 1.0-1.5% range, 12, 15, 18 which is what we generally use as noted in Table 1 .",
+            "cite_spans": [
+                {
+                    "start": 801,
+                    "end": 804,
+                    "text": "12,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 805,
+                    "end": 808,
+                    "text": "15,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 809,
+                    "end": 811,
+                    "text": "18",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 855,
+                    "end": 862,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "In this manuscript we describe a predictive model that is based on measurable variables and that strives for simplicity over complexity to obtain stable convergent forecasts of death, prevalence, incidence, and safe days for social easing. This real-time, data-driven statistical approach is to be viewed as an alternative and not competitive model to epidemiological models (e.g., SIR, SEIR, etc.) that attempt to forecast epidemic behavior from collective knowledge and data from prior epidemics. Consequently, real-time statistical models in general will revise their forecasts as new data is reported.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CONCLUSION"
+        },
+        {
+            "text": "We compare our forecasts to the venerable UW IHME statistical model, which apparently has similar algorithmic constructs as this model as evidenced by the similar outcomes, but differ in key ways that make both models (and others of course) essential for testing different model assumptions, none of which can be truly validated until the properties of an epidemic are known at the end. However, the model described here, up to this point in time (March 12, 2020), displays less forecast variability and may even be a little ahead of trends when compared to the UW IHME model. There does not appear to be a penalty to this greater forecasting stability, though only time will tell. Forecast stability is vital for informing public policy and response. . CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. (which was not certified by peer review)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CONCLUSION"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05.16.20104430 doi: medRxiv preprint . CC-BY-NC 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. (which was not certified by peer review)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SUPPLEMENTAL MATERIAL"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 20, 2020. . https://doi.org/10.1101/2020.05. 16.20104430 doi: medRxiv preprint ",
+            "cite_spans": [
+                {
+                    "start": 108,
+                    "end": 141,
+                    "text": "16.20104430 doi: medRxiv preprint",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "SUPPLEMENTAL MATERIAL"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Modeling epidemics: A primer and Numerus Model Builder implementation",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Getz",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Salter",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Muellerklein",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Yoon",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Tallam",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Epidemics",
+            "volume": "25",
+            "issn": "",
+            "pages": "9--19",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Substantial undocumented infection facilitates the rapid dissemination of novel coronavirus (SARS-CoV2)",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Pei",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1126/science.abb3221"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Impact of non-pharmaceutical interventions (NPIs) to reduce COVID-19 mortality and healthcare demand",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Ferguson",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Laydon",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Nedjati-Gilani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.25561/77482"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "CoronaTracker: World-wide COVID-19 Outbreak Data Analysis and Prediction. Bull World Health Organ",
+            "authors": [
+                {
+                    "first": "Fab",
+                    "middle": [],
+                    "last": "Hamzah",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Lau",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Nazri",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "doi",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.2471/BLT.20.251561"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Projections for first-wave COVID-19 deaths across the US using socialdistancing measures derived from mobile phones",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Woody",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Tec",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Dahan",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1101/2020.04.16.20068163"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Nowcasting and forecasting the potential domestic and international spread of the 2019-nCoV outbreak originating in Wuhan, China: a modelling study",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Leung",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Leung",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Forecasting the impact of the first wave of the COVID-19 pandemic on hospital demand and deaths for the USA and European Economic Area countries, IHME COVID-19 health service utilization forecasting team",
+            "authors": [
+                {
+                    "first": "Cjl",
+                    "middle": [],
+                    "last": "Murray",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Short-term forecasts of VODI-19 deaths in multiple countries",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Bhatia",
+                    "suffix": ""
+                },
+                {
+                    "first": "Cori",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Parag",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "COVID-19 Epidemic Forecasting",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Flahault",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Manetti",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Simonson",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "COVID-19 projections using machine learning",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gu",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Predictive Monitoring of COVID-19",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Luo",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Influenza; the mother of all pandemics",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Taubenberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Morens",
+                    "suffix": ""
+                }
+            ],
+            "year": 1918,
+            "venue": "Emer Inf Dis",
+            "volume": "12",
+            "issn": "",
+            "pages": "15--22",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Estimates of the severity of coronavirus disease 2019: a modelbased analysis, www.thelancet.com/infection Published online",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Verity",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Okell",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Dorigatti",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "30243--30250",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S1473-3099(20)30243-7"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "How To Tell If We're Beating COVID-19",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bhatia",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "54",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Basic Gaussian model for death rate DR and cumulative deaths DT.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Gaussian rise and fall has a \u03c3 = 2 weeks (FWHM = 2.3548 \u03c3), which is consistent with the results for COVID-19 in China and for the 1918 Spanish Flu 17 . Then the current number of deaths on a given day would reflect the number of new cases 2.5 weeks earlier divided by the mortality factor M [Eq. (5)].",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Death rate, DR, plot for Italy up to 5/12/20 along with a symmetric (black dash) and asymmetric (red dash) Gaussian functional fit.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "(Left) Ascending and descending width parameters are \u03c3a/2 = \u03c3a = 14 days, respectively. (Right) Linearly increasing \u03c3 value according to Eq. 7 where \u03c3I and s are shown along with the extrapolated final death count, DT. The abscissa is time in units of \u03c3a = 14 days.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "presents a pedagogical illustration, but one modeled somewhat on the U.S. response. Here we forecast the difference in the occurrence of death based on starting social distancing at time points two weeks apart (3/4/20 vs. 3/18/20). For the assumed values (see figure caption), the consequences of a 2week delay in implementing social distancing has a consequence of a 5x increase in deaths. This model is very simple since it assumes a symmetric Gaussian, but the qualitative conclusions are nonetheless revealing and sobering.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Gaussian model forecast for death rate and total deaths for social distancing implementation on 3/4/20 vs. 3/18/20 for assumptions representative of the U.S. population. \u03c3 = 14 weeks.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Sum of squares for error (SSE) calculated as:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Log-Log plot showing downward deviations representing exit from exponential growth. Each point represents a time interval of one week (updated to week ending 5/13/20).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Death rate plots for hotbed countries and U.S. States. The symmetric Gaussian function (dashed curve) is presented for visualization of reasonable fitness on the rising side and less so on the falling side of the death rate plots.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF9": {
+            "text": "Plots of total death forecasts by the IHME and Syage models for hotbed U.S. states.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "cases and testing, thereby giving understated values further exacerbated by the testing proportion not being constant (increasing) with time.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "1. Tabulation of the asymmetric Gaussian model fitting parameters for May 12, 2020.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

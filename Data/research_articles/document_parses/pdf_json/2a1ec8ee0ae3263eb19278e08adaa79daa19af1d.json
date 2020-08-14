@@ -1,0 +1,2346 @@
+{
+    "paper_id": "2a1ec8ee0ae3263eb19278e08adaa79daa19af1d",
+    "metadata": {
+        "title": "The Fallibility of Contact-Tracing Apps",
+        "authors": [
+            {
+                "first": "Piotr",
+                "middle": [],
+                "last": "Sapiezynski",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Northeastern University",
+                    "location": {
+                        "settlement": "Boston",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Johanna",
+                "middle": [],
+                "last": "Pruessing",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Vedran",
+                "middle": [],
+                "last": "Sekara",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "IT University",
+                    "location": {
+                        "settlement": "Copenhagen",
+                        "country": "Denmark"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Since the onset of the COVID-19's global spread we have been following the debate around contact tracing apps-the techenabled response to the pandemic. As corporations, academics, governments, and civil society discuss the right way to implement these apps, we noticed recurring implicit assumptions. The proposed solutions are designed for a world where Internet access and smartphone ownership are a given, people are willing and able to install these apps, and those who receive notifications about potential exposure to the virus have access to testing and can isolate safely. In this work we challenge these assumptions. We not only show that there are not enough smartphones worldwide to reach required adoption thresholds but also highlight a broad lack of internet access, which affects certain groups more: the elderly, those with lower incomes, and those with limited ability to socially distance. Unfortunately, these are also the groups that are at the highest risks from COVID-19. We also report that the contact tracing apps that are already deployed on an opt-in basis show disappointing adoption levels. We warn about the potential consequences of over-extending the existing state and corporate surveillance powers. Finally, we describe a multitude of scenarios where contact tracing apps will not help regardless of access or policy. In this work we call for a comprehensive and equitable policy response that prioritizes the needs of the most vulnerable, protects human rights, and considers long term impact instead of focusing on technology-first fixes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Communicable diseases, such as COVID-19, spread between people in close proximity. This is why, in addition to social distancing, business closures, and wearing masks, public health interventions include contact tracing. It is a method of identifying people that were in physical proximity with a positive patient, so that they can be isolated, tested and, if necessary, treated. Traditionally, contact tracing has been done by human tracers, who interview infected patients about all their recent contacts and then follow up with them. Human tracers engage directly with their interviewees and are trained to address any potential health and confidentiality concerns. 1 However, this approach has two drawbacks. First, low recall: we humans tend not to remember all the people we were in close contact with during the period where we were potentially infectious (up to two weeks before onset of symptoms 2 ). It is also impossible to identify strangers we have been close to on the bus or in the store, etc. And second, slow process: human tracers have to reach out to all the reported contacts and talk to them. This can be a painstakingly slow process and it might well take days to get a hold of all the people we listed. Smartphone based contact tracing promises to solve both of these limitations. If it works as intended we would not have to rely on our faulty memory. The app could \"remember\" the people we do not even know, as long as both we all have compatible smartphones and installed the app. Once we are diagnosed, the app would instantly notify all our contacts who meet certain criteria, such as duration of contact, closeness, etc. and recommend testing and/or isolation, But of course only if everyone has a smartphone, the app, and reliable internet access.",
+            "cite_spans": [
+                {
+                    "start": 669,
+                    "end": 670,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Yet, actually solving these two drawbacks brings about a variety of technical challenges. Currently, we are seeing a growing consensus around a decentralized and privacy-preserving design using Bluetooth Low Energy (BLE) to measure proximity. One such approach was proposed by a consortium of European academics and later adopted by Google and Apple. 3 The few countries that chose more privacy-invasive approaches, including the UK, Norway, Australia, and Singapore quickly learned that their apps do not work on iPhones. As a result some of them have signaled willingness to reconsider their approach.",
+            "cite_spans": [
+                {
+                    "start": 351,
+                    "end": 352,
+                    "text": "3",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Bluetooth Low Energy was chosen instead of popularly discussed location data (from GPS, cell towers, or WiFi), because of its accuracy and battery efficiency. Location data is not accurate inside of buildings and therefore cannot be used to determine whether two people were actually close enough to exchange the virus, or just happened to be in the same building. A location-based approach would lead to plenty of false exposure notifications, by for example reporting everyone living in the same building as an infected person. For more information about how exactly the Bluetooth-based, decentralized tracing would work, we recommend a great infographic 4 the groups working on implementing tracing apps.",
+            "cite_spans": [
+                {
+                    "start": 657,
+                    "end": 658,
+                    "text": "4",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Regardless of the architecture and particularities of implementation, the proponents of contact tracing apps appear to make a number of assumptions, which we challenge in this work:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "\u2022 Do people have modern smartphones and unhindered access to the Internet?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "\u2022 Can we use Bluetooth signals to measure physical proximity between people? Can this be actually epidemiologically useful?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "\u2022 Can and will individuals choose to install contact tracing apps?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "\u2022 Can individuals access tests and adapt their behavior accordingly once the app signals exposure?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "When we answer these questions using the available data, we find that smartphone-based solutions to the pandemic may have vastly differential impacts, if deployed without considering local contexts and varying needs of different communities. The virus, initially dubbed by some a \"great equalizer\" 5 has progressively proven to be a \"great magnifier\" 6 as it already disproportionately affected the most disadvantaged communities. It is paramount we ensure that any attempted technological interventions to the pandemic do not exacerbate existing inequalities and are, instead, a part of an equitable public health response. While it might appear that smartphone based contact tracing is a promising approach in selected geographies, we must not forget that the pandemic is, by the very nature of how much we are connected, a global problem and not one of separate societies. In the sections below we take a closer look at each of these implicit assumptions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "To be clear, this document is not a statement against ethically responsible, privacy-preserving, and time-limited contact tracing as a concept. Community based contact tracing, traditional interview and follow-up in person or via phone-call with those potentially exposed, and, in places where we can ensure viability, app-assisted tracing can be necessary elements of reopening countries once testing is widely available and equally accessible to everyone.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Contribution"
+        },
+        {
+            "text": "While in many countries smartphones are taken for granted, worldwide, only approximately 42%-45% of the population has a smartphone 7 and only about three quarters of these devices support the required Bluetooth Low Energy technology. 8 means that more than half the world's population live in countries where smartphone ownership might not be high enough for smartphone-based contact tracing to work as we show below. The latest GSMA report (see Figure 1 ) further illustrates large differences between regions: in Sub-Saharan Africa only 26 out of 100 people have a mobile Internet subscription; for comparison, in Europe the number is 76 out of 100. Internet connectivity (necessary for contact tracing apps to work) is similarly unevenly distributed, leaving nearly half of the world's population, 3.5 billion people, without access. 9 These staggering differences are related to the wealth of countries measured here in GDP per capita, see Figure 2 . In the poorest countries only one out of 10 people have a smartphone. This number is eight to nine times higher in the wealthiest countries meaning only one or two out of 10 people do not have one.",
+            "cite_spans": [
+                {
+                    "start": 235,
+                    "end": 236,
+                    "text": "8",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 838,
+                    "end": 839,
+                    "text": "9",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 447,
+                    "end": 455,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 945,
+                    "end": 953,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Assumption 1: People have modern smartphones and Internet access"
+        },
+        {
+            "text": "Yet, for digital contact tracing to be effective, epidemiologists estimate that we need at least a success rate of 60% for both identifying and isolating the contacts within a few days. 11 This fraction will differ depending on the severity of the situation (how many people are currently affected, what distancing measures are in place, etc.). It is, however, quite clear that this success rate cannot be achieved in countries where less than 60% of the population owns a smartphone regardless of adoption levels and efficiency of the app itself. As visualised in the map, these countries are not evenly distributed around the world -instead, they include most of Latin America, the Middle East, Sub-Saharan Africa, as well as many countries in the Asia/Pacific region.",
+            "cite_spans": [
+                {
+                    "start": 186,
+                    "end": 188,
+                    "text": "11",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assumption 1: People have modern smartphones and Internet access"
+        },
+        {
+            "text": "That a digital divide including uneven access to smartphones and mobile internet remains a global problem is clear. What tends to be overlooked is how these discrepancies also exist within countries. For instance, the elderly are one of the highest risk groups from a medical perspective. At the same time, they are also considerably less likely to have a smartphone compared to their young compatriots. Surveys show that in Europe general smartphone adoption is above 75%. 10 Yet, as we show in Figure 3 , people aged 18-35 are 1.5 times more likely to own a smartphone than those 50 years or older. This difference is especially high in countries with low general smartphone ownership. In India and Indonesia, where penetration levels are generally low, young people are as much as five times more likely to own a smartphone than those over 50.",
+            "cite_spans": [
+                {
+                    "start": 474,
+                    "end": 476,
+                    "text": "10",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 496,
+                    "end": 504,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Assumption 1: People have modern smartphones and Internet access"
+        },
+        {
+            "text": "Even in the US where overall smartphone ownership levels are high, we observe crucial differences between demographics. According to a Pew survey from 2019, only 53% of Americans 65 years and older own a smartphone, 12 see Figure 4 . The number is as high as 96% for adults between 18-29 years. That leaves 24 million people at the highest risk of dying from COVID-19 outside any smartphone based tracing system. The same Pew survey also shows that income is a decisive factor for owning a smartphone: less than three quarters of adults with a household income below $50,000 own smartphones compared to 95% of the those earning above $75,000, see Figure 4 . It further reports lower penetration rates among rural residents (71% vs 83% for (sub)urban). Finally, the Pew Research survey reports only small differences in smartphone ownership in the US among races and genders.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 223,
+                    "end": 231,
+                    "text": "Figure 4",
+                    "ref_id": null
+                },
+                {
+                    "start": 647,
+                    "end": 655,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assumption 1: People have modern smartphones and Internet access"
+        },
+        {
+            "text": "Obtaining detailed statistics for smartphone ownership is generally challenging and even more difficult for low and middle income countries. Because of the scarcity of such data we cannot draw as comprehensive a picture as for the US. What we can do is provide a few results for other countries to compare. For instance, in the country of Georgia (South Caucasus) the gap in smartphone ownership is strongly correlated with wealth. A recent survey observed that 95% of the most wealthy households . Countries with the lowest overall smartphone adoption also have the largest age gaps in ownership. 10 In India and Indonesia, below below 35 are five times more likely to have a smartphone compared to those above 50. Smartphone ownership per income bracket in the US Figure 4 . Smartphone adoption in the US is among the highest in the world, but those over 65+ are still much less likely to own a smartphone than those below 35.",
+            "cite_spans": [
+                {
+                    "start": 598,
+                    "end": 600,
+                    "text": "10",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 766,
+                    "end": 774,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assumption 1: People have modern smartphones and Internet access"
+        },
+        {
+            "text": "have at least one smartphone, while less than 40% of the poorest households have access to one. 13 With an average household size of 3.4, smartphone adoption numbers are likely to be worse.",
+            "cite_spans": [
+                {
+                    "start": 96,
+                    "end": 98,
+                    "text": "13",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "18-"
+        },
+        {
+            "text": "Data from other countries illustrate the gender gap in access to technology. For example, in Iraq the vast majority of households own a mobile phone (this number includes both smart and feature phones), regardless of wealth and whether they live in an urban or a rural area. 14 However, when we ask the same question of women, an entirely different image emerges. Less than half of women in the poorest households and those living in rural areas own a mobile phone, let alone a smartphone.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "18-"
+        },
+        {
+            "text": "A Pew Research survey from 2018 showed that while the gender gap in access to smartphones was in single digits in most of the 27 investigated countries, in India men were more than twice as likely to own one than women (34% vs 15%). 10 Rolling out contact tracing apps without taking gender, age, wealth, ability, race, and class aspects of the digital divide into account can thus be disastrous and exacerbate problems for the most vulnerable.",
+            "cite_spans": [
+                {
+                    "start": 233,
+                    "end": 235,
+                    "text": "10",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "18-"
+        },
+        {
+            "text": "When we think of using smartphones for contact tracing, we necessarily assume that the way people treat and use their smartphones is consistent across contexts and cultures -that smartphones belong to individuals, who constantly carry them on their bodies. As anthropologist Susan L. Erikson describes in \"Cell Phones = Self and Other Problems with Big Data Detection and Containment during Epidemics\" this is not necessarily the case everywhere:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A smartphone per person?"
+        },
+        {
+            "text": "Many Sierra Leoneans possess cell phones, but this possession is often temporary, even fleeting. Cell phones are Mobile phone ownership in Iraq by income and residence location Figure 6 . In Iraq the vast majority of households have a mobile phone, regardless of wealth or location. However, women, especially those in the poorest and rural households are much less likely to have a phone on their own. loaned, traded, and passed around among family and friends, like clothes, books, and bicycles. A single phone can be shared by an extended family or, in rural areas, a neighborhood or a village. (...) Outside of larger cities, fewer Sierra Leoneans have cell phones. But in Freetown and Kenema, the capital city of the Eastern Province, I met many people who had more than one. 15 The consequences of this are two-fold. First, the data on penetration rates of smartphones and mobile internet users are potentially overly optimistic: 20% penetration does not mean two out of ten people have one smartphone each, but it might mean that 1 out of 10 has two devices. Second, even the smartphones might not be relevant for contact tracing efforts as they do not correspond to one person but are instead shared among multiple individuals: 20% penetration does not mean that two out of then people have one smartphone each and the others have none. Instead, it might mean that a group of ten people share two devices and use them each at different times.",
+            "cite_spans": [
+                {
+                    "start": 781,
+                    "end": 783,
+                    "text": "15",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 177,
+                    "end": 185,
+                    "text": "Figure 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "A smartphone per person?"
+        },
+        {
+            "text": "In general, smartphone users tend to have access to the Internet. 16 But the nation-wide statistics of Internet penetration might not accurately reflect the reality of ease and dependability of access. One of the limiting factors are large-scale power outages that disproportionately affect low income countries. According to a World Bank study, countries in South Asia experience 25.5 power outages per month on average, compared to 0.3 per month in Europe. 17 ",
+            "cite_spans": [
+                {
+                    "start": 66,
+                    "end": 68,
+                    "text": "16",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 459,
+                    "end": 461,
+                    "text": "17",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Internet infrastructure"
+        },
+        {
+            "text": "However, power outages are not the only reason for temporary lapses in connectivity. A human rights advocacy group Access Now reports on growing numbers of deliberate Internet shutdowns across the world which predominantly affect vulnerable communities. Their #KeepItOn campaign documented 213 shutdowns in 33 countries in 2019. 18 Some of the recorded shutdowns only last from a few hours for example when the UK law enforcement blocked the Internet access during a climate protest. Others last up to a few months like the case of Indian government's complete blackout of Jammu and Kashmir for 175 days, or Myanmar's shutdown of the Rakhine and Rohingya communities that started in June 2019 and continues to this day. 19 In his recent Human Rights Council submission \"Disease pandemics and the freedom of opinion and expression\" the Special Rapporteur on the promotion and protection of the right to freedom of opinion and expression, David Kaye, stressed:",
+            "cite_spans": [
+                {
+                    "start": 329,
+                    "end": 331,
+                    "text": "18",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 720,
+                    "end": 722,
+                    "text": "19",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "5/15"
+        },
+        {
+            "text": "Governments increasingly resort to shutting down the Internet, often for illegitimate purposes but in all cases having a disproportionate impact on the population. Network shutdowns invariably fail to meet the standard of necessity. 20 None of the reasons given to justify the ongoing shutdowns are related to the spread of COVID: the authorities do so to strategically curb protests, limit the free flow of information, and silence political speech. 18, 21, 22 However, they are already hindering the pandemic response among the impacted communities for example in Kashmir, 23 and Bangladesh. 24, 25 The negative impact of internet shutdowns on public health response also shows us that the internet has taken up a role similar to public infrastructure. Hence, cutting Internet access does not only harm free speech and commercial ventures but harms fundamental rights such as the right to health. 26",
+            "cite_spans": [
+                {
+                    "start": 233,
+                    "end": 235,
+                    "text": "20",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 451,
+                    "end": 454,
+                    "text": "18,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 455,
+                    "end": 458,
+                    "text": "21,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 459,
+                    "end": 461,
+                    "text": "22",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 575,
+                    "end": 577,
+                    "text": "23",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 594,
+                    "end": 597,
+                    "text": "24,",
+                    "ref_id": null
+                },
+                {
+                    "start": 598,
+                    "end": 600,
+                    "text": "25",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "5/15"
+        },
+        {
+            "text": "Despite the disparities in access, some countries are already employing apps for contact tracing using Bluetooth Low Energy. While we agree that this is the best technology we have, it is not clear whether it is good enough. Let's take a closer look.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2: Bluetooth works well enough for measuring proximity of epidemiological importance"
+        },
+        {
+            "text": "When contact tracing is enabled on a phone, it will send out a Bluetooth signal every few seconds. Other phones around will be able to detect this signal, and measure its strength. In theory a strong signal means that the devices are near each other; the further they are, the weaker the signal.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2: Bluetooth works well enough for measuring proximity of epidemiological importance"
+        },
+        {
+            "text": "Assuming ideal conditions with available smartphones, Bluetooth signals transmitted at full power can be picked up by other smartphones over up to 100 meters (330 ft). This is much further than the distancing advisory of 2 meters (6ft). Current app proposals rely on a combination of (1) lowering the transmission power to prevent such long distance reception and further (2) relying on Bluetooth signal strength measurement to identify short-distance proximity events -they assume a strong signal means a short distance while a weak signal means two people were further away from each other. Unfortunately for contact tracing, this is not really the case. For example, the human body weakens the Bluetooth signal quite well, which means that the app's distance estimate between two people talking to each other will be vastly different depending on whether their phones are in their front or back pockets. At the same time, Bluetooth signals can go through walls so your neighbors (both next door and up/down-stairs) are likely to be logged as a close contact. In fact, a few years ago we tested treating Bluetooth received signal strength' as a proxy for physical distance in ideal conditions, i.e. we used the exact same model phones, we placed them in an empty room (no human body attenuation) and various distances and found that it was very difficult to tell whether two phones were 1 meter (3 ft) apart (crucial for epidemic measurements) or 3 meters (9 ft) apart (much less relevant for transmission, as most virus-carrying droplets will fall within 2 meters, or 6ft). 27 These problems will be even more difficult to solve with different phone models and different places where people carry them. Solving them will require smartphone producers to closely collaborate with Google and Apple -in each phone model the relationship between signal strength and distance will be a bit different. The code that translates signal strength to distance will need to be further calibrated for different scenarios. This translation will be different outside vs inside, for phones carried in front pockets vs back pockets, backpacks vs purses, and so on.",
+            "cite_spans": [
+                {
+                    "start": 1577,
+                    "end": 1579,
+                    "text": "27",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assumption 2: Bluetooth works well enough for measuring proximity of epidemiological importance"
+        },
+        {
+            "text": "Finally, there are viral transmission pathways that would not be captured by Bluetooth. For example a widely discussed paper describes viral transmission among people in a restaurant. 28 Some of the infected guests were not sitting in close proximity to the infected person but instead droplets were transported through the air duct. Bluetooth apps would also not cover possible transmission through touching a common surface, with the caveat that we still do not know how likely this transmission channel is.",
+            "cite_spans": [
+                {
+                    "start": 184,
+                    "end": 186,
+                    "text": "28",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assumption 2: Bluetooth works well enough for measuring proximity of epidemiological importance"
+        },
+        {
+            "text": "Like every technology whose purpose is to detect certain events, Bluetooth-based contact tracing will suffer from two kinds of errors: false negatives and false positives. False negatives represent the failure of the app to report a potentially dangerous contact, for example because the distance was misjudged, or even because of external factors: the battery died, or the infected person did not have a smartphone. False positives happen when the app reports a potential exposure to the virus even though such exposure was very unlikely, for example the phones detected each other through a wall. These two kinds of errors have the potential to further drive societal inequities as they affect certain groups of people unequally. False negatives will mean that those who do not have smartphones or choose not to install the app might find it more difficult to obtain testing and adequate healthcare. False positives will predominantly affect those living with more people, take public transport, and work essential jobs that require them to be around others. If they are expected to isolate after receiving an exposure warning, it might lead to inequitable quarantining 29 and undermine trust.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2: Bluetooth works well enough for measuring proximity of epidemiological importance"
+        },
+        {
+            "text": "If Bluetooth is so inaccurate, why do academics (including authors of this work) keep using it as a proxy for human interactions also in their work on modeling the spread of diseases? In short, it is the best we have at the moment. Bluetooth is still much more accurate than GPS data and while not perfect, the signal still tells us something about physical proximity. Most of the academic work with this data revolves around simulations of spread dynamics. Rather than tracking who exactly was exposed, academics are interested in probabilistic estimates of how quickly the disease will spread, how many people will be infected, and so on. When we do focus on the risk to particular individuals, we get to run dozens of thousands of simulations to estimate the probability of each person being infected. Only when the system is deployed in the real world, will we have a chance to learn whether this probability corresponds to real infections well enough to support manual contact tracing efforts without overwhelming the system with false positives. When making such comparisons, we need to remember that currently in many places only people who have symptoms and were identified through contact tracing are tested, 30 and still the majority of them turn out not to have the virus.",
+            "cite_spans": [
+                {
+                    "start": 1218,
+                    "end": 1220,
+                    "text": "30",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assumption 2: Bluetooth works well enough for measuring proximity of epidemiological importance"
+        },
+        {
+            "text": "Digital rights organizations around the world stress that contact tracing technology needs to respect and protect civil liberties. In this ideal scenario, adoption of any contact tracing technology would be voluntary, based on informed consent and trust in the apps' efficacy and the institutions governing them. This trust should be built through guarantees regarding transparency (of code, of operation, but also of decision making processes and public procurement), legality, well enforced data protection standards, and accountability. 31 However, we have seen both democratic and non-democratic governments rushing to implement tracing apps and centralised data collection systems (see https://privacyinternational.org/examples/apps-and-covid-19). Many initially proposed tools suffer from mission creep and are designed and/or operated by private companies, lacking public oversight, a defined legal framework and adequate privacy protections. 32 The result of this situation is a lack of public trust expressed in a low willingness to opt in and install the existing apps. A poll from April 2020 shows that Americans have low levels of trust in tech companies, universities, insurance companies, and public health agencies. As a result, half of those who have smartphones in the US will not install a contact tracing app. 33 Experiences from around the world seem to reflect these findings. The first country to roll out an official and voluntary contact tracing app was Singapore with TraceTogether. Popular app uptake proved to be disappointing, despite promises of data minimisation and privacy safeguards, and the opening of the app source code. Six weeks after deployment only 1.1 million (or less than one in five) residents installed it. That is far below the minimum goal of 75%, set by their national response team. 34 Norway's experience was similar. Two weeks after the release of their contact tracing app it had 860,000 users, corresponding to only 16% of the population. 35 Such low adoption in small populations known for high levels of trust in their governments does not inspire confidence in adoption elsewhere. Unfortunately, we do not have accurate data about active users of other tracing apps. Apple does not publish download statistics and Google only provides a rough estimate. And even with that data we still would not know how many downloads actually translate into active users. Our approximations presented in Figure 7 show that adoption is, in fact, very low across the board (see Section Materials and Methods at the end of this article to find out how we arrived at these estimates). At the time of this analysis (mid-May 2020), we clearly see that only two countries, Israel and Czech Republic, might have reached the 60% threshold of installs that is commonly referred to as the minimum for tracing to work, and that is only if we make the most optimistic assumption.",
+            "cite_spans": [
+                {
+                    "start": 540,
+                    "end": 542,
+                    "text": "31",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 950,
+                    "end": 952,
+                    "text": "32",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 1329,
+                    "end": 1331,
+                    "text": "33",
+                    "ref_id": null
+                },
+                {
+                    "start": 1832,
+                    "end": 1834,
+                    "text": "34",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 1992,
+                    "end": 1994,
+                    "text": "35",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 2446,
+                    "end": 2454,
+                    "text": "Figure 7",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Assumption 3: People can and will choose to install and use contact tracing apps"
+        },
+        {
+            "text": "Moreover, a variety of groups across the US and Europe outright reject governmental containment efforts. Some actively resist lockdowns and the wearing of masks. 36, 37 Ultra-Orthodox Jews 38 and the Amish tend to refrain from technologies on religious grounds. It seems unlikely that these groups will install a contact tracing tool voluntarily, thus creating pockets of population with significantly lower adoption than the general public.",
+            "cite_spans": [
+                {
+                    "start": 162,
+                    "end": 165,
+                    "text": "36,",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 166,
+                    "end": 168,
+                    "text": "37",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assumption 3: People can and will choose to install and use contact tracing apps"
+        },
+        {
+            "text": "As adoption levels fail to materialise, some governments started to mandate apps by law or make them a precondition to full participation in public life. In the latter case an app might not be legally mandatory and still based on consent, but that consent is not meaningful if the reward is too high for citizens to actually be able to say no. While international law allows for limitations to civil liberties during a public health crisis, including on the right to privacy, it also clearly defines how the government should implement such limitations to balance rights and prevent abuses. 39 It is yet unclear whether directly or indirectly enforcing proposed tools would actually withstand legal tests. 40 A coercive approach is also problematic if it ignores the fact that many people might not have internet access or smartphones as shown in Assumption 1. Notwithstanding these concerns, the Indian government made their contact tracing app mandatory for workers across the country and for everybody in select cities (resulting in 90 million downloads corresponding to less than 7% of the population). 41 Poland's quarantine app is obligatory despite its privacy flaws. 42 Calls for mandatory app use are gaining traction in Singapore 43 and Italy. South Korea requires foreigners to install a tracking app when entering the country. 44 Kazakhstan, 45 Russia, 46 and the Gulf States 47 require installing tracking tools as a prerequisite for people to leave the house during quarantine. To understand what mandating really means for people's lives, it is worth looking at enforcement actors and practices. India 48 and Poland 49 task the police with enforcing tools through fines or even jail time. In Russia, the enforcement is built into the quarantine app: failure to comply with the instructions given by the app automatically results in a fine, even if it's caused by a bug in the app itself. 50 We also have major concerns about how enforcement will look like for people who do not have phones or the Internet to comply, or for people whose economic situation forces them to keep leaving the house. Looking at patterns of quarantine enforcement to date, we can expect that extended police powers will also aggravate already dire patterns of over-policing, racism, 51 and police brutality. 52 The future of the surveillance infrastructure Finally, we are also seeing how the crisis is used as a cover to further extend surveillance powers and introduce unrelated infrastructure often targeting the already over-surveilled. Reportedly, China intensified hacking campaigns against the Uighur community 53 and started installing cameras outside and sometimes inside people's homes. 54 Israel requires Palestinians who want to ensure the validity of their permit to stay in Israel to install an app giving the military access to their phone data. 55 Moscow introduced drones to police quarantine orders 56 and Paris has adopted AI tools to assess mask adoption on public transport. 57 The US Senate has passed a law allowing the FBI to access the browsing history of all Americans without a warrant 58 in times where we all have to rely on the internet to get on with our lives. And finally, the police in South Korean and Hong Kong track people's movements with wristbands, a tool often considered as a potential alternative to apps including in 8/15 5/20/2020 Total COVID-19 tests per 1,000 vs. GDP per capita",
+            "cite_spans": [
+                {
+                    "start": 591,
+                    "end": 593,
+                    "text": "39",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 706,
+                    "end": 708,
+                    "text": "40",
+                    "ref_id": "BIBREF38"
+                },
+                {
+                    "start": 1107,
+                    "end": 1109,
+                    "text": "41",
+                    "ref_id": "BIBREF39"
+                },
+                {
+                    "start": 1175,
+                    "end": 1177,
+                    "text": "42",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 1240,
+                    "end": 1242,
+                    "text": "43",
+                    "ref_id": "BIBREF41"
+                },
+                {
+                    "start": 1339,
+                    "end": 1341,
+                    "text": "44",
+                    "ref_id": "BIBREF42"
+                },
+                {
+                    "start": 1354,
+                    "end": 1356,
+                    "text": "45",
+                    "ref_id": "BIBREF43"
+                },
+                {
+                    "start": 1365,
+                    "end": 1367,
+                    "text": "46",
+                    "ref_id": "BIBREF44"
+                },
+                {
+                    "start": 1903,
+                    "end": 1905,
+                    "text": "50",
+                    "ref_id": "BIBREF48"
+                },
+                {
+                    "start": 2300,
+                    "end": 2302,
+                    "text": "52",
+                    "ref_id": "BIBREF50"
+                },
+                {
+                    "start": 2689,
+                    "end": 2691,
+                    "text": "54",
+                    "ref_id": "BIBREF52"
+                },
+                {
+                    "start": 2853,
+                    "end": 2855,
+                    "text": "55",
+                    "ref_id": "BIBREF53"
+                },
+                {
+                    "start": 2909,
+                    "end": 2911,
+                    "text": "56",
+                    "ref_id": "BIBREF54"
+                },
+                {
+                    "start": 2988,
+                    "end": 2990,
+                    "text": "57",
+                    "ref_id": "BIBREF55"
+                },
+                {
+                    "start": 3358,
+                    "end": 3367,
+                    "text": "5/20/2020",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Enforcing the use of apps"
+        },
+        {
+            "text": "The testing rate is the total number of tests per 1,000 people. GDP per capita is adjusted for price differences between countries (it is expressed in international dollars). GDP India and Bulgaria. 59 The list is growing by the day. These examples of deploying over-reaching surveillance tech under the guise of COVID-19 response are already alarming. More subtle tech interventions like privacy-preserving Bluetooth based contact tracing might seem benign by comparison but we will only understand their full impact in the years to come. We need to stay vigilant regarding re-purposing of tools and data. Sean McDonald points out that:",
+            "cite_spans": [
+                {
+                    "start": 175,
+                    "end": 178,
+                    "text": "GDP",
+                    "ref_id": null
+                },
+                {
+                    "start": 199,
+                    "end": 201,
+                    "text": "59",
+                    "ref_id": "BIBREF57"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Enforcing the use of apps"
+        },
+        {
+            "text": "The most political dimension of contact-tracing apps isn't what they're being used for right now, it's the role they are likely to play in attempts to reopen societies. 60 Recent history has shown that it is extremely difficult to roll back overextended government powers once they have been institutionalized and normalised. In the wake of the 9/11 attacks, the U.S. introduced the Patriot Act to drastically extend their surveillance apparatus with the goal of curbing terrorism. We do not know how effective it was in its stated objective, but, through the Snowden leaks, we do know that it has been widely abused to encroach on the rights of people worldwide. 61 19 years after the attacks, the Patriot Act has still not been repealed, setting a dangerous precedence. We thus need to carefully analyse what role contact tracing tools can play in a given power equilibrium and what is their potential for retooling once the pandemic is contained.",
+            "cite_spans": [
+                {
+                    "start": 169,
+                    "end": 171,
+                    "text": "60",
+                    "ref_id": "BIBREF58"
+                },
+                {
+                    "start": 664,
+                    "end": 666,
+                    "text": "61",
+                    "ref_id": "BIBREF59"
+                },
+                {
+                    "start": 667,
+                    "end": 669,
+                    "text": "19",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Enforcing the use of apps"
+        },
+        {
+            "text": "Experts claim between as many as 20 million tests per day will be necessary to safely reopen the US, 62 (corresponding to 60 tests per thousand residents per day) but the current (as of May, 20 2020) total for the entire epidemic is only at 12,647,791 63 (39 per thousand total). Why do we need so many? Without the tests we will not know whose contacts to trace. Moreover, if we cannot test these contacts, we will need to isolate them. At this stage of the epidemic, with a sizable infected population, isolating all contacts would not be much different than a complete lockdown. As the current restrictions are lifted each carrier might cross paths (and spend some time) with dozens of susceptible people daily but only a fraction of them will actually become infected -we need to be able to test all of them, but isolate only those that do contract the virus.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 4: Exposed individuals can adapt their behavior accordingly"
+        },
+        {
+            "text": "Unfortunately, the shortage of testing, lack of smartphones and internet access, as well as share of informal employment all come together to disproportionately impact the lower income countries, see Figure 8 . The lack of tests and limited access to those available drives the health divide rooted in social status and economic differences even further. There are three factors at play: first, the economic feasibility of ceasing to work or working from home while isolating; second, the efficacy of staying at home in order to slow down the spread; and third the ability to isolate at all. Wealthier people will isolate at their homes (or summer houses 64 ), but not everybody can afford to not work, or work from home. WHO guidelines state that individuals expected to stay at home ...need to be provided with health care; financial, social and psychosocial support; and basic needs, including food, water, and other essentials. The needs of vulnerable populations should be prioritized. 65 Unfortunately, this is not the reality for a large fraction of the world's population. The latest brief of the International Labour Organisation reminds us that the 2 billion informal workers worldwide are faced ..with an almost unsolvable dilemma: to die from hunger or from the virus. 66 This holds also true in richer countries. In the US, only two months into non-essential business closures, food insecurity has reached an unprecedented level. According to the COVID Impact Survey and the Survey of Mothers with Young Children, 67 two in five households run by mothers with children up to 12 years old could not afford enough food, more than a two-fold increase compared to the same time of year in 2018.",
+            "cite_spans": [
+                {
+                    "start": 655,
+                    "end": 657,
+                    "text": "64",
+                    "ref_id": "BIBREF62"
+                },
+                {
+                    "start": 991,
+                    "end": 993,
+                    "text": "65",
+                    "ref_id": "BIBREF63"
+                },
+                {
+                    "start": 1281,
+                    "end": 1283,
+                    "text": "66",
+                    "ref_id": "BIBREF64"
+                },
+                {
+                    "start": 1527,
+                    "end": 1529,
+                    "text": "67",
+                    "ref_id": "BIBREF65"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 200,
+                    "end": 208,
+                    "text": "Figure 8",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Assumption 4: Exposed individuals can adapt their behavior accordingly"
+        },
+        {
+            "text": "For many across the world staying at home does not only endanger their food supply, but might also not contribute much to slowing the virus' spread. Transmission between people housed together is now a major driver of the pandemic. 68 Those with lower incomes are more likely to share smaller living spaces with more people, often with insufficient sanitary conditions. One in seven people on Earth live in a slum, 69 where the population density can be as much as ten times higher than in the surrounding city. 70 Additionally, More than half of the world's population does not have access to sanitation. 71 Without being able to socially distance and practice hygiene, just staying at home will not stop the virus -sadly many of these areas are already suffering COVID outbreaks.",
+            "cite_spans": [
+                {
+                    "start": 232,
+                    "end": 234,
+                    "text": "68",
+                    "ref_id": "BIBREF66"
+                },
+                {
+                    "start": 415,
+                    "end": 417,
+                    "text": "69",
+                    "ref_id": "BIBREF67"
+                },
+                {
+                    "start": 512,
+                    "end": 514,
+                    "text": "70",
+                    "ref_id": "BIBREF68"
+                },
+                {
+                    "start": 606,
+                    "end": 608,
+                    "text": "71",
+                    "ref_id": "BIBREF69"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assumption 4: Exposed individuals can adapt their behavior accordingly"
+        },
+        {
+            "text": "Finally, some communities are not free to change their behavior and seek help in response to the virus. Roma settlements in Bulgaria and Slovakia were cordoned off without providing adequate health and social aid. 72 The virus also ravages migrant 10/15 workers' dorms 73 and refugee camps. 74 While we lack sufficient data in these contexts (in part because of the lack of testing), we do know what happens once the virus reaches another kind of population that cannot alter its behavior accordingly: those held in prisons in the US. Once the virus makes it through the gates, it spreads much more rapidly than in the rest of the population, leading to enormous differences in infections and deaths. For example, as we show in Figure 9 based on the data collected by The Marshall Project, 75 in Ohio prisons we have seen 48 times more cases and 8 times more deaths per 100,000 than the state average. These numbers are similar for Arkansas: we see 44 times more cases and 10 times more deaths compared to the state average.",
+            "cite_spans": [
+                {
+                    "start": 214,
+                    "end": 216,
+                    "text": "72",
+                    "ref_id": "BIBREF70"
+                },
+                {
+                    "start": 291,
+                    "end": 293,
+                    "text": "74",
+                    "ref_id": "BIBREF72"
+                },
+                {
+                    "start": 790,
+                    "end": 792,
+                    "text": "75",
+                    "ref_id": "BIBREF73"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 728,
+                    "end": 736,
+                    "text": "Figure 9",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Assumption 4: Exposed individuals can adapt their behavior accordingly"
+        },
+        {
+            "text": "All of the factors we describe above are inherently connected. Economic hardship tends to overlap with other vulnerabilities and aggravates them. Living in conflict areas or fragile states; living with displacement or an undetermined migration status; even living in richer countries but lower on the socio-economic ladder or struggling with homelessness; all of these situations often also mean sharing narrow spaces with insufficient sanitary conditions, and limited agency to adapt individual behavior to protect oneself, the family, and the community.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 4: Exposed individuals can adapt their behavior accordingly"
+        },
+        {
+            "text": "Without public health responses pro-actively addressing these needs of vulnerable communities, many of those affected by the virus will neither be able to access testing nor isolate. As a result, the virus is likely to continue spreading even if contact tracing apps will reach high levels of adoption in the general population. No app will help when those affected cannot respond accordingly to exposure notifications. All that tracing tools can do in these contexts is collect data, increase surveillance, and add an additional mental burden to an already incredibly challenging situation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 4: Exposed individuals can adapt their behavior accordingly"
+        },
+        {
+            "text": "In this commentary we took a step back from the discussion about the intricacies of the contact tracing technology and focused on challenging the assumptions that are too often taken for granted. By looking at recent data and latest reporting, analysis and commentary from around the world we can confidently say:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "\u2022 Estimates show that over half of the global population do not have modern smartphones, unhindered access to the Internet, and incompatible user patterns.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "\u2022 Inevitable errors in Bluetooth sensing will affect populations differently: those without smartphones might have a harder time accessing appropriate health care if lines for testing are filled with app users falsely alarmed about potential exposure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "\u2022 Growing evidence shows that individuals rarely choose to install tracing apps unless coerced in some way, raising serious concerns in regards to civil liberties and the long term impact of these surveillance systems.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "\u2022 The majority of the world's population cannot access tests and many cannot adapt their behavior accordingly if they were notified about exposure due to socioeconomic factors and other vulnerabilities.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "It is abundantly clear that no technology exists in a political, social, and economic vacuum and that the current epidemic disproportionately harms the already vulnerable communities. Basing solutions to the problem on the technology that is available mostly to the younger, better educated, richer and/or living in the rich countries might help them, might also bring unintended and potentially harmful consequences, discriminatory enforcement practices and further exacerbate existing inequalities.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "Reliance on apps is, however, not just a problem of access to technology. So far, we have seen these apps designed and deployed without conducting human right impact assessments or allowing public discussion and scrutiny. We must also consider how the national deployments, mandating, and enforcement will affect those that do install the apps, or wear wristbands. Seda G\u00fcrses emphasises the existence of two distinct classes in the society. The delivery class delivers the goods and health care to the receiver class. 76 Individuals in the latter can afford to stay at home and will neither be at a heightened risk of the virus, nor exposed to the inherent privacy risks of running surveillance apps on their phones. The delivery class, on the other hand, will be expected, or even forced, to install the apps and carry the biggest burden both of the pandemic but also of privacy loss, as well as intensified scrutiny and surveillance from law enforcement. The voices of the delivery class are strikingly absent in the debates on how to design public health responses in general and technology in particular.",
+            "cite_spans": [
+                {
+                    "start": 519,
+                    "end": 521,
+                    "text": "76",
+                    "ref_id": "BIBREF74"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "Smartphone contact tracing promises to support manual tracers, not replace them. In fact, the very people who are developing these apps are urging policymakers to strengthen their offline response and hire more tracers. 77 But is this really the situation we are working towards? Some countries do: Georgia, 78 Ghana, and Senegal, 79 as well as India's state of Kerala 80 are successfully managing to slow down the virus with considerate and rapid public health responses and without enforcing new, untested technology. In the US currently only one state, North Dakota, has an adequate number of tracing personnel, 81 and only a few more are planning to meet the demand. With millions of people around the world losing their jobs in the wake of the pandemic, supporting the manual tracing efforts could provide economic relief to individuals and help contain the spread beyond the digital divide, before experimenting with unproven and potentially harmful tech fixes.",
+            "cite_spans": [
+                {
+                    "start": 220,
+                    "end": 222,
+                    "text": "77",
+                    "ref_id": "BIBREF75"
+                },
+                {
+                    "start": 308,
+                    "end": 310,
+                    "text": "78",
+                    "ref_id": "BIBREF76"
+                },
+                {
+                    "start": 331,
+                    "end": 333,
+                    "text": "79",
+                    "ref_id": "BIBREF77"
+                },
+                {
+                    "start": 615,
+                    "end": 617,
+                    "text": "81",
+                    "ref_id": "BIBREF79"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "The data for Figure 1 as well as allocation of countries to market regions, come from the GSMA The Mobile Economy report accessible at https://bit.ly/3bmYrol. The particular numbers are transcribed from Figure 6 on page 14. They refer to \"mobile broadband\" subscribers rather than \"smartphone ownership\", so they involve all those that have a SIM card with mobile data capability even if they do not have a smartphone.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 13,
+                    "end": 21,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 203,
+                    "end": 211,
+                    "text": "Figure 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "Materials and Methods"
+        },
+        {
+            "text": "There are two sources of smartphone penetration data in this Figure 2 : a Pew Research Center survey from 2019 (https: //pewrsr.ch/3chkI8r) and a Newzoo study from 2019 (https://bit.ly/2WCnUF3). Whenever a country appeared in both surveys, we took the more optimistic (higher) estimate of penetration. The GDP estimates were taken from 2018 (the year when both penetration studies were performed) from The World Bank https://bit.ly/2LjyRX0. The population estimates from 2018 were from the same Newzoo study for countries it covered and from the United Nations https://bit.ly/3dGgK9S for the other countries.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 61,
+                    "end": 69,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Materials and Methods"
+        },
+        {
+            "text": "All the data in Figure 3 comes from the Pew Research Center study (https://pewrsr.ch/2LotKVC) from page 13. Y-axis is the result of dividing penetration among the 18-34 year olds by the penetration among the 50+ year old. X-axis is the country's total penetration.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 16,
+                    "end": 24,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Materials and Methods"
+        },
+        {
+            "text": "To arrive at the results presented in Figure 7 we took the following steps. First, we used the install estimates from Google Play store as collected and reported by Top10VPN at https://bit.ly/2TqeYSv. These estimates come in ranges 5-10, 11-50, 51-100, 101-500, and so on. The Top10VPN data also reports if each app has an iOS version. If it does, we use Statcounter to obtain the estimate of Android market share in that country. We assume, that the same fraction of iOS users installs the app as Android users. We then report the pessimistic estimate as the lower bound reported by Google Play Store plus the corresponding number of installs from iOS users, and the optimistic estimate as upper bound plus the corresponding number of iOS installs, both divided by the country's population.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 38,
+                    "end": 46,
+                    "text": "Figure 7",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Materials and Methods"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Health Officials Say 'No Thanks' to Contact-Tracing Tech",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Vogelstein",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "WIRED",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Apple and Google detail bold and ambitious plan to track COVID-19 at scale",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Goodin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Ars Technica",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Protecting lives & liberty",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Case",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Kinda Girl (@divafeminist)",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Smartphone users worldwide",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "O&apos;dea",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "2 billion phones cannot use Google and Apple contact-tracing tech",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Bradshaw",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Ars Technica",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Facts and figures 2019 -Measuring digital development",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Smartphone Ownership Is Growing Rapidly Around the World, but Not Always Equally",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Silver",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Pew Res. Cent",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Quantifying sars-cov-2 transmission suggests epidemic control with digital contact tracing",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Ferretti",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "368",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Mobile Technology and Home Broadband",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Anderson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Pew Res. Cent",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "National Statistics Office of Georgia",
+            "authors": [],
+            "year": 2018,
+            "venue": "Georgia Multiple Indicator Cluster Survey",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Central Statistical Office, and Kurdish Region Statistical Office",
+            "authors": [],
+            "year": 2018,
+            "venue": "Iraq Georgia Multiple Indicator Cluster Survey",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Cell phones = self and other problems with big data detection and containment during epidemics",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Erikson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Med. anthropology quarterly",
+            "volume": "32",
+            "issn": "",
+            "pages": "315--339",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Percentage of Individuals using the Internet",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Power outages in firms in a typical month",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "#KeepItOn Campaign. Targeted, cut off, and left in the dark",
+            "authors": [],
+            "year": 2020,
+            "venue": "AccessNow",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "UN experts concerned at surge in civilian casualties in northwest myanmar after internet shutdown. United Nations Human Rights",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Jimenez-Damary",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kaye",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "De Varennes",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Report of the Special Rapporteur on the promotion and protection of the right to freedom of opinion and expression",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kaye",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Netizen Report: Widespread throttling puts social media out of reach in Kazakhstan",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Abrougui",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "GlobalVoices",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Indonesia's post-election riots led to free speech violations",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Carolina",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Kashmir, slow internet throttles doctors' coronavirus response. The New Humanit",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Misgar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Internet Curbs on Rohingya Risk Wider Virus Outbreak. Physicians for Human Rights",
+            "authors": [
+                {
+                    "first": "Phelim",
+                    "middle": [],
+                    "last": "Kine",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "The strength of friendship ties in proximity sensor data",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Sekara",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lehmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "PloS one",
+            "volume": "9",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "COVID-19 Outbreak Associated with Air Conditioning in Restaurant",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Emerg Infect Dis",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "The Importance of Equity in Contact Tracing",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Landau",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Lopez",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Moy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lawfare Blog",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Can You Get a Coronavirus Test?",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Lecher",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Varner",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Martinez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "It May Depend on Where You Live. The Markup",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Coronavirus: States use of digital surveillance technologies to fight pandemic must respect human rights",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Proposed government coronavirus tracking app falls at the first hurdle due to data breach",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Osborne",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Day",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "ZDNet",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "About 1 million people have downloaded TraceTogether app, but more need to do so for it to be effective: Lawrence Wong. The Straits Times",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Chong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Smittestopp p\u00e5 iPhone fungerer bare skikkelig n\u00e5r appen er \u00e5pen",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Olsen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Coronavirus lockdown protest: What's behind the US demonstrations?",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bbc News",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "BBC",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Proteste in mehreren St\u00e4dten",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Frakfurter Allgemeine",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "FAZ.NET",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Ultra-Orthodox Jews Must Choose Between Obedience to Their Rabbis -or to Their Smartphone",
+            "authors": [
+                {
+                    "first": "Yair",
+                    "middle": [],
+                    "last": "Ettinger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Haaretz",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Disease pandemics and the freedom of opinion and expression. A/HRC/44/49",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kaye",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "54--57",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "Why COVID-19 is a Crisis for Digital Rights",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Reventlow",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Digital Freedom Fund",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Ahead of the curve: South Korea's evolving strategy to prevent a coronavirus resurgence",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Phartiyal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Reuters",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "Luka w aplikacji Kwarantanna domowa. Kto poniesie za ni\u0105 konsekwencje?",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Nowosielska",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Dziennik Gazeta Prawna",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "No other way but to make use of TraceTogether mandatory. The Straits Times",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Tham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "Ahead of the curve: South Korea's evolving strategy to prevent a coronavirus resurgence",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Smith",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hyonhee",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cha",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Reuters",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "Virusnyj monitoring: Kak koronavirus rasprostranil mirovuju sle\u017eku. The Steppe",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "\u017dajyk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "Moskvi\u010dej s koronavirusom objazali prisylat' selfi -\u010dtoby podtverdit',\u010dto oni doma",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Nesterova",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Current Time",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "Golfstaaten setzen in Corona-Krise auf totale elektronische \u00dcberwachung. mena-watch",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Frank",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "An Entire City Has Been Told To Download A Controversial Contact Tracing App -Or Face Jail",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Dixit",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "BuzzFeed News",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF47": {
+            "ref_id": "b47",
+            "title": "Aplikacja Kwarantanna domowa -od dzi\u015b obowi\u0105zkowa",
+            "authors": [
+                {
+                    "first": "Ministerstwo",
+                    "middle": [],
+                    "last": "Cyfryzacji",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Serwis Rzeczypospolitej Polskiej",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "Antisocial'nyj monitoring",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Marohovskaja",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Velikovskij",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "Scrutiny of Social-Distance Policing as 35 of 40 Arrested Are Black. The New York Times",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ashley",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF50": {
+            "ref_id": "b50",
+            "title": "Coronavirus in Africa: Whipping, shooting and snooping",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Olewe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "BBC",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF51": {
+            "ref_id": "b51",
+            "title": "Amid Its Covid-19 Crisis",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Greenberg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "China Was Still Hacking Uighurs' iPhones. WIRED",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF52": {
+            "ref_id": "b52",
+            "title": "China is installing surveillance cameras outside people's front doors ... and sometimes inside their homes",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Gan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF53": {
+            "ref_id": "b53",
+            "title": "Amid Coronavirus Crisis, Israel Tells Palestinians to Download App That Tracks Phones",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Hasson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Haaretz",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF54": {
+            "ref_id": "b54",
+            "title": "Rosgvardija na\u010dala ispol'zovat' bespilotniki dlja vyjavlenija naru\u0161itelej samoizoljacii",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vedomosti",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF55": {
+            "ref_id": "b55",
+            "title": "France is using AI to check whether people are wearing masks on public transport. The Verge",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vincent",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF56": {
+            "ref_id": "b56",
+            "title": "Senate Votes to Allow FBI to Look at Your Web Browsing History Without a Warrant",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rose",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Motherboard",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF57": {
+            "ref_id": "b57",
+            "title": "Coronavirus: People-tracking wristbands tested to enforce lockdown",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bbc News",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "BBC",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF58": {
+            "ref_id": "b58",
+            "title": "Contact-tracing apps are political",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mcdonald",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF59": {
+            "ref_id": "b59",
+            "title": "Leaks that exposed US spy programme",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [
+                        "Edward"
+                    ],
+                    "last": "Bbc News",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Snowden",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "BBC",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF60": {
+            "ref_id": "b60",
+            "title": "Roadmap to pandemic resilience: Massive scale testing, tracing, and supported isolation (ttsi) as the path to pandemic resilience for a free society",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Allen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Block",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cohen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Safra Cent. for Ethics at Harv. Univ",
+            "volume": "20",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF61": {
+            "ref_id": "b61",
+            "title": "COVID-19 Dashboard",
+            "authors": [],
+            "year": 2020,
+            "venue": "John Hopkins Univ",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF62": {
+            "ref_id": "b62",
+            "title": "Rich urbanites are fleeing big cities and draining resources in smaller, more remote vacation spots. Here's where they're going -and how the locals feel about it",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Hoffower",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Bus. Insid",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF63": {
+            "ref_id": "b63",
+            "title": "World Health Organization and others. Considerations for quarantine of individuals in the context of containment for coronavirus disease (COVID-19): interim guidance",
+            "authors": [],
+            "year": 2020,
+            "venue": "Tech. Rep., World Health Organization",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF64": {
+            "ref_id": "b64",
+            "title": "Contagion or starvation, the dilemma facing informal workers during the COVID-19 pandemic",
+            "authors": [],
+            "year": 2020,
+            "venue": "International Labour Organization",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF65": {
+            "ref_id": "b65",
+            "title": "The COVID-19 crisis has already left too many children hungry in America",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Bauer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF66": {
+            "ref_id": "b66",
+            "title": "Dr Muge Cevik (@mugecevik)",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF67": {
+            "ref_id": "b67",
+            "title": "Make cities and human settlements inclusive, safe, resilient and sustainable",
+            "authors": [],
+            "year": 2020,
+            "venue": "United Nations",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF68": {
+            "ref_id": "b68",
+            "title": "Life in a slum: understanding living conditions in nairobi's slums across time and space",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Bird",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Montebruno",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Regan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Oxf. Rev. Econ. Policy",
+            "volume": "33",
+            "issn": "",
+            "pages": "496--520",
+            "other_ids": {}
+        },
+        "BIBREF69": {
+            "ref_id": "b69",
+            "title": "1 in 3 people globally do not have access to safe drinking water -UNICEF",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Osseiran",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lufadeju",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "WHO. Tech. Rep., World Health Organization",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF70": {
+            "ref_id": "b70",
+            "title": "Europe's marginalised Roma people hit hard by coronavirus . The Guard",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Walker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF71": {
+            "ref_id": "b71",
+            "title": "Singapore Contained the Coronavirus for Months. Now It Has One of the Worst Outbreaks in Asia",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Hadavas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Slate",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF72": {
+            "ref_id": "b72",
+            "title": "Distancing is impossible': refugee camps race to avert coronavirus catastrophe",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Subbaraman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF73": {
+            "ref_id": "b73",
+            "title": "The Marshall Project. A State-by-State Look at Coronavirus in Prisons",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF74": {
+            "ref_id": "b74",
+            "title": "The Radical AI Podcast. Apple & Google Partner to Promote Coronavirus Contact Tracing. Should You be Worried? with Seda Gurses",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF75": {
+            "ref_id": "b75",
+            "title": "What Happens Next? COVID-19 Futures, Explained With Playable Simulations",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Salath\u00e9",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Case",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF76": {
+            "ref_id": "b76",
+            "title": "Georgia gets rare plaudits for coronavirus response",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lomsadze",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "eurasianet",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF77": {
+            "ref_id": "b77",
+            "title": "Why are Africa's coronavirus successes being overlooked? The Guardian",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Hirsch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF78": {
+            "ref_id": "b78",
+            "title": "How a South Indian State Flattened Its Coronavirus Curve. The Diplomat",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Nowrojee",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF79": {
+            "ref_id": "b79",
+            "title": "States Nearly Doubled Plans For Contact Tracers Since NPR Surveyed Them 10 Days Ago",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Simmons-Duffin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "NPR",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "by the Decentralized Privacy-Preserving Proximity Tracing group (DP3T), one of Access to mobile Internet is not evenly distributed across the world and is especially scarce in Sub-Saharan Africa.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Smartphone penetration is strongly correlated with the wealth of countries-the richest countries have eight times more smartphones per capita than the poorest.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Figure 3. Countries with the lowest overall smartphone adoption also have the largest age gaps in ownership. 10 In India and Indonesia, below below 35 are five times more likely to have a smartphone compared to those above 50.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Despite contact tracing apps being deployed in 30 countries, the adoption levels are disappointing. Only Israel and Czech Republic might have reached the required level of 60%, assuming the most optimistic estimate.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Most countries struggle with performing adequate number of tests, but lower income countries are especially affected by the shortages.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "OH MA CT IN NY IL AR GA TX LA AZ NC prisoner data: The Marshall Project, https://bit.ly/2ToWEsZ source of state data: The COVID-19 Tracking Project, https://covidtracking.com/ Imprisoned populations cannot practice social distancing and might suffer from worse access to health care. As a result, the rates of infection and deaths are much higher than average for the states where the prisons are located.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "This",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The authors would like to thank all those who volunteered their time to help us make this article better: NaLette Brodnax, Dan Calacci, Manuel Garcia-Herranz, Enys Mones, Seda G\u00fcrses, Alan Mislove, Alissa Sadler, Rachel Ross, Jonathan Andrew, and others.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        },
+        {
+            "text": "Piotr Sapiezynski is a Research Scientist at Northeastern University, working on societal impacts of algorithmic systems. His PhD work focused on analysing human mobility and physical proximity patterns through the lens of data collected using smartphones. He has published on the topic in top conferences and journals.Johanna Pruessing has a Master's in anthropology and political science. She has lived and worked in Russia, Armenia, Azerbaijan, Turkey, the UK, and Poland focusing on human rights issues before joining the Open Society Foundations in Berlin as a program specialist concentrating on former Soviet countries. Thematically she works at the intersection of human rights, activism, and technology with a sweet spot for fighting digital authoritarianism.Vedran Sekara is joining the IT University in Copenhagen as an Assistant Professor and is a research consultant at UNICEF. His work focuses on data representativeness, building equitable algorithms, and identifying and fixing bias in common Data Science, Machine Learning, and Artificial Intelligence like systems. He has a PhD in applied mathematics and computer science which focuses on using digital traces collected from mobile phones to understand social relations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Authors"
+        }
+    ]
+}

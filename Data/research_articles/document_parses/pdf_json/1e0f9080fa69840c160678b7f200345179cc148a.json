@@ -1,0 +1,950 @@
+{
+    "paper_id": "1e0f9080fa69840c160678b7f200345179cc148a",
+    "metadata": {
+        "title": "On the Balancedness of Tree-to-Word Transducers",
+        "authors": [
+            {
+                "first": "Raphaela",
+                "middle": [],
+                "last": "L\u00f6bel",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU M\u00fcnchen",
+                    "location": {
+                        "settlement": "Munich",
+                        "country": "Germany"
+                    }
+                },
+                "email": "loebel@in.tum.de"
+            },
+            {
+                "first": "Michael",
+                "middle": [],
+                "last": "Luttenberger",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU M\u00fcnchen",
+                    "location": {
+                        "settlement": "Munich",
+                        "country": "Germany"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Helmut",
+                "middle": [],
+                "last": "Seidl",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TU M\u00fcnchen",
+                    "location": {
+                        "settlement": "Munich",
+                        "country": "Germany"
+                    }
+                },
+                "email": "seidl@in.tum.de"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "A language over an alphabet B = A \u222a A of opening (A) and closing (A ) brackets, is balanced if it is a subset of the Dyck language D B over B, and it is well-formed if all words are prefixes of words in D B . We show that well-formedness of a context-free language is decidable in polynomial time, and that the longest common reduced suffix can be computed in polynomial time. With this at a hand we decide for the class 2-TW of non-linear tree transducers with output alphabet B * whether or not the output language is balanced.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Structured text requires that pairs of opening and closing brackets are properly nested. This applies to text representing program code as well as to XML or HTML documents. Subsequently, we call properly nested words over an alphabet B of opening and closing brackets balanced. Balanced words, i.e. structured text, need not necessarily be constructed in a structured way. Therefore, it is a non-trivial problem whether the set of words produced by some kind of text processor, consists of balanced words only. For the case of a single pair of brackets and context-free languages, decidability of this problem has been settled by Knuth [3] where a polynomial time algorithm is presented by Minamide and Tozawa [9] . Recently, these results were generalized to the output languages of monadic second-order logic (MSO) definable tree-to-word transductions [8] . The case when the alphabet B consists of multiple pairs of brackets, though, seems to be more intricate. Still, balancedness for context-free languages was shown to be decidable by Berstel and Boasson [1] where a polynomial time algorithm again has been provided by Tozawa and Minamide [13] . Whether or not these results for B can be generalized to MSO definable transductions as e.g. done by finite copying macro tree transducers with regular look-ahead, remains as an open problem. Reynier and Talbot [10] considered visibly pushdown transducers and showed decidability of this class with well-nested output in polynomial time.",
+            "cite_spans": [
+                {
+                    "start": 636,
+                    "end": 639,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 710,
+                    "end": 713,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 854,
+                    "end": 857,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1061,
+                    "end": 1064,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 1146,
+                    "end": 1150,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1364,
+                    "end": 1368,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Here, we provide a first step to answering this question. We consider deterministic tree-to-word transducers which process their input at most twice by calling in their axioms at most two linear transductions of the input. Let 2-TW denote the class of these transductions. Note that the output languages of linear deterministic tree-to-word transducers is context-free, which does not need to be the case for 2-TW transducers. 2-TW forms a subclass of MSO definable transductions which allows to specify transductions such as prepending an XML document with the list of its section headings, or appending such a document with the list of figure titles. For 2-TW transducers we show that balancedness is decidable-and this in polynomial time. In order to obtain this result, we first generalize the notion of balancedness to the notion of well-formedness of a language, which means that each word is a prefix of a balanced word. Then we show that well-formedness for context-free languages is decidable in polynomial time. A central ingredient is the computation of the longest common suffix of a contextfree language L over B after reduction i.e. after canceling all pairs of matching brackets. While the proof shares many ideas with the computation of the longest common prefix of a context-free language [7] we could not directly make use of the results of [7] s.t. the results of this paper fully subsume the results of [7] . Now assume that we have verified that the output language of the first linear transduction called in the axiom of the 2-TW transducer and the inverted output language of the second linear transformation both are well-formed. Then balancedness of the 2-TW transducer in question, effectively reduces to the equivalence of two deterministic linear tree-to-word transducers-modulo the reduction of opening followed by corresponding closing brackets. Due to the well-formedness we can use the equivalence of linear tree-to-word transducers over the free group which can be decided in polynomial time [5] .",
+            "cite_spans": [
+                {
+                    "start": 1306,
+                    "end": 1309,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1359,
+                    "end": 1362,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1423,
+                    "end": 1426,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 2025,
+                    "end": 2028,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "This paper is organized as follows. After introducing basic concepts in Sect. 2, Sect. 3 shows how balancedness for 2-TW transducers can be reduced to equivalence over the free group and well-formedness of LT \u0394 s. Section 4 considers the problem of deciding well-formedness of context-free languages in general.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Missing proofs can be found in the extended version of this paper [4] .",
+            "cite_spans": [
+                {
+                    "start": 66,
+                    "end": 69,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "As usual, N (N 0 ) denotes the natural numbers (including 0). The power set of a set S is denoted by 2 S . \u03a3 denotes some generic (nonempty) alphabet, \u03a3 * and \u03a3 \u03c9 denote the set of all finite words and the set of all infinite words, respectively. Then \u03a3 \u221e = \u03a3 * \u222a\u03a3 \u03c9 is the set of all countable words. Note, that the transducers considered here output finite words only; however, for the operations needed to analyze the output infinite words are very helpful. We denote the empty word by \u03b5. For a finite word w = w 0 . . . w l , its reverse w R is defined by w R = w l . . . w 1 w 0 ; as usual, set L R := {w R | w \u2208 L} for L \u2286 \u03a3 * . A is used to denote an alphabet of opening brackets with A = {a | a \u2208 A} the derived alphabet of closing brackets, and B := A \u222a A the resulting alphabet of opening and closing brackets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Longest Common Prefix and Suffix. Let \u03a3 be an alphabet. We first define the longest common prefix of a language, and then reduce the definition of the longest common suffix to it by means of the reverse. We write p to denote the prefix relation on \u03a3 \u221e , i.e. we have u p w if either (i) u, w \u2208 \u03a3 * and there exists v \u2208 \u03a3 * s.t. w = uv, or (ii) u \u2208 \u03a3 * and w \u2208 \u03a3 \u03c9 and there exists v \u2208 \u03a3 \u03c9 s.t. w = uv, or (iii) u, w \u2208 \u03a3 \u03c9 and u = w. We extend \u03a3 \u221e by a greatest element",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "which is called the longest common prefix of L, abbreviated by lcp(L). Further, define \u03b5 \u03c9 := , R := , and w := =: w for all w \u2208 \u03a3 \u221e .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "In Sect. 4 we will need to study the longest common suffix ( lcs) of a language L. For L \u2286 \u03a3 * , we can simply set lcs(L) := lcp(L R ) R , but also certain infinite words are very useful for describing how the lcs changes when concatenating two languages (see e.g. Example 2). Recall that for u, w \u2208 \u03a3 * and w = \u03b5 the \u03c9-regular expression uw \u03c9 denotes the unique infinite word uwww . . . in k\u2208N0 uw k \u03a3 \u03c9 ; such a word is also called ultimately periodic. For the lcs we will use the expression w \u03c9 u to denote the ultimately left-periodic word . . . wwwu that ends on the suffix u with infinitely many copies of w left of u; these words are used to abbreviate the fact that we can generate a word w k u for unbounded k \u2208 N 0 . As we reduce the lcs to the lcp by means of the reverse, we define the reverse of w [4] we derive further equalities for lcs that allow to simplify its computation. In particular, the following two equalities (for x, y \u2208 \u03a3 * ) are very useful: Involutive Monoid. We briefly recall the basic definitions and properties of the finitely generated involutive monoid, but refer the reader for details and a formal treatment to e.g. [11] . Let A be a finite alphabet (of opening brackets/letters). From A we derive the alphabet A := {a | a \u2208 A} (of closing brackets/letters) where we assume that A \u2229 A = \u2205. Set B := A \u222a A . We use roman letters p, q, . . . to denote words over A, while Greek letters \u03b1, \u03b2, \u03b3, . . . will denote words over B.",
+            "cite_spans": [
+                {
+                    "start": 811,
+                    "end": 814,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1154,
+                    "end": 1158,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "We extend \u00b7 to an involution on B * by means of \u03b5 := \u03b5, a := a for all a \u2208 A, and \u03b1\u03b2 := \u03b2 \u03b1 for all other \u03b1, \u03b2 \u2208 B * . Let \u03c1 \u2192 be the binary relation on B * defined by \u03b1aa \u03b2 \u03c1 \u2192 \u03b1\u03b2 for any \u03b1, \u03b2 \u2208 B * and a \u2208 A, i.e. \u03c1 \u2192 cancels nondeterministically one pair of matching opening and closing brackets. A word \u03b1 \u2208 B * is reduced if it does not contain any infix of the form aa for any a \u2208 A, i.e. \u03b1 is reduced if and only if it has no direct successor w.r.t. \u03c1 \u2192. For every \u03b1 \u2208 B * canceling all matching brackets in any arbitrary order always results in the same unique reduced word which we denote by \u03c1(\u03b1); we write \u03b1",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Well-Formed Languages and Context-Free Grammars. We are specifically interested in context-free grammars (CFG) G over the alphabet B. We write \u2192 G for the rewrite rules of G. We assume that G is reduced to the productive nonterminals that are reachable from its axiom S. For simplicity, we assume for the proofs and constructions that the rules of G are of the form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "for nonterminals X, Y, Z and u, v \u2208 A * . We write L X := {\u03b1 \u2208 B * | X \u2192 * G \u03b1} for the language generated by the nonterminal X. Specifically for the axiom S of G we set L := L S . The height of a derivation tree w.r.t. G is measured in the maximal number of nonterminals occurring along a path from the root to any leaf, i.e. in our case any derivation tree has height at least 1. We write L \u2264h X for the subset of L X of words that possess a derivation tree of height at most h s.t.:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "1. Let \u0394(\u03b1) := |\u03b1| A \u2212 |\u03b1| A be the difference of opening brackets to closing brack-",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Note that d X \u2265 0 as we can always choose \u03b1 = \u03b5 in the definition of d X .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "As already mentioned in the abstract and the introduction, we have that L is wf iff Prf(L) is wf iff L is a subset of the prefix closure of the Dyck language generated by S \u2192 \u03b5, S \u2192 SS, S \u2192 aSa (for a \u2208 A). We state some further direct consequences of above definition: (i) L is nonnegative iff the image of L under the homomorphism that collapses A to a singleton is wf. Hence, if L is wf, then L is nonnegative. \u0394 is an \u03c9-continuous homomorphism from the language semiring generated by B to the tropical semiring Z \u222a {\u2212\u221e}, min, + . Thus it is decidable in polynomial time if G is nonnegative using the Bellman-Ford algorithm [2] .",
+            "cite_spans": [
+                {
+                    "start": 627,
+                    "end": 630,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "In particular, because of context-freeness, it follows that, if G is wf, then for",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "The words r X mentioned in the definition of bounded well-formedness can be computed in polynomial time using the Bellman-Ford algorithm similar to [13] ; more precisely, a straight-line program (SLP) (see e.g. [6] for more details on SLPs), i.e. a context-free grammar generating exactly one derivation tree and thus word, can be extracted from G for each r X .",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 152,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 211,
+                    "end": 214,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Tree-to-Word Transducers. We define a linear tree-to-word transducer (LT B ) M = (\u03a3, B, Q, S, R) where \u03a3 is a finite ranked input alphabet, B is the finite (unranked) output alphabet, Q is a finite set of states, the axiom S is of the form u 0 or u 0 q(x 1 )u 1 with u 0 , u 1 \u2208 B * and R is a set of rules of the form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "n \u2264 m and \u03c3 an injective mapping from {1, . . . , n} to {1, . . . , m}. Since non-deterministic choices of linear transducers can be encoded into the input symbols, we may, w.l.o.g., consider deterministic transducers only. For simplicity, we moreover assume the transducers to be total. This restriction can be lifted by additionally taking a top-down deterministic tree automaton for the domain into account. The constructions introduced in Sect. 3 would then have to be applied w.r.t. such a domain tree automaton. As we consider total deterministic transducers there is exactly one rule for each pair q \u2208 Q and f \u2208 \u03a3.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "A 2-copy tree-to-word transducer (2-TW) is a tuple N = (\u03a3, B, Q, S, R) that is defined in the same way as an LT B but the axiom S is of the form u 0 or",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "T \u03a3 denotes the set of all trees/terms over \u03a3. We define the semantics q :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "The semantics M of an LT B M with axiom u 0 is given by \u03c1(u 0 ); if the axiom is of the form u 0 q(x 1 )u 1 it is defined by \u03c1(u 0 q (t)u 1 ) for all t \u2208 T \u03a3 ; while the semantics N of a 2-TW N with axiom u 0 is again given by \u03c1(u 0 ) and for axiom",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Note that the output language of an LT B is context-free and a corresponding context-free grammar for this language can directly read from the rules of the transducer.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Additionally, we may assume w.l.o.g. that all states q of an LT B are nonsingleton, i.e., L(q) contains at least two words. We call a 2-",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Balanced and well-formed states are defined analogously. We use q to denote the inverse transduction of q which is obtained from a copy of the transitions reachable from q by involution of the right-hand side of each rule. As a consequence, q (t) = q (t) for all t \u2208 T \u03a3 , and thus, L(q ) = L(q) . We say that two states q, q are equivalent iff for all t \u2208 T \u03a3 , q (t) = q (t). Accordingly, two 2-TWs M , M are equivalent iff for all t \u2208 T \u03a3 , M (t) = M (t).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Let M denote a 2-TW. W.l.o.g., we assume that the axiom of M is of the form q 1 (x 1 )q 2 (x 1 ) for two states q 1 , q 2 . If this is not yet the case, an equivalent 2-TW with this property can be constructed in polynomial time. We reduce balancedness of M to decision problems for linear tree-to-word transducers alone. Proof. Assume first that M with axiom q 1 (x 1 )q 2 (x 1 ) is balanced, i.e., L(M ) = \u03b5. Then for all w , w with w = w w \u2208 L(M ), \u03c1(w ) = u \u2208 A * and \u03c1(w ) = u . Thus, both L(q 1 ) and L(q 2 ) consist of well-formed words only. Assume for a contradiction that q 1 and q 2 are not equivalent. Then there is some t \u2208 T \u03a3 such that q 1 (t) \u03c1 = q 2 (t). Let q 1 (t) = u \u2208 A * and q 2 (t) = q 2 (t) = v with v \u2208 A * and u = v. Then \u03c1( q 1 (t) q 2 (t)) = \u03c1(uv ) = \u03b5 as u = v, u, v \u2208 A * . Since M is balanced, this is not possible. Now, assume that L(q 1 ) and L(q 2 ) are well-formed, i.e., for all t \u2208 T \u03a3 , q 1 (t) \u2208 A * and q 2 (t) \u2208 A * . Additionally assume that q 1 and q 2 are equivalent, i.e., for all t \u2208 T \u03a3 , q 1 (t) = q 2 (t) = q 2 (t) . Therefore for all t \u2208 T \u03a3 , q 2 (t) = q 1 (t) and hence, \u03c1( q 1 (t) q 2 (t)) = \u03c1( q 1 (t) q 1 (t) ) = \u03b5 Therefore, the 2-TW M must be balanced.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Balancedness of 2-TWs"
+        },
+        {
+            "text": "The output languages of states q 1 and q 2 are generated by means of context-free grammars of polynomial size. (2) , g (0) } (the superscript denotes the rank), output alphabet B = {a, a }, axiom q 3 (x 1 ) and rules",
+            "cite_spans": [
+                {
+                    "start": 111,
+                    "end": 114,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Balancedness of 2-TWs"
+        },
+        {
+            "text": "We obtain a CFG producing exactly the output language of M by nondeterministically guessing the input symbol, i.e. the state q i becomes the nonterminal W i . The axiom of this CFG is then W 3 , and as rules we obtain",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Balancedness of 2-TWs"
+        },
+        {
+            "text": "Note that the rules of M and the associated CFG use a form of iterated squaring, i.e. W 3 \u2192 2 W 4 3 , that allows to encode potentially exponentially large outputs within the rules (see also Example 4). In general, words thus have to be stored in compressed form as SLPs [6] .",
+            "cite_spans": [
+                {
+                    "start": 271,
+                    "end": 274,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Balancedness of 2-TWs"
+        },
+        {
+            "text": "Therefore, Theorem 2 of Sect. 4 implies that well-formedness of q 1 , q 2 can be decided in polynomial time. Accordingly, it remains to consider the equivalence problem for well-formed LT B s. Since the two transducers in question are wellformed, they are equivalent as LT B s iff they are equivalent when their outputs are considered over the free group F A . In the free group F A , we additionally have that a a \u03c1 = \u03b5-which does not hold in our rewriting system. If sets L(q 1 ), L(q 2 ) of outputs for q 1 and q 2 , however, are well-formed, it follows for all u \u2208 L(q 1 ), v \u2208 L(q 2 ) that \u03c1(uv ) = \u03c1(\u03c1(u)\u03c1(v )) cannot contain a a. Therefore, \u03c1(uv ) = \u03b5 iff uv is equivalent to \u03b5 over the free group F A . In [5, Theorem 2], we have proven that equivalence of LT B s where the output is interpreted over the free group, is decidable in polynomial time. Thus, we obtain our main theorem.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Balancedness of 2-TWs"
+        },
+        {
+            "text": "As described in the preceding sections, given a 2-TW we split it into the two underlying LT B s that process a copy of the input tree. We then check that each of these two LT B s are equivalent w.r.t. the free group. As sketched in Example 1 we obtain a context-free grammar for the output language of each of these LT B s. It then remains to check that both context-free grammars are well-formed. In order to prove that we can decide in polynomial time whether a context-free grammar is well-formed (short: wf), we proceed as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Deciding Well-Formedness of Context-Free Grammars"
+        },
+        {
+            "text": "First, we introduce in Definition 3 the maximal suffix extension of a language L \u2286 \u03a3 * w.r.t. the lcs (denoted by lcsx(L)), i.e. the longest word u \u2208 \u03a3 \u221e s.t. lcs(uL) = u lcs(L). We then show that the relation L \u2248 lcs L :\u21d4 lcs(L) = lcs(L )\u2227 lcsx(L) = lcsx(L ) is an equivalence relation on \u03a3 * that respects both union and concatenation of languages (see Lemma 5) . It then follows that for every language L \u2286 \u03a3 * there is some subset T lcs (L) \u2286 L of size at most 3 with L \u2248 lcs T lcs (L).",
+            "cite_spans": [
+                {
+                    "start": 355,
+                    "end": 363,
+                    "text": "Lemma 5)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Deciding Well-Formedness of Context-Free Grammars"
+        },
+        {
+            "text": "We then use T lcs to compute a finite \u2248 lcs -equivalent representation T \u2264h X of the reduced language generated by each nonterminal X of the given contextfree grammar inductively for increasing derivation height h. In particular, we show that we only have to compute up to derivation height 4N + 1 (with N the number of nonterminals) in order to decide whether G is wf: In Lemma 7 we show that, if G is wf, then we have to have T \u22644N +1 X \u2248 lcs T \u22644N X for all nonterminals X of G. The complementary result is then shown in Lemma 6, i.e. if G is not wf, then we either cannot compute up to T \u22644N +1 X as we discover some word that is not wf, or we have T \u22644N X \u2248 lcs T \u22644N +1 X for at least one nonterminal X.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Deciding Well-Formedness of Context-Free Grammars"
+        },
+        {
+            "text": "We first show that we can compute the longest common suffix of the union L \u222a L and the concatenation LL of two languages L, L \u2286 \u03a3 * if we know both lcs(L) and lcs(L ), and in addition, the longest word lcsx(L) resp. lcsx(L ) by which we can extend lcs(L) resp. lcs(L ) when concatenating another language from left. In contrast to the computation of the lcp presented in [7] , we have to take the maximal extension lcsx explicitly into account. In this paragraph we do not consider the involution, thus let \u03a3 denote an arbitrary alphabet. If lcs(L) is not contained in L, then lcs(L) has to be a strict suffix of every shortest word in L, and thus immediately lcsx(L) = \u03b5. As in the case of the lcs, also lcsx(L) is already defined by two words in L:",
+            "cite_spans": [
+                {
+                    "start": 371,
+                    "end": 374,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "We show that we can compute the lcs and the extension lcsx of the union resp. the concatenation of two languages solely from their lcs and lcsx. To this end, we define the lcs-summary of a language as: Definition 4. For L \u2286 \u03a3 * set \u03c0 lcs (L) := (lcs(L), lcsx(L)). The equivalence relation \u2248 lcs on 2 \u03a3 * is defined by: L \u2248 lcs L iff \u03c0 lcs (L) = \u03c0 lcs (L ). As both the lcs and the lcsx are determined by already two words (cf. Lemmas 1 and 4), it follows that every L \u2286 \u03a3 * is \u2248 lcs -equivalent to some sublanguage T lcs (L) \u2286 L consisting of at most three words where the words xR, yR can be chosen arbitrarily up to the stated constraints (with R = lcs(L)):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "Deciding Well-Formedness. For the following, we assume that G is a context-free grammar over B = A \u222a A with nonterminals X. Set N := |X|. We further assume that G is nonnegative, and that we have computed for every nonterminal X of G a word r X \u2208 A * (represented as an SLP) s.t. |r X | = d X and r X \u2208 Prf(\u03c1(L X )). 1 In order to decide whether G is wf we compute the languages \u03c1(r X L \u2264h X ) modulo \u2248 lcs for increasing derivation height h using fixed-point iteration. Assume inductively that (i) r X L \u2264h X is wf and (ii) that we have computed T \u2264h X := T lcs (\u03c1(r X L \u2264h X )) \u2248 lcs \u03c1(r X L \u2264h X ) for all X \u2208 X up to height h. Then we can compute T lcs (\u03c1(r X L \u2264h+1 X )) for each nonterminal as follows:",
+            "cite_spans": [
+                {
+                    "start": 317,
+                    "end": 318,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "Note that, if all constants r X r Y and all T \u2264h X are wf, but G is not wf, then the computation has to fail while computing r X r Y T \u2264h Y r Z ; see the following example.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "Example 4. Consider the nonnegative context-free grammar G given by the rules (with the parameter n \u2208 N fixed)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "with axiom S. Except for B all nonterminals generate nonnegative languages. Note that the nonterminals W n to W 1 form an SLP that encodes the word b 2 n by means of iterated squaring which only becomes productive at height h = n + 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "For h \u2265 n + 3 we have:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "Here the words r X used to cancel the longest prefix of closing brackets (after reduction) are",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": ")/2 and n + 3 \u2264 h \u2264 h 0 ; in particular, the lcs of T \u2264h S has already converged to c at h = n+3, only its maximal extension lcsx changes for n + 3 \u2264 h \u2264 h 0 . We discover the first counterexample a 2 n b that G is not wf while computing T \u2264h0+1 V = T lcs (\u03c1(T \u2264h0 U b )). As illustrated in Example 4, if G is not wf, then the minimal derivation height h 0 + 1 at which we discover a counterexample might be exponential in the size of the grammar. The following lemma states that up to this derivation height h 0 the representations T \u2264h X cannot have converged (modulo \u2248 lcs ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "The following Lemma 7 states the complementary result, i.e. if G is wf then the representations T \u2264h X have converged at the latest for h = 4N modulo \u2248 lcs . The basic idea underlying the proof of Lemma 7 is similar to [7] : we show that from every derivation tree of height at least 4N + 1 we can construct a derivation tree of height at most 4N such that both trees carry the same information w.r.t. the lcs (after reduction). In contrast to [7] we need not only to show that T \u22644N X has the same lcs as \u03c1(r X L \u22644N X ), but that T \u22644N X has converged modulo \u2248 lcs if G is wf; to this end, we need to explicitly consider lcsx, and re-prove stronger versions of the results regarding the combinatorics on words which take the involution into account (see A.6 in the appendix of the extended version [4] ).",
+            "cite_spans": [
+                {
+                    "start": 219,
+                    "end": 222,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 444,
+                    "end": 447,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 800,
+                    "end": 803,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Maximal Suffix Extension and lcs-Equivalence."
+        },
+        {
+            "text": "Let G be a context-free grammar with N nonterminals and L(G) be wf. For every nonterminal X let r X \u2208 A * s.t. |r X | = d X and r X L X wf. Then \u03c1(r X L X ) \u2248 lcs \u03c1(r X L \u22644N X ), and T \u22644N X \u2248 lcs T \u22644N +1 X for every nonterminal X.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 7."
+        },
+        {
+            "text": "The following example sketches the main idea underlying the proof of Lemma 7.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 7."
+        },
+        {
+            "text": "Example 5. The central combinatorial observation 2 is that for any well-formed language L \u2286 B * of the form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 7."
+        },
+        {
+            "text": "we have that its longest common suffix after reduction lcs \u03c1 (L) := lcs(\u03c1(L)) is determined by the reduced longest common suffix of \u03b1\u03b3\u03b2 and either (\u03b1, \u03b2)(\u03bc i , \u03bd i )\u03b3 = \u03b1\u03bc i \u03b3\u03bd i \u03b2 or (\u03b1, \u03b2)(\u03bc i , \u03bd i )(\u03bc j , \u03bd j )\u03b3 = \u03b1\u03bc i \u03bc j \u03b3\u03bd j \u03bd i \u03b2 for some i \u2208 {1, 2} but arbitrary j \u2208 {1, 2} in the latter case. 3 Assume now we are given a context-free grammar G with N variables. Further assume that L := L(G) is well-formed. W.l.o.g. G is in Chomsky normal form and reduced to the productive nonterminals reachable from the axiom of G. Let L \u22644N denote the sublanguage of words generated by G with a derivation tree of height at most 4N . Pick a shortest (before reduction) word \u03ba 0 \u2208 L := L(G). Then there is some \u03ba 1 \u2208 L with R := lcs \u03c1 (L) = lcs \u03c1 (\u03ba 0 , \u03ba 1 ); we will call any such word a witness (w.r.t. \u03ba 0 ) in the following. If R \u2208 L, then \u03ba 0 \u03c1 = R, and any word in L is a witness. In particular, there is a witness in L \u22644N . So assume R \u2208 L. Then we may factorize (in a unique way) \u03ba 0 = \u03ba 0 a\u03ba 0 and \u03ba 1 = \u03ba 1 b\u03ba 1 such that \u03c1(\u03ba 0 ) = R = \u03c1(\u03ba 1 ) where a, b \u2208 A with a = b. Then \u03c1(\u03ba 0 ) = z 0 aR and \u03c1(\u03ba 1 ) = z 1 bR. Further assume that \u03ba 1 \u2208 L \u22644N , otherwise we are done. Fix any derivation tree t of \u03ba 1 , and fix within t the main path from the root of t to the last letter b of the suffix b\u03ba 1 of \u03c1(\u03ba 1 ) (the dotted path in Fig. 1 ). We may assume that any path starting at a node on this main path and then immediately turning left towards a letter within the prefix \u03ba 1 consists of at most N nonterminals: if any nonterminal occurs twice the induced pumping tree can be pruned without changing the suffix b\u03ba 1 ; as the resulting tree is still a valid derivation tree w.r.t. G, we obtain another witness w.r.t. \u03ba 0 . Thus consider any path (including the main path) in t that leads from its root to a letter within the suffix b\u03ba 1 . If every such path consists of at most 3N nonterminals, then every path in t consists of at most 4N nonterminals so that \u03ba 1 \u2208 L \u22644N follows. Hence, assume there is at least one such path consisting of 3N + 1 nonterminals. Then there is some nonterminal X occurring at least four times on this path. Fix four occurrences of X and factorize \u03ba 1 accordingly In the proof of Lemma 7 we show that we may assume-as L is well-formedthat u, v, w, s 1 , s 2 , s 3 \u2208 A * with only \u03c4 1 , \u03c4 2 , \u03c4 3 \u2208 B * . From this factorization we obtain the sublanguage L := (u, v)[(s 1 , \u03c4 1 ) + (s 2 , \u03c4 2 ) + (s 3 , \u03c4 3 )] * w. Our goal is to show that (u, v)w or (u, v)(s i , \u03c4 i )w or (u, v)(s i , \u03c4 i )(s j , \u03c4 j )w (for i = j) is a witness w.r.t. \u03ba 0 : note that each of these words result from pruning at least one pumping tree from t which inductively leads to a procedure to reduce t to a derivation tree of height at most 4N that still yields a witness for R = lcs \u03c1 (L) w.r.t. \u03ba 0 . Assume thus specifically that neither (u, v)w = uwv nor (u, v)(s 3 , \u03c4 3 )w = us 3 w\u03c4 3 v nor (u, v)(s i , \u03c4 i )(s 3 , \u03c4 3 )w = us i s 3 w\u03c4 3 \u03c4 i v for i \u2208 {1, 2} is a witness w.r.t. \u03ba 0 , i.e. each of these words end on aR after reduction. Apply now the result mentioned at the beginning of this example to the language L := (u, v)[(s 1 , \u03c4 1 ) + (s 2 , \u03c4 2 )] * (s 3 , \u03c4 3 )w: by our assumptions \u03ba 1 \u2208 L is a witness w.r.t. us 3 w\u03c4 3 v \u2208 L so that both lcs \u03c1 (L ) = lcs \u03c1 (L) and also (u, v)(s 1 , \u03c4 1 ) 2 (s 3 , \u03c4 3 )w is a witness w.r.t. us 3 w\u03c4 3 v as we may choose j = 1. Thus also lcs \u03c1 (L) = lcs \u03c1 (L ) for L := (u, v)[(s 1 , \u03c4 1 ) + (s 3 , \u03c4 3 )] * w as L \u2286 L and both (u, v)w \u2208 L and (u, v)(s 1 , \u03c4 1 )(s 1 , \u03c4 1 )(s 3 , \u03c4 3 )w \u2208 L . Applying the same argument now to L , but choosing j = i it follows that (u, v)(s 1 , \u03c4 1 )w or (u, v)(s 3 , \u03c4 3 )(s 1 , \u03c4 1 )w has to be a witness w.r.t. \u03ba 0 .",
+            "cite_spans": [
+                {
+                    "start": 303,
+                    "end": 304,
+                    "text": "3",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1337,
+                    "end": 1343,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Lemma 7."
+        },
+        {
+            "text": "The sketched argument can be adapted so that it also allows to conclude the maximal extension after reduction lcsx(\u03c1(L)) has to have converged at derivation height 4N the latest, if L is well-formed. For details, see the proof of Lemma 7 in the appendix of the extended version [4] .",
+            "cite_spans": [
+                {
+                    "start": 278,
+                    "end": 281,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Lemma 7."
+        },
+        {
+            "text": "As |T \u2264h X | \u2264 3, a straight-forward induction also shows that every word in T \u2264h X can be represented by an SLP that we can compute in time polynomial in G for h \u2264 4N + 1; together with the preceding Lemmas 7 and 6 we thus obtain the main result of this section: Theorem 2. Given a context-free grammar G over B we can decide in time polynomial in the size of G whether G is wf.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 7."
+        },
+        {
+            "text": "We have shown that well-formedness for context-free languages is decidable in polynomial time. This allowed us to decide in polynomial time whether or not a 2-TW is balanced. The presented techniques, however, are particularly tailored for 2-TWs. It is unclear how a generalization to transducers processing three or more copies of the input would look like. Thus, the question remains whether balancedness is decidable for general MSO definable transductions. It is also open whether even the single bracket case can be generalized beyond MSO definable transduction, e.g. to output languages of top-down tree-to-word transducers [12] .",
+            "cite_spans": [
+                {
+                    "start": 630,
+                    "end": 634,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Formal properties of XML grammars and languages",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Berstel",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Boasson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Acta Inf",
+            "volume": "38",
+            "issn": "9",
+            "pages": "649--671",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00236-002-0085-4"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Derivation tree analysis for accelerated fixed-point computation",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Esparza",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kiefer",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Luttenberger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Theor. Comput. Sci",
+            "volume": "412",
+            "issn": "28",
+            "pages": "3226--3241",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.tcs.2011.03.020"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A characterization of parenthesis languages",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Knuth",
+                    "suffix": ""
+                }
+            ],
+            "year": 1967,
+            "venue": "Inf. Control",
+            "volume": "11",
+            "issn": "3",
+            "pages": "269--289",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "On the balancedness of tree-to-word transducers",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "L\u00f6bel",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Luttenberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seidl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Equivalence of linear tree transducers with output in the free group",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "L\u00f6bel",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Luttenberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seidl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Algorithmics on SLP-compressed strings: a survey",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Lohrey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Groups Compl. Cryptol",
+            "volume": "4",
+            "issn": "2",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1515/gcc-2012-0016"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Computing the longest common prefix of a context-free language in polynomial time",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Luttenberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Palenta",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seidl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "STACS 2018. LIPIcs",
+            "volume": "96",
+            "issn": "",
+            "pages": "1--48",
+            "other_ids": {
+                "DOI": [
+                    "10.4230/LIPIcs.STACS.2018.48"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Balancedness of MSO transductions in polynomial time",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Maneth",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seidl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Inf. Process. Lett",
+            "volume": "133",
+            "issn": "",
+            "pages": "26--32",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ipl.2018.01.002"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "XML validation for context-free grammars",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Minamide",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tozawa",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "APLAS 2006",
+            "volume": "4279",
+            "issn": "",
+            "pages": "357--373",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11924661_22"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Visibly pushdown transducers with well-nested outputs",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Reynier",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Talbot",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Int. J. Found. Comput. Sci",
+            "volume": "27",
+            "issn": "2",
+            "pages": "235--258",
+            "other_ids": {
+                "DOI": [
+                    "10.1142/S0129054116400086"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Elements of Automata Theory",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sakarovitch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Equivalence of deterministic top-down tree-tostring transducers is decidable",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Seidl",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Maneth",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Kemper",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "J. ACM",
+            "volume": "65",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/3182653"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Complexity results on balanced context-free languages",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tozawa",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Minamide",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "FoSSaCS 2007",
+            "volume": "4423",
+            "issn": "",
+            "pages": "346--360",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-71389-0_25"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "R , by means of (w \u03c9 u) R := u R (w R ) \u03c9 . Definition 1. Let \u03a3 ulp denote the set of all expressions of the form w \u03c9 u with u \u2208 \u03a3 * and w \u2208 \u03a3 + . \u03a3 ulp is called the set of ultimately left-periodic words. Define the reverse of an expression w",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "instance, we have lcs((bba) \u03c9 , (ba) \u03c9 a) = a, and lcs((ab) but u = v. As the lcp is the infimum w.r.t. p , we also have for x, y, z \u2208 { } \u222a \u03a3 * \u222a \u03a3 ulp and L, L \u2286 { } \u222a \u03a3 * \u222a \u03a3 ulp that (i) lcs(x, y) = lcs(y, x), (ii) lcs(x, lcs(y, z)) = lcs(x, y, z), (iii) lcs(L) s lcs(L ) for L \u2287 L , and (iv) lcs(Lx) = lcs(L)x for x \u2208 { } \u222a \u03a3 * . In Lemma 8 in the appendix of the extended version",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "lcs(x, xy) = lcs(x, y \u03c9 ) = lcs(x, xy k ) for every k \u2265 1 xy = yx lcs(xy,x \u03c9 ) = lcs(xy, yx k ) if xy = yx, for every k \u2265 1 For instance, we have lcs((ab) \u03c9 , (bab) \u03c9 ) = bab = lcs(abbab, (ab) \u03c9 ). Note also that by definition we have \u03b5 \u03c9 = s.t. lcs(x \u03c9 , \u03b5 \u03c9 ) = (x\u03b5) \u03c9 . We will use the following observation frequently: Lemma 1. Let L \u2286 \u03a3 * be nonempty. Then for any x \u2208 L we have lcs(L) = lcs(lcs(x, z) | z \u2208 L); in particular, there is some witness y \u2208 L (w.r.t. x) s.t. lcs(L) = lcs(x, y).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "The 2-TW M is balanced iff the following two properties hold: -Both L(q 1 ) and L(q 2 ) are well-formed; -q 1 and q 2 are equivalent.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "For L \u2286 \u03a3 * with R = lcs(L) the maximal suffix extension (lcsx) of L is defined by lcsx(L) := lcs(z \u03c9 | zR \u2208 L). Recall that by definition lcsx(\u2205) = lcs(\u2205) = and lcsx({R}) = lcs(\u03b5 \u03c9 ) = . The following example motivates the definition of lcsx: Example 2. Consider the language L = {R, xR, yR} with lcs(L) = R and lcsx(L) = lcs(x \u03c9 , y \u03c9). Assume we prepend some word u \u2208 \u03a3 * to L resulting in the language uL = {uR, uxR, uyR}, see the following picture for an illustration (dotted boxes represent copies of z \u2208 {x, y} stemming from the usual line of argumentation that, if z is a suffix of u = u z, then uzR = u zzR, and thus eventually covering all of u by z As motivated by the picture, lcs(uL) is given by lcs(u, x \u03c9 , y \u03c9 )R. Using the concept of ultimately left-periodic words, we may also formalize this as follows:lcs(u{xR, yR, R}) = lcs(u, ux, uy)R = lcs(lcs(u, ux), lcs(u, uy))R (as lcs(u, ux) = lcs(u, In particular, if xy = yx, we can extend lcs by any finite suffix of lcsx(L) = (xy) \u03c9 (note that, if x = \u03b5 = y, then lcsx(L) = \u03b5 \u03c9 = is defined to be the greatest element w.r.t. s ); but if xy = yx, we can extend it at most to lcsx(L) = lcs(x \u03c9 , y \u03c9 ) = lcs(xy, yx) s xy. Essentially, only three cases can arise as illustrated by the following three examples: First, consider L 1 = {ab, cb} with lcs(L 1 ) = b. Obviously, for every word u \u2208 \u03a3 * we have that lcs(uL 1 ) = lcs(L 1 ) and so we should have lcsx(L 1 ) = \u03b5. Instantiating the definition we obtain indeed lcsx(L 1 ) = lcs(a \u03c9 , b \u03c9 ) = lcs(\u03b5) = \u03b5. As another example consider L 2 = {a, baa} with lcs(L 2 ) = a. Here, we obtain lcsx(L 2 ) = lcs(\u03b5 \u03c9 , (ba) \u03c9 ) = lcs( , (ba) \u03c9 ) = (ba) \u03c9 , i.e. the suffix of L 2 can be extended by any finite suffix of (ba) \u03c9 = . . . bababa. Finally, consider L 3 = {b, ba n b, aba n b} with lcs(L 3 ) = b for some fixed n \u2208 N. As mentioned in Sect. 2, we have lcs(x \u03c9 , y \u03c9 ) = lcs(xy, yx) for xy = yx. We thus obtain in this case lcs((ba n ) \u03c9 , (aba n ) \u03c9 ) = lcs(ba n aba n , aba n ba n ) = a n ba n . The classic result by Fine and Wilf states that, if xy = yx, then |lcs(x \u03c9 , y \u03c9 )| < |x| + |y| \u2212 gcd(|x|, |y|). Thus x = ba n and y = aba n constitute an extremal case where the lcs is only finitely extendable.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Let L, L \u2286 \u03a3 * with \u03c0 lcs (L) = (R, E) and \u03c0 lcs (L ) = (R , E ). If L = \u2205 or L = \u2205, then \u03c0 lcs (L \u222a L ) = (lcs(R, R ), lcs(E, E )), and \u03c0 lcs (LL ) = ( , ). Assume thus L = \u2205 = L which implies R = = R . Then: -lcs(L \u222a L ) = lcs(R, R ) and lcs(LL ) = lcs(R, E )R . -If lcs(R, R ) \u2208 {R, R }, then lcsx(L \u222a L ) = \u03b5; else w.l.o.g. R = \u03b4R and lcsx(L \u222a L ) = lcs(E, lcs(E , E \u03b4)\u03b4). -If lcs(R, E ) s R, then lcsx(LL ) = \u03b5; else E = \u03b4R and lcsx(LL ) = lcs(E, \u03b4). , consider L = {a, baa} and L = {aa, baaa} s.t. \u03c0 lcs (L) = (a, (ba) \u03c9 ) and \u03c0 lcs (L ) = (aa, (ba) \u03c9 ). Applying Lemma 5, we obtain for the union lcs(L \u222a L ) = lcs a, aa = a and lcsx(L \u222a L ) = lcs (ba) \u03c9 , lcs((ba) \u03c9 , (ba) \u03c9 a)a = a. In case of the concatenation, Lemma 5 yields lcs(LL ) = lcs a, (ba) \u03c9 aa = aaa and lcsx(LL ) = lcs (ba)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Factorization of a witness \u03ba1 = (u, v)(s1, t1)(s2, t2)(s3, t3)w = \u03ba 1 b\u03ba 1 w.r.t. a nonterminal X occurring at least four times a long the dashed path in a derivation tree of \u03ba1 leading to a letter within the suffix b\u03ba 1 . The dotted path depicts the main path leading to the lcs \u03c1 -delimiting occurrence of the letter b.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We also like to thank the anonymous reviewers for their detailed comments and valuable advice.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements."
+        }
+    ]
+}

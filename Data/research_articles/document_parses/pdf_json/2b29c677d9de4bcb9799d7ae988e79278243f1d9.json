@@ -1,0 +1,2374 @@
+{
+    "paper_id": "2b29c677d9de4bcb9799d7ae988e79278243f1d9",
+    "metadata": {
+        "title": "DeepEMhancer: a deep learning solution for cryo-EM volume post-processing",
+        "authors": [
+            {
+                "first": "R",
+                "middle": [],
+                "last": "Sanchez-Garcia",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Centro Nacional de Biotecnolog\u00eda-CSIC C/ Darwin 3",
+                    "location": {
+                        "postCode": "28049",
+                        "settlement": "Cantoblanco, Madrid",
+                        "country": "Spain"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "J",
+                "middle": [],
+                "last": "Gomez-Blanco",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "McGill University 3640 Rue University",
+                    "location": {
+                        "postCode": "H3A 0C7",
+                        "settlement": "Montr\u00e9al",
+                        "region": "QC",
+                        "country": "Canada"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "A",
+                "middle": [],
+                "last": "Cuervo",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Centro Nacional de Biotecnolog\u00eda-CSIC C/ Darwin 3",
+                    "location": {
+                        "postCode": "28049",
+                        "settlement": "Cantoblanco, Madrid",
+                        "country": "Spain"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "J",
+                "middle": [
+                    "M"
+                ],
+                "last": "Carazo",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Centro Nacional de Biotecnolog\u00eda-CSIC C/ Darwin 3",
+                    "location": {
+                        "postCode": "28049",
+                        "settlement": "Cantoblanco, Madrid",
+                        "country": "Spain"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "J",
+                "middle": [],
+                "last": "Vargas",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Centro Nacional de Biotecnolog\u00eda-CSIC C/ Darwin 3",
+                    "location": {
+                        "postCode": "28049",
+                        "settlement": "Cantoblanco, Madrid",
+                        "country": "Spain"
+                    }
+                },
+                "email": "jvargas@fis.ucm.es"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Cryo-electron microscopy (cryo-EM) maps are among the most valuable sources of information for protein structure modeling. However, due to the loss of contrast at high frequencies, they generally need to be post-processed before modeling in order to improve their interpretability. To that end, approaches based on B-factor correction are the most popular choices, yet they suffer from some limitations such as the fact that the correction is applied globally, ignoring the presence of heterogeneity in the map local quality that cryo-EM reconstructions tend to exhibit. With the aim of overcoming these limitations, here we present DeepEMhancer, a deep learning approach designed to perform automatic post-processing of cryo-EM maps. Trained on a dataset of pairs of experimental cryo-EM maps and maps sharpened by LocScape using their respective atomic models, DeepEMhancer has automatically learned how to post-process experimental maps performing masking-like and sharpening-like operations in a single step. DeepEMhancer has been evaluated on a testing set of 20 different experimental maps, showing its ability to obtain much cleaner and detailed versions of the experimental maps, thus, improving their interpretability. Additionally, we have illustrated the benefits of DeepEMhancer with a use case in which the structure of the SARS-CoV 2 RNA polymerase is improved.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Almost one decade after the beginning of the socalled \"resolution revolution\", cryogenic electron microscopy (cryo-EM) has become one of the most versatile tools in the field of structural biology. Beginning from thousands of single particle projection images, cryo-EM workflows are capable of obtaining three-dimensional (3D) reconstructions of many macromolecules at \"nearatomic\" resolution levels. However, the ultimate goal of cryo-EM Single Particle Analysis is not the obtention of 3D maps but the detailed atomic understanding through the derivation of atomic models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "During the atomic model building process, raw 3D maps are rarely employed, as they suffer from loss of contrast at high resolution (Rosenthal and Henderson, 2003) that makes difficult the detection and interpretability of residues and secondary structure. Fortunately, loss of contrast can be alleviated using different contrast restoration algorithms, which are usually known as sharpening methods. The first sharpening approach for cryo-EM maps was introduced by Rosenthal and Henderson (Rosenthal and Henderson, 2003) and its formulation, based on the B-factor correction, is still at the basis of the most commonly employed sharpening methods, including RELION postprocessing (Kimanius et al., 2016; Zivanov et al., 2018) or Phenix AutoSharpen (Terwilliger et al., 2018) . The principle behind these algorithms consists in the correction of the raw maps by boosting the amplitude of their high frequency Fourier components. The strength of the amplitude boost at each frequency depends on the frequency itself and on a single number, the B-factor, that measures the global loss of contrast. Thus, although the different B-factor-based methods differ in the procedures employed to determine the B-factor that is applied, all of them modify the volume globally in a similar manner.",
+            "cite_spans": [
+                {
+                    "start": 131,
+                    "end": 162,
+                    "text": "(Rosenthal and Henderson, 2003)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 465,
+                    "end": 478,
+                    "text": "Rosenthal and",
+                    "ref_id": null
+                },
+                {
+                    "start": 489,
+                    "end": 520,
+                    "text": "(Rosenthal and Henderson, 2003)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 680,
+                    "end": 703,
+                    "text": "(Kimanius et al., 2016;",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 704,
+                    "end": 725,
+                    "text": "Zivanov et al., 2018)",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 748,
+                    "end": 774,
+                    "text": "(Terwilliger et al., 2018)",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Despite being widely used, B-factor-based approaches present an important limitation: they do not consider the differences in quality that different parts of the map may present and they produce density maps that do not correspond to the scattering properties of biological macromolecules . Consequently, for the case of maps that exhibit heterogeneous local resolution, some regions could be undersharpened whereas others could be oversharpened. Recently, local sharpening algorithms, that alleviate this shortcoming, have been proposed. Thus, the LocScale (Jakobi et al., 2017) algorithm uses the information contained in an atomic model to locally scale up a map. Such transformation is achieved by means of a sliding window approach in which the amplitudes of the map region that lay inside the window are scaled up to agree with the atomic model provided. Following a totally different strategy, the LocalDeblur (Ram\u00edrez-Aportela et al., 2020) algorithm employs a Wiener filtering approach that performs local deblurring with a strength proportional to an estimation of the local resolution, that has to be pre-computed. Similarly, LocSpiral (Kaur et al., 2020) employs the spiral phase transformation to factorize the volume and then, perform a local enhancement based on the normalization and thresholding of the amplitudes.",
+            "cite_spans": [
+                {
+                    "start": 558,
+                    "end": 579,
+                    "text": "(Jakobi et al., 2017)",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1147,
+                    "end": 1166,
+                    "text": "(Kaur et al., 2020)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Despite their benefits, current local sharpening approaches present some drawbacks. Thus, both LocSpiral and LocalDeblur depend on masks to distinguish the macromolecule from the noise and LocalDeblur requires also from an estimation of the local resolution of the map. On the other hand, the main strength of LocScale, its ability to employ the structural information of atomic models, could also be regarded as its main weakness since the availability of atomic models limits its applicability.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "With the aim of overcoming these shortcomings, in this work, we present Deep cryo-EM Map Enhancer (DeepEMhancer), a fully automatic deep learning-based approach that performs cryo-EM volume post-processing. Deep learning has revolutionized the field of Artificial Intelligence and its impact has been felt in many others including cryo-EM. Deep learning in cryo-EM was firstly applied for the problem of particle picking (Wagner et al., 2019; Wang et al., 2016; Zhu et al., 2017) and since then, it has evolved to deal with other questions such as map reconstruction (Gupta et al., 2020; Zhong et al., 2019) , map segmentation (Maddhuri Venkata Subramaniya et al., 2019; Si et al., 2020) or local resolution determination (Avramov et al., 2019; Ram\u00edrez-Aportela et al., 2019) . As in most of those methods, our approach relies on a convolutional neural network (CNN) that is trained on massive quantities of data. Particularly, our development, that follows a simple image super-resolution setup (Yang et al., 2019) , exploits the vast amount of structural information that is contained in the Electron Microscopy Data Bank (EMDB) database (Lawson et al., 2015) in order to mimic the local sharpening effect of the LocScale algorithm. However, DeepEMhancer does not require any atomic model to function and, contrary to previous methods, it also performs automatic (tight) masking of input maps. Our results show that DeepEMhancer, that works in a fully automatic manner, is able to largely improve the interpretability of the maps contained in our benchmark, performing better than classical Bfactor approaches.",
+            "cite_spans": [
+                {
+                    "start": 421,
+                    "end": 442,
+                    "text": "(Wagner et al., 2019;",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 443,
+                    "end": 461,
+                    "text": "Wang et al., 2016;",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 462,
+                    "end": 479,
+                    "text": "Zhu et al., 2017)",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 567,
+                    "end": 587,
+                    "text": "(Gupta et al., 2020;",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 588,
+                    "end": 607,
+                    "text": "Zhong et al., 2019)",
+                    "ref_id": null
+                },
+                {
+                    "start": 627,
+                    "end": 670,
+                    "text": "(Maddhuri Venkata Subramaniya et al., 2019;",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 671,
+                    "end": 687,
+                    "text": "Si et al., 2020)",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 722,
+                    "end": 744,
+                    "text": "(Avramov et al., 2019;",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 745,
+                    "end": 775,
+                    "text": "Ram\u00edrez-Aportela et al., 2019)",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 996,
+                    "end": 1015,
+                    "text": "(Yang et al., 2019)",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 1140,
+                    "end": 1161,
+                    "text": "(Lawson et al., 2015)",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "DeepEMhancer is based on an end-to-end U-net architecture (Ronneberger et al., 2015) trained in a supervised manner. Thus, pairs of input maps (X) and target maps (Y), consisting in tightly masked LocScale post-processed maps, are required to that end. The following sections describe in detail the data preparation, training and evaluation processes.",
+            "cite_spans": [
+                {
+                    "start": 58,
+                    "end": 84,
+                    "text": "(Ronneberger et al., 2015)",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Methods"
+        },
+        {
+            "text": "DeepEMhancer has been trained and evaluated using as input a subset of cryo-EM maps obtained from the EMDB (Lawson et al., 2015) that meet the following requirements: 1) resolution better than 7 \u00c5; 2) have one and only one atomic model associated; 3) correlation between the atomic model and the map better than 0.6 and 4) half maps available. As a result, an original list of 415 maps was compiled. However, this initial list is highly redundant and, in order to avoid biases in both the training and evaluation procedures, this list was further filtered to reduce its redundancy, (see subsection Redundancy control). Finally, after a visual inspection aimed at removing problematic cases that survived to the automatic filtering procedure, a total amount of 151 maps, with an average reported resolution of 3.8 \u00c5, was selected.",
+            "cite_spans": [
+                {
+                    "start": 107,
+                    "end": 128,
+                    "text": "(Lawson et al., 2015)",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Raw data collection:"
+        },
+        {
+            "text": "Since the main objective of DeepEMhancer is to perform a sharpening-like post-processing transformation, it is important to ensure that the maps used in this study were not previously sharpened. Given the fact that most of the maps deposited in EMDB are sharpened and many are also masked, we decided to employ only the halfmaps available in EMDB (condition number 4). Due to the lack of an appropriate searching tool in EMDB and a file name convention, we had to analyze all the map file names included in the database looking for the substring \"half\" to recover the half maps. Full maps were obtained averaging respective half maps.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Raw data collection:"
+        },
+        {
+            "text": "As learning targets, we employed the output generated by LocScale using as input the aforementioned maps and their associated atomic models. Additionally, the output maps were tightly masked using as masks the maps simulated from the atomic models after a thresholding operation. Although it is true that the simulated maps could be directly employed as targets, we discarded this alternative for two reasons. The first one is empirical: we obtained better results when targets were produced with LocScale, probably because the input and target maps, although different, they still share some similar properties such as intensity ranges or local quality, which are not necessarily preserved when using simulated maps as targets. The other reason is that we wanted to reproduce the state-of-the-art local sharpening effect and not a new type of postprocessing that could not be compatible with downstream atomic modelling tools.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Raw data collection:"
+        },
+        {
+            "text": "Due to the fact that the monomers (amino acids, nucleotides\u2026) that compose the macromolecules have fixed size but the deposited maps vary in voxel size, both the input and the target maps were resampled to 1 \u00c5/voxel size with the aim of facilitating the learning process. After that, the intensity of each volume was normalized using the classical cryo-EM approach by which the map noise statistics are forced to adopt a fixed mean and standard deviation (0 and 0.1 respectively). Finally, due to GPU size limitations, the maps were chunked into 64x64x64 cubes, the maximum size that our computing systems were able to efficiently manage. As a result, more than 70k volume cubes, including both signal cubes and noise-only cubes were used for training.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data preparation:"
+        },
+        {
+            "text": "In order to perform the train/test/validation split used to develop and evaluate our method, it is important to consider that the universe of proteins is highly redundant and that the EMDB entries are even more redundant. Serve as an example the case of the ribosome, that supposes ~10% of the all EMDB entries. Thus, in order to avoid an overoptimistic performance estimation, we have ensured that the train, test and validation sets are mutually exclusive in the sense that their intersections are empty under a certain equivalence criterion. Particularly, we consider that two EMDB entries are equivalent if they share one sequence that belongs to the same 30% sequence identity cluster. Similarly, with the aim of eliminating potential bias in the evaluation, we have guaranteed that only one member per cluster is included in testing and validation sets. On the contrary, we have relaxed our quite strict redundancy control policy in the training set allowing up to five cluster representatives in an attempt to increase the size of this set. This decision is founded on the fact that even maps of the same exact protein may present different statistics due to the intrinsic variability of cryo-EM reconstruction workflows and thus, limiting their presence in the training set may difficult the generalization of the neural network.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Redundancy control:"
+        },
+        {
+            "text": "As a result, a list of 110, 21 and 20 maps were used for training, validation and testing respectively. The full list of the EMDB entries used can be found in Supplementary Material.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Redundancy control:"
+        },
+        {
+            "text": "We have employed a 3D U-net-like neural network (Ronneberger et al., 2015 ) as a regression model for the estimation of post-processed maps. Our neural network consists of three downsampling blocks and three upsampling blocks with skip connections. Each block contains three convolutional layers followed by group normalization (Wu and He, 2020) and PRelu activation (He et al., 2015) . The number of filters for each block is 3x32, 3x64 and 3x128 respectively. Downsampling is carried out using strided convolutions and upsampling is performed via transposed convolution. See Supplementary Material for additional details.",
+            "cite_spans": [
+                {
+                    "start": 48,
+                    "end": 73,
+                    "text": "(Ronneberger et al., 2015",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 328,
+                    "end": 345,
+                    "text": "(Wu and He, 2020)",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 367,
+                    "end": 384,
+                    "text": "(He et al., 2015)",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Neural network architecture:"
+        },
+        {
+            "text": "Our neural network was trained using stochastic gradient descent with a batch size of 8 cubes. Initial learning rate was set to 10 -3 and decreased by a factor of 0.5 when the validation loss did not improve during 5 epochs. As loss function, mean absolute error was employed. Data augmentation, consisting in random 90\u00ba rotations, gaussian blurring and patch corruption was applied to the training data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Neural network training:"
+        },
+        {
+            "text": "In order to perform volume post-processing, the input volume is pre-processed as described in the Data preparation subsection. Then, the resized and normalized volume is chunked into overlapping cubes of size 64x64x64 with strides of 16 voxels. Each cube is individually processed by the trained neural network, yielding postprocessed cubes. After that, the post-processed cubes are re-assembled into the final volume averaging the overlapping parts. Finally, the processed volume is resized to the size of the original volume, thus, showing the correct sampling rate value.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Neural network inference:"
+        },
+        {
+            "text": "With the aim of guiding the cross-validation process, we computed the correlation coefficient between the maps produced by DeepEMhancer and the maps used as learning targets (masked LocScale post-processed maps). Once the final model was selected, the quality of DeepEMhancer predictions were assessed comparing the input and processed maps against the reference maps obtained from the atomic models. Specifically, we computed the Fourier Shell Correlation coefficient (FSC) between them and we estimated the resolution using 0.5 as threshold. Due to the fact that DeepEMhancer performs a non-conventional post-processing operation, including masking and enhancement operations, in order to disentangle the two effects, the FSC was also computed after masking the maps to compare with a tight mask derived from the atomic model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation:"
+        },
+        {
+            "text": "As a complementary metric, we also applied DeepRes (Ram\u00edrez-Aportela et al., 2019) over the input and processed maps. DeepRes is a deep learning-based local resolution method that, contrary to others, is sensitive to the sharpening process and thus, it can provide an alternative estimation of the post-processing effect.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Evaluation:"
+        },
+        {
+            "text": "Finally, for comparison purposes, we repeated the FSC and DeepRes experiments using the Relion postprocessing program (Kimanius et al., 2016; Zivanov et al., 2018) . As Relion automatic masking is very simple, in order to make the comparison more interesting, we decided to execute the postprocessing algorithm using the mask derived from the atomic models. Similarly, since the automatic determination of the B-factor can produce worse results than a manually selected one, in addition to the maps computed using an automatically determined B-factor by Relion, we also considered the sharpened map deposited in EMDB.",
+            "cite_spans": [
+                {
+                    "start": 118,
+                    "end": 141,
+                    "text": "(Kimanius et al., 2016;",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 142,
+                    "end": 163,
+                    "text": "Zivanov et al., 2018)",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Evaluation:"
+        },
+        {
+            "text": "DeepEMhancer was applied to the half maps deposited in EMDB entry EMD-30178. The original and post-processed maps were visually inspected using Coot (Emsley and Cowtan, 2004) and chimera (Pettersen et al., 2004) , and chosen regions on the 7btf PDB were newly built or modified using Coot. ",
+            "cite_spans": [
+                {
+                    "start": 149,
+                    "end": 174,
+                    "text": "(Emsley and Cowtan, 2004)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 187,
+                    "end": 211,
+                    "text": "(Pettersen et al., 2004)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "EMD-30178 map evaluation and atomic model modification:"
+        },
+        {
+            "text": "In order to assess the quality of DeepEMhancer predictions, we first compared them against the target maps generated by LocScale. Thus, for DeepEMhancer maps, we measured a median correlation coefficient of 0.91 in contrast to 0.60 for input maps (see Supplementary Material Figure S1 ). Such an important increase in the correlation coefficient implies that DeepEMhancer has learned to accurately reproduce the effect of LocScale sharpening with one important advantage: no atomic models are required to employ DeepEMhancer. Although reproducing the LocScale sharpening effect was our main objective, the ultimate goal of map post-processing is to simplify the process of atomic model building. With the aim of studying if DeepEMhancer also contributes to that purpose, we next explored whether DeepEMhancer postprocessed maps were more similar to the actual atomic models. To do so, we computed, for all the maps included in the testing set, the Fourier Shell Correlation coefficient (FSC) between the input and post-processed maps against the reference maps obtained from the atomic models. As it is shown in Figure 1 , for all the examples included in the testing set, the application of DeepEMhancer increased the similarity of the input maps with respect to the references (blue and green bars). Indeed, the post-processed maps exhibit a median FSC resolution value of 3.3 \u00c5 compared to 3.9 \u00c5 for the input maps. Particularly, the median improvement achieved by DeepEMhancer was ~0.6 \u00c5 (~14% in the frequency domain). Such an important improvement confirms that the maps computed by DeepEMhancer are much more similar to the target maps. DeepEMhancer post-processing operation performs a non-linear transformation of the experimental volume that produces a set of effects that could be broadly classified as masking/denoising and sharpening-like features enhancement. In order to disentangle the contribution of the different effects, we have also computed the FSC of the input and post-processed maps using a very tight mask derived from the atomic model. As it can be observed in Figure 1 , the FSC resolution obtained for the post-processed maps tend to be better than the values computed for the input independently of the mask application (green and red bars vs orange bar), which implies that the masking effect is of highquality, as the resolutions for the unmasked DeepEMhancer results tend to be better than the ones for the masked input maps.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 275,
+                    "end": 284,
+                    "text": "Figure S1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 1112,
+                    "end": 1120,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 2088,
+                    "end": 2096,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Deep cryo Map Enhancer performance on the testing set."
+        },
+        {
+            "text": "Similarly, and, although it is true that the trend is not as strong as in the previous experiment, DeepEMhancer also tends to improve the resolution of the masked regions ( Figure 1 , orange vs red bars), which supposes an enhancement of the map features. Leaving aside some problematic examples such as EMD-7055 Figure 4 . Testing map EMD-7099. a, Lateral view of the published map (B-factor sharpened, shown at recommended threshold). b, Lateral view of the raw data map obtained from the half maps that was used as input for DeepEMhancer. c, Lateral view of the published map after rising the threshold and removing the small connected components so that the signal coming from the lipids was removed. As a collateral consequence, some densities corresponding to the protein were also lost. d, Lateral view of the map obtained with DeepEMhancer. e, Zoom-in of the region marked with a blue box in c. f, Zoom-in of the region marked with a blue box in d, in which DeepEMhancer post-processed map, contrary to the published map, shows the densities corresponding to a missing loop in PDB 6bhu chain A. As a result, the residues A195 to I203 have been de novo modeled (new residues depicted in yellow, published in green). (Tenthorey et al., 2017) , that will be discussed in Supplementary Material, most of the evaluated maps exhibit a non-negligible improvement in resolution, especially notable when compared to B-factor-based results (see next section), with a median value of ~0.3 \u00c5.",
+            "cite_spans": [
+                {
+                    "start": 1223,
+                    "end": 1247,
+                    "text": "(Tenthorey et al., 2017)",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 173,
+                    "end": 181,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 313,
+                    "end": 321,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Deep cryo Map Enhancer performance on the testing set."
+        },
+        {
+            "text": "Alternatively, with the aim of obtaining a complementary measurement of improvement, we computed the DeepRes local resolution for the input and post-processed maps. As can be appreciated in Figure 2 , all test cases treated with DeepEMhancer improved in terms of DeepRes local resolution, with dramatic improvements of more than 0.8 \u00c5 and a median improvement of ~0.4 \u00c5. Again, those figures, consistent with the FSC-based measurements, point out that DeepEMhancer is improving the interpretability of the maps.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 190,
+                    "end": 198,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Deep cryo Map Enhancer performance on the testing set."
+        },
+        {
+            "text": "With the aim of comparing DeepEMhancer with the commonly employed B-factor-based sharpening methods, we repeated the same experiments using the post-processed maps obtained with the Relion postprocessing algorithm (Kimanius et al., 2016; Zivanov et al., 2018) . Before, it is important to notice that, contrary to DeepEMhancer, Relion Red box highlights an artifact that has been automatically removed by DeepEMhancer. Blue box delimits the region showed in b. b, Zoom-in of the region marked with a blue box that contains the \u03b2-sheet R7-A10, chains A and B. The published volume is shown at the recommended threshold and at the threshold at which the backbone begins to look discontinuous. As it can be appreciated, DeepEMhancer solution resolves better than the published map the two strands of the sheet. c, Zoom-in of the region centered at chain B residues H121 and Y361 (colored in magenta). The published volume is shown at the recommended threshold and at the smaller threshold at which the density that connects the two residues disappears. As it can be appreciated, DeepEMhancer post-processed map resolves better than the published map the two residues automatic masking is a simple process and thus, in order to make the comparison more interesting, we used instead the masks derived from the atomic models. Still, when we evaluated the FSC for the masked regions, only a few maps improved, while many others worsened, leading to a median improvement that was negligible (<0.05 \u00c5) for both FSC and median DeepRes resolution (see Figure 2 and Figure 3 ).",
+            "cite_spans": [
+                {
+                    "start": 214,
+                    "end": 237,
+                    "text": "(Kimanius et al., 2016;",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 238,
+                    "end": 259,
+                    "text": "Zivanov et al., 2018)",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1541,
+                    "end": 1549,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1554,
+                    "end": 1562,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Comparison with B-factor-based methods."
+        },
+        {
+            "text": "We acknowledge that the automatic determination of the B-factor can lead to less accurate results than if it were manually selected and it may be the reason behind the poor observed performance. Thus, we have also included in the comparison the post-processed maps deposited in EMDB in which the estimation of B-factor was carried out by the authors. In this case, the improvement in resolution, with median values of ~0.15 \u00c5 and ~0.1 \u00c5 for DeepRes and FSC respectively, although closer to the values obtained using DeepEMhancer, are still considerably inferior (see Figure 2 and 3). In the light of these results, we can state that DeepEMhancer maps tend to be much more similar to the atomic models than the ones obtained using B-factor-based methods and thus, more useful for the process of model building.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 567,
+                    "end": 575,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Comparison with B-factor-based methods."
+        },
+        {
+            "text": "The purpose of this section is to further explore the results obtained with DeepEMhancer for some of the maps included in the testing set with the aim of illustrating how the improvements in global quality measurements translate to tangible improvements in the quality of the maps.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Visual inspection of testing maps"
+        },
+        {
+            "text": "The EMD-7099 (Johnson and Chen, 2018 ) is a high-resolution volume (global resolution 3.1 \u00c5) of a multidrug resistance ATP-driven pump. EMD-7099 presents 17 transmembrane helices and, although the overall quality of the map is excellent, visualizing the transmembrane regions is challenging because of the signal that comes from the lipids. As a result, important parts of the protein are not traced. Due to the fact that DeepEMhancer was trained to ignore the signal coming from lipidic layers, this example illustrates the unique characteristics of DeepEMhancer when applied to membrane proteins. Thus, as can be observed in Figure 4a -d, DeepEMhancer has been able to suppress the signal coming from the lipid layer in a much more simple and effective way than diminishing the threshold in the raw map or the B-factor-based sharpened maps. The noise suppression effect simplifies the process of model building, as the researchers do not have to deal with masks or larger thresholds that make the visualization of near to noise level features more difficult. Yet, not only DeepEMhancer produces a noise reduction effect, but also it is able to enhance some parts of the map that under B-factor based sharpening seem noisy and disconnected. Such improvement, although observed in several regions of the map, Figure 6 . Use case EMD-30178 from SARS-CoV-2 RNA-dependent RNA polymerase. a, Overview of the original map displayed with two different thresholds 0.3 (recommended) and 0.5 (left and middle panel, respectively) and processed with DeepEMhancer software (right). 7btf pdb is shown in ribbon, black squares designated the zoomed areas in b panel and blue squares the zoomed areas in c. b, Zoom-in and extraction of the density in mesh from the 3D reconstruction of the original map at different thresholds and DeepEMhancer map corresponding to the black squares in a, chain D from residues C114 to I132. c, Zoom-in and extraction of the density in mesh from the 3D reconstruction of the original map at different thresholds and DeepEMhancer map corresponding to the blue squares in a, chain A residues H362 to L366. 7btf PDB in b and c is presented in ribbon and the residues in sticks.",
+            "cite_spans": [
+                {
+                    "start": 13,
+                    "end": 36,
+                    "text": "(Johnson and Chen, 2018",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 627,
+                    "end": 636,
+                    "text": "Figure 4a",
+                    "ref_id": null
+                },
+                {
+                    "start": 1309,
+                    "end": 1317,
+                    "text": "Figure 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "EMD-7099"
+        },
+        {
+            "text": "is more noticeable at the transmembrane region Thus, the most important enhancement is depicted in Figure 4e -f, in which an important part of the backbone of the protein has been de novo traced thanks to DeepEMhancer enhancement, that has restored the densities corresponding to residues A195 to I203 in chain A of PDB 6bhu.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 99,
+                    "end": 108,
+                    "text": "Figure 4e",
+                    "ref_id": null
+                }
+            ],
+            "section": "EMD-7099"
+        },
+        {
+            "text": "The EMD-4997 (Walter et al., 2019) is a mediumhigh resolution volume (4.0 \u00c5) for a murine epithelial anion transporter. As in the previous example, the overall quality of the map is quite good, yet it presents lower quality regions. Figure  5a shows an overview of the published map, displayed at the recommended threshold, and the map obtained with DeepEMhancer. Although it is true that both the original map and the postprocessed map look very similar, it is also true that there exist important differences. Firstly, the map processed with DeepEMhancer is cleaner than the original one. Serve as an example the removal of the artifacts that the published map presents near the elbow of the complex (see Figure 5a , red box). More importantly, there can also be found many regions for which the DeepEMhancer postprocessed volume resolves better the different residues of the regions. One of such examples can be found near the N-terminal end of the protein complex. Thus, as it is shown in Figure 5b , the densities that correspond to the strands of the beta sheet are better separated than in the published volume. It is important to notice that this better separation is not a consequence of the employed thresholds, as it is proven by the fact that rising the threshold makes the densities corresponding to the backbone discontinuous before the densities for the two strands separate (see Figure 5b) . As a result, we can affirm that the quality of this region has been improved by the usage of DeepEMhancer.",
+            "cite_spans": [
+                {
+                    "start": 13,
+                    "end": 34,
+                    "text": "(Walter et al., 2019)",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 233,
+                    "end": 243,
+                    "text": "Figure  5a",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 707,
+                    "end": 716,
+                    "text": "Figure 5a",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 993,
+                    "end": 1002,
+                    "text": "Figure 5b",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1395,
+                    "end": 1405,
+                    "text": "Figure 5b)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "EMD-4997"
+        },
+        {
+            "text": "Another similar example is displayed in Figure 5c . In this case, two non-contiguous aromatic residues, Y361 and H121, seem connected in the original map. However, when DeepEMhancer is applied, the densities corresponding to the two residues look separated while the backbone remains continuous.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 40,
+                    "end": 49,
+                    "text": "Figure 5c",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "EMD-4997"
+        },
+        {
+            "text": "In order to further explore the benefits of the DeepEMhancer algorithm we analyzed more deeply the post-processing of EMD-30178 map from Gao et al. (Gao et al., 2020) , corresponding to the SARS-CoV-2 RNA-dependent RNA polymerase. The original map presents detailed structure up to 2.9 \u00c5 resolution, however as is often the case in cryo-EM, the resolution of the map is highly heterogeneous. We have chosen this map not only for the importance of this structure in current days but also because of the fact that the heterogeneous quality of the map density presents an ideal case for DeepEMhancer software. As it is shown in Figure 6a , the application of the algorithm reduces the noise and improves the consistency and depiction of the map. To better illustrate these differences, we have chosen two different regions in chains A and D where the differences between the original and the DeepEMHancer map can be appreciated ( Figure. 6b-c). While the density in the original map looks noisy or discontinuous depending on the displayed threshold (Figure 6 b-c, left and middle panel), the application of the DeepEMhancer software results in a well-defined continuous density where the side chains are nicely depicted (Figure 6 b-c, right panel). This improvement in the map density allowed us to close the loop between residues C114 to I132 from chain D tracing 4 new residues that were not traced in the original structure ( Figure 6b and Figure 7a ). The improvement of the density is not only applicable to the edges of the map but it can be also appreciated in its core. Residues H362 to L366 in chain A, traced on the original map where positioned more accurately on the density after map post-processing ( Figure 6c and Figure 7b ). DeepEMhancer map. a, Zoom-in and extraction of the density in mesh from the 3D reconstruction in two different views of DeepEMhancer map showing 7btf in turquoise and new traced loop region in magenta (chain D residues T123, T124, A125 and A126, in sticks). b, Zoom-in and extraction of the density in mesh from the 3D reconstruction of DeepEMhancer map in two different views, 7btf in turquoise shows the repositioning of the chain A residues H362, S363, S364, R365 (in sticks).",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 166,
+                    "text": "(Gao et al., 2020)",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 625,
+                    "end": 634,
+                    "text": "Figure 6a",
+                    "ref_id": null
+                },
+                {
+                    "start": 927,
+                    "end": 934,
+                    "text": "Figure.",
+                    "ref_id": null
+                },
+                {
+                    "start": 1046,
+                    "end": 1055,
+                    "text": "(Figure 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 1217,
+                    "end": 1226,
+                    "text": "(Figure 6",
+                    "ref_id": null
+                },
+                {
+                    "start": 1426,
+                    "end": 1435,
+                    "text": "Figure 6b",
+                    "ref_id": null
+                },
+                {
+                    "start": 1440,
+                    "end": 1449,
+                    "text": "Figure 7a",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 1712,
+                    "end": 1721,
+                    "text": "Figure 6c",
+                    "ref_id": null
+                },
+                {
+                    "start": 1726,
+                    "end": 1735,
+                    "text": "Figure 7b",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Use case EMD-30178 from SARS-CoV-2 RNAdependent RNA polymerase"
+        },
+        {
+            "text": "The number of deposited high resolution cryo-EM maps have soared since the beginning of the 'resolution revolution'. As a result, there is an increasing number of atomic models that are being built using cryo-EM as the primary source of information. However, building atomic models directly from the raw maps is generally not possible. Instead, maps are post-processed in order to enhance the contrast of their high-resolution features.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "In this work we have presented Deep cryo-EM Map Enhancer (DeepEMhancer), a new map postprocessing method based on deep learning. Trained on pairs of experimental cryo-EM maps and post-processed maps constructed with LocScale using atomic models, DeepEMhancer has learned how to perform a high-quality postprocessing operation that reproduces the effects of masking and local sharpening in an automatic fashion.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "The performance of our new algorithm has been assessed using a testing set of 20 experimental maps that were not used for training nor during the trial and error process required for its implementation. In all cases, the similarity between the maps obtained from the atomic models and the experimental maps improved after the application of DeepEMhancer. Additionally, we evaluated in detail the performance of DeepEMhancer on two of those maps, showing that, not only DeepEMhancer facilitates the visualization of cryo-EM maps, but also that DeepEMhancer can unveil some details that are not easily recognizable in the raw maps. Finally, we have employed DeepEMhancer on a map of the RNA polymerase of the SARS-CoV 2 virus, improving its quality of the map and the quality of the associated atomic model. DeepEMhancer is available as an Xmipp plugin for Scipion v3 (currently branch rsg_deepPostProcessing).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Deep Learning for Validating and Estimating Resolution of Cryo-Electron Microscopy Density Maps \u2020",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Avramov",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Vyenielo",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gomez-Blanco",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Adinarayanan",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vargas",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Si",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Molecules",
+            "volume": "24",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.3390/molecules24061181"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Coot: Modelbuilding tools for molecular graphics",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Emsley",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Cowtan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Acta Crystallogr. Sect. D Biol. Crystallogr",
+            "volume": "60",
+            "issn": "",
+            "pages": "2126--2132",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Structure of the RNA-dependent RNA polymerase from COVID-19 virus",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Cao",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Ming",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ge",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Hua",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Guddat",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Lou",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Rao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "368",
+            "issn": "",
+            "pages": "779--782",
+            "other_ids": {
+                "DOI": [
+                    "10.1126/science.abb7498"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "CryoGAN: A New Reconstruction Paradigm for Single-particle Cryo-EM Via Deep Adversarial Learning",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Gupta",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Mccann",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Donati",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Unser",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1101/2020.03.20.001016"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Delving deep into rectifiers: Surpassing human-level performance on imagenet classification",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ren",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of the IEEE International Conference on Computer Vision",
+            "volume": "",
+            "issn": "",
+            "pages": "1026--1034",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/ICCV.2015.123"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Model-based local density sharpening of cryo-EM maps",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Jakobi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wilmanns",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Sachse",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.7554/eLife.27131"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "ATP Binding Enables Substrate Release from Multidrug Resistance Protein 1",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Cell",
+            "volume": "172",
+            "issn": "",
+            "pages": "81--89",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.cell.2017.12.005"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Local computational methods to improve the interpretability and analysis of cryo-EM maps",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kaur",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gomez-Blanco",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Khalifa",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Adinarayanan",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Sanchez-Garcia",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Wrapp",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Mclellan",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Bui",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vargas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1101/2020.05.11.088013"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Accelerated cryo-EM structure determination with parallelisation using GPUs in RELION-2. Elife 5, e18722",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kimanius",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Forsberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Scheres",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Lindahl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.7554/eLife.18722"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "EMDataBank unified data resource for 3DEM",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Lawson",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Patwardhan",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Baker",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Hryc",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Garcia",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Hudson",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Lagerstedt",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Ludtke",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Pintilie",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Sala",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Westbrook",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Berman",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Kleywegt",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Chiu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Nucleic Acids Res",
+            "volume": "44",
+            "issn": "",
+            "pages": "396--403",
+            "other_ids": {
+                "DOI": [
+                    "10.1093/nar/gkv1126"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Protein secondary structure detection in intermediateresolution cryo-EM maps using deep learning",
+            "authors": [
+                {
+                    "first": "Maddhuri",
+                    "middle": [],
+                    "last": "Venkata Subramaniya",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Terashi",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Kihara",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Nat. Methods",
+            "volume": "16",
+            "issn": "",
+            "pages": "911--917",
+            "other_ids": {
+                "DOI": [
+                    "10.1038/s41592-019-0500-1"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "UCSF Chimera -A visualization system for exploratory research and analysis",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Pettersen",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Goddard",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Couch",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Greenblatt",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Meng",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Ferrin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "J. Comput. Chem",
+            "volume": "25",
+            "issn": "",
+            "pages": "1605--1612",
+            "other_ids": {
+                "DOI": [
+                    "10.1002/jcc.20084"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "DeepRes: A new deep-learning-and aspectbased local resolution method for electronmicroscopy maps",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Ram\u00edrez-Aportela",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Mota",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Conesa",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Carazo",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "O S"
+                    ],
+                    "last": "Sorzano",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IUCrJ",
+            "volume": "6",
+            "issn": "",
+            "pages": "1054--1063",
+            "other_ids": {
+                "DOI": [
+                    "10.1107/S205225251901169"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Automatic local resolution-based sharpening of cryo-EM maps",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Ram\u00edrez-Aportela",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Vilas",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Glukhova",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Melero",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Conesa",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mart\u00ednez",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Maluenda",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Mota",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Jim\u00e9nez",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vargas",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Marabini",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Sexton",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Carazo",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "O S"
+                    ],
+                    "last": "Sorzano",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Bioinformatics",
+            "volume": "36",
+            "issn": "",
+            "pages": "765--772",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Unet: Convolutional networks for biomedical image segmentation",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Ronneberger",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Fischer",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Brox",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Medical Image Computing and Computer-Assisted Intervention-MICCAI",
+            "volume": "",
+            "issn": "",
+            "pages": "234--241",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-24574-4_28"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Optimal determination of particle orientation, absolute hand, and contrast loss in singleparticle electron cryomicroscopy",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Rosenthal",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Henderson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "J. Mol. Biol",
+            "volume": "333",
+            "issn": "",
+            "pages": "721--745",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Deep Learning to Predict Protein Backbone Structure from High-Resolution Cryo",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Si",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Moritz",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Pfab",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Hou",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Cao",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "EM Density Maps. Sci. Rep",
+            "volume": "10",
+            "issn": "",
+            "pages": "1--22",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "The structural basis of flagellin detection by NAIP5: A strategy to limit pathogen immune evasion",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Tenthorey",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Haloupek",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "L\u00f3pez-Blanco",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Grob",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Adamson",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Hartenian",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Lind",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Bourgeois",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Chac\u00f3n",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Nogales",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Vance",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Science",
+            "volume": "358",
+            "issn": "",
+            "pages": "888--893",
+            "other_ids": {
+                "DOI": [
+                    "10.1126/science.aao1140"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Automated map sharpening by maximization of detail and connectivity",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Terwilliger",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Sobolev",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Afonine",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Adams",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Acta Crystallogr. Sect. D Struct. Biol",
+            "volume": "74",
+            "issn": "",
+            "pages": "545--559",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Re-examining the spectra of macromolecules. Current practice of spectral quasi B-factor flattening",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Vilas",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vargas",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Martinez",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Ramirez-Aportela",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Melero",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Jimenez-Moreno",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Gardu\u00f1o",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Conesa",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Marabini",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Maluenda",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Carazo",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "O S"
+                    ],
+                    "last": "Sorzano",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J. Struct. Biol",
+            "volume": "209",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.jsb.2020.107447"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "SPHIRE-crYOLO is a fast and accurate fully automated particle picker for cryo-EM",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Wagner",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Merino",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Stabrin",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Moriya",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Antoni",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Apelbaum",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Hagel",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Sitsel",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Raisch",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Prumbaum",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Quentin",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Roderer",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Tacke",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Siebolds",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Schubert",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Shaikh",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Lill",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Gatsogiannis",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Raunser",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Commun. Biol",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1038/s42003-019-0437-z"
+                ]
+            }
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Cryo-EM structures and functional characterization of murine Slc26a9 reveal mechanism of uncoupled chloride transport",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Walter",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sawicka",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Dutzler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.7554/eLife.46986"
+                ]
+            }
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "DeepPicker: A deep learning approach for fully automated particle picking in cryo-EM",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Gong",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Yan",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Xia",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zeng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "J. Struct. Biol",
+            "volume": "195",
+            "issn": "",
+            "pages": "325--336",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Group Normalization",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Int. J. Comput. Vis",
+            "volume": "128",
+            "issn": "",
+            "pages": "742--755",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Deep Learning for Single Image Super-Resolution: A Brief Review",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Tian",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Xue",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Liao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE Trans. Multimed",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/TMM.2019.291943"
+                ]
+            }
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "A deep convolutional neural network approach to single-particle recognition in cryo-electron microscopy",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Ouyang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Mao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "BMC Bioinformatics",
+            "volume": "18",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/s12859-017-1757-y"
+                ]
+            }
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "New tools for automated high-resolution cryo-EM structure determination in RELION-3",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Zivanov",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Nakane",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Forsberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kimanius",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "J H"
+                    ],
+                    "last": "Hagen",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Lindahl",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "H W"
+                    ],
+                    "last": "Scheres",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.7554/eLife.42166"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "DeepEMhancer produces maps that are more similar to the atomic models. Resolution (determined by Fourier Shell Correlation coefficient, FSC) between the reference maps obtained from the atomic model and 1) the input maps (blue), 2) the input maps tightly masked (orange), 3) the post-processed maps (green) and 4) the post-processed maps tightly masked (red). EMDB entries are sorted by published global resolution.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "DeepEMhancer produces better quality maps. DeepRes median local resolution estimation for 1) the input maps (blue), 2) the post-processed maps obtained with Relion postprocessing automatic Bfactor (orange), 3) the post-processed maps deposited in EMDB (green) and 4) the post-processed maps obtained with DeepEMhancer (Red). EMDB entries are sorted by published global resolution.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "DeepEMhancer produces better results than B-factor-based methods. Resolution (determined by Fourier Shell Correlation coefficient, FSC) between the reference maps obtained from the atomic model and 1) the input maps (blue), 2) the post-processed maps obtained with Relion postprocessing automatic Bfactor (orange), 3) the post-processed maps deposited in EMDB (green) and 4) the post-processed maps obtained with DeepEMhancer (red). EMDB entries are sorted by published global resolution.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Testing map EMD-4997. a, Overview of the published map (B-factor sharpened, shown at the recommended threshold of 0.031), bottom, and the map obtained with DeepEMhancer, top.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Examples of improvement of the tracing in SARS-CoV-2 RNA-dependent RNA polymerase",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

@@ -1,0 +1,2608 @@
+{
+    "paper_id": "0ad5f44fc605d1d2759a22c05a4883b9ec05b234",
+    "metadata": {
+        "title": "Domain Extrapolation via Regret Minimization",
+        "authors": [
+            {
+                "first": "Wengong",
+                "middle": [],
+                "last": "Jin",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Masssachusetts Institute of Technology",
+                    "location": {}
+                },
+                "email": "wengong@csail.mit.edu"
+            },
+            {
+                "first": "Regina",
+                "middle": [],
+                "last": "Barzilay",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Masssachusetts Institute of Technology",
+                    "location": {}
+                },
+                "email": "regina@csail.mit.edu"
+            },
+            {
+                "first": "Tommi",
+                "middle": [],
+                "last": "Jaakkola",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Masssachusetts Institute of Technology",
+                    "location": {}
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Many real prediction tasks such as molecular property prediction require ability to extrapolate to unseen domains. The success in these tasks typically hinges on finding a good representation. In this paper, we extend invariant risk minimization (IRM) by recasting the simultaneous optimality condition in terms of regret, finding instead a representation that enables the predictor to be optimal against an oracle with hindsight access on held-out environments. The change refocuses the principle on generalization and doesn't collapse even with strong predictors that can perfectly fit all the training data. Our regret minimization (RGM) approach can be further combined with adaptive domain perturbations to handle combinatorially defined environments. We evaluate our method on two real-world applications: molecule property prediction and protein homology detection and show that RGM significantly outperforms previous state-of-the-art domain generalization techniques.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Preprint. Under review.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Training data in many emerging applications is necessarily limited, fragmented, or otherwise heterogeneous. It is therefore important to ensure that model predictions derived from such data generalize substantially beyond where the training samples lie. For instance, in molecule property prediction [32] , models are often evaluated under scaffold split, which introduces structural separation between the chemical spaces of training and test compounds. In protein homology detection [29] , models are evaluated under protein superfamily split where entire evolutionary groups are held out from the training set, forcing models to generalize across larger evolutionary gaps.",
+            "cite_spans": [
+                {
+                    "start": 300,
+                    "end": 304,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 485,
+                    "end": 489,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The key technological challenge is to be able to estimate models that can extrapolate beyond their training data. The ability to extrapolate implies a notion of invariance to the differences between the available training data and where predictions are sought. A recently proposed approach known as invariant risk minimization (IRM) [4] seeks to find predictors that are simultaneously optimal across different such scenarios (called environments). Indeed, one can apply IRM with environments corresponding to molecules sharing the same scaffold [6] or proteins from the same family [12] (see Figure 1 ). However, this is challenging since, for example, scaffolds are substructure descriptors (combinatorially defined) and can often uniquely identify each example in the training set. Another difficulty is that IRM collapses to empirical risk minimization (ERM) if the model can achieve zero training error across the environments -a scenario typical with over-parameterized models [35] .",
+            "cite_spans": [
+                {
+                    "start": 333,
+                    "end": 336,
+                    "text": "[4]",
+                    "ref_id": null
+                },
+                {
+                    "start": 546,
+                    "end": 549,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 583,
+                    "end": 587,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 983,
+                    "end": 987,
+                    "text": "[35]",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 593,
+                    "end": 601,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "To address these difficulties we propose a new method called regret minimization (RGM). This new approach seeks to find a feature-predictor combination that generalizes well to unseen environments. We quantify generalization in terms of regret that guides the feature extractor \u03c6, encouraging it to focus on information that enables generalization. The setup is easily simulated by using part of the training set as held-out environments E e . Specifically, our regret measures how feature extractor \u03c6 enables a predictor f \u2212e \u2022 \u03c6 trained without E e to perform well on E e in comparison to an oracle f e \u2022 \u03c6 with hindsight access to E e . Since our regret measures the ability to predict, it need not collapse even with powerful models. To handle combinatorial environments, we appeal to domain perturbation and introduce two additional, dynamically defined environments. The perturbed environments operate Figure 1 : Examples of combinatorial domains. Left: For molecules, each domain is defined by a scaffold (subgraph of a molecular graph). Middle: Proteins are hierarchically split into domains called protein superfamilies (figure adapted from [8] ). Right: In a molecule property prediction task [32] , there are over 1000 scaffold domains with 75% of them having a single example. over the same set of training examples, but differ in terms of their associated representations \u03c6(\u00b7). The idea is to explicitly highlight to the predictor domain variability that it should not rely on.",
+            "cite_spans": [
+                {
+                    "start": 1150,
+                    "end": 1153,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1203,
+                    "end": 1207,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 908,
+                    "end": 916,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our method is evaluated on both synthetic and real datasets such as molecule property prediction and protein classification. We illustrate on the synthetic dataset how RGM overcomes some of the IRM challenges. On the real datasets, we compare RGM with various domain generalization techniques including CrossGrad [30] , MLDG [21] as well as IRM. Our method significantly outperforms all these baselines, with a wide margin on molecule property prediction (COVID dataset: 0.654 versus 0.402 AUC; BACE dataset: 0.590 versus 0.530 AUC).",
+            "cite_spans": [
+                {
+                    "start": 313,
+                    "end": 317,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 325,
+                    "end": 329,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Domain generalization (DG) Unlike domain adaptation [10, 7] , DG assumes samples from target domains are not available during training. DG has been widely studied in computer vision [17, 27, 20, 23, 24] , where domain shift is typically caused by different image styles or dataset bias [19] . As a result, each domain contains fair amount of data and the number of distinct domains is relative small (e.g., commonly adopted PACS and VLCS benchmarks [13, 20] contain only four domains). We study domain generalization in combinatorially defined domains, where the number of domains is much larger. For instance, in a protein homology detection benchmark [15, 29] , there are over 1000 domains defined by protein families. Our method is related to prior DG methods in two aspects:",
+            "cite_spans": [
+                {
+                    "start": 52,
+                    "end": 56,
+                    "text": "[10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 57,
+                    "end": 59,
+                    "text": "7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 182,
+                    "end": 186,
+                    "text": "[17,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 187,
+                    "end": 190,
+                    "text": "27,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 191,
+                    "end": 194,
+                    "text": "20,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 195,
+                    "end": 198,
+                    "text": "23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 199,
+                    "end": 202,
+                    "text": "24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 286,
+                    "end": 290,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 449,
+                    "end": 453,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 454,
+                    "end": 457,
+                    "text": "20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 653,
+                    "end": 657,
+                    "text": "[15,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 658,
+                    "end": 661,
+                    "text": "29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related work"
+        },
+        {
+            "text": "\u2022 Simulated domain shift: Meta-learning based DG methods [21, 5, 22, 25, 11] Learning invariant representation One way of domain extrapolation is to enforce an appropriate invariance constraint over learned representations [28, 16, 4] . Various strategies for invariant feature learning have been proposed. They can be roughly divided into three categories:",
+            "cite_spans": [
+                {
+                    "start": 57,
+                    "end": 61,
+                    "text": "[21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 62,
+                    "end": 64,
+                    "text": "5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 65,
+                    "end": 68,
+                    "text": "22,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 69,
+                    "end": 72,
+                    "text": "25,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 73,
+                    "end": 76,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 223,
+                    "end": 227,
+                    "text": "[28,",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 228,
+                    "end": 231,
+                    "text": "16,",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 232,
+                    "end": 234,
+                    "text": "4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related work"
+        },
+        {
+            "text": "\u2022 Domain adversarial training (DANN) [16] enforces the latent representation Z = \u03c6(X) to have the same distribution across different domains (environments) E. If we denote by P (X|E) the data distribution in environment E, then we require P (\u03c6(X)|E i ) = P (\u03c6(X)|E j ) for all i, j. With some abuse of notation, we can write this condition as Z \u22a5 E. A single predictor is learned based on Z = \u03c6(X), i.e., all the domains share the same predictor. As a result, the predicted label distribution P (Y ) will also be the same across the domains. This can be problematic when the training and test domains have very different label distributions [36] .",
+            "cite_spans": [
+                {
+                    "start": 37,
+                    "end": 41,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 641,
+                    "end": 645,
+                    "text": "[36]",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related work"
+        },
+        {
+            "text": "\u2022 Conditional domain adaptation [26] instead conditions the invariance criterion on the label, i.e., P (\u03c6(X), Y |E) = P (\u03c6(X), Y ) for all E. The formulation allows the label distribution to vary between domains, but the constraint becomes too restrictive when domains are combinatorially defined and many domains E have only one example (x E , y E ) ( Figure 1 ). In this case, P (\u03c6(X), Y |E) degenerates to a Dirac distribution \u03b4(\u03c6(x E ), y E ) and the constraint P (\u03c6(X), Y ) = \u03b4(\u03c6(x E ), y E ) will require the representation \u03c6 to map all x E to the same vector within each class. As a result, CDAN (as well as DANN) require each domain to have fair numbers of examples in practice. Combes et al. [9] also analyzes the limitation of CDAN in general, non-combinatorial domains. \u2022 Invariant risk minimization (IRM) [4] requires that the predictor f operating on Z = \u03c6(X) is simultaneously optimal across different environments. The associated conditional independence criterion is Y \u22a5 E | Z. In other words, knowing the environment should not provide any additional information about Y beyond the features Z = \u03c6(X). However, IRM tend to collapse to ERM when the model is over-parameterized and perfectly fits the training set (see \u00a73). Moreover, when most of the domains E can uniquely specify X in the training set, E would act similarly to X and the IRM principle reduces to Y \u22a5 X | Z, which is not a useful criterion for domain extrapolation. We propose to handle this issue via domain perturbation (see \u00a74).",
+            "cite_spans": [
+                {
+                    "start": 32,
+                    "end": 36,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 701,
+                    "end": 704,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 817,
+                    "end": 820,
+                    "text": "[4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 353,
+                    "end": 361,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Related work"
+        },
+        {
+            "text": "The IRM principle provides a useful way to think about domain extrapolation but it does not work well with strong predictors. Indeed, a zero training error reduces the IRM criterion to standard risk minimization or ERM. The main reason for this collapse is that the simultaneous optimality condition in IRM is not applied in a predictive sense (as regret). To see this, consider a training set",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain extrapolation via regret minimization"
+        },
+        {
+            "text": ") be the empirical loss of predictor f operating on feature representation \u03c6, i.e., f \u2022 \u03c6, in environment E e . The specific form of the loss depends on the task. IRM finds f and \u03c6 as the solution to the constrained optimization problem: min",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain extrapolation via regret minimization"
+        },
+        {
+            "text": "The key simultaneous optimality constraint can be satisfied trivially if the model achieves zero training error across the environments, i.e. \u2200e : L e (f \u2022 \u03c6) = 0. The setting is not uncommon with over-parameterized neural networks even if labels were set at random [35] .",
+            "cite_spans": [
+                {
+                    "start": 266,
+                    "end": 270,
+                    "text": "[35]",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Domain extrapolation via regret minimization"
+        },
+        {
+            "text": "We can replace the simultaneous optimality constraint in IRM in terms of a predictive regret. This is analogous to one-step regret in on-line learning but cast here in terms of heldout environments. We calculate this regret for each held-out environment as the comparison between the losses of two auxiliary predictors that are trained with and without access to E e . Specifically, we define the regret as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "where the two auxiliary predictors are obtained from",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Note that the oracle predictor f e is trained and tested on the same environment E e while f \u2212e is estimated based on all the environments except E e but evaluated on E e . The regret is always nonnegative since it is impossible for f \u2212e to beat the oracle. Note that, unlike in IRM, even when f \u2212e and \u03c6 are strong enough to ensure zero training loss across environments they are trained on, i.e., \u2200k = e : L k (f \u2212e \u2022 \u03c6) = 0, the combination may still generalize poorly to a held-out environment E e giving L e (f \u2212e \u2022 \u03c6) > 0. In fact, the regret expresses a stronger requirement that f \u2212e should be nearly as good as the best predictor with hindsight, analogously to on-line regret.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Note that R e (\u03c6) does not depend on the predictor f we are seeking to estimate; it is a function of the representation \u03c6 as well as the auxiliary pair of predictors f \u2212e and f e . For notational simplicity, we suppress the dependence on f \u2212e and f e . The overall regret R(\u03c6) = e R e (\u03c6) expresses our stated goal of finding a representation \u03c6 that facilitates extrapolation to each held-out training environment. Our RGM objective then balances the ERM loss against the predictive regret: representation \u03c6 and predictor f are found by minimizing",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Algorithm 1 RGM training 1: for each training step do 2: Randomly choose an environment e 3:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Sample a batch B e from Ee 4:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Sample a batch B \u2212e from E\\{Ee} 5:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Compute",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Compute L e (fe \u2022 \u03c6) on B e 8:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Compute regret R e (\u03c6) 9:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Back-propagate gradients 10: end for In the backward pass, the gradient of L e (f e \u2022 \u03c6) goes through a gradient reversal layer [16] which negates the gradient during back-propagation. Predictor f \u2212e is updated by a separate objective L \u2212e (f \u2212e \u2022 \u03c6) and its gradient does not impact \u03c6. Predictor f is trained on all environments (omitted in the right figure due to space limit).",
+            "cite_spans": [
+                {
+                    "start": 128,
+                    "end": 132,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Optimization Our regret minimization (RGM) can be thought of as finding a stationary point of a multi-player game with several players: f , \u03c6 as well as auxiliary predictors {f \u2212e } and {f e }. Our predictor f and representation \u03c6 find their best response strategies by minimizing",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "assuming that {f \u2212e } and {f e } remain fixed. The auxiliary predictors minimize",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": ". The auxiliary objectives depend on the representation \u03c6 but this is not exposed to \u03c6, reflecting an inherent asymmetry in the multi-player game formulation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "The RGM game objective is solved via stochastic gradient descent. In each step, we randomly choose an environment E e \u2208 E and sample a batch B e = {(x i , y i )} from E e . We also sample an associated batch B \u2212e from the other environments E\\{E e }. The loss for \u03c6 and f e are implemented by a gradient reversal layer [16] . The setup allows us to optimize all the players in a single forward-backward pass operating on the two batches (see Figure 2 ). 1",
+            "cite_spans": [
+                {
+                    "start": 319,
+                    "end": 323,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 442,
+                    "end": 450,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Regret minimization"
+        },
+        {
+            "text": "Both our proposed regret minimization as well as IRM assume that the set of environments are given as input, provided by the user. The environments exemplify nuisance variation that needs to be discounted so they play a critical role in determining whether the approach is successful. The setting becomes challenging when the natural environments are combinatorially defined. For example, in molecule property prediction, each environment is defined by a scaffold, which is a subgraph of a molecule (see Figure 1 ). Since scaffolds are combinatorial descriptors, they often uniquely identify each molecule in the training set. It is not helpful to create single-example environments as the model would see any variation from one example to another as nuisance, not able to associate nuisance primarily to scaffold variation.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 504,
+                    "end": 512,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "A straightforward approach to combinatorial or large numbers of environments is to cluster them into fewer, coarser sets, and apply RGM over the coarse environments. For simplicity, we cluster the training environments E into just two coarse environments E 0 , E 1 . The advantage is that we only need to realize two auxiliary predictors {f \u2212e }, {f e }, e \u2208 {0, 1} instead of |E| predictors. The construction of the coarse environments depends on the application (see \u00a75). Figure 3 : a) Scaffold classifier g predicts the scaffold (subgraph of a molecule); b) Domain perturbation. The perturbed environment\u1ebc 3 contains less scaffold information; c) RGM with domain perturbation. We introduce additional oracle predictors f e,\u03b4 for the perturbed environments.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 474,
+                    "end": 482,
+                    "text": "Figure 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "Domain perturbation While using coarse environments is computationally beneficial, this clearly loses the ability to highlight finer nuisance variation from scaffolds or protein families. To counter this, we introduce and measure regret on additional environments {\u1ebc e } created specifically to highlight fine-grained variation of scaffolds or protein families but in an efficient manner. We define these additional environments via perturbations, as discussed in detail below. Both E e and its associated perturbed environment\u1ebc e serve as held-out environments to the predictor f \u2212e . These give rise to regret terms relative to oracles that can fit specifically to each environment, now including\u1ebc e . These additional regret terms will further drive the feature representation \u03c6. The goal is to learn to generalize well to finer-grained variations of scaffolds or protein families that we may encounter at test time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "We propose additional environments through gradient-based domain perturbations. Specifically, for each coarse environment E e , e \u2208 {0, 1}, we construct another environment whose representations are perturbed:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "Note that E e and\u1ebc e are defined over the same set of examples but differ in the representation that the predictors operate on when calculating the regret. The perturbation \u03b4(x) is defined through a parametric scaffold (or protein family) classifier g(\u03c6(x)).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "The associated classification loss is (s(x), g(\u03c6(x))), where s(x) is the scaffold (or protein family) label of x (see Figure 3a) . We define the perturbation \u03b4(x) in terms of the gradient:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 118,
+                    "end": 128,
+                    "text": "Figure 3a)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "where \u03b1 is a step size parameter. The direction of perturbation creates a modified representatio\u00f1 z = \u03c6(x) + \u03b4(x) that contains less information about the scaffold (or protein family) than the original representation z = \u03c6(x). The impact on domain classifier output is illustrated in Figure 3b . Note that the variation between z andz highlights how finer scaffold information remains in the representation; the associated regret terms then require that this variation does not affect quality of prediction.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 284,
+                    "end": 293,
+                    "text": "Figure 3b",
+                    "ref_id": null
+                }
+            ],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "Integration with RGM We augment the RGM objective in Eq.(4) with two additional terms. First, the scaffold (or protein family) classifier g is trained together with the feature mapping \u03c6 to minimize",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "Second, we add regret terms R e (\u03c6 + \u03b4) specific to the perturbed environments to encourage the model to extrapolate to them as well. The new objective for the main players f , \u03c6, and g then becomes",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "where we have introduced a new oracle predictor f e,\u03b4 = arg min f L e (f \u2022 (\u03c6 + \u03b4)) for perturbed environment\u1ebc e , in addition to f e for the original environment E e (see Figure 3c ). Note that f \u2212e minimizes a separate objective L \u2212e (f \u2212e \u2022\u03c6) = (x,y)\u2208E1\u2212e (y, f \u2212e (\u03c6(x))), which does not include the perturbed examples. Perturbations represent additional simulated test scenarios that we wish to generalize to. The training procedure is shown in Algorithm 2.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 172,
+                    "end": 181,
+                    "text": "Figure 3c",
+                    "ref_id": null
+                }
+            ],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "Remark While the perturbation \u03b4 is defined on the basis of \u03c6 as well as the classifier g, we do not include the dependence during back-propagation. We verified that incorporating this higher order gradient would not improve our empirical results. Another subtlety in the objective is that \u03c6 is adjusted to also help the classifier g. In other words, the representation \u03c6 is in part optimized to retain information about molecular scaffolds or protein families. This encourages the perturbation to be meaningful and relevant to downstream tasks. Sample a mini-batch B e = {(x 1 , y 1 ), \u00b7 \u00b7 \u00b7 , (x m , y m )} from coarse environment E e",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extrapolation to combinatorially defined domains"
+        },
+        {
+            "text": "Sample another mini-batch B 1\u2212e from environment E 1\u2212e",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "4:"
+        },
+        {
+            "text": "Compute scaffold (or protein family) classification loss L g (g \u2022 \u03c6) = i s(x i ), g(\u03c6(x i )) 6: Construct gradient perturbation \u03b4(x i ) = \u03b1\u2207 \u03c6(xi) s(x i ), g(\u03c6(x i )) Compute oracle predictor losses L e (f e \u2022 \u03c6) and L e (f e,\u03b4 \u2022 (\u03c6 + \u03b4)) on B e 10:",
+            "cite_spans": [
+                {
+                    "start": 93,
+                    "end": 95,
+                    "text": "6:",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "5:"
+        },
+        {
+            "text": "Compute regrets for the coarse and perturbed environments: R e (\u03c6) and R e (\u03c6 + \u03b4)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "5:"
+        },
+        {
+            "text": "Back-propagate gradients and update model parameters 12: end for",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "11:"
+        },
+        {
+            "text": "We evaluate our method on three tasks. We first construct a synthetic task to verify the weakness of IRM and study the behaviour of RGM. Then we test our method on protein classification and molecule property prediction tasks where the environments are combinatorially defined. In both tasks, we test our method under two settings: 1) RGM combined with domain perturbation (named as RGM-DP); 2) standard RGM trained on the coarse environments E 0 , E 1 used in RGM-DP.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "Baselines On the synthetic dataset, we mainly compare with IRM [4] . For the other two tasks, we compare our method with ERM (environments aggregated) and more domain extrapolation methods:",
+            "cite_spans": [
+                {
+                    "start": 63,
+                    "end": 66,
+                    "text": "[4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "\u2022 DANN [16] , CDAN [26] and IRM [4] seek to learn domain-invariant features. As mentioned in section 2, these methods require each domain to have fair amount of data. Thus, they are trained on the coarse environments E 0 , E 1 used in RGM-DP instead of the original combinatorial environments (i.e., molecular scaffolds and protein superfamilies). \u2022 MLDG [21] simulates domain shift by dividing domains into meta-training and meta-testing.",
+            "cite_spans": [
+                {
+                    "start": 7,
+                    "end": 11,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 19,
+                    "end": 23,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 32,
+                    "end": 35,
+                    "text": "[4]",
+                    "ref_id": null
+                },
+                {
+                    "start": 355,
+                    "end": 359,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "\u2022 CrossGrad [30] augments the dataset with domain-guided perturbations of inputs. Since it requires the input to be continuous, we perform domain perturbation on learned features \u03c6(x) instead.",
+            "cite_spans": [
+                {
+                    "start": 12,
+                    "end": 16,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "DANN, CDAN and IRM are trained on the coarse environments and comparable to standard RGM. MLDG and CrossGrad are trained on combinatorial environments and comparable to RGM-DP.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "Data We first compare the behavior of IRM and RGM on an inter-twinning moons problem [16] , where the domain shift is caused by rotation (see Figure 4 ). The training set contains two environments E 0 , E 20 . As for E 0 , we generate a lower moon and an upper moon labeled 0 and 1 respectively, each containing 1000 examples. Setup The feature extractor \u03c6 and predictor f is a two-layer MLP with hidden dimension 300 and ReLU activation. For RGM, we set \u03bb = 0.5. For IRM, we use the official implementation from Arjovsky et al. [4] based on gradient penalty. Both methods are optimized by Adam with 2 regularization weight \u03bb 2 = 0.01, where IRM performs the best on the OOD validation set.",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 89,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 529,
+                    "end": 532,
+                    "text": "[4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 142,
+                    "end": 150,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Synthetic data"
+        },
+        {
+            "text": "Our results are shown in Figure 5 . Our method significantly outperforms IRM (84.6% vs 74.7% with the OOD validation). IRM test accuracy is close to ERM under in-domain validation setting. IRM is able to outperform ERM under OOD validation setting because it provides additional extrapolation signal. For ablation study, we train models with different 2 regularization weight and OOD validation so that models yield zero training error. As shown in Figure 5 (right), IRM's test accuracy becomes similar to ERM when \u03bb 2 \u2264 10 \u22123 as its training accuracy reaches 100%. This . IRM test accuracy becomes almost the same as ERM when \u03bb 2 \u2264 10 \u22123 as it achieves 100% training accuracy. This shows that IRM collapse to ERM when the model perfectly fits the training set.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 25,
+                    "end": 33,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF5"
+                },
+                {
+                    "start": 449,
+                    "end": 457,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF5"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "shows that IRM will collapse to ERM when model perfectly fits the training set. In contrast, RGM test accuracy is around 80.0% even when \u03bb 2 = 10 \u22124 and training error is zero.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Results"
+        },
+        {
+            "text": "Data The training data is a collection of pairs {(x i , y i )}, where x i is a molecular graph and y i is its property label (binary). The environment of each compound x i is defined as its Murcko scaffold [6] , which is a subgraph of x i with side chains removed. We consider the following four datasets:",
+            "cite_spans": [
+                {
+                    "start": 206,
+                    "end": 209,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Molecule property prediction"
+        },
+        {
+            "text": "\u2022 Tox21, BACE and BBBP are three classification datasets from the MoleculeNet benchmark [32] , which contain 7.8K, 1.5K and 2K molecules respectively. Following [14] , we split each dataset based on molecular weight (MW). This setup is much harder than commonly used random split as it requires models to extrapolate to new chemical space. The training set consists of simple molecules with MW < \u03c4 . The test set molecules are more complex, with MW > \u03c4 + 100. The validation set contains molecules with \u03c4 \u2264 MW \u2264 \u03c4 + 100. We set \u03c4 = 400 for Tox21, BBBP and \u03c4 = 500 for BACE (as BACE compounds have larger molecular weight on average). \u2022 COVID-19: During recent pandemic, many research groups released their experimental data of antiviral activities against COVID-19. However, these datasets are heterogeneous due to different experimental conditions. This requires our model to ignore spurious correlation caused by dataset bias in order to generalize. We consider three antiviral datasets from PubChem [1] , Diamond Light Source [2] and Jeon et al. [18] . The training set contains 10K molecules from PubChem and 700 compounds from Diamond. The validation set contains 180 compounds from Diamond. The test set consists of 50 compounds from Jeon et al. [18] , a different data source from the training set.",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 92,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 161,
+                    "end": 165,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1002,
+                    "end": 1005,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 1029,
+                    "end": 1032,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1049,
+                    "end": 1053,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1252,
+                    "end": 1256,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Molecule property prediction"
+        },
+        {
+            "text": "Model The feature extractor \u03c6 is a graph convolutional network [34] which translates a molecular graph into a continuous vector. The predictor f is a MLP that takes \u03c6(x) as input and predicts the label. Since scaffold is a combinatorial object with a large number of possible values, we train the environment classifier by negative sampling. Specifically, for a given molecule x i with scaffold s i , we randomly sample n other molecules and take their associated scaffolds {s k } as negative examples. Details of model architecture are discussed in the appendix.",
+            "cite_spans": [
+                {
+                    "start": 63,
+                    "end": 67,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Molecule property prediction"
+        },
+        {
+            "text": "RGM setup For RGM-DP, we construct two coarse environments E 0 , E 1 as the following. On the COVID-19 dataset, E 1 consists of 700 compounds from the Diamond dataset and E 0 is the PubChem dataset. The two coarse groups are created to highlight the dataset bias. For other datasets, E 1 consists of molecules with \u03c4 \u2212 50 < MW < \u03c4 and E 0 = E \u2212 E 1 . We set \u03bb g = 0.1 in all datasets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Molecule property prediction"
+        },
+        {
+            "text": "Results Following standard practice, we report AUROC score averaged across five independent runs. As shown in Table 1 , our methods significantly outperformed other baselines (e.g., 0.654 vs 0.402 on COVID). On the COVID dataset, the difference between RGM and RGM-DP is small because the domain shift is mostly caused by dataset bias rather than scaffold changes. Indeed, RGM-DP shows a clear improvement over standard RGM on the BACE dataset (0.590 vs 0.532), since the domain shift is caused by scaffold changes (i.e., complex molecules usually have much larger scaffolds).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 110,
+                    "end": 117,
+                    "text": "Table 1",
+                    "ref_id": "TABREF3"
+                }
+            ],
+            "section": "Molecule property prediction"
+        },
+        {
+            "text": "Data We evaluate our method on a remote homology classification benchmark used in Rao et al. [29] . The dataset consists of pairs {(x, y)}, where x is a protein sequence and y is its fold class. It is split into 12K for training, 736 for validation and 718 for testing by [29] . Importantly, the provided split ensures that there is no protein superfamily that appears in both training and testing. Each superfamily represents an evolutionary group, i.e., proteins from different superfamilies are structurally different. This requires models to generalize across large evolutionary gaps. In total, the dataset contains 1823 environments defined by protein superfamilies.",
+            "cite_spans": [
+                {
+                    "start": 93,
+                    "end": 97,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 272,
+                    "end": 276,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Protein homology detection"
+        },
+        {
+            "text": "Model The protein encoder \u03c6(x) = MLP(\u03c6 1 (x), \u03c6 2 (x)) contains two modules: \u03c6 1 (x) is a TAPE protein embedding learned by a pre-trained transformer network [29] ; \u03c6 2 (x) is a LSTM network that embeds associated protein secondary structures and other features. The predictor f is a feed-forward network that takes \u03c6(x) as input and predicts its fold label. The environment classifier g also takes \u03c6(x) as input and predicts the superfamily label of x (out of 1823 classes).",
+            "cite_spans": [
+                {
+                    "start": 158,
+                    "end": 162,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Protein homology detection"
+        },
+        {
+            "text": "RGM setup For RGM-DP, we construct two coarse environments E 0 , E 1 as the following. E 1 contains all protein superfamilies which have less than 10 proteins and E 0 = E \u2212 E 1 . The coarse environments are divided based on the size of superfamilies because the validation set mostly contains protein superfamilies of small size. We set \u03bb g = 1 and \u03bb = 0.1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Protein homology detection"
+        },
+        {
+            "text": "Following [29] , we report the top-1 and top-5 accuracy in Table 1 . For reference, the top-1 and top-5 accuracy of TAPE transformer [29] are 21.0% and 37.0%. 2 Our ERM baseline achieves better results as we incorporate additional features. The proposed RGM-DP outperforms all the baselines in both top-1 and top-5 accuracy. The vanilla RGM operating on coarse environments also outperforms other baselines in top-1 accuracy. Indeed, RGM-DP performs better than RGM because it operates on protein superfamilies and receives stronger extrapolation signal.",
+            "cite_spans": [
+                {
+                    "start": 10,
+                    "end": 14,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 133,
+                    "end": 137,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 159,
+                    "end": 160,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 59,
+                    "end": 66,
+                    "text": "Table 1",
+                    "ref_id": "TABREF3"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "In this paper, we propose regret minimization for domain extrapolation, which seeks to find a predictor that generalizes as well as an oracle that would have hindsight access to unseen domains. Our method significantly outperforms all baselines on both synthetic and real-world tasks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "In section 3, we discussed that IRM may collapse to ERM when the predictor is powerful enough to perfectly fit the training set. Under some additional assumptions, we can further show that the ERM optimal predictor f is optimal for IRM even if the model has non-zero training error.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Additional analysis of IRM"
+        },
+        {
+            "text": "In particular, we assume that the conditional distribution p(y|x) is environment-dependent and the environment e can be inferred from x alone, i.e.,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Additional analysis of IRM"
+        },
+        {
+            "text": "p(x, y, e) = p(e)p(x|e)p(y|x, e); p(y|x, e) = p(y|x, e(x))",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Additional analysis of IRM"
+        },
+        {
+            "text": "For molecules and proteins, the second assumption is valid because the environment labels (scaffold, protein family) can be inferred from x. Under this assumption, we can rephrase the IRM objective as min Model hyperparameters Both the feature extractor \u03c6 and predictor are two-layer MLPs with hidden dimension 300. For both ERM, IRM and RGM, we consider \u03bb 2 \u2208 {10 \u22124 , 10 \u22123 , 10 \u22122 , 10 \u22121 }. For IRM, the gradient penalty weight is set to 10000 as in [4] . For RGM, we consider \u03bb \u2208 {0.1, 0.5, 1.0} and \u03bb = 0.5 works the best on the OOD validation set.",
+            "cite_spans": [
+                {
+                    "start": 454,
+                    "end": 457,
+                    "text": "[4]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "A Additional analysis of IRM"
+        },
+        {
+            "text": "Data The four property prediction datasets are provided in the supplementary material, along with the train/val/test splits. The size of the training, validation and test sets are listed in Table 2 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 190,
+                    "end": 197,
+                    "text": "Table 2",
+                    "ref_id": "TABREF4"
+                }
+            ],
+            "section": "B.2 Molecule property prediction"
+        },
+        {
+            "text": "Model hyperparameters For the feature extractor \u03c6, we adopt the GCN implementation from Yang et al. [34] . We use their default hyperparameters across all the datasets and baselines. Specifically, the GCN contains three convolution layers with hidden dimension 300. The predictor f is a two-layer MLP with hidden dimenion 300 and ReLU activation. The model is trained with Adam optimizer for 30 epochs with batch size 50 and learning rate linearly annealed from 10 \u22123 to 10 \u22124 .",
+            "cite_spans": [
+                {
+                    "start": 100,
+                    "end": 104,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B.2 Molecule property prediction"
+        },
+        {
+            "text": "The environment classifier g is a MLP that maps a compound or its scaffold to a feature vector. The model is trained by negative sampling since scaffold is a combinatorial object. Specifically, for a given molecule x i in a mini-batch B, we treat other molecules in the batch and take their associated scaffolds {s k } as negative examples. The probability that x i is mapped to its correct scaffold s i = s(x i ) is then defined as p(s i | x i , B) = exp{g(\u03c6(x i )) g(\u03c6(s i ))} k\u2208B exp{g(\u03c6(x i )) g(\u03c6(s k ))}",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B.2 Molecule property prediction"
+        },
+        {
+            "text": "The environment classification loss is \u2212 i log p(s i | x i , B) for a mini-batch B. The classifier g is a two-layer MLP with hidden dimension 300 and ReLU activation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B.2 Molecule property prediction"
+        },
+        {
+            "text": "For RGM and RGM-DP, we consider \u03bb \u2208 {0.05, 0.1, 0.2} and \u03bb g \u2208 {0.1, 1} and select the best hyper-parameter for each dataset. \u03bb g = 0.1 consistently works the best across all the datasets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B.2 Molecule property prediction"
+        },
+        {
+            "text": "Data The protein homology dataset is downloaded from Rao et al. [29] . Each protein x is represented by a sequence of amino acids, along with the predicted secondary structure labels, predicted solvent accessibility labels, and alignment-based features. For RGM-DP, the two coarse groups E 0 , E 1 have 8594 and 3718 examples respectively.",
+            "cite_spans": [
+                {
+                    "start": 64,
+                    "end": 68,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B.3 Protein homology detection"
+        },
+        {
+            "text": "The protein encoder \u03c6(x) = ReLU(W 1 \u03c6 1 (x) + W 2 \u03c6 2 (x)). \u03c6 1 (x) is a 768-dimensional TAPE embedding given by a pre-trained transformer [29] . \u03c6 2 (x) is a bidirectional LSTM that embeds the secondary structures, solvent accessibility and alignment-based features. The LSTM has one recurrent layer and its hidden dimension is 300. The predictor f is a linear layer which worked better than MLP under ERM. The environment classifier is a two-layer MLP whose hidden size is 300 and output size is 1823 (the number of protein superfamilies).",
+            "cite_spans": [
+                {
+                    "start": 139,
+                    "end": 143,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model hyperparameters"
+        },
+        {
+            "text": "The model is trained with Adam optimizer for 10 epochs, with batch size 32 and learning rate linearly annealed from 10 \u22123 to 10 \u22124 . For RGM and RGM-DP, we consider \u03bb \u2208 {0.01, 0.1} and \u03bb g \u2208 {0.1, 1} and \u03bb = 0.1, \u03bb g = 1 work the best on the validation set.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model hyperparameters"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "National center for biotechnology information. pubchem database. source=the scripps research institute molecular screening center",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Sars-cov-2 main protease structure and xchem fragment screen. Diamond Light Source",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Kush Varshney, and Amit Dhurandhar. Invariant risk minimization games",
+            "authors": [
+                {
+                    "first": "Kartik",
+                    "middle": [],
+                    "last": "Ahuja",
+                    "suffix": ""
+                },
+                {
+                    "first": "Karthikeyan",
+                    "middle": [],
+                    "last": "Shanmugam",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2002.04692"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Metareg: Towards domain generalization using meta-regularization",
+            "authors": [
+                {
+                    "first": "Yogesh",
+                    "middle": [],
+                    "last": "Balaji",
+                    "suffix": ""
+                },
+                {
+                    "first": "Swami",
+                    "middle": [],
+                    "last": "Sankaranarayanan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rama",
+                    "middle": [],
+                    "last": "Chellappa",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "998--1008",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "The properties of known drugs. 1. molecular frameworks",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Guy",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bemis",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mark",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Murcko",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "Journal of medicinal chemistry",
+            "volume": "39",
+            "issn": "15",
+            "pages": "2887--2893",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "A theory of learning from different domains",
+            "authors": [
+                {
+                    "first": "Shai",
+                    "middle": [],
+                    "last": "Ben-David",
+                    "suffix": ""
+                },
+                {
+                    "first": "John",
+                    "middle": [],
+                    "last": "Blitzer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Koby",
+                    "middle": [],
+                    "last": "Crammer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alex",
+                    "middle": [],
+                    "last": "Kulesza",
+                    "suffix": ""
+                },
+                {
+                    "first": "Fernando",
+                    "middle": [],
+                    "last": "Pereira",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jennifer",
+                    "middle": [
+                        "Wortman"
+                    ],
+                    "last": "Vaughan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Machine learning",
+            "volume": "79",
+            "issn": "1-2",
+            "pages": "151--175",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Learning protein sequence embeddings using information from structure",
+            "authors": [
+                {
+                    "first": "Tristan",
+                    "middle": [],
+                    "last": "Bepler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bonnie",
+                    "middle": [],
+                    "last": "Berger",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1902.08661"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Domain adaptation with conditional distribution matching and generalized label shift",
+            "authors": [
+                {
+                    "first": "Remi",
+                    "middle": [],
+                    "last": "Tachet Des Combes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Han",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yu-Xiang",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Geoff",
+                    "middle": [],
+                    "last": "Gordon",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.04475"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Learning from multiple sources",
+            "authors": [
+                {
+                    "first": "Koby",
+                    "middle": [],
+                    "last": "Crammer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Kearns",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jennifer",
+                    "middle": [],
+                    "last": "Wortman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Journal of Machine Learning Research",
+            "volume": "9",
+            "issn": "",
+            "pages": "1757--1774",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Domain generalization via model-agnostic learning of semantic features",
+            "authors": [
+                {
+                    "first": "Qi",
+                    "middle": [],
+                    "last": "Dou",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Coelho De Castro",
+                    "suffix": ""
+                },
+                {
+                    "first": "Konstantinos",
+                    "middle": [],
+                    "last": "Kamnitsas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ben",
+                    "middle": [],
+                    "last": "Glocker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "6447--6458",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "The Pfam protein families database in 2019",
+            "authors": [
+                {
+                    "first": "Sara",
+                    "middle": [],
+                    "last": "El-Gebali",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jaina",
+                    "middle": [],
+                    "last": "Mistry",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alex",
+                    "middle": [],
+                    "last": "Bateman",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Sean",
+                    "suffix": ""
+                },
+                {
+                    "first": "Aur\u00e9lien",
+                    "middle": [],
+                    "last": "Eddy",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Luciani",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Simon",
+                    "suffix": ""
+                },
+                {
+                    "first": "Matloob",
+                    "middle": [],
+                    "last": "Potter",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lorna",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Qureshi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gustavo",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Richardson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alfredo",
+                    "middle": [],
+                    "last": "Salazar",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Smart",
+                    "suffix": ""
+                },
+                {
+                    "first": "L L",
+                    "middle": [],
+                    "last": "Erik",
+                    "suffix": ""
+                },
+                {
+                    "first": "Layla",
+                    "middle": [],
+                    "last": "Sonnhammer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lisanna",
+                    "middle": [],
+                    "last": "Hirsh",
+                    "suffix": ""
+                },
+                {
+                    "first": "Damiano",
+                    "middle": [],
+                    "last": "Paladin",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Piovesan",
+                    "suffix": ""
+                },
+                {
+                    "first": "C E",
+                    "middle": [],
+                    "last": "Silvio",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert D",
+                    "middle": [],
+                    "last": "Tosatto",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Finn",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Nucleic Acids Research",
+            "volume": "47",
+            "issn": "D1",
+            "pages": "427--432",
+            "other_ids": {
+                "DOI": [
+                    "10.1093/nar/gky995"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Unbiased metric learning: On the utilization of multiple datasets and web images for softening bias",
+            "authors": [
+                {
+                    "first": "Chen",
+                    "middle": [],
+                    "last": "Fang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ye",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniel",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Rockmore",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Proceedings of the IEEE International Conference on Computer Vision",
+            "volume": "",
+            "issn": "",
+            "pages": "1657--1664",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Step change improvement in admet prediction with potentialnet deep featurization",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Evan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Robert",
+                    "middle": [],
+                    "last": "Feinberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Elizabeth",
+                    "middle": [],
+                    "last": "Sheridan",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Joshi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Vijay",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alan",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Pande",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1903.11789"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Scope: Structural classification of proteins-extended, integrating scop and astral data and classification of new structures",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Naomi",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Fox",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Steven",
+                    "suffix": ""
+                },
+                {
+                    "first": "John-Marc",
+                    "middle": [],
+                    "last": "Brenner",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Chandonia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Nucleic acids research",
+            "volume": "42",
+            "issn": "D1",
+            "pages": "304--309",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Domain-adversarial training of neural networks",
+            "authors": [
+                {
+                    "first": "Yaroslav",
+                    "middle": [],
+                    "last": "Ganin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Evgeniya",
+                    "middle": [],
+                    "last": "Ustinova",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hana",
+                    "middle": [],
+                    "last": "Ajakan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Pascal",
+                    "middle": [],
+                    "last": "Germain",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hugo",
+                    "middle": [],
+                    "last": "Larochelle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Fran\u00e7ois",
+                    "middle": [],
+                    "last": "Laviolette",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mario",
+                    "middle": [],
+                    "last": "Marchand",
+                    "suffix": ""
+                },
+                {
+                    "first": "Victor",
+                    "middle": [],
+                    "last": "Lempitsky",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "The Journal of Machine Learning Research",
+            "volume": "17",
+            "issn": "1",
+            "pages": "2096--2030",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Domain generalization for object recognition with multi-task autoencoders",
+            "authors": [
+                {
+                    "first": "Muhammad",
+                    "middle": [],
+                    "last": "Ghifary",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mengjie",
+                    "middle": [],
+                    "last": "Bastiaan Kleijn",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Balduzzi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of the IEEE international conference on computer vision",
+            "volume": "",
+            "issn": "",
+            "pages": "2551--2559",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Identification of antiviral drug candidates against sars-cov-2 from fda-approved drugs. bioRxiv",
+            "authors": [
+                {
+                    "first": "Sangeun",
+                    "middle": [],
+                    "last": "Jeon",
+                    "suffix": ""
+                },
+                {
+                    "first": "Meehyun",
+                    "middle": [],
+                    "last": "Ko",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jihye",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "Inhee",
+                    "middle": [],
+                    "last": "Choi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Soo",
+                    "middle": [
+                        "Young"
+                    ],
+                    "last": "Byun",
+                    "suffix": ""
+                },
+                {
+                    "first": "Soonju",
+                    "middle": [],
+                    "last": "Park",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Shum",
+                    "suffix": ""
+                },
+                {
+                    "first": "Seungtaek",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Undoing the damage of dataset bias",
+            "authors": [
+                {
+                    "first": "Aditya",
+                    "middle": [],
+                    "last": "Khosla",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tinghui",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tomasz",
+                    "middle": [],
+                    "last": "Malisiewicz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alexei",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Efros",
+                    "suffix": ""
+                },
+                {
+                    "first": "Antonio",
+                    "middle": [],
+                    "last": "Torralba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "European Conference on Computer Vision",
+            "volume": "",
+            "issn": "",
+            "pages": "158--171",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Deeper, broader and artier domain generalization",
+            "authors": [
+                {
+                    "first": "Da",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yongxin",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yi-Zhe",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hospedales",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the IEEE international conference on computer vision",
+            "volume": "",
+            "issn": "",
+            "pages": "5542--5550",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Learning to generalize: Meta-learning for domain generalization",
+            "authors": [
+                {
+                    "first": "Da",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yongxin",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yi-Zhe",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hospedales",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Thirty-Second AAAI Conference on Artificial Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Episodic training for domain generalization",
+            "authors": [
+                {
+                    "first": "Da",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jianshu",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yongxin",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Cong",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yi-Zhe",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hospedales",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the IEEE International Conference on Computer Vision",
+            "volume": "",
+            "issn": "",
+            "pages": "1446--1455",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Domain generalization with adversarial feature learning",
+            "authors": [
+                {
+                    "first": "Haoliang",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Shiqi",
+                    "middle": [],
+                    "last": "Sinno Jialin Pan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alex",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kot",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "5400--5409",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Deep domain generalization via conditional invariant adversarial networks",
+            "authors": [
+                {
+                    "first": "Ya",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xinmei",
+                    "middle": [],
+                    "last": "Tian",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mingming",
+                    "middle": [],
+                    "last": "Gong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yajing",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tongliang",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kun",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Dacheng",
+                    "middle": [],
+                    "last": "Tao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Proceedings of the European Conference on Computer Vision (ECCV)",
+            "volume": "",
+            "issn": "",
+            "pages": "624--639",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Feature-critic networks for heterogeneous domain generalization",
+            "authors": [
+                {
+                    "first": "Yiying",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yongxin",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wei",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hospedales",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1901.11448"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Conditional adversarial domain adaptation",
+            "authors": [
+                {
+                    "first": "Mingsheng",
+                    "middle": [],
+                    "last": "Long",
+                    "suffix": ""
+                },
+                {
+                    "first": "Zhangjie",
+                    "middle": [],
+                    "last": "Cao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jianmin",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael I Jordan",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "1640--1650",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Unified deep supervised domain adaptation and generalization",
+            "authors": [
+                {
+                    "first": "Saeid",
+                    "middle": [],
+                    "last": "Motiian",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marco",
+                    "middle": [],
+                    "last": "Piccirilli",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Donald",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gianfranco",
+                    "middle": [],
+                    "last": "Adjeroh",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Doretto",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the IEEE International Conference on Computer Vision",
+            "volume": "",
+            "issn": "",
+            "pages": "5715--5725",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Domain generalization via invariant feature representation",
+            "authors": [
+                {
+                    "first": "Krikamol",
+                    "middle": [],
+                    "last": "Muandet",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Balduzzi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bernhard",
+                    "middle": [],
+                    "last": "Sch\u00f6lkopf",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "International Conference on Machine Learning",
+            "volume": "",
+            "issn": "",
+            "pages": "10--18",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Evaluating protein transfer learning with tape",
+            "authors": [
+                {
+                    "first": "Roshan",
+                    "middle": [],
+                    "last": "Rao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nicholas",
+                    "middle": [],
+                    "last": "Bhattacharya",
+                    "suffix": ""
+                },
+                {
+                    "first": "Neil",
+                    "middle": [],
+                    "last": "Thomas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yan",
+                    "middle": [],
+                    "last": "Duan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Xi",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "John",
+                    "middle": [],
+                    "last": "Canny",
+                    "suffix": ""
+                },
+                {
+                    "first": "Pieter",
+                    "middle": [],
+                    "last": "Abbeel",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yun S",
+                    "middle": [],
+                    "last": "Song",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Generalizing across domains via cross-gradient training",
+            "authors": [
+                {
+                    "first": "Shiv",
+                    "middle": [],
+                    "last": "Shankar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Vihari",
+                    "middle": [],
+                    "last": "Piratla",
+                    "suffix": ""
+                },
+                {
+                    "first": "Soumen",
+                    "middle": [],
+                    "last": "Chakrabarti",
+                    "suffix": ""
+                },
+                {
+                    "first": "Siddhartha",
+                    "middle": [],
+                    "last": "Chaudhuri",
+                    "suffix": ""
+                },
+                {
+                    "first": "Preethi",
+                    "middle": [],
+                    "last": "Jyothi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sunita",
+                    "middle": [],
+                    "last": "Sarawagi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1804.10745"
+                ]
+            }
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Generalizing to unseen domains via adversarial data augmentation",
+            "authors": [
+                {
+                    "first": "Riccardo",
+                    "middle": [],
+                    "last": "Volpi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hongseok",
+                    "middle": [],
+                    "last": "Namkoong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ozan",
+                    "middle": [],
+                    "last": "Sener",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "John",
+                    "suffix": ""
+                },
+                {
+                    "first": "Vittorio",
+                    "middle": [],
+                    "last": "Duchi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Silvio",
+                    "middle": [],
+                    "last": "Murino",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Savarese",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Advances in Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "5334--5344",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Moleculenet: a benchmark for molecular machine learning",
+            "authors": [
+                {
+                    "first": "Zhenqin",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bharath",
+                    "middle": [],
+                    "last": "Ramsundar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Evan",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Feinberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joseph",
+                    "middle": [],
+                    "last": "Gomes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Caleb",
+                    "middle": [],
+                    "last": "Geniesse",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Aneesh",
+                    "suffix": ""
+                },
+                {
+                    "first": "Karl",
+                    "middle": [],
+                    "last": "Pappu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Vijay",
+                    "middle": [],
+                    "last": "Leswing",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pande",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Chemical science",
+            "volume": "9",
+            "issn": "2",
+            "pages": "513--530",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Analyzing learned molecular representations for property prediction",
+            "authors": [
+                {
+                    "first": "Kevin",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kyle",
+                    "middle": [],
+                    "last": "Swanson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wengong",
+                    "middle": [],
+                    "last": "Jin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Connor",
+                    "middle": [],
+                    "last": "Coley",
+                    "suffix": ""
+                },
+                {
+                    "first": "Philipp",
+                    "middle": [],
+                    "last": "Eiden",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hua",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Angel",
+                    "middle": [],
+                    "last": "Guzman-Perez",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [],
+                    "last": "Hopper",
+                    "suffix": ""
+                },
+                {
+                    "first": "Brian",
+                    "middle": [],
+                    "last": "Kelley",
+                    "suffix": ""
+                },
+                {
+                    "first": "Miriam",
+                    "middle": [],
+                    "last": "Mathea",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Journal of chemical information and modeling",
+            "volume": "59",
+            "issn": "8",
+            "pages": "3370--3388",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Understanding deep learning requires rethinking generalization",
+            "authors": [
+                {
+                    "first": "Chiyuan",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Samy",
+                    "middle": [],
+                    "last": "Bengio",
+                    "suffix": ""
+                },
+                {
+                    "first": "Moritz",
+                    "middle": [],
+                    "last": "Hardt",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benjamin",
+                    "middle": [],
+                    "last": "Recht",
+                    "suffix": ""
+                },
+                {
+                    "first": "Oriol",
+                    "middle": [],
+                    "last": "Vinyals",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1611.03530"
+                ]
+            }
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "On learning invariant representation for domain adaptation",
+            "authors": [
+                {
+                    "first": "Han",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Remi",
+                    "middle": [],
+                    "last": "Tachet",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kun",
+                    "middle": [],
+                    "last": "Combes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Geoffrey",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Gordon",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1901.09453"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Forward and backward pass of RGM.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "e is updated on the basis of batch B \u2212e approximation to L \u2212e (f \u2212e \u2022 \u03c6). The losses defining the regret, i.e., L e (f \u2212e \u2022 \u03c6) and L e (f e \u2022 \u03c6), are naturally evaluated based on examples in B e only. The gradients",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "E 20 is constructed by rotating all examples in E 0 by 20 \u2022 . Likewise, our test set E 60 contains examples rotated by 60 \u2022 . As validation set plays a crucial role in domain generalization, we consider two different ways of constructing the validation set E val : \u2022 Out-of-domain (OOD) validation: E val = E 40 , which rotates all examples in E 0 by 40 \u2022 . \u2022 In-domain validation: We create E val by adding Gaussian noise N (0, 0.2) to examples in E 20 . We experiment with in-domain validation because OOD validation is not always available in practice.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Rotated moon dataset. The training set consists of environments E 0 and E 20 . The in-domain validation set adds Gaussian noise N (0, 0.2) to examples in E 20 . The out-of-domain validation and test set is E 40 and E 60 , which rotates all examples in E 0 by 40 \u2022 and 60 \u2022 . RGM 99.5 \u00b1 0.3 77.4 \u00b1 3.5 99.6 \u00b1 0.2 84.6 \u00b1 6.8",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "Results on the rotated moon dataset. Left: Training/test accuracy under in-domain and OOD validation. IRM performs quite similarly to ERM when using the in-domain validation set. Right: Training/test accuracy under different 2 regularization (\u03bb 2 \u2208 [10 \u22124 , 10 \u22121 ])",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "simulate domain shift by dividing source domains into meta-training and meta-test sets. They seek to minimize model's generalization error on meta-test domains after training on meta-training domains. Similarly, our formulation also creates held-out domains during training and minimizes model's regret. However, our objective enforces a stronger requirement for domain generalization: we not only minimizes model's generalization error on held-out domains, but also require it to be optimal, i.e., performing as well as the best predictor trained on held-out domains.\u2022 Domain augmentation: CrossGrad[30] augments the dataset with domain-guided perturbations of input examples for domain generalization. Likewise, Volpi et al. [31] augments the dataset with adversarially perturbed examples served as a fictitious target domain. Our domain perturbation method in \u00a74 is closely related to CrossGrad, but it operates over learned features as our inputs are discrete. Moreover, our domain perturbation is only used to compute regret in our RGM objective. Different from data augmentation, our predictor is not directly trained on the perturbed examples.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Results on real-world datasets. In the first block, we compare RGM against baselines trained on the coarse environments E 0 , E 1 . Each E k is contains multiple scaffold / protein superfamily environments. In the second block, we compare RGM-DP against baselines trained on the original combinatorial environments.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Dataset statisticsData The data generation script is provided in the supplementary material.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The authors would like to thank Tianxiao Shen, Adam Yala, Benson Chen, Octavian Ganea, Yujia Bao and Rachel Wu for their insightful comments. This work was supported by MLPDS, DARPA AMD project and J-Clinic.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgments and Disclosure of Funding"
+        },
+        {
+            "text": "Among many benefits, the proposed algorithm advances state-of-the-art in drug discovery. As the current COVID pandemics illustrates, the lack of quality training data hinders utilization of ML algorithms in search for antivirals. This data issue is not specific to COVID, and is common in many therapeutic areas. The proposed approach enables us to effectively utilize readily available, heterogeneous data to model bioactivity, reducing prohibitive cost and time associated with traditional drug discovery workflow. Currently, the method is utilized for virtual screening of COVID antivirals. We cannot see negative consequences from this research: at worst, it will degenerate to the performance of the base algorithm, the model aims to improve. In terms of bias, the algorithm is explicitly designed to minimize the impact of nuisance variations on model prediction capacity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Broader Impact"
+        }
+    ]
+}

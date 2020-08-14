@@ -1,0 +1,1486 @@
+{
+    "paper_id": "0bafea46c1a1b57ea327df699502a75bf94bc875",
+    "metadata": {
+        "title": "Fuzzy Intelligence in Monitoring Older Adults with Wearables",
+        "authors": [
+            {
+                "first": "Dariusz",
+                "middle": [],
+                "last": "Mrozek",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Silesian University of Technology",
+                    "location": {
+                        "addrLine": "Akademicka 16",
+                        "postCode": "44-100",
+                        "settlement": "Gliwice",
+                        "country": "Poland"
+                    }
+                },
+                "email": "dariusz.mrozek@polsl.pl"
+            },
+            {
+                "first": "Mateusz",
+                "middle": [],
+                "last": "Milik",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Silesian University of Technology",
+                    "location": {
+                        "addrLine": "Akademicka 16",
+                        "postCode": "44-100",
+                        "settlement": "Gliwice",
+                        "country": "Poland"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Bo\u017cena",
+                "middle": [],
+                "last": "Ma Lysiak-Mrozek",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Silesian University of Technology",
+                    "location": {
+                        "addrLine": "Akademicka 16",
+                        "postCode": "44-100",
+                        "settlement": "Gliwice",
+                        "country": "Poland"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Krzysztof",
+                "middle": [],
+                "last": "Tokarz",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Silesian University of Technology",
+                    "location": {
+                        "addrLine": "Akademicka 16",
+                        "postCode": "44-100",
+                        "settlement": "Gliwice",
+                        "country": "Poland"
+                    }
+                },
+                "email": "krzysztof.tokarz@polsl.pl"
+            },
+            {
+                "first": "Adam",
+                "middle": [],
+                "last": "Duszenko",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Silesian University of Technology",
+                    "location": {
+                        "addrLine": "Akademicka 16",
+                        "postCode": "44-100",
+                        "settlement": "Gliwice",
+                        "country": "Poland"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Stanis",
+                "middle": [],
+                "last": "Law Kozielski",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Silesian University of Technology",
+                    "location": {
+                        "addrLine": "Akademicka 16",
+                        "postCode": "44-100",
+                        "settlement": "Gliwice",
+                        "country": "Poland"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Monitoring older adults with wearable sensors and IoT devices requires collecting data from various sources and proliferates the number of data that should be collected in the monitoring center. Due to the large storage space and scalability, Clouds became an attractive place where the data can be stored, processed, and analyzed in order to perform the monitoring on large scale and possibly detect dangerous situations. The use of fuzzy sets in the monitoring and detection processes allows incorporating expert knowledge and medical standards while describing the meaning of various sensor readings. Calculations related to fuzzy processing and data analysis can be performed on the Edge devices which frees the Cloud platform from performing costly operations, especially for many connected IoT devices and monitored people. In this paper, we show a solution that relies on fuzzy rules while classifying health states of monitored adults and we investigate the computational cost of rules evaluation in the Cloud and on the Edge devices.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Older adults are more likely to suffer from various accidents that can happen in their daily lives due to often poorer motor coordination, reduced gait and balance function, and weakened reflex. Falls, for example, are the leading cause of death from injury in the elderly [1] . Older adults often require more attention from family members or caregivers, and should more frequently monitor their health, especially after some disease-related incidents, like a heart attack or stroke. However, even after these health-related incidents, older adults want to come back to the normal, active life and stay as much self-reliant as possible. This gives them a sense of being part of society and the sense of being needed. Still, disease-related incidents or age-related problems cause many fears among older people, like What happens to me when the incident happens, again? or Will I be able to call emergency in case of danger?, and cast doubts on whether they are able to handle their daily duties. Such incidents also raise many questions among family members -Are my parents safe at the moment? or How do they feel today when it is so hot or humid?. Daily phone calls made by family members to their older relatives are nice, but they can also cause older adults to feel being controlled. These questions and doubts motivate the efforts to build noninvasive, subtle and unobtrusive systems that would allow to keep an eye on older people without disturbing them in their lives and react only in case of dangers.",
+            "cite_spans": [
+                {
+                    "start": 273,
+                    "end": 276,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Nowadays the Internet of Things (IoT) is the main technology used for helping people to deal with many everyday activities. We can observe growing attention for using IoT also in the area of personalized healthcare, including elderly people care [22] . Wearable devices connected to the Internet can act as the main technological layer to gather information about major life parameters as heartbeat, body temperature, the blood pressure and saturation, and even the ECG. A mobile phone can be used as the universal platform utilizing internal and external sensors and a communication module that allows sending the information about the health status as well as the current location of the user, body position, falls, strokes [8] . The connection between the smartphone and the wearable devices can be established using one of many wireless protocols like ZigBee, WiFi or Bluetooth. The most interesting is the Bluetooth Low Energy [23] (BLE) protocol thanks to its energy efficiency and simple implementation.",
+            "cite_spans": [
+                {
+                    "start": 246,
+                    "end": 250,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 726,
+                    "end": 729,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 932,
+                    "end": 936,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In telemedical systems, gathered data are sent to the data center for big dataenabled analysis with tailored tools and algorithms [6, 13, 17] . The big number of continuously monitored parameters of many patients causes a large amount of data that must be sent to the medical monitoring center. The situation when data from many patients are sent simultaneously or many users are retrieving data at the same time can cause network congestion and database overload [5, 10] . The answer to this problem can be the Edge computing technology. Processing data on the Edge of the network rather than in the Cloud data center keeps analyzing close to the patients and helps to eliminate unnecessary latency [20] .",
+            "cite_spans": [
+                {
+                    "start": 130,
+                    "end": 133,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 134,
+                    "end": 137,
+                    "text": "13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 138,
+                    "end": 141,
+                    "text": "17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 464,
+                    "end": 467,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 468,
+                    "end": 471,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 700,
+                    "end": 704,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The analysis of life and activity parameters of people, especially older ones, requires careful examination of incoming signals but also needs some flexibility [12] . Obtained values of the parameters (e.g., heart rate) may fall into certain ranges, which are defined by the existing medical standards and decide whether the obtained value is normal or abnormal, but still, it is important to know how much abnormal the situation is and whether it is getting better or worse. For this reason, we decided to use fuzzy sets and fuzzy logic while creating flexible rules for monitoring older adults and alerting caregivers in case of danger. The application of fuzzy rules gives us not only the information on whether a given rule is satisfied or not but also how much it is satisfied (the degree of truth). Moreover, further monitoring of the degree of truth for the rule allows to observe its changes (increase or decrease), which can be valuable information in the decision-making process (e.g., regarding possible reactions for the health state of the monitored person).",
+            "cite_spans": [
+                {
+                    "start": 160,
+                    "end": 164,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper, we show how the fuzzy rules implemented on the Edge IoT devices can be applied in the monitoring of older people. We show the architecture of the system, where the detection of dangerous health states occurs on the distributed Edge devices, freeing the central Cloud-based system from additional data processing.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Currently, many studies are being carried out on the application of fuzzy logic in the field of IoT. Taking into account the conducted research, we can distinguish two or three basic research approaches to using fuzzy logic in IoT. Firstly, fuzzy logic is used to reduce the amount of data flowing from the sensors (incoming frequency), which improves the performance of data analysis. Secondly, several systems also use the fuzzy logic to convert sensor data using specific fuzzy rules to the linguistic values of the relevant linguistic variables, and thirdly, fuzzy rules are also used to control home or industrial automation systems, monitoring or notification.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "Emerging systems are most often created and developed in research institutes, although commercial solutions also appear, such as Vitruvius [3, 4] . Vitruvius is a platform that allows users to generate applications in real time, using sensors installed in vehicles. Fuzzy logic has been used here (contributing to the first group of approaches) to reduce the frequency of data transfers. The amount of data flowing from sensors (sent from mobile clients to the server) was reduced and the data quality and the analysis performance were improved (the reduction of the input data ranged between 51.54% and 53.6%). We obtained similar results when performing fuzzy fusion of data while monitoring effectiveness of sport training [21] and when joining multiple data streams with the use of hopping umbrella [16] .",
+            "cite_spans": [
+                {
+                    "start": 139,
+                    "end": 142,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 143,
+                    "end": 145,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 726,
+                    "end": 730,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 803,
+                    "end": 807,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "In the works [7, 11] , both, the first and the second approach, were combined together. In [7] Dilli et al. used the fuzzy logic to classify and select the most appropriate IoT resource to the customer's request on the basis of QoS attributes. Authors also proposed adding fuzzy logic to the initial classification of resources in order to reduce the computational costs generated by MCDA algorithms they use. In the work [11] , the authors applied fuzzy logic in a fire detection system. The use of fuzzy logic allows to optimize and limit the number of rules that should be checked in order to make the right decisions. The reduction of rules decreases the activity of fire sensors without significantly affecting performance. It also leads to the extended life of batteries used in sensors.",
+            "cite_spans": [
+                {
+                    "start": 13,
+                    "end": 16,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 17,
+                    "end": 20,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 91,
+                    "end": 94,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 422,
+                    "end": 426,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "In the works [2, 18] dominates the second approach. Distribution of data in IoT usually depends on the application and requires routing protocols that take into account the context that must include auto-configuration functions. In the work [2] , Chen presented a smart agent-based tracking system based on the IoT architecture using fuzzy cognitive maps (FCM) and fuzzy rules for describing the product life cycle. In [18] , Araujo et al. proposed an approach to choosing the IoT route using fuzzy logic to meet the requirements of specific applications. In this case, the fuzzy logic is used to mathematically describe imprecise information expressed by a set of linguistic rules.",
+            "cite_spans": [
+                {
+                    "start": 13,
+                    "end": 16,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 17,
+                    "end": 20,
+                    "text": "18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 241,
+                    "end": 244,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 419,
+                    "end": 423,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "References [9, 14, 19] combine the second and the third approach. In the work [14] , the authors used the fuzzy logic in two stages: in the first one, the fuzzy logic is used to transform the outside temperature, internal temperature and air humidity taken from sensors to linguistic values (according to pre-defined fuzzy rules). In the next step, the fuzzy rules were used to determine the best moment in which heating or climatic systems should be switched on or switched off. Similarly, in the work [19] Santamar\u00eda et al. implemented fuzzy logic in two stages of data processing. In the first stage, data read from sensors are transformed according to fuzzy rules into appropriate linguistic values corresponding to the states of human activity (resting, walking, running). In the second step, based on these states and current readings from wearable sensors, anomalies are detected (e.g., increased heart rate) and an appropriate message is generated to the user. In the work [9] , the fuzzy logic is used to infer about the health state of the production machine that is being monitored. Raw data from sensors (e.g., the amount of smoke, temperature) are sent to the Cloud. Then, fuzzy rules are used to convert these raw data to the appropriate linguistic terms (low, high, typical, etc.), and in the next step, a corresponding message is generated to the user reporting the health state of the machine. Our solution also falls in the second and the third approach, but in contrast to presented solutions, the fuzzy data analysis and classification is performed on the Edge, which will be implemented in the architecture presented in the next section.",
+            "cite_spans": [
+                {
+                    "start": 11,
+                    "end": 14,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 15,
+                    "end": 18,
+                    "text": "14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 19,
+                    "end": 22,
+                    "text": "19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 78,
+                    "end": 82,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 503,
+                    "end": 507,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 981,
+                    "end": 984,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Works"
+        },
+        {
+            "text": "Monitoring people at large scale requires not only collecting information on the selected physiological parameters but also having a logical layer that is able to decide about possible dangers. Due to a wide range of users (monitored people, caregivers, and other alerted people) and wide scaling capabilities we decided to develop our monitoring system with the Cloud computing components. The system for monitoring older people that we have developed is composed of three parts (see Fig. 1 ):",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 485,
+                    "end": 491,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Cloud-Based IoT System for Monitoring Older People"
+        },
+        {
+            "text": "1. a smart band with sensors that read parameters of the monitored person, 2. a smartphone with an application that is able to receive sensor readings from the smart band, 3. a Cloud-based system that manages connected devices, stores data, and sends notifications. We relied our solution on the Xiaomi Mi Band 2 smart bands. The smart band consists of several sensors. For the purpose of the project, we monitored a heart rate (hr) and the number of steps taken in a unit of time (steps per minute, spm) by a person wearing the smart band (activity). Sensor readings are sent from the smart band to the smartphone working under control of the Android operating system through the Bluetooth Low Energy (BLE) protocol. The Bluetooth protocol has appropriate communication profiles defined for the purpose of communication between devices. During the communication between the smart band and the smartphone, we used the Health Device Profile (HDP) that defines the way of communication with devices such as scales, glucometers, thermometers, and other medical devices. The smartphone has a dedicated application installed, called Band2Recorder, that can communicate with the smart band and send data to the Cloud.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cloud-Based IoT System for Monitoring Older People"
+        },
+        {
+            "text": "The role of the Band2Recorder application is to initiate readings and receive data from the Mi Band 2 smart band. In order to read measurements made by the smart band, the mobile application registers special Listener objects that are waiting to receive data. While reading the heart rate, it is necessary to initiate the measurement in the smart band from the level of the mobile application by sending a specific command to it. Reading the number of steps does not require additional measurement initiation, the smart band sends messages containing the number of steps performed when the monitored person moves and performs some activity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cloud-Based IoT System for Monitoring Older People"
+        },
+        {
+            "text": "Before the Band2Recorder application sends the sensor data to the Cloud, they are labeled according to the fuzzy rules implemented in the Fuzzy Rules module of the application. -If the number of steps per minute and the heart rate meet the premises of a fuzzy rule, appropriate label is added to a sent message indicating that the sent data deviate from the norm and somebody should be notified. The detection of danger may be also immediately reported to the monitored person through the application installed on the smartphone without exchanging additional messages with the Cloud center, which reduces latency and informs the person on the possible danger. The application can be easily extended to automatically call medical services to send an ambulance to the patient in particular circumstances, but this possibility has not been implemented and tested yet. Fuzzy rules (described in more details in Sect. 4) are defined in the IoT Device module in the Cloud, exactly in the IoT Hub service, and are distributed to the IoT devices while initiating the Device-to-Cloud communication. The Band2Recorder application communicates with the Cloud using the Internet, which is necessary for the operation of the designed system. The application also supplements the sensor data with the information on the location of the monitored person (latitude and longitude obtained from the smartphone), which helps to localize the person in emergency situations. Communication between the mobile application and the Cloud is carried out using the MQTT (Message Queue Telemetry Transport) data protocol. The protocol does not guarantee high speed and bandwidth, which is not needed when sending small data packets but ensures higher transmission reliability.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cloud-Based IoT System for Monitoring Older People"
+        },
+        {
+            "text": "The IoT Hub, which is the Cloud gateway for IoT devices, receives data from the mobile application located on the Edge, distributes the received data to subsequent services and hosts definitions of used fuzzy rules and linguistic values. Additionally, from the IoT Hub, the Band2Recorder application gets the definitions of fuzzy rules. The IoT Hub contains the IoT Device module that stores the definitions of the fuzzy rules that specify in which situations sensor readings are labeled as unusual. The advantage of the solution applied is the fact that the Edge devices will receive a notification about each change in the definition of fuzzy rules and they will always work on the newest version of the rules.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cloud-Based IoT System for Monitoring Older People"
+        },
+        {
+            "text": "The Stream Analytics Unit processes the data stream passed by the IoT Hub. As an alternative to the Edge-based rules evaluation, the Stream Analytics unit can evaluate fuzzy rules within its job. However, it increases the utilization of its resources and the network traffic (as it will be shown in Sect. 5). In both variants (the Edge-based and the Cloud-based rule evaluation), messages labeled as alerting (indicating increased risk levels) are transferred to a queue in the Service Bus service. They are consumed and analyzed by the Logic Apps module, which creates and sends appropriate notifications to a defined caregiver or a family member. Notifications are adjusted to the risk level describing the importance of the detected problem and to the class of danger. All messages collected on the IoT Hub are also placed in the BLOB storage space for further analysis. BLOB is a binary repository that stores data exactly as they were sent to the Cloud. By storing and analyzing all of the transferred data, the caregiver can get a broader view of the situation after he was notified on the occurrence of the unusual state. Further analysis of the collected data with other (e.g., ML-based) data exploration methods may also allow detection of early symptoms of incoming problems. The caregiver has the possibility to check the values of monitored variables read by the smart band just before the occurrence of abnormal heart rate values and continue monitoring after he was notified.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cloud-Based IoT System for Monitoring Older People"
+        },
+        {
+            "text": "The architecture presented in Fig. 1 implements fuzzy rules to classify possibly dangerous situations and send alert notifications to the caregiver. Each of the fuzzy rules has the following general form: a health risk, and \u03a6 1 , . . . , \u03a6 p and \u03a8 are fuzzy sets.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 30,
+                    "end": 36,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 205,
+                    "end": 231,
+                    "text": "a health risk, and \u03a6 1 , .",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Fuzzy Sets in the Monitoring of Older People"
+        },
+        {
+            "text": "There are mainly two physiological parameters monitored with the use of the smart band, i.e., heart rate (HR) and performed activity. The activity is classified on the basis of the number of steps per minute (SPM). Values of both monitored parameters are transformed to linguistic values of appropriate linguistic variables defined by fuzzy sets. Figure 2 ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 347,
+                    "end": 355,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Fuzzy Sets in the Monitoring of Older People"
+        },
+        {
+            "text": "IS slowRunning OR A c t i v i t y IS fastRunning OR A c t i v i t y IS s p r i n t ) 15 THEN r i s k IS veryHigh 16 17 { Rule #5 \u2212 p r o b a b l e b r a d y c a r d T-norm is used for the AND operator and t-conorm is used for the OR operator used in premises in the IF condition of each fuzzy rule. In our solution, we used minimum t-norm defined as follows:",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 87,
+                    "text": "15",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 113,
+                    "end": 118,
+                    "text": "16 17",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 121,
+                    "end": 164,
+                    "text": "Rule #5 \u2212 p r o b a b l e b r a d y c a r d",
+                    "ref_id": null
+                }
+            ],
+            "section": "l i t y o f f a i n t } 14 IF ( HeartRate IS Low) AND ( A c t i v i t y IS f a s t W a l k i n g OR A c t i v i t y"
+        },
+        {
+            "text": "and maximum t-conorm:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "l i t y o f f a i n t } 14 IF ( HeartRate IS Low) AND ( A c t i v i t y IS f a s t W a l k i n g OR A c t i v i t y"
+        },
+        {
+            "text": "where T : [0, 1] \u00d7 [0, 1] \u2192 [0, 1], x i \u2208 X i , x j \u2208 X j are values of any two monitored parameters, \u03bc \u03a6 k and \u03bc \u03a6 l and membership functions that define fuzzy sets \u03a6 k and \u03a6 l . On the basis of the rules, each of the sensor readings e \u2208 E (where E is a data stream) gets an appropriate label of health risk (severity level). This is achieved according to Algorithm 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "l i t y o f f a i n t } 14 IF ( HeartRate IS Low) AND ( A c t i v i t y IS f a s t W a l k i n g OR A c t i v i t y"
+        },
+        {
+            "text": "What is important, fuzzy rules and linguistic variables they rely on are defined in the Cloud, in the IoT Hub Cloud gateway. The IoT Hub holds the register of many IoT devices that can be connected to the Cloud, each per monitored person. The fuzzy rules and linguistic variables are defined in the IoT Device module of the IoT Hub, which is created per a physical IoT Device connected to the Cloud. This means that the rules and definitions of linguistic variables can be adjusted to a monitored person. For example, some rules or parts of the premises can be skipped for the older adults that are in good health condition, e.g., jogging regularly.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "l i t y o f f a i n t } 14 IF ( HeartRate IS Low) AND ( A c t i v i t y IS f a s t W a l k i n g OR A c t i v i t y"
+        },
+        {
+            "text": "Labeled sensor readings containing the information on the heart rate, activity, the location of the monitored person (latitude and longitude), and additional Algorithm 1. Risk evaluation with fuzzy rules 1: for each e \u2208 E do 2:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "id \u2190 e.deviceId 3:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "LHR \u2190 getLingV alues(HR, id) //HR and SPM are the internal 4:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "LSP M \u2190 getLingV alues(SP M, id) //names of linguistic variables 5:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "max \u2190 0 6: labelHR \u2190 null 7:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "for each linguistic value l \u2208 LHR do 8:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "calculate membership degree \u00b5 l (e.hr) 9:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "if \u00b5 l (e.hr) > max then 10:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "max \u2190 \u00b5 l (e.hr) 11:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "labelHR return risk, \u00b5 risk 28: end for data (required to connect to the Cloud, authenticate in the system, identify the monitored person) can be transmitted to the Cloud constantly or in case of danger. In both situations the data is stored in the Cloud storage space. The data is used twofold. Current sensor readings labeled as critical or important (severity level) trigger sending the notifications to the defined caregivers. All data are also stored in the BLOB Storage. Historical data with sensor readings are stored for future re-use, training and data analysis with the use of machine learning models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "Validation of fuzzy rules for the incoming sensor readings, even if simple, takes some time and may pose a pressure on the stream processing units in the Cloud. Especially, that rules can be adjusted for particular persons. We tested how evaluation of fuzzy rules evaluated by the stream processing units in the Cloud influences their operational capabilities. To this purpose, during our experiments with older people, we measured the size of each message (event) sent to the Cloud by the IoT device with Band2Recorder application. Each message always took 862B. With certain periods between sending successive messages from the device and assuming a uniform data transfer between the device and the Cloud, we can easily estimate the network traffic and the consumption of the Cloud storage space. Figure 3 shows how much data will be transferred through the network and then stored in the Cloud within 24-h monitoring time for various periods between sending successive messages containing sensor readings. As can be observed, sending data every minute generates 1.2 MB of data that must be transferred within 24 h. This is not much, taking into account that the caregiver or the family member can be notified quite quickly in the situation of danger (with a 1-min latency). Longer periods between taking data from the smart band and between data transfers (less frequent readings) allow to further decrease the network traffic and the storage space consumed (e.g., 0.06 MB for 20-min periods), but increase the latency and should be used in situations when we monitor a general daily health state of the person without the necessity to react immediately. Figure 4 shows the total level of the network traffic and the consumption of the storage space within the 30-days monitoring time for various time periods between successive sensor readings. Consequently, Fig. 5 shows the number of messages sent to the Cloud within the 30-days monitoring time for various time periods between successive sensor readings. Both figures are useful when planning hardware infrastructure and a level of services upon which the monitoring system working in the Cloud is built. For example, the S1 tier of the IoT Hub, which allows to connect any number of IoT devices and to receive 400,000 messages daily, costs 25 USD per month (as for January 22, 2020, on the basis of [15] ).",
+            "cite_spans": [
+                {
+                    "start": 2358,
+                    "end": 2362,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 799,
+                    "end": 807,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1658,
+                    "end": 1666,
+                    "text": "Figure 4",
+                    "ref_id": null
+                },
+                {
+                    "start": 1863,
+                    "end": 1869,
+                    "text": "Fig. 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "Then, having the characteristics of data transmission, we created a generator application, which is a digital twin simulating a given number of IoT devices. We connected the digital twin to our architecture in the place of the smartphone with the Band2Recorder application. With the use of the digital twin, we were able to test the system for a variable number of connected devices. We monitored the maximum utilization of streaming units (%) in two cases: (1) when fuzzy rules were implemented in the stream processing job and evaluated directly on stream processing units, and (2) when fuzzy rules were implemented at the Edge (were implemented within the digital twin). Results of these tests are presented in Fig. 6 . In such an experimental environment, we simulated the load generated by several thousands of IoT devices (up to 10,000). Results show that, while processing events already labeled at the Edge, the utilization of resources of the Stream Processing Unit is quite constant, At the same time, for the increasing number of IoT devices the additional overhead related to evaluation of fuzzy rules in the Cloud (implemented directly in the Stream Processing Unit) causes slow but constant increase in the maximum utilization of streaming units (Max % SU utilization). This increase leads to the necessity of scaling the system on processing units faster, than in the case when fuzzy rules are implemented on the Edge device. Although we could expect such a behavior, we can observe the dynamics of the process for both implementations. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 714,
+                    "end": 720,
+                    "text": "Fig. 6",
+                    "ref_id": "FIGREF6"
+                }
+            ],
+            "section": "Experimental Results"
+        },
+        {
+            "text": "Evaluation of fuzzy rules on the smartphone, which is the Edge device, puts the data pre-processing at the proximity of data sources and moves the burden of the pre-processing from the Cloud to the Edge. If we decide to transmit only the messages for important notification purposes without collecting the whole history in the Cloud storage space, we could additionally reduce (dozens to hundreds of times) the network traffic and the storage space consumed. Our results correspond to those reported in related works [3, 4, 16] . The reduction rate would depend on the number of dangerous situations detected and the number of notifications sent to the caregiver.",
+            "cite_spans": [
+                {
+                    "start": 517,
+                    "end": 520,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 521,
+                    "end": 523,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 524,
+                    "end": 527,
+                    "text": "16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion and Conclusions"
+        },
+        {
+            "text": "Implementation of fuzzy rules on the Edge devices allows using fuzzy techniques for data processing close to the wearable units, where the data are collected as sensor measurements. As a consequence, the data can be labeled very quickly on personal devices and in such a form transmitted to the Cloud data center. This frees the Cloud data center from the analysis and classification of data coming from many such devices. Such an implementation also postpones the need for scaling the system resources. Linguistic values represented by fuzzy sets allow assigning sensor readings to meaningful terms and, by applying fuzzy rules, use them in reasoning about the current health state of the monitored person. Our experiments confirmed that even with a relatively short periods between data transmissions the volume of data sent to the Cloud within 24 h is relatively low, which in contrast to several use cases mentioned in [20] gives the comfort of collecting all data at least for some groups of monitored people or collecting the data for some period of time when the risk appears. Finally, our conclusions on the advantages of implementing fuzzy intelligence on the Edge can be generalized. This group of techniques can be applied not only in monitoring older adults but also in other domains, where IoT devices can improve or optimize ongoing processes.",
+            "cite_spans": [
+                {
+                    "start": 923,
+                    "end": 927,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion and Conclusions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Deaths from falls among persons aged \u226565 years -United States",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Burns",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kakara",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "MMWR Morb. Mortal Wkly. Rep",
+            "volume": "67",
+            "issn": "",
+            "pages": "509--514",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Intelligent IOT-based tracing system for backward design using FCM and fuzzy rule",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Fourth Global Congress on Intelligent Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "229--233",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Fuzzy system to adapt web voice interfaces dynamically in a vehicle sensor tracking application definition",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Cueva-Fernandez",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Espada",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Garc\u00eda-D\u00edaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Crespo",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Garcia-Fernandez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Soft Comput",
+            "volume": "20",
+            "issn": "8",
+            "pages": "3321--3334",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s00500-015-1709-2"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Fuzzy decision method to improve the information exchange in a vehicle sensor tracking system",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Cueva-Fernandez",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Espada",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Garc\u00eda-D\u00edaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Gonzalez-Crespo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Appl. Soft Comput",
+            "volume": "35",
+            "issn": "",
+            "pages": "708--716",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Knowledge integration via the fusion of the data models used in automotive production systems",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Cupek",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ziebinski",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Drewniak",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Fojcik",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Enterp. Inf. Syst",
+            "volume": "13",
+            "issn": "7-8",
+            "pages": "1094--1119",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Determination of the machine energy consumption profiles in the mass-customised manufacturing",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Cupek",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ziebinski",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Zonenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Drewniak",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Int. J. Comput. Integr. Manuf",
+            "volume": "31",
+            "issn": "6",
+            "pages": "537--561",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Fuzzy logic and MCDA in IoT resources classification",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Dilli",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Argou",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Pilla",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Pernas",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "H S"
+                    ],
+                    "last": "Reiser",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Yamin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "761--766",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Smart phone applications as a source of information on stroke",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Divyanshu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Amod",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Anshudha",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Nupur",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Pradeep",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Ambarish",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "J. Stroke",
+            "volume": "16",
+            "issn": "2",
+            "pages": "86--90",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "The use of fuzzy logic for online monitoring of manufacturing machine: an intelligent system",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Gerald",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Novilla",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Balute",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Gonzales",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Circ. Comput. Sci",
+            "volume": "2",
+            "issn": "",
+            "pages": "31--39",
+            "other_ids": {
+                "DOI": [
+                    "10.22632/ccs-2017-252-61"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Design and implementation of a set-top box-based homecare system using hybrid cloud",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Hsiao",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Jan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Telemed. e-Health",
+            "volume": "21",
+            "issn": "11",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Developing a fuzzy logic based system for monitoring and early detection of residential fire based on thermistor sensors",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Maksimovic",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Vujovic",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Perisic",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Milosevic",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Comput. Sci. Inf. Syst",
+            "volume": "12",
+            "issn": "",
+            "pages": "63--89",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Fuzzy join for flexible combining big data lakes in cyber-physical systems",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ma Lysiak-Mrozek",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Lipi\u0144ska",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mrozek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IEEE Access",
+            "volume": "6",
+            "issn": "",
+            "pages": "69545--69558",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/ACCESS.2018.2879829"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Soft and declarative fishing of information in big data lake",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ma Lysiak-Mrozek",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Stabla",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mrozek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IEEE Trans. Fuzzy Syst",
+            "volume": "26",
+            "issn": "5",
+            "pages": "2732--2747",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/TFUZZ.2018.2812157"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "IoFClime: the fuzzy logic and the Internet of Things to control indoor temperature regarding the outdoor ambient conditions",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Meana-Llori\u00e1n",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Garc\u00eda",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "C P"
+                    ],
+                    "last": "G-Bustelo",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M C"
+                    ],
+                    "last": "Lovelle",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Garcia-Fernandez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Future Gener. Comput. Syst",
+            "volume": "76",
+            "issn": "",
+            "pages": "275--284",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Microsoft: Azure IoT Hub -Pricing",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "22",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "A hopping umbrella for fuzzy joining data streams from IoT devices in the Cloud and on the Edge",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mrozek",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Tokarz",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Pankowski",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Malysiak-Mrozek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE Trans. Fuzzy Syst",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/TFUZZ.2019.2955056"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Scalable Big Data Analytics for Protein Bioinformatics. CB",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mrozek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "28",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-98839-9"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "A proposal for IoT dynamic routes selection based on contextual information",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D S"
+                    ],
+                    "last": "Araujo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Sensors",
+            "volume": "12",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "A two stages fuzzy logic approach for Internet of Things (IoT) wearable devices",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Santamar\u00eda",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Raimondo",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Rango",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Serianni",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "IEEE27th Annual International Symposium on Personal, Indoor, and Mobile RadioCommunications (PIMRC)",
+            "volume": "",
+            "issn": "",
+            "pages": "1--6",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/PIMRC.2016.7794563"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Edge computing: vision and challenges",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Shi",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "IEEE Internet Things J",
+            "volume": "3",
+            "issn": "5",
+            "pages": "637--646",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Combining data from fitness trackers with meteorological sensor measurements for enhanced monitoring of sports performance",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Wachowicz",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ma Lysiak-Mrozek",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mrozek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ICCS 2019",
+            "volume": "11538",
+            "issn": "",
+            "pages": "692--705",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-22744-9_54"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Wearable IoT enabled real-time health monitoring system",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "EURASIP J. Wirel. Commun. Netw",
+            "volume": "2018",
+            "issn": "1",
+            "pages": "1--10",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/s13638-018-1308-x"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Bluetooth low energy for wearable sensor-based healthcare systems",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Hao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "2014 IEEE Healthcare Innovation Conference (HIC)",
+            "volume": "",
+            "issn": "",
+            "pages": "251--254",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/HIC.2014.7038922"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Architecture of the Cloud-based system for monitoring older adults with fuzzy rules implemented in the smartphone on the Edge.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "shows the definitions of the fuzzy sets used in the classification of the state of the monitored person. With the presented linguistic values we have created the fuzzy rules shown in Listing 1.Defined linguistic variables with linguistic values for Heart rate (a) and performed activity (b) on the basis of the number of steps taken per minute. 1 { Rule #1 \u2212 f a i n t or death } 2 IF HeartRate IS c r IF ( HeartRate IS High OR HeartRate i s veryHigh ) AND A c t i v i t y IS R e s t i n g 7 THEN r i s k IS high 8 9 { Rule #3 \u2212 o v e r l o a d , too i n t e n s i v e a c t i v i t y } 10 IF HeartRate IS veryHigh AND A",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "i a } 18 IF ( HeartRate IS Low OR HeartRate IS veryLow ) AND ( Rule #6 \u2212 r e s t i n g } 22 IF ( HeartRate IS Normal ) AND ( A c t i v i t y IS r e s t i n g ) 23 THEN r i s k IS low 24 . . . Listing 1.1. Partial fuzzy rules used while monitoring older people.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Consumption of the storage space during every 24 h of monitoring for various time periods between successive sensor readings.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "The total level of the network traffic and the consumption of the storage space within the 30-days monitoring time for various time periods between successive sensor readings. The number of messages sent to the Cloud within the 30-days monitoring time for various time periods between successive sensor readings.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Maximum utilization of streaming units (%) for fuzzy rules implemented on the Stream Processing Unit and on the Edge device.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

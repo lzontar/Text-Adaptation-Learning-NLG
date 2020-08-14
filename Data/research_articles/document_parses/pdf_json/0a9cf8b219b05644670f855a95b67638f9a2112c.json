@@ -1,0 +1,1809 @@
+{
+    "paper_id": "0a9cf8b219b05644670f855a95b67638f9a2112c",
+    "metadata": {
+        "title": "Possible Models Computation and Revision -A Practical Approach",
+        "authors": [
+            {
+                "first": "Peter",
+                "middle": [],
+                "last": "Baumgartner",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Peter",
+                "middle": [
+                    "Csiro"
+                ],
+                "last": "Baumgartner@data61",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "",
+                "middle": [],
+                "last": "Au",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "This paper describes a method of computing plausible states of a system as a logical model. The problem of analyzing state-based systems as they evolve over time has been studied widely in the automated reasoning community (and others). This paper proposes a specific approach, one that is tailored to situational awareness applications. The main contribution is a calculus for a novel specification language that is built around disjunctive logic programming under a possible models semantics, stratification in terms of event times, default negation, and a model revision operator for dealing with incomplete or erroneous events -a typical problem in realistic applications. The paper proves the calculus correct wrt. a formal semantics of the specification language and it describes the calculus' implementation via embedding in Scala. This enables immediate access to rich data structures and external systems, which is important in practice.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "This paper is concerned with logic-based modeling and automated reasoning for estimating the current state of a system as it evolves over time. The main motivation is situational awareness [12] , which requires the ability to understand and explain a system's state, at any time, and at a level that matters to the user, even if only partial or incorrect information about the external events leading to that state is available. In a supply chain context, for example, one cannot expect that events are reported correctly and in a timely manner. Sensors may fail, transmission channels are laggy, reports exist only in paper form, not every player is willing to share information, etc. Because of that, it is often impossible to know with full certainty the actual state of the system. The paper addresses this problem and proposes to instead derive a set of plausible candidate states as an approximation of ground truth. The states may include consequences relevant for situational awareness, e.g., that a shipment will be late. A human operator may then make decisions or provide additional details, this way closing the loop.",
+            "cite_spans": [
+                {
+                    "start": 189,
+                    "end": 193,
+                    "text": "[12]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The plausible candidate states are represented as models of a logical specification and a given a set of external timestamped events. The proposed modeling paradigm is logic programming, and models are computed in a bottom-up way. It adopts notions of stratification, default negation and a possible model semantics for its (disjunctive) program rules. Stratification is in terms of event time, with increasing time horizons for anytime reasoning; default negation is needed to reason in absence of information such as event reports; disjunctions are needed to derive alternate candidate states. In order to deal with less-than-perfect event data, the modeling language features a novel model revision operator that allows the programmer to formulate conditions under which a model computation with a corrected set of events should be attempted in an otherwise inconsistent state. The following informal overview illustrates these features.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "A model, or program, is comprised of a set of rules of the form head \u2190 body. The head can be a non-empty disjunction of atoms, or a fail head. The former rules open the solution (models) space for a fixed set of external events, while fail head rules limit it and specify amended event sets for new solution attempts. The body is a conjunction of atoms and negated (via \"not\") conjunctions of atoms. Negation is \"default negation\", i.e., a closed world assumption is in place for evaluating the latter. Rules may contain first-order variables and must be range restricted. This guarantees that only ground heads can be derived from ground facts when a rule is evaluated in a bottom-up way. Our notion of range restriction is somewhat non-standard, though, and permits extra variables inside negation. These variables are implicitly existentially quantified (\"not \u2203 x . . . \").",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "We need, however, syntactic restrictions that enforce stratification in terms of \"time\". This entails that rule evaluation does not depend on facts from the future. In fact, this is a reasonable assumption for situational awareness, whose any-time character requires to understand the current situation based on the available information up to now only. Technically, every atom must have a dedicated \"time\" argument, a N-sorted variable, which, together, with earlier-than constraints (via \"<\" or \"\u2264\") enforces stratification. The details of that will have to wait until later (Definition 1). An example rule is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "It could say \"if x gets up at time t and didn't have a meal in 6 hours prior then x is hungry or thirsty at t, or both\". A set of facts, say, {get up(8, bob), meal(12, bob)} then entails hungry(8, bob) \u2228 thirsty (8, bob) . Notice that in the relevant rule instance the negated body element not(8 \u2212 6 \u2264 s, s < 8, meal(s, bob)) is satisfied by the facts (using the closed-world assumption), as for the only relevant meal-instance meal(12, bob) the arithmetic constraint is false. The possible model semantics [26] , which we adopt, interprets disjunctions (also) inclusively. Each resulting case {hungry(8, bob)}, {thirsty(8, bob)} and {hungry (8, bob) , thirsty(8, bob)} together with the facts yields a possible model. Stratification in terms of time makes default negation with existentially quantified variables possible; no need to look into the future. We impose a secondary kind of stratification that also makes it more efficient. It rests on distinguishing two types of atoms: EDB atoms and IDB atoms (extensional/intensional database, respectively). EDB atoms are for external events, the given facts, and IDB atoms are for derived facts. A disjunctive head can contain IDB atoms only. Now, an IDB atom within a negation has to be strictly earlier (<) than the head, while an EDB atom within a negation can be non-strictly earlier (\u2264). This make sure that a truth value for a negated expression cannot change later, in the course of rule evaluation in increasing time order. The rule (1) above is stratified if meal is EDB, otherwise \"s \u2264 t\" would have to be \"s < t\". A rule like hungry(t, x) \u2190 get up(t, x), not hungry(t, x) cannot be stratified.",
+            "cite_spans": [
+                {
+                    "start": 212,
+                    "end": 220,
+                    "text": "(8, bob)",
+                    "ref_id": null
+                },
+                {
+                    "start": 507,
+                    "end": 511,
+                    "text": "[26]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 642,
+                    "end": 650,
+                    "text": "(8, bob)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "Rules with fail heads enable the programmer to specify when a (partial) model candidate is unsatisfiable and to say how to potentially fix this situation. A rule of the form fail() \u2190 body without arguments to fail is a usual integrity constraint, e.g.:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "The rule (2) rejects that x is both hungry and has eaten within the last 4 hours. Together with rule (1) and the EDB {eat(7, bob), get up(8, bob)} one obtains the sole possible model {eat (7, bob) , get up(8, bob), thirsty(8, bob)}.",
+            "cite_spans": [
+                {
+                    "start": 9,
+                    "end": 12,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 188,
+                    "end": 196,
+                    "text": "(7, bob)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "The second usage is of the form fail(+a, \u2212b) \u2190 body, where a and b are EDB atoms with timestamps not in the future. When the rule body is satisfied, the model computation restarts with a added and b removed from the EDB. For example, the rule",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "rejects a model candidate where x has eaten within one hour before getting up. The rule correspondingly removes the eat event from the EDB and the model computation restarts. One could further add",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "to (1)-(3) as an alternative to fix the problem. The principle is that as soon as the earliest fail head is derived, the model candidate at that time is given up.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "Then alternate model computations are started for all fail heads derivable for that time. Later times are not considered. In the example, thus, both restarts prescribed by rules (3) and (4) are tried.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Main Ideas and Design Rationale"
+        },
+        {
+            "text": "Assigning models to logic programs as their intended meaning has been studied for decades. We only mention the stable models semantics [14, 18] , its extension for disjunctive programs [11, 15] , and the possible model semantics [26, 27] as the most relevant in the following discussion. Both ascribe meaning to a given program in terms of minimal models, but differ in the way disjunctive rule heads are interpreted (exclusive vs. inclusive, respectively).",
+            "cite_spans": [
+                {
+                    "start": 135,
+                    "end": 139,
+                    "text": "[14,",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 140,
+                    "end": 143,
+                    "text": "18]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 185,
+                    "end": 189,
+                    "text": "[11,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 190,
+                    "end": 193,
+                    "text": "15]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 229,
+                    "end": 233,
+                    "text": "[26,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 234,
+                    "end": 237,
+                    "text": "27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "Most reasoning tasks around stable models are rather complex, e.g., model existence for propositional disjunctive programs is \u03a3 P 2 -complete [10] . This complexity translates into generate-and-test algorithms even without default negation. For instance, the tableau calculus in [22] for negation-free programs generates in its branches model candidates, whose minimality need to be tested by a subsequent theorem prover call. Another need for generate-and-test algorithms for stable models comes from default negation. In the general case, these algorithms need to guess a stable model candidate and verify its minimality for a certain negation-free program obtained by simplification with this candidate, the Gelfond-Lifschitz transformation.",
+            "cite_spans": [
+                {
+                    "start": 142,
+                    "end": 146,
+                    "text": "[10]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 279,
+                    "end": 283,
+                    "text": "[22]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "In contrast, our approach avoids the intricacies of generate-and-test algorithms. This is achieved by using the possible model semantics [26] and a specific concept of stratification for dealing with default negation. The latter fits in the framework of local stratification [25] . A similar concept of stratification by time has been employed for expressing greedy algorithms in Datalog [30] ). The usual stratified case, by predicates, but without quantification within negation was already been considered in [26] .",
+            "cite_spans": [
+                {
+                    "start": 137,
+                    "end": 141,
+                    "text": "[26]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 275,
+                    "end": 279,
+                    "text": "[25]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 388,
+                    "end": 392,
+                    "text": "[30]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 512,
+                    "end": 516,
+                    "text": "[26]",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "As indicated in Sect. 1.1 our language features a fail operator for model revision. This feature is the one that possible stands out most among the other mentioned. A rule fail(\u2212p(x)) \u2190 q(x), p(x) applied to the facts {q(a), p(a)} derives the model {q(a)}. This cannot be achieved without belief revision, as given facts have to be satisfied.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "Belief revision [1, 24] is the process of changing beliefs to take into account a new piece of information. It has also been studied extensively in a logic programming context and in a general way. For instance, Schwind and Inoue [29] consider the problem of revision by a program in a rather expressive setting, generalized logic programs equipped with stable model semantics. The perhaps closest approach to ours are the revision specifications of [19, 20] . Revision programs generalize logic programming with stable model semantics by an explicit deletion operator. Each revised model is obtained from the initial interpretation by means of insertions and deletions specified by a Gelfond-Lifschitz type reduced program. In that way, our approach is related, but simpler, as it revises only the EDB and does not require a generate-and-test algorithm. On the other hand, the semantics of our revisions takes timestamps into account, so that intended revisions are only those that are derivable \"now\".",
+            "cite_spans": [
+                {
+                    "start": 16,
+                    "end": 19,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 20,
+                    "end": 23,
+                    "text": "24]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 230,
+                    "end": 234,
+                    "text": "[29]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 450,
+                    "end": 454,
+                    "text": "[19,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 455,
+                    "end": 458,
+                    "text": "20]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "The focus on the paper is not on situational awareness as such. We merely mention that the problem has attracted interest from a logical perspective. In earlier work [2] we proposed bottom-up model computation with a Hyper Tableaux prover [4, 23] as a component for data aggregation. In a related context of conformance checking, the authors of [7] propose if-then rules for validating process execution traces by means of a Prolog interpreter. Other approaches for conformance checking include planning [9] and diagnosis of discrete dynamical systems [8, 21] .",
+            "cite_spans": [
+                {
+                    "start": 166,
+                    "end": 169,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 239,
+                    "end": 242,
+                    "text": "[4,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 243,
+                    "end": 246,
+                    "text": "23]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 345,
+                    "end": 348,
+                    "text": "[7]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 504,
+                    "end": 507,
+                    "text": "[9]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 552,
+                    "end": 555,
+                    "text": "[8,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 556,
+                    "end": 559,
+                    "text": "21]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "To sum up, the main novelty of our approach lies in the combination of the possible model semantics with specific concepts of stratification and model revision. The combination is designed to enable simple fixpoint algorithms that are sound and complete for a not too complicated declarative semantics. This is the main theoretical contribution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "On the practical side we offer a (publicly available) implementation of our calculus, as a shallow embedding into the Scala programming language. Somewhat related, a shallow embedding into Scala has been used for monitoring event streams over Allen's temporal interval logic [17] . Yet, it is an uncommon implementation technique for automated reasoning systems. The practical advantages are described in Sect. 6.",
+            "cite_spans": [
+                {
+                    "start": 275,
+                    "end": 279,
+                    "text": "[17]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Novelty"
+        },
+        {
+            "text": "We assume the reader is familiar with basic notions of first-order logic and answer set programming. See [6] and [13] , respectively, for introductory texts.",
+            "cite_spans": [
+                {
+                    "start": 105,
+                    "end": 108,
+                    "text": "[6]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 113,
+                    "end": 117,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "A first-order logic signature \u03a3 = \u03a3 P \u03a3 F is comprised of predicate symbols \u03a3 P and function symbols \u03a3 F of fixed arities. We assume N \u2286 \u03a3 F , i.e., the natural numbers are also constants of the logical language, and that \u03a3 P contains the arithmetic predicate symbols \u03a3 N = {<, \u2264, =, =}. The ordinary predicate symbols are \u03a3 P \\\u03a3 N . Let X be a countably infinite set of variables. Instead of introducing a two-sorted signature we assume informally that all terms and formulas over \u03a3 and X are built in a sorted way.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "The letters s and t usually stand for terms, x and y stand for variables, and p and q for ordinary predicate symbols. We speak of ordinary atoms and arithmetic atoms depending on whether the predicate symbol is ordinary or arithmetic, respectively. For a set A of atoms let ord (A) be the set of all ordinary atoms in A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "Intuitively, N represents timestamps (points in time), and < and \u2264 stand for the strict and non-strict earlier-than relationships, respectively. We assume every ordinary predicate symbol has arity \u2265 1 and its, say, first argument ranges over N. For any ordinary atom a = p(t 1 , . . . , t n ) let time(a) = t 1 be its timestamp. The function symbols \u03a3 F may contain arithmetic operations as needed to compute with timestamps, but \u03a3 F may not contain uninterpreted operators with N as the result sort.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "We assume the ordinary predicate symbols are partitioned as \u03a3 P \\ \u03a3 N = \u03a3 EDB \u03a3 IDB . The symbols in \u03a3 EDB are called extensional database (EDB) predicates, and the symbols in \u03a3 IDB are the intensional database (IDB) predicates. An EDB is a finite set of ground \u03a3 EDB -atoms, and an IDB is a finite set of ground \u03a3 IDB -atoms. We may think of an EDB as a timestamped sequence of external events, and an IDB as higher-level conclusions derived from that EDB. Below we will exploit this distinction for computing models in a stratified way and for defining a model revision operator.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "As usual, a substitution \u03c3 is a mapping from the variables to terms. A substitution is identified with its homomorphic extension to terms. Substitution application is written postfix, i.e., we write t\u03c3 instead of \u03c3(t). The domain of \u03c3 is the set dom(\u03c3) = {x \u2208 X | x\u03c3 = x} and is always assumed to be finite.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "When z is a term, an atom, a sequence, or a set of those, let var (z) denote the set of variables occurring in z. We say that z is ground if var (z) = \u2205. A substitution \u03b3 is a grounding substitution for z iff z\u03b3 is ground. In this case z\u03b3 is also called a ground instance of z (via \u03b3). Let gnd (z) denote the set of all ground instances of z.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Preliminaries"
+        },
+        {
+            "text": "We are now in a position to define our main modeling tool, a variation on if-then rules as popularized in the area of disjunctive logic programming.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stratified Programs"
+        },
+        {
+            "text": "A positive body is a list A rule consist of a head H and a body and is commonly written as an implication",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stratified Programs"
+        },
+        {
+            "text": "By an ordinary rule (fail rule) we mean a rule with an ordinary head (fail head), respectively. A fail set is a (possibly empty) set of ground fail heads. Let r be a rule (5) and b = b 1 , . . . , b k its positive body. We say that r is variable free iff var (H) \u222a var ( b) = \u2205. This notion of variable-freeness is justified by the fact that the extra variables var ( b i ) \\ var ( b) in the negative body literals not b i are implicitly existentially quantified, see Definition 5 below. We say that r is a variable free instance of r via \u03c3 iff r = r\u03c3 is variable free and dom(\u03c3) = var (H) \u222a var ( b). Notice that \u03c3 must not act on the extra variables as these are shielded by quantification.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stratified Programs"
+        },
+        {
+            "text": "A program is a set of rules. It is variable free if all of its rules are. Semantically, every program R stands for the (possibly infinite) variable free program vfinst(R) that is obtained by taking all variable free instances of all rules in R.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stratified Programs"
+        },
+        {
+            "text": "The rules are to be evaluated in a bottom-up way. If a current model candidate satisfies a rule body then its head needs evaluation. An ordinary rule extends the current model according to the possible model semantics as explained below and a fail rule rejects the current model. If a fail rule's head is fail() it acts like a traditional rule with an empty head, as an integrity constraint. If the argument list e is non-empty the fail rule \"fixes\" the current EDB by adding (\"+\") or removing (\"\u2212\") EDB atoms and starting a new model computation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stratified Programs"
+        },
+        {
+            "text": "In order to admit effective model computation our rules will be stratified. Stratification means range-restrictedness and other restrictions on variables and negation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stratified Programs"
+        },
+        {
+            "text": "such that time(b) = y and the following holds:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1 (Stratified rule). Let r be a rule (5) with positive body"
+        },
+        {
+            "text": "In the above, a negative body literal not b i is stratified if the following holds:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 1 (Stratified rule). Let r be a rule (5) with positive body"
+        },
+        {
+            "text": "The head H is stratified if the following holds: Definition 1 expresses conditions on rules in terms of time-restrictedness and range-restrictedness. The variable y stands for the latest of all timestamps among all timestamps of the ordinary atoms in the rule body. This is made sure by constraints x y in the various parts of the definition where \u2208 {<, \u2264}. More precisely, ordinary atoms in the positive body are timestamped \"\u2264\"; ordinary heads are timestamped \"y\" so that no literals timestamped in the past can be inserted into the model (this would defy stratification); and restarts can modify only the past. For the ordinary atoms in negative body literals we distinguish between EDB and IDB atoms. EDB atoms cannot be derived in heads of rules, which affords \"\u2264\", whereas IDB atoms must be \"<\". The remaining conditions force range-restrictedness. In the first part, condition (i) says that every variable in a positive body atom appears also in some ordinary positive atom; similarly for condition (i) for heads. Condition (i) for negative body atoms says that every extra variable in a negative body atom appears also in some of its ordinary body atoms. Together these conditions make sure that matching a rule's ordinary atoms against a ground candidate model always removes all variables. This way, all arithmetic expressions can be evaluated and only ground heads can be derived. (p(x 3 )) ). It collects in d the timestamps between consecutive p-events. For example, given the set I = {p (2) , p(4), p(7), p(13)}, the rule when applied exhaustively derives d(4, 2), d(7, 4) and d(13, 7) but not, e.g, d (7, 2) . The extra variable x 2 in its negative body literal is implicitly existentially quantified. Fig. 1 illustrates a possible use of our approach in a supply chain application. It is written in the concrete input syntax of our implementation, the Fusemate system (Sect. 6).",
+            "cite_spans": [
+                {
+                    "start": 1501,
+                    "end": 1504,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 1616,
+                    "end": 1619,
+                    "text": "(7,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1620,
+                    "end": 1622,
+                    "text": "2)",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1392,
+                    "end": 1401,
+                    "text": "(p(x 3 ))",
+                    "ref_id": null
+                },
+                {
+                    "start": 1717,
+                    "end": 1723,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Definition 1 (Stratified rule). Let r be a rule (5) with positive body"
+        },
+        {
+            "text": "The signature is \u03a3 EDB = {Load, Unload, SameBatch} and \u03a3 IDB = {In}. A fluent Load(time, obj, cont) expresses that at the given time an object obj is loaded into a container cont, similarly for Unload. A fluent In(time, obj, cont) says that at the given time an object obj is inside the container cont.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (Supply chain). The program in"
+        },
+        {
+            "text": "With this interpretation, the rules (1) and (2) for the In relation should be obvious. Rule (3) is a frame axiom for the In relation. That is, it states when an In-fluent carries over to the next timestamp: an object remains in a container if neither it nor a container containing it is unloaded from the container. The body atom",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (Supply chain). The program in"
+        },
+        {
+            "text": "Step(time, prev) holds true if prev is the most recent timestamp preceding time. The",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (Supply chain). The program in"
+        },
+        {
+            "text": "Step relation is \"built-in\" into Fusemate for convenience.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (Supply chain). The program in"
+        },
+        {
+            "text": "Rule (4) fixes the problem of a \"missing\" unloading event by inserting one into the EDB at a speculated time (time + prev)/2. This rule will become clearer in Example 3 below, where we discuss the program in conjunction with a concrete EDB.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (Supply chain). The program in"
+        },
+        {
+            "text": "Rule (5) says that only items that are in a container can be unloaded in the next step. Rule (6) demands loading prior to unloading. The other rules will also be discussed below.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (Supply chain). The program in"
+        },
+        {
+            "text": "The possible model semantics [26, 27] associates to a disjunctive program sets of possible facts that might have been true in the actual world. (This is already a good fit for situational awareness.) We extend it to our stratified programs with fail rules.",
+            "cite_spans": [
+                {
+                    "start": 29,
+                    "end": 33,
+                    "text": "[26,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 34,
+                    "end": 37,
+                    "text": "27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Semantics"
+        },
+        {
+            "text": "Let Th(\u03a3 N ) be the set of all ground time atoms that are true in the standard model of natural number arithmetic. For a set A of ground ordinary atoms define I(A) = A \u222aTh(\u03a3 N ) which represents the Herbrand \u03a3-interpretation that assigns true to a ground atom a if and only if a \u2208 I(A). B = b 1 , . . . , b k , not b k+1 , . . . , not b n , written as A ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 287,
+                    "end": 353,
+                    "text": "B = b 1 , . . . , b k , not b k+1 , . . . , not b n , written as A",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Semantics"
+        },
+        {
+            "text": "The set A satisfies a variable free ordinary rule",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (Rule semantics). A set A of ground ordinary atoms satisfies a variable free body"
+        },
+        {
+            "text": "The fail set of A and a set of variable free fail rules R is the set F = {fail( e) | there is a rule fail( e) \u2190 B \u2208 R such that A |= B}. This is written as A |= fail R F .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ". . . , h m }\u2229I(A) = \u2205. It is a model of a set R of variable free ordinary rules, written as A |= R, iff it satisfies every rule in R."
+        },
+        {
+            "text": ", for all j = k + 1, . . . , n. . Definition 2 is, in fact, somewhat more general than needed for defining the possible models semantics of logic programs. Possible models interpret disjunctive heads inclusively, in all possible ways. This is expressed in the following definition. [26, 27] ). Let R be a variable free program. A split program of R is any program obtained from R by replacing every ordinary rule h 1 \u2228 \u00b7 \u00b7 \u00b7 \u2228 h m \u2190 B by the normal ordinary rules (called split rules) h \u2190 B, for every h \u2208 H, where H is some non-empty subset of {h 1 , . . . , h m }.",
+            "cite_spans": [
+                {
+                    "start": 282,
+                    "end": 286,
+                    "text": "[26,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 287,
+                    "end": 290,
+                    "text": "27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Satisfaction of a variable free body according to Definition 2 is equivalent to satisfaction of the first-order logic formula"
+        },
+        {
+            "text": "In [26, 27] , Sakama et al. define the possible model semantics (also) for disjunctive programs without negation. Our stratified case admits a similar definition.",
+            "cite_spans": [
+                {
+                    "start": 3,
+                    "end": 7,
+                    "text": "[26,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 8,
+                    "end": 11,
+                    "text": "27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 3 (Split program"
+        },
+        {
+            "text": "For any program R let R + (R \u2212 ) be the set of all ordinary (fail) rules of R, respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3 (Split program"
+        },
+        {
+            "text": "P F if there is a split program S of vfinst(P ) such that all of the following hold:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4 (Satisfication of stratified programs). Let P be a stratified program, F a fail set, E an EBD and I an IDB. We write (E, I) |= fail"
+        },
+        {
+            "text": "If F = \u2205 then we say that (E, I) satifies P and writte (E, I) |= P . The purpose of a program P is to compute all extensions (E, I) of a given EDB E that satisfy P . For failed such attempts, P also specifies ways to revise E, if any, as early as possible, leading to new tries. The following Definition 5 make this precise.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "is the triggered fail heads)"
+        },
+        {
+            "text": "For a ground fail head fail( e) and ground EDB E let upd (E, e) be the EDB obtained from E by first adding all EDB atoms e such that e contains the expression +e, and then deleting all all EDB atoms e such that e contains \u2212e. For any set A of ground ordinary atoms and t \u2208 N let A \u2264t = {a \u2208 A | time(a) \u2264 t}; analogously for A <t . The set E in Definition 5 contains a restart EDB E apart from E init if and only if E is obtained from some earliest time fail set F from another restart EDB in E. This excludes fail sets that may otherwise be additionally derivable at a later time. This was a design decision in support of \"anytime\" reasoning, for not having to consider future events. , Example 2 continued) . Consider the following EDB E init consisting of loading and unloading events:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 686,
+                    "end": 708,
+                    "text": ", Example 2 continued)",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "is the triggered fail heads)"
+        },
+        {
+            "text": "SameBatch(10, Set(tomatoes, apples)) Load(40, container, ship) Load (10, tomatoes, pallet) Unload(60, apples, pallet) Load (20, pallet, container) The intuitive meaning of the Load atoms between times 10 and 40 should be obvious. All what is reported at time 60 is that apples are unloaded from the pallet. However, this is suspicious from a (practical) completeness and consistency perspective. First, it can be alleged that some unloading events went under unreported. Before an item (apples) can be unloaded from a pallet that was loaded earlier into a container, the pallet needs to be unloaded from the container first, and that container must have been unloaded from the ship. Such reports are missing. Second, loading of tomatoes does not go together well with the unloading of apples later. This could be a reporting inconsistency or a reporting incompleteness if indeed apples were (also) loaded earlier.",
+            "cite_spans": [
+                {
+                    "start": 68,
+                    "end": 90,
+                    "text": "(10, tomatoes, pallet)",
+                    "ref_id": null
+                },
+                {
+                    "start": 123,
+                    "end": 146,
+                    "text": "(20, pallet, container)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Example 3 (Supply chain"
+        },
+        {
+            "text": "All these plausible explanations are provided by (E 1 , I 1 ), (E 2 , I 2 ), and (E 3 , I 3 ), the three possible models of E init and the program in Fig. 1 In each of these models, the missing unloading events Unload(45, container, ship) and Unload(50, pallet, container) are added by repeated application of rule (4). Generally speaking, rule (4) inserts an Unload of the \"containing container\" the object to be unloaded from is in. The rules (7) -(9) all fix the \"unloading apples vs. loading tomatoes\" problem. Rule (7) leads to (E 1 , I 1 ), rule (8) leads to (E 2 , I 2 ), and rule (9) leads to (E 3 , I 3 ). Each of these rules tests whether an object (apples) is swappable with another object (tomatoes) for the purpose of model revision, which is the case if the SameBatch relation says so. Notice that if E init had, say Unload(60, oranges, pallet) instead of Unload(60, apples, pallet) then none of the rules (7) -(9) is applicable and no possible model exists.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 150,
+                    "end": 156,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Example 3 (Supply chain"
+        },
+        {
+            "text": "This section introduces our calculus for computing possible models of stratified programs. It borrows some terminology from tableau calculi. A path p is a triple (E, I, t) where E is an EDB, I is an IDB and t \u2208 N is a timestamp. Intuitively, p represents the interpretation I((E \u222aI) \u2264t ). An initial path is of the form (E, \u2205, 0) . A tableau is a finite set of paths. 2 Let B = b 1 , . . . , b k , not b k+1 , . . . , not b n be the body of a variable free stratified rule and A a set of ground ordinary atoms. A substitution \u03c3 with dom(\u03c3) = var (b 1 , . . . , b k ) is a body matcher for B on A, written as (B, \u03c3) A, if the following holds:",
+            "cite_spans": [
+                {
+                    "start": 368,
+                    "end": 369,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 320,
+                    "end": 329,
+                    "text": "(E, \u2205, 0)",
+                    "ref_id": null
+                },
+                {
+                    "start": 374,
+                    "end": 411,
+                    "text": "B = b 1 , . . . , b k , not b k+1 , .",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 540,
+                    "end": 614,
+                    "text": "= var (b 1 , . . . , b k ) is a body matcher for B on A, written as (B, \u03c3)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Model Computation"
+        },
+        {
+            "text": "Note 1 (Computing body matchers) . The definition of body matchers only applies to bodies of stratified rules. It is easy to see that a body matcher \u03c3, if any exists, can be found by computing a simultaneous matching substitution \u03c3 for the ordinary atoms among b 1 , . . . , b k to A. Similarly for the substitution \u03b3 in condition (ii). Furthermore, stratification guarantees that all arithmetic atoms for testing conditions (i) and (ii) are necessarily ground and hence can be evaluated.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 7,
+                    "end": 32,
+                    "text": "(Computing body matchers)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model Computation"
+        },
+        {
+            "text": "An inference rule is a schematic expression of the form p \u21d2 p 1 , . . . , p k where p and p j are paths, for all 1 \u2264 j \u2264 k, where k \u2265 0. It means that the premise p is to be replaced by the conclusions p 1 , . . . , p k . An inference is an instance of an inference rule.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "In the following, P is a stratified program and \u03c3 is a substitution such that r\u03c3 is a variable free instance of a rule r that is clear from the context. The Ext rule extends I to satisfy all split rules for each case H of some instance of an ordinary rule in P whose body is satisfied by (E \u222a I) \u2264t ; Restart replaces the current path with all initial paths as per the non-empty fail rules after Ext is exhausted; Fail also terminates the current path but is to be applied only if Restart doesn't; Jump advances the current time bound t. The following formalizes this intuition.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "An initial path (E, \u2205, 0) is new wrt. a tableau T iff there is no I and no t such that (E, I, t) \u2208 T . Let E init be an input EDB. A derivation D (from E init and P ) is a sequence (T ) i\u22650 of tableaus D = ( \u21d2 p 1 , . . . , p k by Ext and {p 1 , . . . , p \u21d2 q 1 , . . . , q m by Restart and {p 1 , . . . , p k } = {p \u2208 {q 1 , . . . , q m } | p is new wrt. T i }, (c) p \u21d2 by Fail and k = 0, or (d) p \u21d2 p 1 by Jump and k = 1.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 208,
+                    "end": 255,
+                    "text": "\u21d2 p 1 , . . . , p k by Ext and {p 1 , . . . , p",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 256,
+                    "end": 327,
+                    "text": "\u21d2 q 1 , . . . , q m by Restart and {p 1 , . . . , p k } = {p \u2208 {q 1 , .",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Model Computation"
+        },
+        {
+            "text": "In addition, the inference rules must be prioritized in this order. That is, if T i+1 is obtained from T i by, say, case (c) , then there is no tableau that can be obtained from T i by case (a) or case (b) with the same selected path p; analogously for the other cases.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "The derivation D is exhausted if it is finite and no inference rule is applicable to its final tableau T n , for no p \u2208 T n . In this case the computed models of D is the set M(D) = {(E, I) | (E, I, t) \u2208 T n for some t \u2208 N}. Figure 2 is a graphical illustration of a derivation and its computed models. The EDB E is either E init or derived from E init through, say, k > 0 intermediate EDBs by Restarts. By induction on k one can show that, on the semantic side, E is a restart induced by P and E init , i.e., E \u2208 E in Definition 5. This follows from the definition of derivations. In particular, the earliest-time requirement in Definition 5 is matched by prioritizing Restart over Fail and Jump.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 225,
+                    "end": 233,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "Model Computation"
+        },
+        {
+            "text": "With the EDB E traced down in E, it remains to prove (E, I) |= P . With the stratification of P (Definition 1) this is rather straightforward. Rangerestrictedness makes sure that only ground heads are derivable. The Ext inference rule achieves on-the-fly splitting and only for those variable-free instances of rules whose body is satisfied, which are the only ones that count (details in [26, 27] ). The requirements on EDB/IDB atoms in negative body literals (\u2264 vs. <) in Definition 1 entail that utilizing body matchers in derivations is correct wrt. the rule semantics in Definition 2.",
+            "cite_spans": [
+                {
+                    "start": 389,
+                    "end": 393,
+                    "text": "[26,",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 394,
+                    "end": 397,
+                    "text": "27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "The timed setting requires a layered fixpoint iteration. Stratification makes sure that stepwisely incrementing in derivations the time bound by Jump inferences is all that is needed to comply with the \"unstepped\" possible model semantics in Definitions 4 and 5. In particular, no ordinary rule can derive in its head a conclusion with a timestamp earlier than the latest timestamp in its body. This makes the derivability relation monotonic wrt. increasing time stamps (usual stratification by predicates is covered in [26] ). Moreover, because the given derivation is exhausted, no fixpoint iteration can stop prematurely.",
+            "cite_spans": [
+                {
+                    "start": 520,
+                    "end": 524,
+                    "text": "[26]",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "For completeness, assume mods P (E init ) = \u2205 and chose any (E, I) \u2208 mods P (E init ) arbitrary. We have to show (E, I) \u2208 M(D). The first step is to locate in D the sub-tableau with E at its root, by tracing E \u2208 E from E init . The next step then is to argue for the completeness of the sub-tableau construction with that fixed E, giving (E, I) \u2208 T n . All that uses similar considerations as the soundness proof above.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "One important detail is that Ext is the highest-priority inference rule. This makes sure that no model candidate is terminated too early, so that all possible branching out takes place. As a consequence, all possible fail heads for the current time point will be derived. The requirement that there are no proper (non-constant) function symbols make sure that the layered fixpoint computation of derivations terminates and finds (E, I).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model Computation"
+        },
+        {
+            "text": "It is not too difficult to translate the model computation calculus of Sect. 5 into a proof procedure. Tableaux can be represented in a direct way, as a set of paths (E, I, t). In terms of Fig. 2 , the proof procedure can implement a one-branch-ata-time approach for one sub-tableau at a time, for space efficiency, embedded in an adapted given-clause loop algorithm. Only the EDBs, not the full models, need to be remembered to implement the \"Progress\" condition for derivations (cf. Sect. 5).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 189,
+                    "end": 195,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "Implementation"
+        },
+        {
+            "text": "A concrete implementation could based on, e.g., hyper resolution with splitting [5] or hyper tableaux [3] calculi. Our implementation however is implemented in an unusual way, by shallow embedding in Scala. 3 Scala [28] is a modern high-level programming language that combines object-oriented and functional programming styles. It has functions as first-class objects and supports user-definable pre-, post-and infix syntax. With these features, Scala is suitable as a host language for embedding domain-specific languages (DSLs). (See, e.g., [16] for a Scala DSL for runtime verification.) In our case, the logic program rules are nothing but partial functions, instantiating and evaluating a rule body reduces to partial function definedness, and deriving a rule head reduces to executing a partial function on a defined point. An advantage of the DSL approach is that is is easy to interface with external systems, e.g., databases, in particular if they have a Java interface.",
+            "cite_spans": [
+                {
+                    "start": 80,
+                    "end": 83,
+                    "text": "[5]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 102,
+                    "end": 105,
+                    "text": "[3]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 207,
+                    "end": 208,
+                    "text": "3",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 544,
+                    "end": 548,
+                    "text": "[16]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "Moreover, it is easy to make the full Scala language and its associated data structure libraries available for writing rules. (There is no theoretical problem doing that as long as all Scala expressions are ground and, hence, can be evaluated.) For example, the EDB in Example 3 has the Scala-set forming term Set(tomatoes, apples), and the rules (7) -(9) in Fig. 1 test in their last lines membership in such sets by Scala expressions.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 359,
+                    "end": 365,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Implementation"
+        },
+        {
+            "text": "While EDBs are naturally written as Scala source code, logic program rules are usually written in a (much) more convenient syntax and translated into the required format by the Scala macro mechanism. See Listing 1.1 for an example. In Listing 1.1, line 1 sets the concrete type for time to Int, the Scala integers. A realistic application could use a rich time class like java .time.OffsetDataTime. Lines 2, 3 and 4 define the EDB and IDB signature of the supply chain Example 2 by extension of the Scala classes EDBAtom and IDBAtom. The Load relation says that the object obj was loaded into the container cont at time time. The In relation says that obj was in container cont at time time. The time argument must be named time, but all other arguments and their types can be freely chosen. For simplicity we used strings, except for the SameBatch relation, which has a set of strings for its objs parameter.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "Line 6 defines a list with one rule that expresses the transitivity of the In relation (rule (2) in Fig. 1 ). Line 5 is an annotation that tells the compiler to expand the subsequent definition by a macro named rules. Indeed, without the help of a macro the rule would not compile because of undefined variables in the rule. The macro expansion of the rule in line 6 is the Scala function in Listing 1.2. The anonymous function in Listing 1.2 is passed in its formal parameter I a set of atoms which will always be the \"current interpretation\" (E \u222a I) \u2264 t where p = (E, I, t) is the current path. The set I is needed for evaluating negative body literals and is not relevant for this example. The function returns a partial function in the form of a case expression. The pattern in the case expression are the ordinary atom of the positive body literals. These are the ones that need to be matched to the atoms of (E \u222a I) \u2264 t for rule evaluation (see Note 1). The matching is done by applying the partial function to all tuples (of the proper arity) of elements from the current interpretation. If the application succeeds, i.e., if the case pattern match succeeds and the additional if -condition is satisfied, the partial function body (to the right of =>) is executed, which results in an instantiated head. If the head is disjunctive, all non-empty subsets are taken. This gives all split programs (cf. Definition 3) on the fly. The resulting sets are collected in one sweep for each rule and are candidates for extending the current path. fail-rules are processed in a similar way.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 100,
+                    "end": 106,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Implementation"
+        },
+        {
+            "text": "Notice that the pattern of a case expression needs to be linear, hence the renaming apart of pattern variables and the obvious equalities in the ifcondition. Notice also that substitutions are not explicitly represented, they are hidden in the Scala runtime system. It remains to be explained how arithmetic atoms and negative body literals are macro-expanded. By way of example, consider, say, rule (7) in Fig. 1 . Its arithmetic condition t < time is simply conjoined to the if-condition of the rule's case expression. An if-expression like if((b contains obj) and (b contains o)) is a backdoor for adding arbitrary Boolean-valued Scala code to that condition (\"contains\" belongs to the Scala library and tests set membership). Recall that all variables in arithmetic atoms will always be ground instantiated by matching and hence can be evaluated. This must be be extended to Scala conditions. In the implementation, any such free variable would be detected as a compile time error.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 407,
+                    "end": 413,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Implementation"
+        },
+        {
+            "text": "The body literal not(load(t, obj, cont), t < time) is expanded into a partial function . It is structurally the same as the one in Listing 1.1 except that the binding of the variables obj and cont in the surrounding context need to respected, giving the stated equalities. Now, the if-condition of the case expression of the surrounding rule (i.e., rule 7) is conjoined with a Scala expression for testing that the partial function does not return Abort, for no tuple of elements from the set I explained above.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "The implementation supports some more features not further discussed here: rules can be defined locally within case classes; literals -possibly negated atomscan be used anywhere instead of atoms; a \"strong fail\" head operator terminates a model candidate without restarts, e.g., for classical negation: a and \u00aca together is unfixable; and Scala conditions can access the interpretation (E \u222a I) \u2264t for, e.g., concise data aggregation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "This paper presented a novel calculus and implementation for situational awareness applications. The approach is meant to be practical in three ways: first, realistic situational awareness requires being able to reason with incomplete or erroneous data. Moreover, \"anytime\" reasoning is needed, meaning that a model can be derived, rejected or repaired at any current time. Our approach supports these needs with a (disjunctive) logic programming framework with timed predicates, stratified negation and a novel model revision operator. Second, thanks to implementation on top of Scala, it is trivial to attach arbitrary Scala code and Java libraries. (It would not be difficult to extend the calculus respectively.) For instance, reading in XML data and making them available as terms (Scala case classes) is easy. Third, we strived for a \"cheap\" model computation procedure that makes do without additional generate-and-test needs. As such, it is perhaps more adequately seen as study in pushing bottom-up firstorder logic model computation technology rather than slimmed down answer-set programming.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "As for future work, one interesting idea is to add probabilities to the picture, say, in the way ProbLog extends Prolog. This is obviously useful because, e.g., some explanations (models) or repairs (restarts) are more likely than others. Another idea is to view the model computation as runtime verification. This view suggests that (probabilistic) linear temporal logic could serve as an additional useful high-level specification language component.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "On the logic of theory change: partial meet contraction and revision functions",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Alchourr\u00f2n",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "G\u00e4rdenfors",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Makinson",
+                    "suffix": ""
+                }
+            ],
+            "year": 1985,
+            "venue": "J. Symb. Logic",
+            "volume": "50",
+            "issn": "",
+            "pages": "510--530",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "A novel architecture for situation awareness systems",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Baader",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "TABLEAUX 2009",
+            "volume": "5607",
+            "issn": "",
+            "pages": "77--92",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Hyper tableaux",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baumgartner",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Furbach",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Niemel\u00e4",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "",
+            "volume": "1126",
+            "issn": "",
+            "pages": "1--17",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-61630-6_1"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Hyper tableaux with equality",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baumgartner",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Furbach",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Pelzer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "CADE 2007",
+            "volume": "4603",
+            "issn": "",
+            "pages": "492--507",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-73595-3_36"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Blocking and other enhancements for bottom-up model generation methods",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baumgartner",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Schmidt",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "J. Autom. Reason",
+            "volume": "64",
+            "issn": "",
+            "pages": "197--251",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10817-019-09515-1"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The Calculus of Computation",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bradley",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Manna",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-74113-8"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Checking compliance of execution traces to business rules",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Chesani",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Mello",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Montali",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Riguzzi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sebastianis",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Storari",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "BPM 2008. LNBIP",
+            "volume": "17",
+            "issn": "",
+            "pages": "134--145",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-00328-8_13"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Event-based diagnosis for evolutive systems",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Cordier",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Thi\u00e9baux",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Proceedings of 5th International Workshop on Principles of Diagnosis",
+            "volume": "",
+            "issn": "",
+            "pages": "64--69",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Computing trace alignment against declarative process models through planning",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "De Giacomo",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Maggi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Marrella",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Sardina",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of 26th International Conference on Automated Planning and Scheduling (ICAPS)",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Complexity results for disjunctive logic programming and application to nonmonotonic logics",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Eiter",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Gottlob",
+                    "suffix": ""
+                }
+            ],
+            "year": 1993,
+            "venue": "Proceedings of the 1993 International Symposium on Logic Programming",
+            "volume": "",
+            "issn": "",
+            "pages": "266--278",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Disjunctive datalog",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Eiter",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Gottlob",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Mannila",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "ACM Trans. Database Syst",
+            "volume": "22",
+            "issn": "",
+            "pages": "364--418",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Toward a theory of situation awareness in dynamic systems",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Endsley",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Hum. Factors J.: J. Hum. Factors Ergon. Soc",
+            "volume": "37",
+            "issn": "1",
+            "pages": "32--64",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Answer sets",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gelfond",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Handbook of Knowledge Representation",
+            "volume": "3",
+            "issn": "",
+            "pages": "285--316",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "The stable model semantics for logic programming",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gelfond",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Lifschitz",
+                    "suffix": ""
+                }
+            ],
+            "year": 1988,
+            "venue": "Proceedings of the 5th International Conference on Logic Programming",
+            "volume": "",
+            "issn": "",
+            "pages": "1070--1080",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Classical negation in logic programs and disjunctive databases",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gelfond",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Lifschitz",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "New Gener. Comput",
+            "volume": "9",
+            "issn": "",
+            "pages": "365--385",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/BF03037169"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Modeling rover communication using hierarchical state machines with scala",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Havelund",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Joshi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "SAFECOMP 2017",
+            "volume": "10489",
+            "issn": "",
+            "pages": "447--461",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-66284-8_38"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "nfer -a notation and system for inferring event stream abstractions",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kauffman",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Havelund",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Joshi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "RV 2016",
+            "volume": "10012",
+            "issn": "",
+            "pages": "235--250",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-46982-9_15"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "The Logic Programming Paradigm: A 25-Year Perspective",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Lifschitz",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Apt",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Marek",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Truszczynski",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "357--373",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-60085-2_16"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Revision specifications by means of programs",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Marek",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Truszczy\u0144ski",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "JELIA 1994",
+            "volume": "838",
+            "issn": "",
+            "pages": "122--136",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/BFb0021968"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Revision programming",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Marek",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Truszczy\u0144ski",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Theoret. Comput. Sci",
+            "volume": "190",
+            "issn": "2",
+            "pages": "241--277",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Toward a theory of diagnosis, testing and repair",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mcilraith",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "Proceedings of 5th International Workshop on Principles of Diagnosis",
+            "volume": "",
+            "issn": "",
+            "pages": "185--192",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "A tableau calculus for minimal model reasoning",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Niemel\u00e4",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Miglioli",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Moscato",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Mundici",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "TABLEAUX 1996",
+            "volume": "1071",
+            "issn": "",
+            "pages": "278--294",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-61208-4_18"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "System description: E-KRHyper",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Pelzer",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Wernhard",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "CADE 2007",
+            "volume": "4603",
+            "issn": "",
+            "pages": "508--513",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-73595-3_37"
+                ]
+            }
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Chapter 8 belief revision",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Peppas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Handbook of Knowledge Representation",
+            "volume": "3",
+            "issn": "",
+            "pages": "317--359",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Chapter 5 -on the declarative semantics of deductive databases and logic programs",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Przymusinski",
+                    "suffix": ""
+                }
+            ],
+            "year": 1988,
+            "venue": "Foundations of Deductive Databases and Logic Programming",
+            "volume": "",
+            "issn": "",
+            "pages": "193--216",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Possible model semantics for disjunctive databases",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Sakama",
+                    "suffix": ""
+                }
+            ],
+            "year": 1990,
+            "venue": "Proceedings First International Conference on Deductive and Object-Oriented Databases (DOOD-89)",
+            "volume": "",
+            "issn": "",
+            "pages": "337--351",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "An alternative approach to the semantics of disjunctive logic programs and deductive databases",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Sakama",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Inoue",
+                    "suffix": ""
+                }
+            ],
+            "year": 1994,
+            "venue": "J. Autom. Reason",
+            "volume": "13",
+            "issn": "",
+            "pages": "145--172",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/BF00881915"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "The Scala Programming Language",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Characterization of logic program revision as an extension of propositional revision",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Schwind",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Inoue",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Theory Pract. Logic Program",
+            "volume": "16",
+            "issn": "1",
+            "pages": "111--138",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Expressing and supporting efficiently greedy algorithms as locally stratified logic programs. Technical Communications of ICLP",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Zaniolo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "This research is supported by the Science and Industry Endowment Fund.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Springer Nature Switzerland AG 2020 N. Peltier and V. Sofronie-Stokkermans (Eds.): IJCAR 2020, LNAI 12166, pp. 337-355, 2020. https://doi.org/10.1007/978-3-030-51074-9_19",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "list represents a conjunction.) A negative body literal is an expression of the form not b, where b is a non-empty positive body. A body is a list b 1 , . . . , b k , not b k+1 , . . . , not b n comprised of a (possibly empty) positive body and (possibly zero) negative body literals. It is variable free if var (b 1 , . . . , b k ) = \u2205. A head is one of the following: (a) an ordinary head : a disjunction h 1 \u2228 \u00b7 \u00b7 \u00b7 \u2228 h m of IDB atoms, for some m \u2265 1, or (b) a fail head : an expression of the form fail( e) where e = \u00b1 1 e 1 , . . . , \u00b1 k e k , for some k \u2265 0, EDB atoms e i and \u00b1 i \u2208 {+, \u2212}. If k = 0 then e is the empty sequence \u03b5, and fail( ) is usually written as fail().",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Supply chain program. See Example 2 for explanations.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "As an example (without time), if E = {p} and R = {q \u2228 r \u2190 p, q \u2190 r, s \u2190 s} then {p, q, s} |= R, but only ({p}, {q}) and ({p}, {r, q}) satisfy R in the sense of Definition 4.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "E init and satisfying, for all E \u2208 E, timestamps t in E, IDBs I and fail sets F :If (E \u2264t , I) |= fail P F and there is no J \u2286 I and G = \u2205 such that (E<t, J) |= fail P G then {upd (E, e) | fail( e) \u2208 F and e = \u03b5} \u2286 E.The set E is called the restart EDBs induced by P and E init . Any pair (E, I) such that E \u2208 E and (E, I) |= P is called a possible model of P and E init , written as (E init , E, I) |= P . Let mods P (E init ) = {(E, I) | (E init , E, I) |= P } be all such possible models.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Ext: (E, I, t) \u21d2 (E, I \u222a H 1 , t), . . . , (E, I \u222a H k , t) if P contains an ordinary rule h 1 \u2228 \u00b7 \u00b7 \u00b7 \u2228 h k \u2190 B such that {H 1 , . . . , H k } = {H | (B, \u03c3) (E \u222a I) \u2264t and \u2205 H \u2286 {h 1 \u03c3, . . . , h k \u03c3}} Restart: (E, I, t) \u21d2 (upd (E, e 1 ), \u2205, 0), . . . , (upd (E, e k ), \u2205, 0) if k \u2265 1 and { e 1 , . . . , e k } = { e\u03c3 | fail( e) \u2190 B \u2208 P, e = \u03b5 and (B, \u03c3) (E \u222a I) \u2264t }. Fail: (E, I, t) \u21d2 if P contains a rule fail() \u2190 B and there is a \u03c3 such that (B, \u03c3) (E \u222a I) \u2264t . Jump: (E, I, t) \u21d2 (E, I, s) if s is the least timestamp in E with t < s.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Illustration of a hypothetical derivation. The root of each sub-tableau is labeled with the EDB in that sub-derivation. The first sub-tableau has two Restart inferences, leading to the second and third sub-tableau, where E1 = upd (E init , e 0 0 ), E2 = upd (E init ,e 1 0 ). The isolated fail()s do not cause a Restart, they cause Fail. The computed models are (E init , I 0 0 ), (E init , I 1 0 ), (E1, I 0 1 ), etc. Theorem 1 (Soundness and completeness). Assume a signature \u03a3 without k-ary function symbol, for k > 0. Let P be a stratified program and E init an EDB. Assume an exhausted derivation D from E init and P . Then M(D) = mods P (E init ). Proof. (Sketch) Let T n be the final tableau of D. For soundness, assume M(D) = \u2205 and chose any (E, I) \u2208 M(D) arbitrary.That is, (E, I, t) \u2208 T n , for some t. We have to show (E, I) \u2208 mods P (E init ), equivalently (E init , E, I) |= P .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF8": {
+            "text": "Sample EDB/IDB declarations and a rule. Some unimportant declarations left away.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "H is a fail head fail( e) then for all \u00b1e \u2208 e, time(e) is an arithmetic expression and time(e) y \u2208 b, for some \u2208 {<, \u2264}.A rule is stratified if it is stratified wrt. some variable y. A program is stratified if each of its rules is stratified.1",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": ". For space reasons we list only their EDB components, which are as follows:",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgements. I thank the reviewers for their constructive comments. Yuzhou Chen discovered an error in an earlier version of the paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

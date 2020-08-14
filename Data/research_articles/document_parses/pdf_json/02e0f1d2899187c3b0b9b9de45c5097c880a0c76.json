@@ -1,0 +1,487 @@
+{
+    "paper_id": "02e0f1d2899187c3b0b9b9de45c5097c880a0c76",
+    "metadata": {
+        "title": "VIRTUS: a pipeline for comprehensive virus analysis from conventional RNA-seq data",
+        "authors": [
+            {
+                "first": "Yoshiaki",
+                "middle": [],
+                "last": "Yasumizu",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Osaka University",
+                    "location": {
+                        "settlement": "Osaka",
+                        "country": "Japan"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Atsushi",
+                "middle": [],
+                "last": "Hara",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Nara Medical University",
+                    "location": {
+                        "settlement": "Kashihara, Nara",
+                        "country": "Japan. *Correspondence"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Shimon",
+                "middle": [],
+                "last": "Sakaguchi",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Osaka University",
+                    "location": {
+                        "settlement": "Osaka",
+                        "country": "Japan"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Naganari",
+                "middle": [],
+                "last": "Ohkura",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Osaka University",
+                    "location": {
+                        "settlement": "Osaka",
+                        "country": "Japan"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The possibility that RNA transcripts from clinical samples contain plenty of virus RNAs has not been pursued actively so far. We here developed a new tool for analyzing virus-transcribed mRNAs, not virus copy numbers, in the data of conventional and single-cell RNA-sequencing of human cells. Our pipeline, named VIRTUS (VIRal Transcript Usage Sensor), was able to detect 763 viruses including herpesviruses, retroviruses, and even SARS-CoV-2 (COVID-19), and quantify their transcripts in the sequence data. This tool thus enabled simultaneously detecting infected cells, the composition of multiple viruses within the cell, and the endogenous host gene expression profile of the cell. This bioinformatics method would be instrumental in addressing the possible effects of covertly infecting viruses on certain diseases and developing new treatments to target such viruses. Availability and implementation VIRTUS is implemented using Common Workflow Language and Docker under a",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "might contribute to the development of human diseases including autoimmune diseases and cancers. For example, Epstein-Barr virus (EBV) has been reported to play a causative role for head-neck cancer and lymphoma (Zapatka et al., 2020) , and possibly for multiple sclerosis and systemic lupus erythematosus (Harley et al., 2018) . It remains to be determined, however, which viruses are present in normal tissues and whether their state of activation contributes to disease development. Viruses can be detected by several methods such as antibody-based assays and PCR. Virus copy numbers in the genome can also be assessed by analyzing NGS derived data such as VirTect (Khan et al., 2019) and Kraken2 (Wood et al., 2019) . On the other hand, it has been technologically difficult to examine the state of the virus in host tissues especially in relation to endogenous expression of host genes. In addition, since viral infection is heterogeneous depending on cell populations, it is unclear which cells are infected, how many virus species are present in the cells, and what states the viruses and the host cells assume. To address these issues, RNA information derived from polyA-based reverse transcription should be useful for analyzing intracellular viruses, since viruses intercept the host transcription systems, which yield polyA-tailed viral RNA transcripts along with endogenous RNAs from the host cells. We here attempted to establish a tool for measuring multiple viral transcriptomes even in a single cell.",
+            "cite_spans": [
+                {
+                    "start": 212,
+                    "end": 234,
+                    "text": "(Zapatka et al., 2020)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 306,
+                    "end": 327,
+                    "text": "(Harley et al., 2018)",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 668,
+                    "end": 687,
+                    "text": "(Khan et al., 2019)",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 700,
+                    "end": 719,
+                    "text": "(Wood et al., 2019)",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "We developed a pipeline for detecting and quantifying transcripts of multiple viruses from conventional human RNA-seq data, and named it VIRTUS (VIRal Transcript Usage Sensor) ( Supplementary Fig.1 ). As a framework of VIRTUS, RNA-seq data was quality-trimmed, filtered by fastp (Chen et al., 2018) , and mapped to the human genome by STAR (Dobin et al., 2013) . The unmapped reads were next aligned on 763 virus genome references. After removing polyX containing reads, infected viruses were determined comprehensively. Using salmon (Patro et al., 2017) , a fixed amount of viral transcripts was quantified. The profiles of viral gene expression were integrated with the profiles of the host gene expression in each cell or sample.",
+            "cite_spans": [
+                {
+                    "start": 279,
+                    "end": 298,
+                    "text": "(Chen et al., 2018)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 340,
+                    "end": 360,
+                    "text": "(Dobin et al., 2013)",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 534,
+                    "end": 554,
+                    "text": "(Patro et al., 2017)",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 178,
+                    "end": 197,
+                    "text": "Supplementary Fig.1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "VIRTUS"
+        },
+        {
+            "text": "We first analyzed a bulk RNA-seq data of B cells infected with EBV (Mrozek-Gorska et al., 2019) ( Fig.1 b,c) . VIRTUS successfully detected EBV in all infected replicates ( Supplementary Fig.3a) ; and the frequency of incorrect assignment of the virus infection was much less compared with other tools, such as VirTect and kraken2 ( Supplementary Fig.3b-d) . It was also able to quantify the EBV transcripts ( Fig.1b, Supplementary Fig.3e ) and detect its splicing pattern (Fig 1.c, Supplementary   Fig.3h) . We next evaluated virus contents in clinical samples (Rai et al., 2020) and human adenovirus C (Fig.1b) . In addition, from bronchoalveolar lavage fluids from two SARS-CoV-2 infected patients, VIRTUS successfully detected SARS-CoV-2 in both patients (Supplementary Fig.4 ; Chen et al., 2020) .",
+            "cite_spans": [
+                {
+                    "start": 562,
+                    "end": 580,
+                    "text": "(Rai et al., 2020)",
+                    "ref_id": null
+                },
+                {
+                    "start": 782,
+                    "end": 800,
+                    "text": "Chen et al., 2020)",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 98,
+                    "end": 108,
+                    "text": "Fig.1 b,c)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 173,
+                    "end": 194,
+                    "text": "Supplementary Fig.3a)",
+                    "ref_id": null
+                },
+                {
+                    "start": 333,
+                    "end": 356,
+                    "text": "Supplementary Fig.3b-d)",
+                    "ref_id": null
+                },
+                {
+                    "start": 410,
+                    "end": 438,
+                    "text": "Fig.1b, Supplementary Fig.3e",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 473,
+                    "end": 506,
+                    "text": "(Fig 1.c, Supplementary   Fig.3h)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 604,
+                    "end": 612,
+                    "text": "(Fig.1b)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 774,
+                    "end": 779,
+                    "text": "Fig.4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Application to bulk RNA-seq analyses"
+        },
+        {
+            "text": "We next applied VIRTUS to droplet-based single-cell RNA-seq data of human primary fibroblasts infected with Herpes simplex virus 1 (HSV-1) (Wyler et al., 2019) ( Fig.1d,e) . First, we conducted pooled screening of viruses, in which all reads from all cells were assigned at once, and detected HSV-1 in the samples. Then, we measured HSV-1 transcripts by Alevin (Srivastava et al., 2019) , which was suitable for downstream analysis of VIRTUS. We detected infected single cells, and found differentially expressed genes, such as RASD1 and MT-RNR1, between infected and non-infected cells, using VIRTUS and a standard single-cell pipeline. As shown in Fig.   1d and 1e, RASD1, one of the differentially expressed genes, was tightly linked to the HSV-1 infected cells.",
+            "cite_spans": [
+                {
+                    "start": 139,
+                    "end": 159,
+                    "text": "(Wyler et al., 2019)",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 361,
+                    "end": 386,
+                    "text": "(Srivastava et al., 2019)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 162,
+                    "end": 171,
+                    "text": "Fig.1d,e)",
+                    "ref_id": "FIGREF0"
+                },
+                {
+                    "start": 650,
+                    "end": 659,
+                    "text": "Fig.   1d",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Application to single-cell RNA-seq analyses"
+        },
+        {
+            "text": "We developed a novel viral transcriptome detection and quantification pipeline, VIRTUS, which can be applied to both bulk and single-cell RNA-seq analyses.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "With this tool, we are able o detect the cells harboring activated viruses, the composition of multiple viruses in a cell, and the expression differences between infected and uninfected cells. It would help our understanding of how viruses contribute to certain diseases as a trigger or modifier of disease development and devising new ways of treatment by targeting viruses. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "RNA based mNGS approach identifies a novel human coronavirus from two individual pneumonia cases in 2019 Wuhan outbreak. Emerging Microbes and Infections",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "9",
+            "issn": "",
+            "pages": "313--319",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Fastp: An ultra-fast all-in-one FASTQ preprocessor",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Bioinformatics",
+            "volume": "",
+            "issn": "",
+            "pages": "884--890",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "STAR: Ultrafast universal RNA-seq aligner",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Dobin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Bioinformatics",
+            "volume": "29",
+            "issn": "",
+            "pages": "15--21",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Transcription factors operate across disease loci, with EBNA2 implicated in autoimmunity",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Harley",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Nature Genetics",
+            "volume": "50",
+            "issn": "",
+            "pages": "699--707",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Detection of human papillomavirus in cases of head and neck squamous cell carcinoma by RNA-seq and VirTect",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Khan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Molecular Oncology",
+            "volume": "13",
+            "issn": "",
+            "pages": "829--839",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Epstein-Barr virus reprograms human B lymphocytes immediately in the prelatent phase of infection",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Mrozek-Gorska",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the National Academy of Sciences of the United States of America",
+            "volume": "116",
+            "issn": "",
+            "pages": "16046--16055",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Salmon provides fast and bias-aware quantification of transcript expression",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Patro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Nature Methods",
+            "volume": "14",
+            "issn": "",
+            "pages": "417--419",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "RNA-seq analysis reveals unique transcriptome signatures in systemic lupus erythematosus patients with distinct autoantibody specificities",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rai",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "PLoS One",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Alevin efficiently estimates accurate gene abundances from dscRNA-seq data",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Srivastava",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Genome Biology",
+            "volume": "20",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Improved metagenomic analysis with Kraken 2",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Wood",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Genome Biology",
+            "volume": "20",
+            "issn": "",
+            "pages": "1--13",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Single-cell RNA-sequencing of herpes simplex virus 1-infected cells connects NRF2 activation to an antiviral program",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Wyler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Nature Communications",
+            "volume": "10",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "The landscape of viral associations in human cancers",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zapatka",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nature Genetics",
+            "volume": "52",
+            "issn": "",
+            "pages": "320--330",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": ", a pipeline for analyzing multiple viruses, and its outputs from conventional RNA-seq data. (a) Viruses detected from peripheral blood leukocytes from SLE patients and healthy donors. (b) Top20 differentially expressed genes within EBV infected cells. (c) Virus-mapped reads visualized by The Integrative Genomics Viewer. (d) Mean transcripts of HSV-1 and the expression of a correlated host gene, RASD1, on UMAP plots. (e) Differentially expressed genes between HSV-1 infected and non-infected cells.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Figure 1",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "from peripheral blood leukocytes from 12 systemic lupus erythematosus patients and 4",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

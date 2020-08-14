@@ -1,0 +1,1653 @@
+{
+    "paper_id": "01a9c82e39473c5cb011247ce9cc1405ab3fba65",
+    "metadata": {
+        "title": "D R A F T Quantifying Projected Impact of Social Distancing Policies on COVID-19 Outcomes in the US",
+        "authors": [
+            {
+                "first": "Chaoqi",
+                "middle": [],
+                "last": "Yang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Illinois",
+                    "location": {
+                        "postCode": "61801",
+                        "settlement": "Urbana-Champaign",
+                        "region": "IL",
+                        "country": "USA"
+                    }
+                },
+                "email": "1chaoqiy2@illinois.edu"
+            },
+            {
+                "first": "Ruijie",
+                "middle": [],
+                "last": "Wang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Illinois",
+                    "location": {
+                        "postCode": "61801",
+                        "settlement": "Urbana-Champaign",
+                        "region": "IL",
+                        "country": "USA"
+                    }
+                },
+                "email": "ruijiew2@illinois.edu"
+            },
+            {
+                "first": "Fangwei",
+                "middle": [],
+                "last": "Gao",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Illinois",
+                    "location": {
+                        "postCode": "61801",
+                        "settlement": "Urbana-Champaign",
+                        "region": "IL",
+                        "country": "USA"
+                    }
+                },
+                "email": "fangwei2@illinois.edu"
+            },
+            {
+                "first": "Dachun",
+                "middle": [],
+                "last": "Sun",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Illinois",
+                    "location": {
+                        "postCode": "61801",
+                        "settlement": "Urbana-Champaign",
+                        "region": "IL",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Jiawei",
+                "middle": [],
+                "last": "Tang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Illinois",
+                    "location": {
+                        "postCode": "61801",
+                        "settlement": "Urbana-Champaign",
+                        "region": "IL",
+                        "country": "USA"
+                    }
+                },
+                "email": "jiaweit2@illinois.edu"
+            },
+            {
+                "first": "Tarek",
+                "middle": [],
+                "last": "Abdelzaher",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Illinois",
+                    "location": {
+                        "postCode": "61801",
+                        "settlement": "Urbana-Champaign",
+                        "region": "IL",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Current social distancing measures to impede COVID-19 (such as shelter-in-place) are economically unsustainable in the long term. Models are needed to understand the implications of possible relaxation options of these measures. We report such models, together with corresponding parameter estimation techniques and prediction outcomes, borrowing insights from another domain; namely, information cascades. Our models assume that containment of the virus into isolated locales is no longer possible. Instead, we explore options that reduce its rate of spread. We predict COVID-19 contagion trends in different geographic regions under a \"what if\" scenario to understand the effects of potential policy decisions on regional trends. Our model allows experimentation with other policies that, we hope, can contribute to socially viable outcomes both in terms of health system capacity and economic impact. We apply our model to over 30 highly impacted states in the US and publish the results at https://covid19predictions.csl.illinois.edu/ COVID-19 in USA | Epidemic Modeling | Domain Mixing | ...",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "A ccording to the International Monetary Fund (IMF), the COVID-19 pandemic could cost the world economy up to $9 Trillion USD, nearly the combined gross domestic product (GDP) of Japan and Germany, or roughly half that of the US. * Since the first official case was confirmed in Wuhan, China, over 2 million individuals have been infected at the time of writing, leading to over 150 thousand deaths. \u2020 Compared to such diseases as the 2003 SARS-CoV, the H1N1 influenza A, and the Ebola virus, COVID-19 shows strong infectiousness, with a reproductive number, R0 > 3, according to some studies (1) . In the absence of a specific treatment or vaccines, social distancing becomes the most effective strategy to protect from the virus (2, 3) . Prolonged social distancing has other side-effects, both socially and economically (4, 5) , leading to mounting pressure in the US to relax current policies. It is important to reach a finer-grained understanding of available crisis management options that minimize side-effects but do not overwhelm the health system.",
+            "cite_spans": [
+                {
+                    "start": 593,
+                    "end": 596,
+                    "text": "(1)",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 731,
+                    "end": 734,
+                    "text": "(2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 735,
+                    "end": 737,
+                    "text": "3)",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 823,
+                    "end": 826,
+                    "text": "(4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 827,
+                    "end": 829,
+                    "text": "5)",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We report a novel algorithm for modeling the impact of different social distancing policies on the future spread of COVID-19. The model is customizable to local populations using a simple latent parameter estimation technique that uses, for input, published contagion data and local statistics. The goal is to answer the question of \"return to normal\". When is it safe to do which steps towards restoration of some elements of normalcy without risking another wave of the pandemic? How to customize the answers to the special circumstances of different regional populations?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The work borrows insights from information cascade prop- * https://blogs.imf.org/2020/04/14/ \u2020 https://coronavirus.jhu.edu agation (6) . Information (similarly to viral contagion) propagates through broadcast channels. In the information space, a broadcast channel might be a Facebook wall, online subreddit, or virtual \"hangout\". These virtual spaces create opportunities for information transmission among individuals who frequent them. In the world of viral contagion, physical spaces, such as stores, offices, public transport, and family residences, serve the role of broadcast channels. We shall henceforth call them, social mixing domains. Social distancing policies manipulate the availability of some of these domains. Information cascade models predict what happens to propagation when the underlying broadcast channels are manipulated. Leveraging this analogy, we capture the effects of a wide playbook of social distancing options on contagion dynamics. The rest of the paper is organized as follows. Section 2 puts our model in the context of related work. Section 3 summarizes the main result and significance of the work. Section 4 elucidates the concept of mixing domains. Section 5 describes mixing domain parameter estimation, and presents the key analysis results and predictions. We conclude our paper in section 6.",
+            "cite_spans": [
+                {
+                    "start": 131,
+                    "end": 134,
+                    "text": "(6)",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The work is new in developing a mesoscopic epidemiological model in which the fundamental abstraction is neither the individual agent (node) nor an entire community, but rather an element in between: a single broadcast channel or mixing domain. These domains vary in prevalence from small units such as individual households (of which there are many) to very large units such as concerts, malls, and large gatherings. Often popularity or size distribution of human and social artifacts follows standard profiles, such as Zipf Law (7), resulting on the same striking statistical distribution regularity in fields as diverse as linguistics (8, 9) , urban populations (10, 11) , business income distributions (12) , and the Internet (13) . Recent executive orders in the US, in effect, manipulate the distribution of these domains by closing or reopening some of them. For example, closing all venues larger than a given threshold will effectively remove the tail of the size distribution. Our mesoscopic model, therefore allows us to link social distancing policy decisions to the distribution of remaining available mixing domains, which in turn allows estimating future viral spread. The work aims to inform decision-making on crisis mitigation policies.",
+            "cite_spans": [
+                {
+                    "start": 638,
+                    "end": 641,
+                    "text": "(8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 642,
+                    "end": 644,
+                    "text": "9)",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 665,
+                    "end": 669,
+                    "text": "(10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 670,
+                    "end": 673,
+                    "text": "11)",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 706,
+                    "end": 710,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 730,
+                    "end": 734,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "Mesoscopic models are a middle ground between two wellpopulated extremes in current literature; namely, agent-centric models and population-centric models (representing microscopic and macroscopic models, respectively). A recent survey D R A F T discusses these existing models and the corresponding cascade mitigation policies they allow (14) . On one hand, agent-centric models (15) (16) (17) (18) start with the behavior of individual agents, as well as their connectivity graphs. They enable reasoning about fine-grained mitigation strategies, such as inoculation of specific agents to reduce disease spread. Agent-based models can also be used for detailed simulations to understand the impact of a large variety of detailed interventions. While very powerful and versatile, they require inputs that are difficult to collect, such as the interaction graph of all agents in the system. This limitation often renders them less suitable in practice. On the other hand, population-centric models, such as SIR (19) , SEIR (20) , SIS (21) , and SQIS (22) , focus on the total population. They reason about statistics of entire communities, such as the total number of infected, susceptible, and recovered individuals. They can also model high-level mitigation strategies such as inoculation of a specified fraction of the entire community (i.e., their removal from the susceptible list). These models, however, do not offer a clear way of reasoning about impacts of finer grained decisions, such as closure of some fraction of businesses or meeting venues. Macroscopic methods for COVID-19 trend prediction (23) (24) (25) (26) (27) (28) (29) thus lack the ability to forecast effects of different policies.",
+            "cite_spans": [
+                {
+                    "start": 339,
+                    "end": 343,
+                    "text": "(14)",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 380,
+                    "end": 384,
+                    "text": "(15)",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 385,
+                    "end": 389,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 390,
+                    "end": 394,
+                    "text": "(17)",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 395,
+                    "end": 399,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1010,
+                    "end": 1014,
+                    "text": "(19)",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1022,
+                    "end": 1026,
+                    "text": "(20)",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1033,
+                    "end": 1037,
+                    "text": "(21)",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 1049,
+                    "end": 1053,
+                    "text": "(22)",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1606,
+                    "end": 1610,
+                    "text": "(23)",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 1611,
+                    "end": 1615,
+                    "text": "(24)",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1616,
+                    "end": 1620,
+                    "text": "(25)",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1621,
+                    "end": 1625,
+                    "text": "(26)",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 1626,
+                    "end": 1630,
+                    "text": "(27)",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 1631,
+                    "end": 1635,
+                    "text": "(28)",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 1636,
+                    "end": 1640,
+                    "text": "(29)",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "To enable a more detailed analysis of epidemics, researchers extended the population-centric models by dividing the whole population into several groups, to form a finer-grained basis for analysis (30) . Heterogeneous mixing approaches (31) (32) (33) (34) split individuals by their contact degrees. For a given degree, they use three differential equations to describe the evolution of three states. Age-structured epidemiological models (35) (36) (37) assume different properties of people in different age groups. The epidemics are then governed by several sets of differential equations and some mixing policies. Some extensions (38) consider the state of each individual and study the state evolution during the infection process.",
+            "cite_spans": [
+                {
+                    "start": 197,
+                    "end": 201,
+                    "text": "(30)",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 236,
+                    "end": 240,
+                    "text": "(31)",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 241,
+                    "end": 245,
+                    "text": "(32)",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 246,
+                    "end": 250,
+                    "text": "(33)",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 251,
+                    "end": 255,
+                    "text": "(34)",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 439,
+                    "end": 443,
+                    "text": "(35)",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 444,
+                    "end": 448,
+                    "text": "(36)",
+                    "ref_id": "BIBREF35"
+                },
+                {
+                    "start": 449,
+                    "end": 453,
+                    "text": "(37)",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 633,
+                    "end": 637,
+                    "text": "(38)",
+                    "ref_id": "BIBREF37"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "Unlike the above solutions that are based on partitioning of individuals or communities (by some demographic, geographic, of interaction-based pattern), we borrow inspiration from social media to focus on social mixing domains instead. Interactions need venues to facilitate them. The interaction patterns are thus a function of social mixing domains (i.e., the venues) that remain available. To the best of our knowledge, the advantage of our approach lies in its venue-centric model, as opposed to the more common community-centric or agent-centric models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "In summary, our mesoscopic model recognizes that both agent interaction and contagion rate are functions of available mixing domains. By deriving these functions, the model is equipped to reason about the impact of social distancing.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Work"
+        },
+        {
+            "text": "The main contribution of this work is the proof of the mixing theorem, stated below, and its application to investigate the impact of COVID-19 mitigation strategies.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Main Result"
+        },
+        {
+            "text": "The Mixing Theorem: Consider a geographic region where the total population is broken, for analysis purposes, into a set G of non-overlapping groups (e.g., employed and unemployed, or minors, adults, and seniors). Individuals split their time among n social mixing domains, such that individuals in group gj \u2208 G spend, on average, a fraction, \u03b7ij of their time in domain i (some fractions could be zero). Let \u03b1i be the average occupancy of domain i, normalized to population size. Let fij be the average fraction of occupancy of domain i who are from group gj, and let \u03c4ij be the probability that an infected person in domain i who encounters a member of group gj successfully infects them (i.e., transmissibility). This probability might vary across groups, for example, if some groups were more susceptible. Then, the equivalent overall transmissibility of the virus in the community is:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Main Result"
+        },
+        {
+            "text": "The above result is derived by analyzing the interactions between the susceptible and the infected individuals. It is valid for epidemiological models that include the susceptible and infected states, such as the SIS, SIR, and SEIR models. In the following, we derive the result in the context of SIR. The reader may convince themselves that the same theorem holds in other models, such as SIS, and SEIR. Below, for simplicity, let us consider an SIR model given by:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Main Result"
+        },
+        {
+            "text": "where S(t), I(t), R(t), \u03b3 and N are the susceptible, infected, recovered/removed, the recovery rate and the total population, respectively. Table 1 defines the used terminology. We also demonstrate the application of this result, as well as several simplified forms thereof (corollaries) that offer easier-to-compute approximate answers.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 140,
+                    "end": 147,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "The Main Result"
+        },
+        {
+            "text": "The result allows predicting the impact (on COVID-19 propagation in different communities) resulting from specified changes in social distancing policies that manipulate the availability of specific mixing domains, such as closure/resumption of business for some part of the workforce, changes in business opening hours, closure/resumption of schools, or cancellation of events above a specified size. The produced estimates allow making more informed policy choices as pressure mounts to relax some of the current distancing restrictions, while no treatment or vaccine are available.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Significance:"
+        },
+        {
+            "text": "The standard susceptible-infected-recovered (SIR) model is an epidemiological model that computes the theoretical number of those infected as a function of time. We begin by extending this model due to its simplicity. In the basic model, three differential equations relate the number of susceptible individuals, S(t), the number of infected individuals, I(t), and number of recovered individuals, R(t): ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Prediction Model"
+        },
+        {
+            "text": "In this model, the total population is N = S(t)+I(t)+R(t), and \u03b2 is the effective rate of spread. Recovery rate, \u03b3, is the rate at which infected individuals recover.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "Domains. Now assume that a closed region consists of n mixing domains, as shown in Fig. 1 (e.g., individual residences, stores, transport vehicles, offices, clubs, etc). An individual divides their time among several domains (e.g., home, office, and other outlets). We call individuals who visit domain, Di, members of Di. Let Ni = |Di| be the average occupancy of Di at a given time. Let \u03b7i be the average time a member spends in domain Di.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 83,
+                    "end": 89,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "A. A Theoretical Model of Mixing"
+        },
+        {
+            "text": "Let us further denote the rate of transmission from one infected individual (to susceptible individuals) per unit time (say one day) in domain Di by \u03b2i, naturally 0 < \u03b2i < 1. Let the expected number of susceptible and infected individuals in the i-th domain, at time t, be denoted by Si(t) and Ii(t), respectively. Furthermore, let us define \u03b6i(t) = Si(t)/S(t) and \u03bai(t) = Ii(t)/I(t). The fractions, \u03b6i(t) and \u03bai(t) are, respectively, the expected fraction of all those susceptible and the expected fraction of all those infected, who are members of mixing domain Di. The new domain-specific SIR differential equations can now be written as: ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. A Theoretical Model of Mixing"
+        },
+        {
+            "text": "people in a conference than in a small party). Thus, ci grows proportionally to Ni, whereas \u03c4i (which can be redefined to absorb the proportionality constant) is generally higher for smaller domains, since people tend to have closer (and/or longer) encounters in smaller groups. Thus, we can rewrite \u03b2i as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "where \u03c4i is transmissibility (per encounter with another individual) within a domain, which tends to be higher (due to closer and longer encounters) for smaller domains. Substituting in Equations (4), (5) , and (6), we thus get:",
+            "cite_spans": [
+                {
+                    "start": 201,
+                    "end": 204,
+                    "text": "(5)",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "Adding up over all domains, we get:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "Perfect Mixing Approximation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "Let us briefly discuss the implications of the above equations. In a system, where everyone is restricted to small domains that are perfectly quarantined (for example, restricted to their family residences under strict quarantine), the ratio of infected in the quarantine zone, \u03bai = Ii(t)/I(t), will be disproportionately higher than what domain size might predict this ratio to be (i.e., Ii(t)/I(t) > Ni/N ). Similarly, the same ratio outside the quarantine zone will be lower. In our analysis, however, we assume that strict quarantine is no longer socially viable. Instead, individuals from different domains will mix (in other domains). For example, individuals from different households might mix in the same grocery store or office and individuals from different offices might mix at the same bus stop. (Of course, the opportunities for mixing are constrained by available mixing domains.) We assume that mixing fails to localize infections in any subset of domains, and instead spreads the infection as broadly as possible. The above mixing assumption leads to an important worst-case approximation. Namely, if mixing is perfect, the expected number of susceptible (infected) individuals in a domain is roughly proportional to the size of the domain. More specifically: [14] Ii(t) \u2248 Ni N I(t) [15] We consider this a worst-case approximation because the resulting analysis tends to maximize estimates of total spread. If mixing is imperfect, then virus spread will slow down sooner in more heavily impacted domains (due to scarcity of remaining susceptible individuals), while it will also proceed at a slower rate in other domains (due to scarcity of infected individuals). The worst-case assumption is helpful from the perspective of erring on the safe side. Let us define \u03b1i to be the fraction \u03b1i = Ni/N . From the above, we get: [16] Substituting from Equation (16) into Equations (11), (12) , and (13), we get: [19] where:",
+            "cite_spans": [
+                {
+                    "start": 1277,
+                    "end": 1281,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1300,
+                    "end": 1304,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1840,
+                    "end": 1844,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1898,
+                    "end": 1902,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1923,
+                    "end": 1927,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "Observe that the above equations have the same form as the basic SIR model. Thus, \u03c4eq can be interpreted as the equivalent transmissibility of the virus by considering all mixing domains. The above equations, in fact, are a proper generalization of an SIR model to the case of multiple mixing domains.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "Note that, Equation (20) has the interesting property that infection transmissibility, \u03c4eq, depends on the overall distribution of quantities \u03c4i, \u03b7i, and \u03b1i, across the mixing domains. By manipulating some of the domains (e.g., closing them), one can thus reduce the equivalent transmissibility, \u03c4eq, of the disease. For example, reducing the fraction of time, \u03b7i, that is spent in domains with a higher \u03c4i\u03b1 2 i (i.e., bigger domains, where \u03b1i is high) can lead to a reduction in \u03c4eq. Intuitively, this is the motivation for social distancing policies that prevent large meetings, close non-essential businesses, move towards remote instruction, and implement curb-side pickup (e.g., instead of dine-in) alternatives. Now let us break the local population into a set G of nonoverlapping groups. Let \u03b7ij denote the average amount of time that individuals in group gj \u2208 G spend in domain i (some fractions could be zero). Also, let fij be the average fraction of occupancy of domain i who are from group gj, and let \u03c4ij be the probability that an infected person in domain i who encounters a member of group gj successfully infects them (i.e., transmissibility). One can thus approximately rewrite the product \u03c4i\u03b7i as a weighted sum of per-group products: \u03c4i\u03b7i = j\u2208G (\u03c4ij\u03b7ij)fij [21] Substituting from Equation (21) [22] In general, announced social distancing measures might not come into effect immediately. In the model, we may consider an exponential function f (t) by which \u03c4eq changes to \u03c4 eq . Thus, when a new policy is announced, starting at time t0, we can rewrite: [24] dR(t) dt = \u03b3 \u00b7 I(t), [25] where:",
+            "cite_spans": [
+                {
+                    "start": 20,
+                    "end": 24,
+                    "text": "(20)",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1277,
+                    "end": 1281,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 1314,
+                    "end": 1318,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 1574,
+                    "end": 1578,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1600,
+                    "end": 1604,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "In our model, the parameters \u03c4eq and \u03b3 can be estimated from past time-series data of the contagion cascade (say, before a mitigation policy is implemented). After the first change in policy, parameter c1 can generally be assumed, as it is the inverse of the convergence time-constant. The fraction \u03c4 eq \u03c4eq is then computed from Equations (20) and (22) , by accounting for the implemented policy. To do so, it is useful to remember that \u03b7i and \u03b7 i represent the average fraction of time an individual spends in domain Di, before and after a mitigation policy is implemented.",
+            "cite_spans": [
+                {
+                    "start": 340,
+                    "end": 344,
+                    "text": "(20)",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 349,
+                    "end": 353,
+                    "text": "(22)",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "D R A F T"
+        },
+        {
+            "text": "The experiments are conducted basically on the COVID-19 data in terms of Illinois, by considering from a fine-granularity, our model outperforms regular SIR model. We also analyze more than 30 highly impacted states (in terms of COVID-19 pandemic) in the US and obtain similar results. While the data shown in the experiment is from the end of March, 2020, and beginning of April 2020, readers could refer to our public website \u2021 for up-to-date predictions for more states.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "The goal of the experiments is to demonstrate accuracy of prediction, especially in \"what if\" scenarios. Since we cannot perform empirical validation of counter-factual scenarios, we instead focus on predicting the contagion trend that follows a policy change using data measured before that change only. In essence, the prediction answers the question: what if policy was changed (to the policy that was subsequently implemented)? The prediction is shown to match the actual impact of the policy after implementation. \u2021 https://covid19predictions.csl.illinois.edu/ A. Background.. The government of Illinois announced the \"social distancing\" measures on March 21st, 2020, which limits certain social interactions and urges self-quarantine. The policy changes people's mobility and the landscape of COVID-19 spread. We refer to Google Mobility Report \u00a7 , US Bureau of Labor Statistics \u00b6 and US Census Bureau \u2016 , for the total population, total labor force, and mobility trends of Retail & Recreation, Grocery & Pharmacy, Parks, Transit stations, Workplaces and Residential in Illinois. We also assume that only the employed people will be exposed in workplace domain, and every citizen in Illinois will be exposed to other five domains. Overall, the computed fraction before and after the policy is \u03c4 eq /\u03c4eq = 0.7829.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "B. Experimental Setup.. We apply our model on the cumulative confirmed cases in Illinois starting from the date when the confirmed cases are larger than 10, which is March 10th, 2020. In the experiment, regular SIR and our broadcast SIR are compared for two scenarios. The first evaluation emphasizes the \"what-if\" condition. We try to present how well our model could predict after social distancing measures. Both models are trained before March 21st (the policy announcement) and predict for the next two weeks afterwards. Secondly, we compare the prediction accuracy using one-week data as test (April 07th -April 13rd) and the rest of the history (March 10th -April 06th) as training. For our model, we provide pessimistic Prediction, where \u03c4 eq /\u03c4eq = 0.7829, as computed above, and optimistic Prediction, where we assume closure of all non-necessary businesses and transportation (i.e., the occupancy for retail & recreation, parks, and transit stations are set to 0, grocery & pharmacy is cut by half). In the latter case, \u03c4 eq /\u03c4eq = 0.5668. An average prediction is taken as their average.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "C. Experiment 1: The initial response to social distancing..",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Experiments"
+        },
+        {
+            "text": "We attempt the important \"what-if\" analysis and ask: What If the Social Distancing Measures Take Effect Tomorrow? In this experiment, we fit the time series right before the announcement of social distancing and predit for the consecutive two weeks in Figure 2 . The training data consists of a 12-day time series, and social distancing happens on March 21st. Each curve fits the ground truth data well during the training period. Since regular SIR model is agnostic to the policy, it (blue curve) increases exponentially and shows the consequences without social distancing. By considering the policy and utilizing external sources, we quantify the change of infectious broadcast domains and generate the pessimistic/optimistic ratio, 0.7829 and 0.5668, respectively. With these two ratios and the mitigation function (in Section B), our domain-specific SIR (pink curve) provides a more realistic and relatively accurate prediction.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 252,
+                    "end": 260,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Experiments"
+        },
+        {
+            "text": "Week.. Figure 3 shows the prediction for the second week of April. All the models are trained on a 28-day time series. The regular SIR model does not fit the data well (even in the training). The reason is that the real world changed (because government policies reshaped the landscape of the mixing domains). These changes reshaped the curvature and trends in the real projection. Our model \u00a7 https://www.google.com/covid19/mobility/ \u00b6 https://www.bls.gov/news.release/metro.t01.htm \u2016 https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html captures the changes and provides a well-tailored prediction for this situation. To quantify the precision, we also report the absolute percentage error (APE) in Table 2 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 7,
+                    "end": 15,
+                    "text": "Figure 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 732,
+                    "end": 739,
+                    "text": "Table 2",
+                    "ref_id": "TABREF2"
+                }
+            ],
+            "section": "D. Experiment 2: Prediction of a later"
+        },
+        {
+            "text": "The paper introduced a mesoscopic model of contagion spread based on mixing domains. The model breaks down the venues, where people meet, and relates virus transmissibility to the availability of these venues, manipulated by social distancing policies. Since individuals in this model move from venue to venue, they create mixing across them. To err on the safe side, we assumed that mixing (among domains that remain open) is perfect. The results show that the resulting simplified model is nevertheless capable of accurately predicting changes in the contagion time series.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "The reproductive number of covid-19 is higher compared to sars coronavirus",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Gayle",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Wilder-Smith",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rockl\u00f6v",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J. travel medicine",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Covid-19 health care demand and mortality in sweden in response to nonpharmaceutical (npis) mitigation and suppression scenarios",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rocklov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "medRxiv",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Public health interventions and epidemic intensity during the 1918 influenza pandemic",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rj Hatchett",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Mecher",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Lipsitch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Proc. Natl. Acad. Sci",
+            "volume": "104",
+            "issn": "",
+            "pages": "7582--7587",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "The psychological impact of quarantine and how to reduce it: rapid review of the evidence",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Sk Brooks",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet",
+            "volume": "395",
+            "issn": "",
+            "pages": "912--920",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "What will be the economic impact of covid-19 in the us? rough estimates of disease scenarios",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Atkeson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Multiscale online media simulation with socialcube",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Abdelzaher",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Comput. Math. Organ. Theory",
+            "volume": "",
+            "issn": "",
+            "pages": "1--30",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Zipf's law everywhere",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Glottometrics",
+            "volume": "5",
+            "issn": "",
+            "pages": "14--21",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Applications and explanations of zipf's law in New methods in language processing and computational natural language learning",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Dm Powers",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "True reason for zipf's law in language",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Dahui",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Menghui",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Zengru",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Phys. A: Stat. Mech. its Appl",
+            "volume": "358",
+            "issn": "",
+            "pages": "545--550",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Zipf's law for cities: a cross-country investigation. Reg. science urban Econ",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kt",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Soo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "",
+            "volume": "35",
+            "issn": "",
+            "pages": "239--263",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Zipf law for brazilian cities",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Nj Moura",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Ribeiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Phys. A: Stat. Mech. its Appl",
+            "volume": "367",
+            "issn": "",
+            "pages": "441--448",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Zipf's law in income distribution of companies",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Okuyama",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Takayasu",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Takayasu",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Phys. A: Stat. Mech. its Appl",
+            "volume": "269",
+            "issn": "",
+            "pages": "125--131",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Zipf's law and the internet",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "La Adamic",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Huberman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Glottometrics",
+            "volume": "3",
+            "issn": "",
+            "pages": "143--150",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Analysis and control of epidemics: A survey of spreading processes on complex networks",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Nowzari",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vm Preciado",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pappas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "IEEE Control. Syst. Mag",
+            "volume": "36",
+            "issn": "",
+            "pages": "26--46",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Maximizing the spread of influence through a",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Kempe",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kleinberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Tardos",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Proceedings of the Ninth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD '03",
+            "volume": "",
+            "issn": "",
+            "pages": "137--146",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Epidemic spreading in real networks: an eigenvalue viewpoint in",
+            "authors": [
+                {
+                    "first": "Yang",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Chenxi",
+                    "middle": [],
+                    "last": "Chakrabarti",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Faloutsos",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "22nd International Symposium on Reliable Distributed Systems, 2003. Proceedings",
+            "volume": "",
+            "issn": "",
+            "pages": "25--34",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Epidemic dynamics and endemic states in complex networks",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Phys. Rev. E",
+            "volume": "63",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Modeling disease outbreaks in realistic urban social networks",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "S Eubank",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Nature",
+            "volume": "429",
+            "issn": "",
+            "pages": "180--184",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "The mathematics of infectious diseases",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Hw Hethcote",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "SIAM Rev",
+            "volume": "42",
+            "issn": "",
+            "pages": "599--653",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "The stage-structured epidemic: Linking disease and demography with a multi-state matrix approach model",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Klepac",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Caswell",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Theor. Ecol",
+            "volume": "4",
+            "issn": "",
+            "pages": "301--319",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Spreading disease with transport-related infection",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Cui",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Takeuchi",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Saito",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J. theoretical biology",
+            "volume": "239",
+            "issn": "",
+            "pages": "376--390",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Spread of disease with transport-related infection and entry screening",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Takeuchi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J. theoretical biology",
+            "volume": "242",
+            "issn": "2",
+            "pages": "517--545",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "An seir infectious disease model with testing and conditional quarantine",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Dw",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Berger",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Herkenhoff",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Mongey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Early dynamics of transmission and control of covid-19: a mathematical modelling study",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Aj Kucharski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet Infect. Dis",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "A time-dependent sir model for covid-19",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Y Chun Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Chang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Data-based analysis, modelling and forecasting of the covid-19 outbreak",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Anastassopoulou",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Russo",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tsakris",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Siettos",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "medRxiv",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Analysis of the covid-19 pandemic by sir model and machine learning technics for forecasting",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bm Ndiaye",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Tendeng",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Seck",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2004.01574"
+                ]
+            }
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Preliminary prediction of the basic reproduction number of the wuhan novel coronavirus 2019-ncov",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J. Evidence-Based Medicine",
+            "volume": "13",
+            "issn": "",
+            "pages": "3--7",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Statistics based predictions of coronavirus 2019-ncov spreading in mainland china",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Nesteruk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "medRxiv",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Epidemic processes in complex networks",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castellano",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Van Mieghem",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Rev. Mod. Phys",
+            "volume": "87",
+            "issn": "",
+            "pages": "925--979",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Dynamical patterns of epidemic outbreaks in complex heterogeneous networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Barthelemy",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Barrat",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "J. theoretical biology",
+            "volume": "235",
+            "issn": "",
+            "pages": "275--88",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Epidemic spreading on heterogeneous networks with identical infectivity",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Phys. Lett. A",
+            "volume": "364",
+            "issn": "",
+            "pages": "189--193",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Epidemic outbreaks in complex heterogeneous networks",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Moreno",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Phys. Condens. Matter",
+            "volume": "26",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Epidemic Spreading in Complex Networks with Degree Correlations",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bogu\u00e1",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pastor-Satorras",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "127--147",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Age-structured impact of social distancing on the covid-19 epidemic in india",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Singh",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Adhikari",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.12055"
+                ]
+            }
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "The effect of control strategies that reduce social mixing on outcomes of the covid-19 epidemic in wuhan",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Prem",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Application of an age-structured deterministic endemic model for disease control in nigeria",
+            "authors": [],
+            "year": 2020,
+            "venue": "medRxiv",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "An individual-based approach to sir epidemics in contact networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Youssef",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Scoglio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "J. theoretical biology",
+            "volume": "283",
+            "issn": "",
+            "pages": "136--180",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Total number of susceptible individuals at time t. I(t) Total number of infected individuals at time t. R(t) Total number of recovered individuals at time t. Di The ith Mixing domain. Ni Number of members in domain Di \u03b2i Per person rate of spread (over all encounters) in domain Di, per unit time \u03c4i Transmissibility per encounter in domain Di, per unit time \u03b7i The average time a member spends in domain Di. Si(t) Expected number of susceptible individuals in domain Di at time t. Ii(t) Expected number of infected individuals in domain Di at time t. \u03b6i(t) The ratio Si(t)/S(t). \u03bai(t) The ratio Ii(t)/I(t). \u03b1i The ratio Ni/N . From the basic derivation of an SIR model, the above equations roughly assume that each infected individual in Di makes, say, ci encounters in the domain per unit time, of which, therefore, ciSi(t)/Ni are in susceptible population (Si(t)/Ni is the probability of the susceptible in Di) . If the probability of transmission per encounter is \u03c4i, then each infected individual passes the virus to \u03c4iciSi(t)/Ni others, leading to the above questions, where \u03b2i = \u03c4ici. In our analysis, we assume that the number of other encountered individuals in a domain grows with the size of the domain (e.g., one passes more",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "fij \u03c4ij \u03b7ij \u03b1 2 i This equation is the statement of the mixing theorem D R A F T B. The Mitigation Policy. Consider some mitigation policy, P, that affects the availability of different mixing domains. Let \u03b7 i and \u03b1 i be the fractional amount of time and fractional membership of the domain after the policy is implemented. Thus:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Comparison of Two Week Prediction after Social Distancing (Illinois)",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Fig. 1. A \"Mixing Domain\" View of Offline Social Interaction",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Terminology UsedTotal community size.Total number of mixing domains.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "APE of Past-week Prediction (%)",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

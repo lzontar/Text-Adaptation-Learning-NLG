@@ -1,0 +1,1460 @@
+{
+    "paper_id": "1ccd924dbf169e600355923da3de6e6a8ac217c1",
+    "metadata": {
+        "title": "Towards Real Time Epidemiology: Data Assimilation, Modeling and Anomaly Detection of Health Surveillance Data Streams",
+        "authors": [
+            {
+                "first": "M",
+                "middle": [
+                    "A"
+                ],
+                "last": "Lu\u00eds",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "",
+                "middle": [],
+                "last": "Bettencourt",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Los Alamos National Laboratory",
+                    "location": {
+                        "postCode": "B284, 87545",
+                        "settlement": "Los Alamos",
+                        "region": "MS, NM",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Ruy",
+                "middle": [
+                    "M"
+                ],
+                "last": "Ribeiro",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Los Alamos National Laboratory",
+                    "location": {
+                        "postCode": "B284, 87545",
+                        "settlement": "Los Alamos",
+                        "region": "MS, NM",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Gerardo",
+                "middle": [],
+                "last": "Chowell",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Los Alamos National Laboratory",
+                    "location": {
+                        "postCode": "B284, 87545",
+                        "settlement": "Los Alamos",
+                        "region": "MS, NM",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Timothy",
+                "middle": [],
+                "last": "Lant",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Arizona State University",
+                    "location": {
+                        "postBox": "PO Box 878409",
+                        "postCode": "85287-8409",
+                        "settlement": "Tempe",
+                        "region": "AZ",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Carlos",
+                "middle": [],
+                "last": "Castillo-Chavez",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Arizona State University",
+                    "location": {
+                        "postBox": "PO Box 871804",
+                        "postCode": "85287-1804",
+                        "settlement": "Tempe",
+                        "region": "AZ",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "An integrated quantitative approach to data assimilation, prediction and anomaly detection over real-time public health surveillance data streams is introduced. The importance of creating dynamical probabilistic models of disease dynamics capable of predicting future new cases from past and present disease incidence data is emphasized. Methods for real-time data assimilation, which rely on probabilistic formulations and on Bayes' theorem to translate between probability densities for new cases and for model parameters are developed. This formulation creates future outlook with quantified uncertainty, and leads to natural anomaly detection schemes that quantify and detect disease evolution or population structure changes. Finally, the implementation of these methods and accompanying intervention tools in real time public health situations is realized through their embedding in state of the art information technology and interactive visualization environments.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Surveillance systems collect, analyze and report data continuously. Recent progress in information science and technology is increasingly enabling the collection of public health data worldwide in near real-time. In the United States, partly motivated by bio-security concerns, real-time bio-surveillance systems, that follow direct and indirect indicators of (epidemic) public health outbreaks have been developed nationwide, at the city level e.g. for New York City or Los Angeles, and at the state level such as in Michigan, Utah or Ohio. The monitoring of indirect data streams, pertaining e.g. to work or school absenteeism, emergency room and physician office calls, sales of certain over-the-counter medicines, known as syndromic surveillance [1, 2, 3, 4] is also underway.",
+            "cite_spans": [
+                {
+                    "start": 750,
+                    "end": 753,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 754,
+                    "end": 756,
+                    "text": "2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 757,
+                    "end": 759,
+                    "text": "3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 760,
+                    "end": 762,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction and Motivation"
+        },
+        {
+            "text": "The use of a large number of real time data streams to infer the status and dynamics of the public health of a population presents enormous opportunities as well as significant scientific and technological challenges. A recent committee report from the Institute of Medicine of the National Academies concluded: \"... that steps [must] be taken now to adapt or develop decision-aid models that can be readily linked to surveillance data to provide real-time feedback during an epidemic\" [17] . Among the \"Grand Challenges in Global Health\" (http://www.gcgh.org/), articulated by a consortium of international organizations such as the Bill and Melinda Gates Foundation, The Wellcome Trust and the Canadian Institutes of Health Research, one finds the development of \"... technologies that permit quantitative assessment of population health status\". Naturally, the early identification and detection of emerging pathogens, pandemics or bioterrorist attacks call for the development and deployment of real-time syndromic surveillance systems.",
+            "cite_spans": [
+                {
+                    "start": 328,
+                    "end": 334,
+                    "text": "[must]",
+                    "ref_id": null
+                },
+                {
+                    "start": 486,
+                    "end": 490,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction and Motivation"
+        },
+        {
+            "text": "Real time public health surveillance has as its primary mission pre-emptying the successful invasion or establishment of emerging infectious diseases. Its goals include the prevention or mitigation of epidemic growth, if possible by setting quantitative targets for intervention as events unfold and by providing a running time expectation for logistic allocations, including medicines, hospital beds and vaccines, if available. The success of real time public health surveillance depends on our ability to develop not only effective detection systems but also ways of evaluating the uncertainties associated with outbreaks, methods and models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction and Motivation"
+        },
+        {
+            "text": "To a great degree, the reliability of a surveillance system hinges on its ability to make the extrapolations needed to predict the likely course of a public health emergency given the incoming streaming information. Hence, the need to develop statistical models of data assimilation that effectively estimate the changing parameters that characterize models of disease dynamics. In this paper a general procedure for data assimilation from real time data streams that feeds into epidemic models of communicable disease spread is developed. This procedure allows i) the estimation of probability densities for epidemiological parameters (such as disease transmissibility) and ii) the prediction of future observables with a quantified degree of confidence. This dynamical estimation/extrapolation environment lends itself naturally to a statistical anomaly detection scheme capable of identifying shifts in the public health status of a population, either via pathogen evolution, or as the result of changes in the population structure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction and Motivation"
+        },
+        {
+            "text": "Real time estimation of epidemiological parameters is conditioned by the types of data available as well as the target quantities for estimation ( Figure 1 ). It is essential to produce running time statistics that incorporate past and present measurements as well as ways to assimilate these data to generate probabilistic predictions of new cases with quantified uncertainty because often the objective of real time surveillance is to detect change. This approach also allows the use of statistical estimation to partially bypass issues of non-stationarity in the data, which typically hinder purely statistical (stationary) approaches to syndromic surveillance. Technically, this can be achieved by adopting a probabilistic approach to the prediction of new cases (or their proxy variables) at a given time t, \u0394C(t), given past incidence time series and a model for the disease dynamics written in terms of a set of parameters \u0393 . The set \u0393 includes familiar parameters such as measures of transmissibility (e.g. the reproduction number R) and the duration of the infectious and incubation periods.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 147,
+                    "end": 155,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "Here we focus on the estimation of a key quantity in epidemiology known as the reproduction number or ratio which quantifies the transmissibility of infectious diseases under identifiable initial conditions. In the context of novel infectious pathogens (e.g., the 1918-19 influenza pandemic, or the 2002-03 SARS epidemic) to which most of the population is completely susceptible, the basic reproduction number (denoted by R 0 ) quantifies the number of secondary cases generated by a primary case during its period of infectiousness within a purely susceptible population. In more practical situations, the population's actual susceptibility is affected by recurrent exposures to the infectious agent (e.g., dengue fever, influenza), vaccination campaigns (e.g., influenza, measles, mumps) and by \"depletion\" of susceptibles during the course of an outbreak. Then, the reproduction number denoted by R accounts for the residual immunity in the population. The relationship between R 0 and R may be modeled by R = (1 \u2212 p)R 0 where p denotes the proportion of the population that is effectively protected to infection, assuming a well-mixed population [5, 7, 18, 19, 20] . In the advent of an epidemic, the timely estimation of the reproduction number with the minimal amount of available data crucial as it would allow public health authorities to determine the types and intensity of interventions necessary to achieve fast epidemic control. The level of critical vaccination coverage needed to diminish or eliminate various infectious diseases have also been determined from the magnitude of the estimated reproduction number [5, 7, 18, 19, 20] .",
+            "cite_spans": [
+                {
+                    "start": 1151,
+                    "end": 1154,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1155,
+                    "end": 1157,
+                    "text": "7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1158,
+                    "end": 1161,
+                    "text": "18,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1162,
+                    "end": 1165,
+                    "text": "19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1166,
+                    "end": 1169,
+                    "text": "20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 1628,
+                    "end": 1631,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1632,
+                    "end": 1634,
+                    "text": "7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1635,
+                    "end": 1638,
+                    "text": "18,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 1639,
+                    "end": 1642,
+                    "text": "19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1643,
+                    "end": 1646,
+                    "text": "20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "A number of approaches have been used to estimate the reproduction number of infectious diseases including trajectory matching via least square fitting of epidemic models to time series epidemic data (e.g., [9, 10, 11] ), methods that rely on the final epidemic size relation with the reproduction number (e.g., [13, 15, 6] ), methods that make use of serological survey data (e.g., [14, 12] ), and recent probabilistic approaches that estimate the effective reproduction number over time (e.g., [8, 21, 22, 23, 24, 16] ).",
+            "cite_spans": [
+                {
+                    "start": 207,
+                    "end": 210,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 211,
+                    "end": 214,
+                    "text": "10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 215,
+                    "end": 218,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 312,
+                    "end": 316,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 317,
+                    "end": 320,
+                    "text": "15,",
+                    "ref_id": null
+                },
+                {
+                    "start": 321,
+                    "end": 323,
+                    "text": "6]",
+                    "ref_id": null
+                },
+                {
+                    "start": 383,
+                    "end": 387,
+                    "text": "[14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 388,
+                    "end": 391,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 496,
+                    "end": 499,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 500,
+                    "end": 503,
+                    "text": "21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 504,
+                    "end": 507,
+                    "text": "22,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 508,
+                    "end": 511,
+                    "text": "23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 512,
+                    "end": 515,
+                    "text": "24,",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 516,
+                    "end": 519,
+                    "text": "16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "The dynamical probabilistic approach described here [8, 21, 22, 23, 24, 16] allows for the estimation of parameter density distributions via Bayes' theorem. Furthermore, as byproducts, the method leads to the automatic uncertainty quantification of predictions and a scheme for anomaly detection. The probabilistic prediction for new cases (\u0394C(t)) is written in terms of the probability distribution of given previous incidences (\u0394C(t \u2212 \u03c4 )) and dynamical parameters, which we denote by",
+            "cite_spans": [
+                {
+                    "start": 52,
+                    "end": 55,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 56,
+                    "end": 59,
+                    "text": "21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 60,
+                    "end": 63,
+                    "text": "22,",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 64,
+                    "end": 67,
+                    "text": "23,",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 68,
+                    "end": 71,
+                    "text": "24,",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 72,
+                    "end": 75,
+                    "text": "16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "This distribution encapsulates the dynamical prescriptions from different dynamical models of (epidemiological) disease dynamics. Below we show how this formulation can be specified in practice for different models, how it implies the full distribution for epidemiological parameters \u0393 , and how it leads naturally to predictions with quantified uncertainty and to anomaly detection schemes. Given probabilistic information on past cases and/or parameters, the probability for new cases is given as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "If parameters or previous cases are known exactly, then the distributions under the integral on the right become \u03b4-functions, enforcing specific (observed) values. This identity gives rise to practical schemes for parameter estimation and new case prediction, as we illustrate below. The probabilistic prescription of new cases (1) implies in turn the distribution of model parameters \u0393 . The key to parameter estimation, given a probabilistic disease dynamics model, is the well known Bayes' theorem",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "where the denominator is a normalization factor.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "Thus observation of time series for epidemiological quantities \u0394C at consecutive times is equivalent to knowledge of the probability distribution for epidemiological parameters. The latter is given, in analogy to (2) as",
+            "cite_spans": [
+                {
+                    "start": 213,
+                    "end": 216,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "(4) This expression also allows for the inclusion of uncertainties in case counts, which may result e.g. from underreporting or other sampling biases.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data Assimilation and Probabilistic Prediction"
+        },
+        {
+            "text": "In this section, it is shown how standard \"mean-field\" compartment models of communicable diseases prescribe P [\u0394C(t)|\u0394C(t \u2212 \u03c4 ), \u0393 ]. Alternative models have been proposed to achieve the same goal, including the probabilistic reconstruction of putative chains of transmission [8, 22] , and stochastic ensemble methods [25] . The approach that we follow here has however the distinct advantage of simplicity. Furthermore, its implementation requires only a very modest computational effort. Other methods present certain advantages, however, such as the estimation of probable chains of transmission [8, 21, 22] . Mathematical models predicting the time evolution of the average number of infectious cases, deaths, etc. at a given time are among the most useful and most commonly used descriptions of contagion processes. Classical epidemiological models such as SIR (Susceptible-Infectious-Removed) or SEIR (Susceptible-Exposed-Infectious-Removed) are of this form. Each class or compartment counts the mean number of individuals in a specific epidemiological state and may refer additionally to a geographic location, age or risk group.",
+            "cite_spans": [
+                {
+                    "start": 277,
+                    "end": 280,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 281,
+                    "end": 284,
+                    "text": "22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 319,
+                    "end": 323,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 600,
+                    "end": 603,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 604,
+                    "end": 607,
+                    "text": "21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 608,
+                    "end": 611,
+                    "text": "22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "We have shown elsewhere [23] that in the absence of sources these models imply a relation between new case (or death) numbers at consecutive times, of the form",
+            "cite_spans": [
+                {
+                    "start": 24,
+                    "end": 28,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "where the ... denotes expectation and b(\u0393 ) = exp [\u03c4\u03bb(\u0393 )] . For example in the case of the SIR and SEIR models we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "which are the leading positive eigenvalues characterizing the evolution of case numbers. Here \u03ba \u22121 is the latency period, \u03b3 \u22121 is the duration of the infectious period, and R is the effective reproduction number, which is defined as the mean number of infected cases caused by an infectious individual. Other models will result in a different form of \u03bb.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "These average relations for future new cases can now be used to define a probabilistic model for new cases as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "where \u0394C(t + \u03c4 ) is taken as a stochastic variable distributed according to the distribution P [ A ], with average A . Note that the \"mean field\" models do not prescribe \u0394C(t + \u03c4 ), only its average. Knowledge of higher correlations, such as the variance in case numbers, can help constrain the form of P among a class of discrete (for cases, deaths) probability density distribution functions. In the absence of additional information a Poisson distribution is the highest entropy (i.e. most general) form. Another common choice is a Negative Binomial, which allows for clumping effects, but requires the specification of a quantity related to the variance of \u0394C(t + \u03c4 ). Depending on knowledge of details of the contagion process, correlations among observables and availability of data different model choices in this class may be appropriate, although an SIR or SEIR forms are often adequate.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "There are many circumstances when disease cases, or their proxy variables, do not change purely under contagion dynamics. These additional effects may result from multiple introductions, e.g. from an animal reservoir, as well as from unexpected patterns of human behavior. Introductions create cases in addition to those due to contagion, and may start epidemics if initially R > 1. To include these effects, we have developed models [23] that account for infections from a reservoir, in addition to the usual transmission from infectious individuals to others. This results in the modification of (5), due to additive terms,",
+            "cite_spans": [
+                {
+                    "start": 434,
+                    "end": 438,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "where",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "Here \u0394B(t) are the new cases due to introductions from the reservoir at time t, and f c is the probability that such cases are transmissible between humans.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "This expression shows that inference of disease transmissibility between humans requires statistical knowledge on the number of introductions. This can Fig. 2 . Predicted effective reproduction number for H5N1 influenza in humans in Vietnam. This is an example of the application of the method described in the text, for details see [23] .",
+            "cite_spans": [
+                {
+                    "start": 333,
+                    "end": 337,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 152,
+                    "end": 158,
+                    "text": "Fig. 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "usually be inferred from qualitative information and/or can be parameterized to create scenarios, under varying proportions of observable cases being attributable to contagion vs. introductions. We have recently performed such analysis to place bounds on the current transmissibility of H5N1 avian influenza, from data of the outbreaks in Southeast Asia (e.g. see Figure 2 ) [23] .",
+            "cite_spans": [
+                {
+                    "start": 375,
+                    "end": 379,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 364,
+                    "end": 372,
+                    "text": "Figure 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Probabilistic Disease Models and Real Time Estimation of Epidemiological Parameters"
+        },
+        {
+            "text": "Anomaly detection is not a simple business because often alternative evolutionary changes may lead to similar outcomes. For example, in the case of communicable diseases these may lead to changes in susceptibility or infectiousness and both \"anomalies\" often result in comparable outcomes at the population level. Nevertheless, it is desirable to determine when the statistical predictions of epidemiological models fail to describe future data automatically. Inability to predict correctly may signal disease evolution (potentially increasing or decreasing transmissibility or lethality ), or changes in the population structure due to population movements and/or unforeseen human behavior.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Anomaly Detection"
+        },
+        {
+            "text": "The probabilistic prediction of new cases (or deaths, etc) that we described above also lends itself to natural and simple schemes for anomaly detection. One approach consists in extracting a prediction for the interval of future cases (or deaths) at a chosen level of confidence ( Figure 3 ). This prescription can be formalized in terms of a two-sided p-value significance test, where p = \u03b1/2 is the probability that corresponds to a 1 \u2212 \u03b1 level of confidence in the predictions of the model. The model is rejected, and an anomaly is flagged, if case numbers are Fig. 3 . Schematic illustration of the implementation of anomaly detection. The Bayesian method described in section 3 allows the prediction of the number of cases, with given confidence bounds. Whenever the number of observed cases falls outside that prediction an anomaly is detected and the need for further epidemiological investigation is flagged. Here such events start happening from week 15. smaller than those corresponding to probability p, or are larger than those corresponding to 1 \u2212 p. The significance \u03b1 is typically chosen to be \u03b1 = 0.05, which corresponds to (dis)agreement with model predictions at 95% confidence level.",
+            "cite_spans": [
+                {
+                    "start": 961,
+                    "end": 964,
+                    "text": "15.",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 282,
+                    "end": 290,
+                    "text": "Figure 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 565,
+                    "end": 571,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Anomaly Detection"
+        },
+        {
+            "text": "The automatic detection of anomalies should prompt investigations potentially for faults in surveillance, or disease evolution or changes in the population structure. If several measurable quantities are available for prediction and anomaly detection, several statistical tests can be combined into a collective test. The implementation of this aggregated test can take different forms depending on the independency and judged relevance of the individual tests and is the subject of meta-analysis [26] . The changes in disease dynamics (anomalies), may result from co-evolutionary processes, that is, from the interplay between pathogen evolution and changing social landscapes and, consequently, while their detection may be possible, the identification of the underlying mechanisms may not be straightforward without further investigation.",
+            "cite_spans": [
+                {
+                    "start": 497,
+                    "end": 501,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Anomaly Detection"
+        },
+        {
+            "text": "We are currently using the methods described above to create a real-time public health situation awareness and intervention environment. Our objective is to embed real-time statistical inference methods and modeling algorithms in a stateof-the-art visualization and computing environment at the Decision Theater (DT) of Arizona State University. The technology under development will integrate two types of public health applications in a unified user environment: the first is the real-time analysis of geographically tagged public health data; the second is a platform to simulate disease outbreaks for public health planning. As a byproduct, we are also developing a platform for research and visual analysis of spatially-explicit disease transmission models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Visualization, Interventions and Table Top Exercises"
+        },
+        {
+            "text": "The platform was prototyped with the Arizona Department of Health Services to study West Nile Virus in Maricopa County, Arizona, USA. The initial implementation was built using open-source software: a postgres/postgis database [28,27] for the storage and retrieval of spatial data, the statistical software application R [29], algorithms from the DCluster package, written in R [30], and a visualization and rendering application dubbed Minerva [31] developed at the Decision Theater to visualize spatial disease data and now being used in other application areas as well. Figure 4 shows an implementation of the system during a working session to study West Nile Virus in the Decision Theater with staff from the Arizona Department of Health Services.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 573,
+                    "end": 581,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Visualization, Interventions and Table Top Exercises"
+        },
+        {
+            "text": "The Minerva application is the front-end of the information system. This program performs four tasks in a common application: (i) it provides ODBC connectivity to postgres/postgis databases to retrieve data to render through standard SQL, (ii) it renders data in the DT environment using OSG, (iii) it allows users to select layers of data, associated with display properties such as the color and shape, and (iv) it has menus for launching algorithms and choosing parameters, but it does not run them itself. The key to coordinating model runs and data transfers lies with the methods used to access the database. Scripts, written in R, connect to the database and execute an SQL command that imports a frame of current data into R. Additional R commands transform the data to match the required format for the spatial and statistical analysis. The results are uploaded back into the database into tables which can be queried and rendered by Minerva. Each time a layer is selected for visualization, Minerva starts an R script, waits for the database to indicate it has been updated, and renders the data. Minerva stores binary versions of the rendered layers so they can be turned on and off through the user interface without running the algorithms multiple times during a session.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Visualization, Interventions and Table Top Exercises"
+        },
+        {
+            "text": "The fully-developed system will allow the calculation of statistical metrics and mathematical forecasts, coupled with a real-time geographic information system. The power and flexibility of the Decision Theater visualization environment provides the computational and informational infrastructure to deliver a real-time epidemiology decision support system that can be used during public health events, for public health planning, and in developing a better understanding of the spatial spread of multiple diseases. In addition, it allows the visualization of multiple interchangeable data sets simultaneously. Thus, this system can be used for several critical features of a real-time public health information system, such as: 1) data acquisition, storage, and retrieval; 2) exploring the descriptive epidemiology of the disease; 3) determining the major demographic and socio-economic factors that contribute to the spread of the disease, 4) the development of modeling and simulation exercises, and 5) assessing the effects of health interventions in human populations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Visualization, Interventions and Table Top Exercises"
+        },
+        {
+            "text": "The value of using real-time epidemiological decision support environments such as the Decision Theater relies heavily on the access and use by public health officials and on approaches to research and modeling that drive these systems. Current approaches to disease transmission modeling rely too heavily on the analysis of historical data or on the ability to predict future outbreaks, but overlook the needs of public health officials to understand the current unfolding situations in ways that extract meaningful knowledge. The modeling approach in this paper takes a significant step towards the creation of quantitative tools that can deliver real time information to health officials who can best apply the knowledge gained. The visualization of that information in a real-time spatial context is necessary to base real-time decisions that include the current state of disease epidemics as they unfold. Table- top exercises, simulation, and analyses of current infections in the population in cooperation with public health officials also serve to educate health professionals on how to use the information system prior to outbreaks in meaningful ways that will be directly transferable to the monitoring and management of actual health events.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 910,
+                    "end": 916,
+                    "text": "Table-",
+                    "ref_id": null
+                }
+            ],
+            "section": "Visualization, Interventions and Table Top Exercises"
+        },
+        {
+            "text": "An integrated quantitative approach to data assimilation, prediction and anomaly detection over real time public health surveillance data streams has been presented. The foundation of the system that we envisage, and its main difference to other current approaches, is the use of epidemiological models as the basis for statistical analyses and temporal prediction. Although these models require more assumptions than purely statistical approaches, they allow for the integration of dynamical variables essential for forecasting and for natural automatic uncertainty quantification and anomaly detection.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions and Outlook"
+        },
+        {
+            "text": "The approach developed here will build on the current syndromic surveillance efforts [1, 2, 3, 4] , by integrating them with epidemiological predictive modeling, which has a long and successful tradition in support of public health [5, 6, 7] . While much remains to be done, we hope that these kind of methodologies will enable a shift towards more quantitative active surveillance and primary prevention, resulting in more powerful strategies for monitoring infectious diseases. The integration of these efforts into sustainable solutions that strengthen public health worldwide remains the most important challenge and, simultaneously, the greatest new opportunity to international public health and policy organizations, requiring new levels of transparency, efficiency and cooperation among scientists, governments, the private sector and non-governmental organizations. supported in part by grants from the Los Alamos National Laboratory-LDRD (to LMAB), and the National Institutes of Health (RR18754-02, COBRE program from NCRR)(to RMR) as well as by the NSF grant (DMS -0502349) and NSA grant (H98230-06-1-0097) to CCC.",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 88,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 89,
+                    "end": 91,
+                    "text": "2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 92,
+                    "end": 94,
+                    "text": "3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 95,
+                    "end": 97,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 232,
+                    "end": 235,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 236,
+                    "end": 238,
+                    "text": "6,",
+                    "ref_id": null
+                },
+                {
+                    "start": 239,
+                    "end": 241,
+                    "text": "7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions and Outlook"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Spatial and Syndromic Surveillance for Public Health",
+            "authors": [],
+            "year": 2005,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Framework for evaluating public health surveillance systems for early detection of outbreaks; recommendations from the CDC working group",
+            "authors": [],
+            "year": 2004,
+            "venue": "MMWR CDC Surveill. Summ",
+            "volume": "53",
+            "issn": "",
+            "pages": "1--16",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Proceedings of the 2002 National Syndromic Surveillance Conference",
+            "authors": [],
+            "year": 2002,
+            "venue": "",
+            "volume": "80",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Various. Abstracts from the 2005 Syndromic Surveillance Conference",
+            "authors": [],
+            "year": 2006,
+            "venue": "",
+            "volume": "1",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Infectious Diseases of Humans",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "May",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Mathematical Epidemiology of Infectious Diseases: model building, analysis and interpretation",
+            "authors": [
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Diekmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Heesterbeek",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Different epidemic curves for severe acute respiratory syndrome reveal similar impacts of control measures",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wallinga",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Teunis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Am. J. Epidemiol",
+            "volume": "160",
+            "issn": "",
+            "pages": "509--516",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Transmission dynamics and control of severe acute respiratory syndrome",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Lipsitch",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Cohen",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Cooper",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Robins",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "James",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Science",
+            "volume": "300",
+            "issn": "",
+            "pages": "1966--1970",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Transmission dynamics of the etiological agent of SARS in Hong Kong: impact of public health interventions",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Riley",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Fraser",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Donnelly",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Science",
+            "volume": "300",
+            "issn": "",
+            "pages": "1961--1966",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Transmission Dynamics of the Great Influenza Pandemic of",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Chowell",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Ammon",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Hengartner",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hyman",
+                    "suffix": ""
+                }
+            ],
+            "year": 1918,
+            "venue": "J. Theor. Biol",
+            "volume": "241",
+            "issn": "",
+            "pages": "193--204",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Transmission dynamics and epidemiology of dengue: insights from age-stratified sero-prevalence surveys",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Ferguson",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Donnelly",
+                    "suffix": ""
+                },
+                {
+                    "first": "Anderson",
+                    "middle": [],
+                    "last": "Rm",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Phil. Trans. Roy. Soc. Lond. B",
+            "volume": "354",
+            "issn": "",
+            "pages": "757--768",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Determinants and predictors of dengue infection in Mexico",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Koopman",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Prevots",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Vaca-Marin",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Gomez-Dantes",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Zarate-Aquino",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Longini",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sepulveda-Amor",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Am. J. Epidem",
+            "volume": "133",
+            "issn": "",
+            "pages": "1168--1178",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Estimation of effective reproduction numbers for infectious diseases using serological survey data",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Farrington",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Whitaker",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Biostatistics",
+            "volume": "4",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Transmission potential of primary pneumonic plague: time inhomogeneous evaluation based on historical documents of the transmission network",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Nishiura",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Schwehm",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kakehashi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Eichner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J. Epidemiol. Community. Health",
+            "volume": "60",
+            "issn": "",
+            "pages": "640--645",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Committee on Modeling Community Containment for Pandemic Influenza. Modeling Community Containment for Pandemic Influenza: A letter report",
+            "authors": [],
+            "year": 2006,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "On the computation R0 and its role on global stability",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castillo-Chavez",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Feng",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Mathematical Approaches for Emerging and Reemerging Infectious Diseases: An Introduction",
+            "volume": "",
+            "issn": "",
+            "pages": "229--250",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Perspectives on the basic reproductive ratio",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Heffernan",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Smith",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wahl",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Journal of the Royal Society, Interface / the Royal Society",
+            "volume": "2",
+            "issn": "",
+            "pages": "281--293",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Reproduction numbers and sub-threshold endemic equilibria for compartmental models of disease transmission",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Van Den Driessche",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Watmough",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "Math. Biosci",
+            "volume": "180",
+            "issn": "",
+            "pages": "29--48",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Real-time estimates in early detection of SARS",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cauchemez",
+                    "suffix": ""
+                },
+                {
+                    "first": "P-Y",
+                    "middle": [],
+                    "last": "Boelle",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Donnelly",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Ferguson",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Thomas",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Leung",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Emerg. Infect. Dis",
+            "volume": "12",
+            "issn": "",
+            "pages": "110--113",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Estimating in real time the efficacy of measures to control emerging communicable diseases",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cauchemez",
+                    "suffix": ""
+                },
+                {
+                    "first": "P-Y",
+                    "middle": [],
+                    "last": "Boelle",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Thomas",
+                    "suffix": ""
+                },
+                {
+                    "first": "A-J",
+                    "middle": [],
+                    "last": "Valleron",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Am. J. Epidemiol",
+            "volume": "164",
+            "issn": "",
+            "pages": "591--597",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Real time Bayesian estimation of the epidemic potential of emerging infectious diseases",
+            "authors": [
+                {
+                    "first": "Lma",
+                    "middle": [],
+                    "last": "Bettencourt",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Ribeiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Comparative estimation of the reproduction number for pandemic influenza from daily case notification data",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Chowell",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Nishiura",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lma",
+                    "middle": [],
+                    "last": "Bettencourt",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "J. R. Soc. Interface",
+            "volume": "4",
+            "issn": "",
+            "pages": "155--166",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "The power of a good idea: Quantitative modeling of the spread of ideas from epidemiological models",
+            "authors": [
+                {
+                    "first": "Lma",
+                    "middle": [],
+                    "last": "Bettencourt",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Cintron-Arias",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "I"
+                    ],
+                    "last": "Kaiser",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castillo-Chavez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Physica A",
+            "volume": "364",
+            "issn": "",
+            "pages": "513--536",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Decision Analysis and Cost-effectiveness Analysis: Methods for Quantitative Synthesis in Medicine",
+            "authors": [
+                {
+                    "first": "Db",
+                    "middle": [
+                        "Meta"
+                    ],
+                    "last": "Petitti",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Analysis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Number of cases of H5N1 human influenza. Cases confirmed by the World Health Organization for Vietnam (top) and Indonesia (bottom), from January 2004 to June 2006. Although these are currently the two countries with most recorded cases, the incidence times series is very stochastic and intermittent (note the y-scale).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Analysis of West Nile Virus in the Decision Theater at ASU. The photo was taken during a working session at the Decision Theater with the Arizona Department of Health Services, Vector Borne and Zoonotic Disease Department staff. The interactive visualization environment shows spatial analysis of West Nile Virus cases during 2004 and 2005 including demographic and environmental data and spatial clustering algorithms.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Portions of this work were done under the auspices of the US Department of Energy under contract DE-AC52-06NA25396. This work was",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgments."
+        }
+    ]
+}

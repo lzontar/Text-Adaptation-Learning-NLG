@@ -1,0 +1,1168 @@
+{
+    "paper_id": "0abf63957eb1f6a5b2a8710663babc4fd7b72afe",
+    "metadata": {
+        "title": "Unfolding Symbolic Attributed Graph Grammars",
+        "authors": [
+            {
+                "first": "Maryam",
+                "middle": [
+                    "Ghaffari"
+                ],
+                "last": "Saadat",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Leicester University",
+                    "location": {
+                        "settlement": "Leicester",
+                        "country": "UK"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Reiko",
+                "middle": [],
+                "last": "Heckel",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Leicester University",
+                    "location": {
+                        "settlement": "Leicester",
+                        "country": "UK"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Fernando",
+                "middle": [],
+                "last": "Orejas",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Polytechnic University of Catalonia",
+                    "location": {
+                        "settlement": "Barcelona",
+                        "country": "Spain"
+                    }
+                },
+                "email": "orejas@cs.upc.edu"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Attributed graph grammars can specify the transformation of complex data and object structures within a natural rule-based model of concurrency. This is crucial to their use in modelling interfaces of services and components as well as the evolution of complex systems and networks. However, the established concurrent semantics of graph grammars by unfolding does not cover attributed grammars. We develop a theory of unfolding for attributed graph grammars where attribution is represented symbolically, via logical constraints. We establish a functorial representation (a coreflection) of unfolding which guarantees it to be correct, complete and fully abstract.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "As a case study and running example we demonstrate the use of visual contracts to specify an escrow smart contract.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The majority of software developed today is distributed and concurrent, including mobile, service-oriented, cloud-and component-based applications, smart contracts and decentralised applications (Dapps) on blockchain platforms such a Ethereum or Neo, P2P applications, etc. Technical and organisational challenges, such as the lack of a central authority both at runtime and during development are being addressed by model-based software engineering methods. In order to model such applications using graph transformation systems, we rely on a natural rule-based model of concurrency. In its most comprehensive form, the concurrent behaviour of graph grammars is formalised by their unfolding [1, 3, 4] . This represents in one structure the branching computations of the grammar in (what could be called) a partial-order variant of its derivation tree.",
+            "cite_spans": [
+                {
+                    "start": 693,
+                    "end": 696,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 697,
+                    "end": 699,
+                    "text": "3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 700,
+                    "end": 702,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Many practical applications of graph transformation, including to modelbased software engineering, require graphs attributed by numerical or textual data and transformations combining structural with attribute updates, i.e., attributed graph grammars [5] . However, the theory of unfolding has so far only been developed for the un-attributed case. Indeed, in the presence of attributes, the concurrent and non-deterministic behaviour of a graph grammar becomes significantly more complex. While, traditionally, dependencies and conflicts between transformations are based on how their left-and right-hand sides overlap in given or derived graphs, and how these overlaps include elements created or deleted by one rule and required or preserved by the other, the presence of data requires a deeper analysis of conflicts and dependencies. For example, two rules updating the same attribute, one after the other, may still be exchangeable if the attribute operations performed are commutative. Also, the choice of different assignments for variables may lead to infinitely branching systems even if the branching structure of their underlying structural grammar is finite.",
+            "cite_spans": [
+                {
+                    "start": 251,
+                    "end": 254,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper we lift the theory of unfolding to attributed graph grammars, providing the semantic foundations for concurrent and distributed system models with data. By treating attribution purely logically, based on the notion of symbolic attributed graphs, we are able to separate attribute computations from structural unfolding. In particular, the use of lazy symbolic graph transformations [9] allows to abstract from specific attribute values while keeping track of all constraints such values have to satisfy. The resulting theory follows the un-attributed case in establishing unfolding as a coreflection, i.e., a right adjoint to the inclusion of the subcategory of occurrence grammars into the category of attributed graph grammars. This shows the construction to be correct and complete in representing only and all steps of the given grammar, and to be fully abstract (i.e. represented in a minimal way).",
+            "cite_spans": [
+                {
+                    "start": 396,
+                    "end": 399,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We introduce the main concepts of symbolic attributed graph grammars, including the notion of lazy symbolic transformations, and present the escrow contract model as running example. Section 3 recalls the unfolding of classical DPO graph grammars, which is extended to attributed grammars in Sects. 4 and 5. In Sect. 6 we draw conclusions and discuss related and future work.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Given a data algebra D with non-empty carrier sets, an attributed graph [5] over D is a graph whose graph objects (nodes and edges) are labelled over D.",
+            "cite_spans": [
+                {
+                    "start": 72,
+                    "end": 75,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Symbolic Attributed Graph Transformation"
+        },
+        {
+            "text": "Elements of D are represented as data nodes and connected to graph objects by attribute links. Formally this structure is known as an E-graph [5] . A symbolic attributed graph [8] specifies a class of attributed graphs by means of constraints. Formally G, \u03a6 is an E-graph whose graph objects are labelled by a set of variables x \u2208 X G , together with a set of constraints \u03a6 over X G .",
+            "cite_spans": [
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 176,
+                    "end": 179,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Symbolic Attributed Graph Transformation"
+        },
+        {
+            "text": "In our case, constraints are equations over X G using values in D as constants. Each substitution \u03c3 : X G \u2192 D extends canonically to such equations. If they hold in D, denoted D |= \u03c3(\u03a6), this defines an attributed graph \u03c3(G) replacing variables x with data values \u03c3(x). Hence, the semantics of G, \u03a6 is Sem( G, \u03a6 ) = {\u03c3(G) | D |= \u03c3(\u03a6)}. To simplify notation we will identify G with the symbolic attributed graph, denoting its constraints \u03a6 G .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Symbolic Attributed Graph Transformation"
+        },
+        {
+            "text": "An attributed graph morphism h :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": ". Symbolic graphs and morphisms over D form the category SGraph D , or just SGraph if D is understood. 1, 2 In the rest of the paper, we will work with typed graphs. Given a dedicated type graph T G defining the types of nodes, edges and attributes, a T G-typed (symbolic attributed) instance graph is a graph G with a morphism t G : G \u2192 T G mapping elements in G to their types. The category SGraph T G has T G-typed instance graphs G i , t Gi as objects and as arrows h :",
+            "cite_spans": [
+                {
+                    "start": 103,
+                    "end": 105,
+                    "text": "1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 106,
+                    "end": 107,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "Example 1 (type and instance graphs of escrow model). Figure 1 shows a type graph in the bottom right corner and one of its instances in the top left. Note that, according to our definitions, this is an E-graph whose data nodes are variables related to their values by equations. For example, node w1 is a node of type Wallet and has an attribute link of type balance pointing to an (invisible) variable node (say b) whose value is given by an equation b = 100 in the constraints \u03a6 G .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 54,
+                    "end": 62,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "Modern blockchain technologies allow developers to offer smart contracts as services based on the blockchain's distributed data model and other basic features, such as wallets and payments. A popular example is an escrow service, 1 We use D to denote both the many-sorted algebra and the disjoint union of its carrier sets. 2 We write h(\u03a61) in a slight abuse of notation. To be more rigorous (and less readable) we should write h # X (\u03a61), where hX is the restriction of h to the set of variables of G1, mapping them to variables in G2, and h # X is the (unique) extension of hX to terms over D's signature.",
+            "cite_spans": [
+                {
+                    "start": 230,
+                    "end": 231,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 324,
+                    "end": 325,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 392,
+                    "end": 411,
+                    "text": "(and less readable)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "to act as intermediary between sellers and buyers in commercial transactions. The type graph defines the data model for such a service. Type escrow acts as container and defines a stake factor, by which the price of a widget is multiplied to define the stake to be raised by both seller and buyer. Items to be sold and bought are of type Widget, with attributes for cost (reflecting the cost to the seller at which a widget was obtained or produced), value (the presumed value to a prospective buyer), and delivery (shipping cost). Type Contract represents the smart contract, created when buyer and seller enter into a transaction, to maintain the relevant data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "In general, an attribute can have a set of values, i.e., link to several variable nodes. For a T G-typed graph G and a graph object (node or edge) o in G we write o.at for the set of variables x such that there is an attribute link al in",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "Generally, in rules, input and reachable graphs, attribution is unique, i.e., o.at is singleton for all graph objects o and attributes at.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "As illustrated in the example above, an attributed graph can be presented as a symbolic one by replacing all its attribute values in the data algebra D by variables, and for each value v, where x v is the variable replacing it, including an equation x v = v in the set of constraints. We call such symbolic graphs grounded.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "A symbolic attributed graph G is linear if each variable x \u2208 X G occurs as an attribute value of at most one node or edge in G. A T G-typed symbolic attributed graph transformation rule over D is a triple",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "Typed symbolic attributed graph transformation is defined following the double-pushout (DPO) approach [5] by a transformation of the underlying Egraphs satisfying the constraints: Given a rule r as above and a morphism m :",
+            "cite_spans": [
+                {
+                    "start": 102,
+                    "end": 105,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "That means, if the left-hand side constraints are implied by the constraints in the given graph, the right-hand side constraints are added to the derived graph assuming that the result is consistent.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "The use of the DPO approach to define the structural transformation means that rule r is only applicable at match m if the dangling and dangling identification conditions are satisfied. Match m satisfies the dangling condition if no node in G about to be deleted by r is the source or target of an edge outside m(L) (because such an edge would be left \"dangling\" when deleting the node). The identification condition requires that a node or edge x in L \\ R (i.e., m(x) is deleted by the rule) cannot be identified with any other object y in L, i.e., m(x) = m(y) implies x = y. This ensures resource consciousness for deleted graph objects while allowing non-injective matching in general. Fig. 2 shows an attributed graph transformation rule from our escrow example specifying an operation sell(u1:User, w:Widget, p:Int): Contract. We only show graphs L and R, with the interface left K implicit as their intersection. The rule assumes objects and data on the left of the arrow, introducing variables such as e : Escrow and sf to capture them for use in the right-hand side to create links to new objects such as c : Contract and in expressions of attribute assignments and updates. The match m is controlled by input parameters u1, w, p subject to the condition in the yellow box restricting the choice of price p. The variables in this rule are X L = {p, sf, b1, cst, val, d} and X R = X L \u222a {b1 , b, s}, the latter referring to the new values of the w.balance, c.balance, and c.stake, respectively. The input parameter p is part of the lefthand side and therefore chosen by the match. This leads to branching over all values of p, a degree of non-determinism that makes the direct computation of all derivations impossible.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 689,
+                    "end": 695,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Fig. 1. Symbolic attributed type and instance graphs"
+        },
+        {
+            "text": "In the bottom half we show an application of the rule, transforming an instance graph which, in addition to the objects in the rule, has a second user. Note that attributes here have actual values, and how new values are computed in the derived graph on the right.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (sell rule and transformation). The top half of"
+        },
+        {
+            "text": "Constraints added by r can be satisfied by several non-isomorphic graphs. Rule r is ground-preserving if for any grounded graph G and transformation G = r,m == \u21d2 H, graph H is grounded. All rules in this paper are ground-preserving. To separate the handling of constraints, we may want to apply a rule r = \u03a6 L , L \u2190 K \u2192 R, \u03a6 R without checking entailment of m(\u03a6 L ). This is equivalent to applying the corresponding lazy rule r \u2205 = \u2205, L \u2190 K \u2192 R, \u03a6 R , in a lazy transformation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 2 (sell rule and transformation). The top half of"
+        },
+        {
+            "text": "A symbolic graph transformation rule r = \u03a6 L , L \u2190 K \u2192 R, \u03a6 R and its lazy counterpart r \u2205 = \u2205, L \u2190 K \u2192 R, \u03a6 R are equivalent on grounded graphs. That means, given a symbolic transformation G = r,m == \u21d2 H with G grounded, this also represents a lazy transformation using r \u2205 , and vice versa.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1 (lazy transformation of grounded graphs)."
+        },
+        {
+            "text": "Sometimes we want to translate graphs, rules and transformations from one type graph to another. This is possible because a morphism f : T G 1 \u2192 T G 2 between type graphs induces a translation of instances. Formally, we denote by f > T G : SGraphs T G1 \u2192 SGraphs T G2 the covariant retyping functor from T G 1typed to T G 2 -typed instance graphs, defined by composition of f T G with the typing morphisms as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1 (lazy transformation of grounded graphs)."
+        },
+        {
+            "text": "Note that, the functor only affects the typing, i.e., the attributed graphs with their variables and constraints remain unchanged. Hence f > T G also acts as identity on morphisms.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1 (lazy transformation of grounded graphs)."
+        },
+        {
+            "text": "Definition 1 (attributed graph grammar). A (typed symbolic) attributed graph grammar (AGG) over a data algebra D is a 4-tuple AG = T G, G in , P, \u03c0 , where T G is a type graph over D, G in is the T G-typed initial graph, P is a set of rule names, and \u03c0 is a mapping associating to any p \u2208 P a T G-typed rule",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 1 (lazy transformation of grounded graphs)."
+        },
+        {
+            "text": "T G preserves pushouts and rules spans and constraints remain the same but for typing, morphisms of attributed graph grammars preserve derivations. That is, a derivation s in AG is translated by f to",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "Given an attributed graph grammar AG = T G, G in , P, \u03c0 , its underlying (unattributed) grammar is AG G = T G G , G in,G , P, \u03c0 G where T G G and G in,G are the restrictions of T G and G in to their graph components (excluding variables and attribution edges) and for all p \u2208 P with \u03c0(p)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "It is easy to see that a derivation s in AG reduces to a derivation s G in the underlying grammar G G . Similarly, by AG EG we denote the underlying E-graph grammar, retaining attribute links and variables, but dropping all constraints.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "Example 3 (attributed graph grammar for escrow smart contract). The rules specifying the service are shown in Fig. 3 using an integrated notation merging left-and right hand side graphs into a single rule graph L \u222a R. We indicate by colours and labels which elements are required but preserved (grey), required and deleted (red), or newly created (green). That means, the left-hand side L is given by all grey and red elements, the right-hand side by all grey and green ones, and the interface K by the grey elements only.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 110,
+                    "end": 116,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "The service works as follows. The price is set by the seller using input parameter p > 0, which is recorded in the contract created as part of the sell operation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "This step also incurs the stake of stakeF actor \u00d7 p, which is transferred from the seller's wallet to the balance of the contract. If the seller changes their mind and withdraws the widget, the stake is refunded.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "The buyer uses the buy operation to indicate their intend to buy at the price c.price as listed in contract c while transferring the same stake as the seller. When entering into a contract, seller and buyer use up a token, modelled by a loop, used to control the number of contracts each user can engage in. This can either be returned when they leave the contract, allowing them to enter into a new one (in the current version) or it can be a single-use token (in a later variant). If the seller withdraws after the buyer entered into the contract, the buyer can leave with the stake returned, and then the contract is deleted. Note that, due to the dangling condition, leave is only applicable if the contract does not have any further connections, in particular no selling link. That means it is only applicable after withdraw.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "Once buyer and seller have entered the contract, the widget can be delivered. This leads to the transfer of the price from the buyer to the contract. The buyer can also change their mind and cancel either before delivery, in which case the buyer's and seller's stakes are refunded, or after delivery, e.g., if they are unsatisfied with the widget received. In the latter case they need to return the widget to get the price refunded. If the widget is to the buyer's satisfaction, they can acknowledge receipt leading to the resolution of the contract and the ultimate payment to the seller's wallet of the price and the refund of both stakes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The category of attributed graph grammars and their morphisms is AGG."
+        },
+        {
+            "text": "As a prerequisite to considering attributed grammars, in this section we review the theory of unfolding for typed DPO graph grammars [4] . In the rest of the paper we assume that all rules are consuming, i.e., their left-hand side morphism is not an isomorphism.",
+            "cite_spans": [
+                {
+                    "start": 133,
+                    "end": 136,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "DPO Occurrence Graph Grammars and Unfolding"
+        },
+        {
+            "text": "A grammar G = T G, G in , P, \u03c0 is (strongly) safe if, for all H such that G in \u21d2 * H, H has an injective typing morphism. Instance graphs with injective typing can be safely identified with the corresponding subgraphs of the type graph (thinking of injective morphisms as inclusions). Therefore, in particular, each graph G, t G reachable in a safe grammar can be identified with the subgraph t G (G) of the type graph T G. For a safe grammar G, the set of its elements is defined as Elem(G) = T G E \u222a T G N \u222a P , assuming without loss of generality that the three sets are mutually disjoint.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DPO Occurrence Graph Grammars and Unfolding"
+        },
+        {
+            "text": "Using a net-like language, we speak of pre-set \u2022 q, context q and post-set q \u2022 of a rule q, defined as the sets of element deleted, preserved, or created by the rule. Similarly for a node or edge x in T G we write \u2022 x, x and x \u2022 to denote the sets of rules which produce, preserve and consume x. The causal relation of a grammar G is the binary relation < over Elem(G) defined as the least transitive relation satisfying, for any node or edge x in T G and q 1 , q 2 \u2208 P :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DPO Occurrence Graph Grammars and Unfolding"
+        },
+        {
+            "text": "As usual \u2264 is the reflexive closure of <. Moreover, for x \u2208 Elem(G) we denote by x the set of causes of x in P , namely {q \u2208 P : q \u2264 x}.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DPO Occurrence Graph Grammars and Unfolding"
+        },
+        {
+            "text": "The asymmetric conflict relation of G is the binary relation over P , given by (1) if q 1 \u2229 \u2022 q 2 = \u2205 then q 1 q 2 ; (2) if \u2022 q 1 \u2229 \u2022 q 2 = \u2205 and q 1 = q 2 then q 1 q 2 ; and if q 1 < q 2 then q 1 q 2 . A (nondeterministic) occurrence grammar is an acyclic grammar which represents, in a branching structure, several possible computations starting from its initial graph and using each rule at most once.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DPO Occurrence Graph Grammars and Unfolding"
+        },
+        {
+            "text": "An occurrence grammar is a safe graph grammar O = T G, G in , P, \u03c0 where 1. for each rule q : L, t L l \u2190 K, t K r \u2192 R, t R , typing morphisms t L , t K , t R are injective; ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 2 (occurrence grammar)."
+        },
+        {
+            "text": "P : | \u2022 x |\u2264 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "its causal relation \u2264 is a partial order, and for any q \u2208 P , the set q is finite and asymmetric conflict is acyclic on q ; 3. the initial graph G in coincides with the set Min(O) of minimal elements of Elem(O), \u2264 (with the graphical structure inherited from T G and typed by the inclusion); 4. each arc or node x in T G is created by at most one rule in"
+        },
+        {
+            "text": "One can show that each occurrence grammar is safe [4] .",
+            "cite_spans": [
+                {
+                    "start": 50,
+                    "end": 53,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Since the initial graph of an occurrence grammar O is determined by Min(O), we often do not mention it explicitly."
+        },
+        {
+            "text": "An occurrence grammar based on the underlying grammar AG G of the escrow model is shown in Fig. 4 with its type graph on the left and relations on the right. In the graph, all preserved (grey) elements are minimal, making up the input graph. The rules are the same as in Fig. 3 . Matches and co-matches are defined by name, e.g., c : Contract in any of the rules maps to c : Contract in the type graph. This is possible here because we apply each rule exactly once. The causality and asymmetric conflict relations are justified below, with relations covered by transitive closure omitted.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 91,
+                    "end": 97,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF2"
+                },
+                {
+                    "start": 271,
+                    "end": 277,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Example 4 (occurrence graph grammar)."
+        },
+        {
+            "text": "-sell < withdraw, buy because sell creates the contract used by withdraw, buy; -buy < deliver, cancel, leave because buy creates the buying link used by deliver and consumed by both leave, cancel; buy withdraw because buy uses the widget link deleted by withdraw; -withdraw leave because leave deletes the contract used by withdraw; -deliver < ack, return because deliver creates the has link used by both ack, return; deliver withdraw, leave, cancel because withdraw and cancel both consume the selling link and leave the contract used by deliver; -cancel withdraw because withdraw deletes the selling link used by cancel -cancel, leave, ack are in mutual conflict because all delete the buying link; -ack return because return deletes the has link used by ack; -return ack because ack deletes the contract used by return;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 4 (occurrence graph grammar)."
+        },
+        {
+            "text": "Note the lack of a causal dependency withdraw < leave; however due to the dangling condition leave can only be applied after withdraw. For a similar reason, leave cannot occur after deliver because sell, buy, deliver, leave violates the dangling condition due to the lack of withdraw while sell, buy, withdraw, deliver, leave is disallowed by deliver withdraw. Such subsets of rules, that are not fully executable in any order, do not form configurations. Subsets of rules that do, represent reachable graphs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 4 (occurrence graph grammar)."
+        },
+        {
+            "text": "Occurrence grammars can be created by unfolding consuming graph grammars. The idea is to start from the initial graph of the grammar, then apply in all possible ways its rules while recording each occurrence and each new graph item generated with their causal histories. The basic ingredient here is the gluing operation, that we borrow literally from [4] .",
+            "cite_spans": [
+                {
+                    "start": 352,
+                    "end": 355,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Example 4 (occurrence graph grammar)."
+        },
+        {
+            "text": "By glue * (q, m, G) we represent the additive application of rule q at match m to graph G, generating new items as specified by the rule and labelling them by * , but not removing items that should have been deleted. This is because such items may still be used by another rule in the nondeterministic unfolding.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Example 4 (occurrence graph grammar)."
+        },
+        {
+            "text": "In this and the following section we lift the theory of occurrence grammars and unfolding from typed graph grammars to lazy typed symbolic attributed ones. On grounded graphs, lazy rules are equivalent to general symbolic rules. Limiting ourselves to ground-preserving rules and a grounded start graph, all derivations will be grounded, which will allow us to transfer the results to the general case, including non-lazy rules.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Attributed Occurrence Grammars"
+        },
+        {
+            "text": "A reachable graphs H will be seen as subgraphs of T G, and hence X H \u2286 X T G and D |= (\u03a6 T G =\u21d2 \u03a6 H ). That means, X T G is a global set of variables for AG. The set of elements of a safe grammar AG is Elem(AG) = P \u222a T G G \u222a X T G , including the rules, graph objects and variables in its type graph, but not its attribute links. With this, the causal and asymmetric conflict relations < and carry over to the rules and graph objects of AG via its underlying E-graph grammar AG EG . Applied to E-graphs, these relations include variable nodes (although variables are never deleted, so \u2022 q \u2229 X T G = \u2205) but no attribution links.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3 (safe attributed graph grammar). An attributed graph grammar AG = T G, P, G in , \u03c0 is safe if T G is linear and its underlying E-graph grammar AG EG is safe (reachable graphs H have injective typing t H : H \u2192 T G)."
+        },
+        {
+            "text": "Let's examine the impact on the causal and asymmetric conflict relations of omitting attribute links from context, pre-and post-sets. When an attribute is updated, its attribute link is deleted and a new one is created pointing to a new variable. If two rules q 1 , q 2 update the same attribute one after the other, q 1 creates the attribute link resulting in the first update and q 2 deletes the link. That means, in a causal relation including attribute links q 1 < q 2 based on clauses 1 and 2 in the definition of <. Now, without considering attribute links q 1 < q 2 by clause 3 because v \u2208 q 1 \u2022 \u2229 q 2 . However, disregarding attribute links impacts on asymmetric conflicts because variable nodes are never deleted, so neither clause 1 nor 2 of apply. That means, in a structural sense, attribute updates never cause conflicts. This is significant because it allows to separate attribute computations from structural unfolding.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3 (safe attributed graph grammar). An attributed graph grammar AG = T G, P, G in , \u03c0 is safe if T G is linear and its underlying E-graph grammar AG EG is safe (reachable graphs H have injective typing t H : H \u2192 T G)."
+        },
+        {
+            "text": "For e \u2208 Elem(AG) we let e = {q \u2208 P | q \u2264 e} and E the extension to sets E \u2286 Elem(AG). The set of constraints of",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3 (safe attributed graph grammar). An attributed graph grammar AG = T G, P, G in , \u03c0 is safe if T G is linear and its underlying E-graph grammar AG EG is safe (reachable graphs H have injective typing t H : H \u2192 T G)."
+        },
+        {
+            "text": "Graph G is current if all variables in X G are and every attribute has at most one variable as a label (i.e. cannot have both o.a = y and o.a = z with y = z in the same graph G).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 3 (safe attributed graph grammar). An attributed graph grammar AG = T G, P, G in , \u03c0 is safe if T G is linear and its underlying E-graph grammar AG EG is safe (reachable graphs H have injective typing t H : H \u2192 T G)."
+        },
+        {
+            "text": "An attributed occurrence grammar is a safe attributed graph grammar AG = T G, G in , P, \u03c0 where 1. for each rule q the typing morphisms t Lp , t Kq and t Rq are injective 2. for all q \u2208 P , ( ) q is acyclic, L q current, q finite, and \u03a6( q \u222a{q})\u222a\u03a6 Gin satisfiable 3. the initial graph G in consists of the minimal elements Min(AG) of Elem(AG), \u2264 3 with attribution and graph structure inherited from T G and typed by the inclusion 4. each element (arc, node, variable or attribution edge) e in T G is created by at most one rule in P :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4 (attributed occurrence grammar)."
+        },
+        {
+            "text": "The category of attributed occurrence grammars and AGG morphisms is AOG.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4 (attributed occurrence grammar)."
+        },
+        {
+            "text": "Given attributed occurrence grammar AO, its underlying grammar AO G is an occurrence grammar. In particular, AO G is obtained from AO by dropping its variables, attribute links and constraints. Hence conditions (2) (3) (4) in Definition 4 reduce to (2) (3) (4) in Definition 2.",
+            "cite_spans": [
+                {
+                    "start": 211,
+                    "end": 214,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 215,
+                    "end": 218,
+                    "text": "(3)",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 219,
+                    "end": 222,
+                    "text": "(4)",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 249,
+                    "end": 252,
+                    "text": "(2)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 253,
+                    "end": 256,
+                    "text": "(3)",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 257,
+                    "end": 260,
+                    "text": "(4)",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 4 (attributed occurrence grammar)."
+        },
+        {
+            "text": "Example 5 (attributed occurrence grammar). Figure 5 shows the rules and causal relation of an attributed occurrence grammar extending that of Example 4. Dependencies caused by attribute updates (of the contract's balance attribute) are shown as red dotted lines. Structurally, each such update reads the variable node representing the old value, creates a new variable node and changes the attribute link from the old to the new variable node. That means, subsequent rule applications access the new version of the variable node, which makes them different from applications of the same rules to the same graph objects accessing earlier versions of the attribute. Hence the duplication of rule occurrences in the dependency structure. All asymmetric conflicts carry over from the unattributed case, i.e., if p q in Example 4, then p? q? for all copies p?, q? of p, q. As discussed earlier, there are no new conflicts due to attribute updates.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 43,
+                    "end": 51,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Definition 4 (attributed occurrence grammar)."
+        },
+        {
+            "text": "Furthermore, in any current graph every attribute is labelled by at most one variable. To clarify the importance of this condition, consider the branching from cancel2 to withdraw6 and return2 both of which update attribute c.balance. The former substitutes it by c.balance \u2212 c.stake and the latter by c.balance \u2212 c.price. Applying both rules in parallel yields",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4 (attributed occurrence grammar)."
+        },
+        {
+            "text": "which is always satisfiable. However this result does not correspond to any sequence of rule applications since both updates of c.balance use b 1 as the previous value. By preventing an attribute from having more than one label in a current graph, we disallow multiple versions of the same attribute. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Definition 4 (attributed occurrence grammar)."
+        },
+        {
+            "text": "This section introduces the unfolding construction which, applied to an attributed graph grammar AG, produces an attributed occurrence grammar U AG describing the behaviour of AG. The unfolding is equipped with a morphism u AG to the original grammar AG which allows to see rules in U AG as rule applications in AG, and items of the type graph of U AG as instances of items of the type graph of AG. Starting from the initial graph of the grammar, we apply in all possible ways its rules, and record in the unfolding each redex and new graph item generated with their causal histories. In order for these rule applications to reflect reachable transformations, we introduce attribute concurrent graphs representing reachable matches. The proof is based on an analogous result for the un-attributed case, analysing the additional dependencies arising from attribute updates, and deriving the satisfiability of constraints added throughout derivations from that of",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "The unfolding of an attributed grammar AG = T G, G in , P, \u03c0 is defined as follows. For each n, we construct a partial unfolding U(AG) (n) = U (n) , u (n) , where U (n) = T G (n) , G in , P (n) , \u03c0 (n) is an attributed occurrence grammar and",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": ": U (n) \u2192 AG an AGG morphism. Intuitively, the occurrence grammar generated at level n contains all possible computations of the grammar with \"causal depth\" at most n.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "-(n \u2192 n + 1) Given U(AG) (n) , the partial unfolding U(AG) (n+1) is obtained by applying all enabled redexes m : L q \u2192 T G (n) , u (n)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "T G of q \u2208 P in T G (n) . Let P (n+1) be the set of all triples q * i = q i , m i,G , m i,X such that m(L q ) \u2286 T G (n) is attribute concurrent and m i (\u03a6 p ) is satisfiable. Then, U(AG) (n+1) is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "\u2022 \u03c0 (n+1) ( q, m G , m X ) coinciding with \u03c0(q) except for retyping.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "The result of the gluing operation is independent of the order of redexes applied.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "The match of a rule, which is part of its name in the unfolding, records the causal history by way of the graph and data elements it maps to, which in turn are labelled by the name of the rule that created them. This allows to distinguish rule occurrences with different histories. Note that if a rule is applied twice (also in different steps) with the same graphical match and variable mapping, the generated items are the same and thus they appear only once in the unfolding. By construction it is evident that U(AG) (n) \u2286 U(AG) (n+1) , component-wise.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "Definition 6 (attributed unfolding). The unfolding U(AG) = U AG , u AG is defined as n U(AG) (n) , where union is applied componentwise.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "The folding morphism u is defined by mapping rules by their names, while on types u T G (x : X) = X.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "Example 6 (unfolding). In Example 5 we presented a partial unfolding of the grammar in Example 3. The set of rules {sell, buy, deliver, cancel, return} admits two possible linearisation sell, buy, deliver, cancel, return and sell, buy, deliver, return, cancel that only differ in the order of applying cancel and return. While the structural unfolding does not distinguish between the sequences, in the attributed unfolding they both update attributes c.balance and w2.balance. Hence, whichever occurs second will depend on the first. The shared part of both linearisation is shown below, the two distinct parts in the following tables.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "i Rule Rule application Through substitution we find that in both linearisation the end result is the same, i.e., both c.balance and w2.balance are equal to their initial values. However, the causal dependencies are different due to different data flow:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": "The two paths are confluent (produce the same result) but not equivalent (do not represent the same concurrent computation). For applications where we are only interested in the end results of non-deterministic concurrent computations, it makes sense to explore whether confluence can be used to restrict the unfolding construction, avoiding exploration of confluent alternatives.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unfolding Attributed Graph Grammars"
+        },
+        {
+            "text": ". U AG is an attributed occurrence grammar and u AG : U AG \u2192 AG is an attributed graph grammar morphism.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 3 (attributed unfolding)"
+        },
+        {
+            "text": "Since AGG morphisms preserve derivations, this implies the correctness of the unfolding, i.e., u G maps all derivations in U AG to derivations in AG. The construction can be lifted to a functor between attributed grammars and occurrence grammars which is a right adjoint to the inclusion functor.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Proposition 3 (attributed unfolding)"
+        },
+        {
+            "text": "Unfolding is a coreflection U : AGG \u2192 AOG, that is, right-adjoint to the inclusion of AOG in AGG.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1 (coreflection)."
+        },
+        {
+            "text": "The proof established the unfolding as a co-free construction from attributed grammars to attributed occurrence grammars. That means, the unfolding is maximal among all attributed occurrence grammars equipped with a morphism back to the original grammar, in the sense that there exists a unique commuting morphisms from every other candidate. The existence of this morphism shows that the unfolding is complete in representing all possible behaviours present in the given grammar. Uniqueness shows that they are represented in a minimal way, so there is only one choice as to how the morphism can be defined.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1 (coreflection)."
+        },
+        {
+            "text": "We presented occurrence grammars and unfoldings for attributed graph grammars. Since unfolding is a coreflection, the semantics is correct (only representing derivations specified by the grammar), complete (representing all such derivations) and fully abstract (represented in a minimal way). Our approach uses symbolic graph transformation [8, 9] and the theory of unfolding of graph grammars [1, 2] , in turn generalising results for Petri Nets [6] . [7] uses approximated unfolding and abstract interpretation to analyse attributed graph grammars.",
+            "cite_spans": [
+                {
+                    "start": 341,
+                    "end": 344,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 345,
+                    "end": 347,
+                    "text": "9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 394,
+                    "end": 397,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 398,
+                    "end": 400,
+                    "text": "2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 447,
+                    "end": 450,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 453,
+                    "end": 456,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        },
+        {
+            "text": "While their focus is on scalable analysis with numerical data, rather than comprehensive semantics, we share the objective of separating structural from attribute computations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        },
+        {
+            "text": "We will use the relation of occurrence grammars and event structures to develop, based on Rideau and Winskel's concurrent games as event structures [10] , a notion of concurrent game over attributed graph grammars, with applications to analysing smart contracts. We also plan to integrate the theories of unfolding for attributed and conditional grammars.",
+            "cite_spans": [
+                {
+                    "start": 148,
+                    "end": 152,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Related Work and Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Unfolding grammars in adhesive categories",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baldan",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Corradini",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Heindel",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "K\u00f6nig",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Soboci\u0144ski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "CALCO 2009",
+            "volume": "5728",
+            "issn": "",
+            "pages": "350--366",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-03741-2_24"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Unfolding graph transformation systems: theory and applications to verification",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baldan",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Corradini",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "K\u00f6nig",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Concurrency, Graphs and Models",
+            "volume": "5065",
+            "issn": "",
+            "pages": "16--36",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-68679-8_3"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Coreflective concurrent semantics for single-pushout graph grammars",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baldan",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Corradini",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Montanari",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Ribeiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "WADT 2002",
+            "volume": "2755",
+            "issn": "",
+            "pages": "165--184",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-40020-2_9"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Unfolding semantics of graph transformation",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Baldan",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Corradini",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Montanari",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Ribeiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Inf. Comput",
+            "volume": "205",
+            "issn": "5",
+            "pages": "733--782",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ic.2006.11.004"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Fundamentals of Algebraic Graph Transformation",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ehrig",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Ehrig",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [],
+                    "last": "Prange",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Taentzer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-31188-2"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Unfoldings: A Partial-Order Approach to Model Checking",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Esparza",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Heljanko",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Monographs in Theoretical Computer Science. An EATCS Series",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-77426-6"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Towards the verification of attributed graph transformation systems",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "K\u00f6nig",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kozioura",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ehrig",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Heckel",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Rozenberg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "ICGT 2008",
+            "volume": "5214",
+            "issn": "",
+            "pages": "305--320",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-87405-8_21"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Symbolic attributed graphs for attributed graph transformation",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Orejas",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Lambers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "ECEASST",
+            "volume": "30",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Lazy graph transformation",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Orejas",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Lambers",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Fundam. Inform",
+            "volume": "118",
+            "issn": "1-2",
+            "pages": "65--96",
+            "other_ids": {
+                "DOI": [
+                    "10.3233/FI-2012-706"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "2011 IEEE 26th Annual Symposium on Logic in Computer Science",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Rideau",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Winskel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "409--418",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Attributed rule and transformation (Color figure online)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Rules of the escrow model, in Henshin notation (Colorfigure online)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Type graph, causality (solid) and asymmetric conflicts (dashed) of attributed occurrence grammar (Colorfigure online)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Causality relation of attributed occurrence grammar (Color figure online)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "attribute concurrent graph). Let AO = T G, G in , P, \u03c0 be an attributed occurrence grammar. A subgraph G of T G is called attribute concurrent if1. \u00ac(x < y) for all x, y \u2208 G;2. G is current and G finite;3.   is acyclic on G ;4. for all e \u2208 T G and n \u2208 {s(e), t(e)}, if n\u2022 \u2229 G = \u2205 and \u2022 e \u2286 G then e \u2022 \u2229 G = \u2205; 5. \u03a6 Gin \u222a \u03a6( G ) is satisfiable. Proposition 2 (attribute concurrent graphs are coverable). A graph G \u2286 T G is attribute concurrent if and only if it is coverable in AO, i.e. there is a derivation Min(AO) \u21d2 * H with G \u2286 H.For every concurrent graph G one can find a derivation Min(O) \u21d2 * H which applies exactly once every rule in G , in any order consistent with ( G ) * . Vice versa for each derivation Min(O) \u21d2 * G in O, the set of rules it applies contains G and their order is compatible with * . Therefore reachable graphs are concurrent. Furthermore, each subgraph of a concurrent graph is concurrent as well, thus so are all coverable graphs.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "sell1 w1.balance, in \u2212 p, in \u00d7 e.stakeF actor, in c.balance, sell1 p, in \u00d7 e.stakeF actor, in",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We would like to thank the authors of [2] for their support and advice.",
+            "cite_spans": [
+                {
+                    "start": 38,
+                    "end": 41,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Acknowledgement."
+        }
+    ]
+}

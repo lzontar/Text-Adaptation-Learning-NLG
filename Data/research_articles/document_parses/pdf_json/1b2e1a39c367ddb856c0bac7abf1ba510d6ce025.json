@@ -1,0 +1,1172 @@
+{
+    "paper_id": "1b2e1a39c367ddb856c0bac7abf1ba510d6ce025",
+    "metadata": {
+        "title": "A Note on Cryptographic Algorithms for Private Data Analysis in Contact Tracing Applications",
+        "authors": [
+            {
+                "first": "Rajan",
+                "middle": [
+                    "M A"
+                ],
+                "last": "",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "TCS Research",
+                    "location": {
+                        "country": "India"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Contact tracing is an important measure to counter the COVID-19 pandemic. In the early phase, many countries employed manual contact tracing to contain the rate of disease spread, however it has many issues. The manual approach is cumbersome, time consuming and also requires active participation of a large number of people to realize it. In order to overcome these drawbacks, digital contact tracing has been proposed that typically involves deploying a contact tracing application on people's mobile devices which can track their movements and close social interactions. While studies suggest that digital contact tracing is more effective than manual contact tracing, it has been observed that higher adoption rates of the contact tracing app may result in a better controlled epidemic. This also increases the confidence in the accuracy of the collected data and the subsequent analytics.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "One key reason for low adoption rate of contact tracing applications is the concern about individual privacy. In fact, several studies report that contact tracing applications deployed in multiple countries are not privacy friendly and have potential to be used for mass surveillance by the concerned governments. Hence, privacy respecting contact tracing application is the need of the hour that can lead to highly effective, efficient contact tracing.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "As part of this study, we focus on various cryptographic techniques that can help in addressing the Private Set Intersection problem which lies at the heart of privacy respecting contact tracing. We analyze the computation and communication complexities of these techniques under the typical client-server architecture utilized by contact tracing applications. Further we evaluate those computation and communication complexity expressions for India scenario and thus identify cryptographic techniques that can be more suitably deployed there.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In the current COVID-19 crisis, contact tracing mobile applications is the need of the hour to contain the pandemic, and hence privacy preservation becomes a core area of significance and relevance. As more people start using these applications, it will become easier for individuals, the government and the society at large to analyse the spread and achieve traceability of the affected people, and thereby render support. Through the app, individuals can be alerted if they had visited the places that were visited by a COVID-19 affected person around the same time. Similarly, it will help the government to identify the affected people and quarantine them, so that the rate of disease spread can be contained. Therefore, an extensive and effective use of the App can help to contain the disease and thereby help to reduce the causalities. It can also enable a reduction of the lockdown duration, thereby expediting the resumption of economic activities post lockdown and thus helping the society. One of the main reasons why many people are reluctant to use contact tracing applications include their privacy concerns, especially pertaining to the individual's location and health data, as the former can reveal a person's behaviour and disclose relationships, and the latter can have adverse impact on his/her social life. To address this, apps such as MIT's SafePath from USA [16] , TraceTogether from Singapore, Hamagen (The Shield) from Israel, Aarogya Setu from India, etc. have been proposed and deployed with a focus on user centric privacy along with contact tracing [17] . Further, it is observed that higher adoption rates of a contact tracing app may result in a better controlled epidemic or pandemic outbreak [19] . In Indian context, it is proposed that at least 60-70% of the population is required to use the contact tracing application actively, in order to have confidence in the data accuracy of contact tracing and the related risk calculation 1 .",
+            "cite_spans": [
+                {
+                    "start": 1382,
+                    "end": 1386,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1579,
+                    "end": 1583,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1726,
+                    "end": 1730,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 1968,
+                    "end": 1969,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "Further OpenMined blog post [11] has a discussion on the maximisation of privacy without degrading the effectiveness of COVID-19 apps. They have done a detailed analysis of possible use cases from the perspective of both the citizens as well as the government health services. The blog post further describes techniques that can be used to design privacy enabled apps for citizen centric use cases. One of the main enablers for these kinds of apps is the Private Set Intersection (PSI) technique [1] . In this work, we describe some such techniques that are based on well-studied cryptographic approaches that in turn facilitate flexible client-server mode of operations for such mobile applications.",
+            "cite_spans": [
+                {
+                    "start": 28,
+                    "end": 32,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 496,
+                    "end": 499,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "INTRODUCTION"
+        },
+        {
+            "text": "As part of the setup, we assume that there is a server that has the GPS trails of COVID-19 affected persons and it can provide redacted data (by filtering out the sensitive and personally identifiable information such as residence/office location etc.) of these data sets to the client application (mobile app of the client side contact tracing app) which is running on the user's mobile phone in an encrypted manner. Here a person who is using the contact tracing client app in his/her mobile phone that has a list of GPS trails of the places he/she has visited. He/She can query the server through his/her client app to know whether he/she has crossed the places where a COVID-19 affected person visited at the same time or within a specified time window (as COVID-19 virus can survive for several hours) in a privacy preserving manner. Accordingly, a risk score can be computed. This problem can be abstracted as Private Set Intersection (PSI) problem. Informally, in PSI, each party has got a set of elements and they want to compute the intersection of these two sets in a privacy preserving manner. Here, both the parties can learn only the intersection and it is computationally very hard for them to know any details about the other elements of each other's sets. Generally, PSI protocols can be designed under three settings: (i) Pull model, (ii) Push model, and (iii) Hybrid model. We explain these models in the remainder of the section.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SETUP"
+        },
+        {
+            "text": "For analysis purpose, we assume that for the country of size M, the size of the server data will be O(M) and if O(M) people download the data from the server, then the data consumption will be O(C(M 2 )). Here C represents communication complexity of the given PSI protocol. It depends on cardinalities of the two sets, encryption scheme used in the protocol, etc. For the sake of simplicity, we assume that it depends on cardinalities of the two sets M and N . Let O(M) and O(N ) be the size of the set of GPS trails of the server and the client respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "SETUP"
+        },
+        {
+            "text": "The client pulls the GPS trails of the COVID-19 affected persons from the server and computes the intersection of his/her GPS trail set and the server's set in a privacy preserving manner. Note that, all the computations need to be performed at the client side and client app also needs to download the entire data set from the server. Thus, communication and computational complexities for the client are O(C(M)) and O(F (M, N )) respectively. Here F is the computational complexity of a given PSI protocol, which depends on cardinalities of the two sets (M and N ), key length, etc. For the sake of simplicity, we assume that F is a function of M and N .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pull Model"
+        },
+        {
+            "text": "\u2022 Advantage for the Client. Data privacy of the client is ensured, as the server cannot determine anything about the client's data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pull Model"
+        },
+        {
+            "text": "\u2022 Disadvantage for the Client. All the computations related to the PSI need to be performed locally and hence it consumes battery power. \u2022 Advantage for the Server. Less computation overhead, as server does not need to compute PSI.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pull Model"
+        },
+        {
+            "text": "\u2022 Disadvantage for the Server. Client can carry out some inference attacks by brute forcing.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Pull Model"
+        },
+        {
+            "text": "The client can send his/her GPS trails to the server in an encrypted manner. The server computes the PSI and shares the result with the client. Thus, communication and computational complexity for the client and server are O(C(N ))/O(F (N )) and O(C(N ))/O(F (MN )) respectively.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Push Model"
+        },
+        {
+            "text": "\u2022 Advantage for the Client. Client application will be lightweight and therefore, it can encourage more people to use the application. \u2022 Advantage for the Server. There is no need for the server to send its data to the client and hence it can prevent inference attacks from the client. \u2022 Disadvantage for the Server. Server has more computation overhead, as it needs to compute PSI.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Push Model"
+        },
+        {
+            "text": "In the hybrid approach, both the client and the server need to do computations for many rounds (at least two) along with data exchanges. Thus, the client and the server need to do both push and pull of the data from each other along with some computations. In most of the techniques such as RSA, etc., which are used to solve PSI, communication and computation complexity for the server is more than that of the client. To start with, for the sake of completeness, we discuss the simplest PSI scheme based on hash (na\u00efve) approach followed by different cryptographic approaches.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Hybrid Model"
+        },
+        {
+            "text": "Here either the server or the client can send their data set to each other and compute the intersection and they can share the result with each other. From the user's data privacy perspective for COVID-19 scenario, the pull model is preferred (at the cost of higher computation and communication complexities), while the push model is not suitable as it leaks the client's data to the server. For the pull model, the client needs to perform O(MN ) comparisons to determine intersection. In case of the pull model, the client can learn the server's data through brute force.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Hash Based (Na\u00efve) Approach."
+        },
+        {
+            "text": "In this section, we discuss different classes of cryptographic techniques to solve PSI. Throughout this analysis, we assume that set of GPS trails consists of an ordered tuple which includes latitude, longitude and timestamp. For the analysis purpose, let latitude, longitude and timestamp be concatenated and the concatenated data be hashed. The output of the hash of these concatenated data can be considered as elements of the set of GPS trails. On these sets, PSI can be performed. Let X = {x 1 , x 2 , . . . , x m } be the set of GPS trails of COVID-19 affected persons maintained by the server and Y = {y 1 , y 2 , . . . , y n } be the set of GPS trails of the user of the contact tracing app stored by the client app running on the user's mobile phone. Here, each x i and y i are obtained by hashing the concatenation of latitude, longitude and timestamp related to COVID-19 affected person and app user respectively. We assume that m \u226b n. Further, most of these PSI schemes assume semi-honest adversaries (wherein both the parties are curious, but do not deviate from the protocol execution).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CRYPTOGRAPHIC APPROACHES TO COMPUTE PSI"
+        },
+        {
+            "text": "Therefore, there is computationally less overhead when compared to those protocols that handle malicious adversaries. Since these apps need to perform PSI on large data set, very often protocols that support semi-honest adversaries are suitable. There are broadly three approaches: (i) Public key crypto based (ii) Circuit based (iii) Oblivious Transfer (OT) based, under which PSI schemes are designed. Circuit based and OT based schemes are generally not suitable for large sized sets (> 2 30 ), where the client system is deployed on a handheld device/mobile phone, as these schemes are computationally complex and the circuit generation needs to be done every time for any new queries [8] . For example, for Yao-SCS (Sort Compare Shuffle) based PSI scheme [7, 14] , computation and communication complexities are O((12m\u03c3 log m + 3m\u03c3 )) symmetric operations and O(6m\u03ba\u03c3 log m + 2m\u03ba\u03c3 ) bits respectively. Here \u03c3 and \u03ba are length of the input (at least 256 bits) and security parameter of the symmetric encryption respectively. The higher the cardinality of the server data set, the higher will be the computation and communication complexities.",
+            "cite_spans": [
+                {
+                    "start": 689,
+                    "end": 692,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 760,
+                    "end": 763,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 764,
+                    "end": 767,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "CRYPTOGRAPHIC APPROACHES TO COMPUTE PSI"
+        },
+        {
+            "text": "Since contact tracing applications are installed on mobile phones, we now discuss only those PSI schemes that are based on public key crypto systems, which are suitable to compute X \u2229 Y and analyse their suitability from the perspective of the above models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CRYPTOGRAPHIC APPROACHES TO COMPUTE PSI"
+        },
+        {
+            "text": "Security of this algorithm is based on DDH (Decisional Diffie-Hellman) assumption [10] . This class of design is a hybrid model. Here both the client and the server need to do some computation on their data set and share the intermittent result to each other through Diffe-Hellman approach, and then perform the PSI, as shown in Figure 1 . Here the client's data privacy is protected. This approach is simple with a more computation overhead at the client side, when compared to the hash (na\u00efve) based approach, as it needs to compute O(m + n) exponentiations along with O(mn) comparisons to find intersection. For more security, elliptic curve based implementation can also be used. ",
+            "cite_spans": [
+                {
+                    "start": 82,
+                    "end": 86,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 329,
+                    "end": 337,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "Diffie-Hellman Approach"
+        },
+        {
+            "text": "This approach is based on OT technique, which uses additive homomorphic encryption such as Paillier scheme [5] , shown in Figure 2 . Here the client constructs a polynomial using its data set and sends the encrypted (using its public key) coefficients to the server. Then server generates a set of random numbers {r 1 , r 2 , . . . , r m } and for each data x i \u2208 X , it computes E x i = E(P(x i ) * r i + x i ) using homomorphic encryption and sends it to the client. Then the client decrypts the received data set and determines the intersection. Here for the server, there is a computation overhead due to polynomial evaluation on the encrypted data and one can explore efficient polynomial evaluation such as Karartsuba method to speed up. ",
+            "cite_spans": [
+                {
+                    "start": 107,
+                    "end": 110,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 122,
+                    "end": 130,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Homomorphic (Additive) Encryption Approach"
+        },
+        {
+            "text": "In this approach [3] , security of the algorithm is based on RSA factorization, shown in Figure 3 .",
+            "cite_spans": [
+                {
+                    "start": 17,
+                    "end": 20,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 89,
+                    "end": 97,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "Blind RSA Approach"
+        },
+        {
+            "text": "Here the server choses N = pq, e, d, where p, q are prime numbers and e, d are public and private keys respectively, generated by the server. Note that e, d are co-prime to N and ed \u2261 1mod(N ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Blind RSA Approach"
+        },
+        {
+            "text": "Using RSA technique, both the client and the server perform the computations and finally the client computes PSI. Here the client's data privacy is protected, as the server cannot learn anything about the client's data. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Blind RSA Approach"
+        },
+        {
+            "text": "In Table 1 , we have tabulated the computational and communication complexities for the schemes described earlier (Section 3) by theoretical analysis. We assume that the input data size is \u03b1 bits, output data size is \u03b2 bits and security parameter is \u03c4 bits. We derived the expressions for complexities of the PSI schemes based on the complexities of primitive operations. These PSI schemes are inherently designed using the primitive operations that are described in the appendix.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 10,
+                    "text": "Table 1",
+                    "ref_id": "TABREF2"
+                }
+            ],
+            "section": "COMPLEXITY ANALYSIS OF PSI SCHEMES"
+        },
+        {
+            "text": "For the performance analysis of PSI schemes for contact tracing applications, we consider the India scenario. We know that India's population is about 130 crores (that is, 1.3 billion), which is approximately equal to 2 31 . Let us assume that, 50% (2 30 ) of the people have smart phones. Let us also assume that among every 500 persons, one person (that is, ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "COMPUTATION COMPLEXITY OF PSI SCHEMES FOR CONTACT TRACING IN INDIAN SCENARIO"
+        },
+        {
+            "text": "Hash based (Na\u00efve) approach (push model)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "COMPUTATION COMPLEXITY OF PSI SCHEMES FOR CONTACT TRACING IN INDIAN SCENARIO"
+        },
+        {
+            "text": "Diffie-Hellman approach successively for a long duration in a day due to controlled mobility (because of lockdown), eight hour sleep, etc., for the analysis purpose, we sample the data and use only 25% of the collected data, which is approximately equal to 2 20 . In totality, at the server side, there are 2 42 (= 2 22 2 20 ) GPS trails. We also assume that this data is stored town wise in the server database. In India, we have about 7935 towns (\u2248 2 12 ). Therefore, town wise, there can be (\u2248 2 30 ) GPS trails of the COVID-19 affected persons on an average. Hence a person who is residing in a particular town can find out whether he/she was in close proximity to any COVID-19 affected person around a particular time and for how much duration, while ensuring that their privacy is preserved by sharing his/her encrypted GPS trails to the server (push model) or downloading the list of encrypted trails of the affected persons from the server (pull model) of that town. For the performance analysis, we assume that the person using the contact tracing app can send a maximum of 2 10 encrypted GPS trails for the query purpose. We also assume that the server and the user of the mobile phone, where client side of the contact tracing app is running, have CPUs with clock speed of 100 GHz and 1 GHz respectively. Table 2 and Table 3 describe the performance (empirical) analysis of various PSI schemes by evaluating the formulas (computation and communication complexities) described in Table 1 for India scenario (m = 2 30 , n = 2 10 ) and also a sparser scenario with m = 2 20 and n = 2 10 respectively.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1316,
+                    "end": 1323,
+                    "text": "Table 2",
+                    "ref_id": "TABREF4"
+                },
+                {
+                    "start": 1328,
+                    "end": 1335,
+                    "text": "Table 3",
+                    "ref_id": null
+                },
+                {
+                    "start": 1490,
+                    "end": 1497,
+                    "text": "Table 1",
+                    "ref_id": "TABREF2"
+                }
+            ],
+            "section": "COMPUTATION COMPLEXITY OF PSI SCHEMES FOR CONTACT TRACING IN INDIAN SCENARIO"
+        },
+        {
+            "text": "\u2022 Server Side Analysis. We observe that from the server perspective with respect to the following: -computation complexity. Hash based (na\u00efve) pull model is the best scheme followed by hash based (na\u00efve) push model, Diffie-Hellman, Blind RSA and Homomorphic (Additive) Encryption approaches. -communication complexity. Hash based (na\u00efve) pull model is the best scheme followed by hash based (na\u00efve) push model, Diffie-Hellman, Blind RSA, and Homomorphic (Additive) Encryption approaches.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "COMPUTATION COMPLEXITY OF PSI SCHEMES FOR CONTACT TRACING IN INDIAN SCENARIO"
+        },
+        {
+            "text": "\u2022 Client Side Analysis. We observe that from the client perspective with respect to the following: -computation complexity. Hash based (na\u00efve) push model is the best scheme followed by hash based (na\u00efve) pull model, Blind RSA, Diffie-Hellman and Homomorphic (Additive) Encryption approaches. -communication complexity. Hash based (na\u00efve) push model is the best scheme followed by Diffie-Hellman, Blind RSA, Homomorphic (Additive) Encryption and hash based (na\u00efve) pull model approaches.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "COMPUTATION COMPLEXITY OF PSI SCHEMES FOR CONTACT TRACING IN INDIAN SCENARIO"
+        },
+        {
+            "text": "There are several optimizations with respect to storage, communication and computation discussed in [4, 8, 14] for PSI schemes. In order to compute intersection of two sets with equal cardinalities (say, N ); O(N 2 ) pairwise comparisons need to be performed. By mapping elements of set into hash tables of different bin sizes, intersection of two sets can be computed. Here if elements of the two sets are mapped to the same bin, it implies that they are part of the intersection. In this way the number of pairwise comparisons can be reduced from O(N 2 ) to O(N ). PSI schemes based on OT and Circuit based protocols use these hash table techniques to reduce the complexity of computation. However, there can be false positives in this approach. To reduce the false positives to the desired level, parameters such as the number of bins, the number of hash functions need to be configured appropriately. We discuss the same in the following approaches.",
+            "cite_spans": [
+                {
+                    "start": 100,
+                    "end": 103,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 104,
+                    "end": 106,
+                    "text": "8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 107,
+                    "end": 110,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PSI OPTIMIZATIONS SUITABLE FOR MOBILE APPLICATION DEPLOYMENTS"
+        },
+        {
+            "text": "\u2022 Privacy Enabled Bloom Filter. Primarily the two data sets can be mapped into a Bloom filter, which is a compact representation of the set and one can compute the set intersection on respective Bloom filters with approximations. Note that, there can be false positives, but no false negative, when one queries into a Bloom filter. One can reduce the false positives by configuring the Bloom filter parameters such as size, etc. There are privacy enabled Bloom filters that can protect privacy of both the parties (server and client). In [8] , privacy enabled Bloom filter based on the above cryptographic approaches is analysed with respect to computing time, storage and communication overheads. This protocol runs in 3 phases: (i) Base phase: Data independent computations are performed. (ii) Setup phase: Data transfer from server to client takes place with O(M) complexity. (iii) Online phase: Computation and data transfer takes place between the server and the client with O(N) complexity. They have implemented the same on both mobile and laptop. On mobile phone, for a maximum cardinality of set 2 20 with 128-bit security, performance of Diffie-Hellman (in online phase) based Bloom filter is approximately 2.5 to 10 times faster when compared to RSA and ECC based Bloom filters. \u2022 Cuckoo Hashing. Cuckoo hashing is a data structure, which uses a set of \u03b3 hash functions {h 1 , h 2 , . . . , h \u03b3 } wherein all the elements of a set can be mapped into different bins without any collision in a compact way. In case of a collision, the current element is relocated into another location. With this, any query for the set membership can be achieved with a constant computation complexity O(1). There are several schemes [6, 14] that use Cuckoo hashing to design PSI in an efficient manner, both in terms of computation and communication. For example, in [13] , it is shown that OT-phasing based PSI protocol requires a factor of 2-3 less communication than that of DH-ECC based PSI protocol. \u2022 Count Min Sketch/Counting Bloom filter. In order to reduce the False Positive Rates (FPR), count min (CM) sketch can be used for PSI in a compact way. According to [2] , \"CM sketch is a probabilistic data structure that serves as a frequency table of events in a stream of data. It uses hash functions to map events to frequencies, but unlike a hash space, at the expense of over counting some events due to collisions\". This needs to be explored from privacy preserving computation, communication, storage and update perspective. The advantage with this data structure is besides computing PSI, one can also record/count the frequency of the data element that is repeated in the set (multi-set) in a compact way. For example, the number of COVID-19 positives in a particular location spotted where a normal healthy person visited at the same time can be computed along with the matching in a compact way. 34 2 24 We assume inputs are hashed and keys are generated. Prime numbers p and q are of 2 12 bits. Input size \u03b1 = 2 8 and Security parameter \u03c4 = 2 12 Table 3 . Performance Analysis of PSI Schemes with m = 2 20 and n = 2 10 .",
+            "cite_spans": [
+                {
+                    "start": 538,
+                    "end": 541,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1727,
+                    "end": 1730,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1731,
+                    "end": 1734,
+                    "text": "14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1861,
+                    "end": 1865,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 2165,
+                    "end": 2168,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 2907,
+                    "end": 2909,
+                    "text": "34",
+                    "ref_id": null
+                },
+                {
+                    "start": 2912,
+                    "end": 2914,
+                    "text": "24",
+                    "ref_id": null
+                },
+                {
+                    "start": 2998,
+                    "end": 3000,
+                    "text": "12",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 3058,
+                    "end": 3065,
+                    "text": "Table 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "PSI OPTIMIZATIONS SUITABLE FOR MOBILE APPLICATION DEPLOYMENTS"
+        },
+        {
+            "text": "In general, a contact tracing application can be designed to operate in a centralised, decentralised or hybrid manner. In the centralised design approach, data belonging to the application user is managed by the centralised server. As a result of this, the server is in a position to carry out surveillance. For instance, apps such as Hamagen (The Shield) from Israel, China app and Aarogya Setu of India are based on the centralized design. Further, these apps do not use any PSI schemes as of writing this paper [17] .",
+            "cite_spans": [
+                {
+                    "start": 514,
+                    "end": 518,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PSI SCHEMES USED IN CONTACT TRACING APPLICATIONS"
+        },
+        {
+            "text": "When such apps are designed with a decentralised approach, the application users have a greater control on their data. Only those users who are confirmed to be infected with COVID-19 may voluntarily share their data (such as GPS trails) to certain listed entities like government, health care agencies, etc., in a privacy preserving manner. In [18] , DP3T (Decentralised Privacy Preserving Proximity Tracing) architecture is proposed that is based on a decentralised design. To enable privacy and security of the user, they have proposed secret sharing schemes and pseudonyms. No information on the use of PSI scheme is discussed in the paper.",
+            "cite_spans": [
+                {
+                    "start": 344,
+                    "end": 348,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PSI SCHEMES USED IN CONTACT TRACING APPLICATIONS"
+        },
+        {
+            "text": "Applications such as TraceTogether from Singapore follow the hybrid design paradigm. Here anonymity of the application user is assured by a centralised entity (government). When an application user is confirmed to be infected with COVID-19, he/she can voluntarily share the collected data (which is anonymised) to the server. This helps the server to alert the other users (and may even be non-users) who were in the proximity of this user. Since, the centralised server facilitates the data anonymisation for the application users; it can learn information about those users who had uploaded the data. In TraceTogether application, no PSI scheme is used.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "PSI SCHEMES USED IN CONTACT TRACING APPLICATIONS"
+        },
+        {
+            "text": "The initial version of the MIT's Safepath [16] is based on the centralised design (pull model), in which the server manages the data (GPS trails) related to the COVID-19 affected persons in privacy preserving manner. It facilitates the user of the application to know, whether he/she was in close proximity with the affected person in a privacy preserving way. To enable this, they have implemented PSI scheme based on hash (na\u00efve) approach. For the next version of the app, they are coming up with other sophisticated PSI schemes such as Diffie-Hellman based PSI.",
+            "cite_spans": [
+                {
+                    "start": 42,
+                    "end": 46,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "PSI SCHEMES USED IN CONTACT TRACING APPLICATIONS"
+        },
+        {
+            "text": "One of the ways to contain the COVID-19 infection spreading is through contact tracing. However, in some of the countries, contact tracing is done manually, which is time-consuming and cumbersome. Hence, digital contact tracing, which is simple and fast, is preferable over manual contact tracing. The success of the digital contact tracing depends on the number of people using it effectively. One of the hindrances to adopting the digital contact tracing by the citizens is privacy concerns. Digital contact tracing without privacy of the users can lead to their surveillance by the agencies such as the government. Most of the existing contact tracing applications have limited data privacy for their users. Hence, privacy enabled contact tracing applications is the need of the hour. In this direction, we have discussed some of the PSI schemes that can be leveraged to enable data privacy for the user of the contact tracing applications. Further, from both the user's and the server's perspective, we analysed the security, privacy and performance of these schemes for the contact tracing application. We also analysed empirically the performance of these PSI schemes by taking into consideration the scenario in India. As part of the future work, we would like to explore the scope of optimization of the PSI schemes for designing efficient digital contact tracing applications.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "CONCLUDING REMARKS"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Assessing Disease Exposure Risk with Location Data: A Proposal for Cryptographic Preservation of Privacy",
+            "authors": [
+                {
+                    "first": "Alex",
+                    "middle": [],
+                    "last": "Berke",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michiel",
+                    "middle": [],
+                    "last": "Bakker",
+                    "suffix": ""
+                },
+                {
+                    "first": "Praneeth",
+                    "middle": [],
+                    "last": "Vepakomma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ramesh",
+                    "middle": [],
+                    "last": "Raskar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kent",
+                    "middle": [],
+                    "last": "Larson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alex &apos;sandy&apos;",
+                    "middle": [],
+                    "last": "Pentland",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.14412"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "An improved data stream summary: the count-min sketch and its applications",
+            "authors": [
+                {
+                    "first": "Graham",
+                    "middle": [],
+                    "last": "Cormode",
+                    "suffix": ""
+                },
+                {
+                    "first": "Shan",
+                    "middle": [],
+                    "last": "Muthukrishnan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Journal of Algorithms",
+            "volume": "55",
+            "issn": "",
+            "pages": "58--75",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Practical private set intersection protocols with linear complexity",
+            "authors": [
+                {
+                    "first": "Gene",
+                    "middle": [],
+                    "last": "Emiliano De Cristofaro",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Tsudik",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "International Conference on Financial Cryptography and Data Security",
+            "volume": "",
+            "issn": "",
+            "pages": "143--159",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Private Set Intersection with Linear Communication from General Assumptions",
+            "authors": [
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Brett Hemenway Falk",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rafail",
+                    "middle": [],
+                    "last": "Noble",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Ostrovsky",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "IACR Cryptology ePrint Archive",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Efficient private matching and set intersection",
+            "authors": [
+                {
+                    "first": "Kobbi",
+                    "middle": [],
+                    "last": "Michael J Freedman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benny",
+                    "middle": [],
+                    "last": "Nissim",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pinkas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "International conference on the theory and applications of cryptographic techniques",
+            "volume": "",
+            "issn": "",
+            "pages": "1--19",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Private Categorization",
+            "authors": [
+                {
+                    "first": "Jack",
+                    "middle": [],
+                    "last": "Gurev",
+                    "suffix": ""
+                },
+                {
+                    "first": "Aleksejs",
+                    "middle": [],
+                    "last": "Popovs",
+                    "suffix": ""
+                },
+                {
+                    "first": "Hannah",
+                    "middle": [],
+                    "last": "Whisnant",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Private set intersection: Are garbled circuits better than custom protocols",
+            "authors": [
+                {
+                    "first": "Yan",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "David",
+                    "middle": [],
+                    "last": "Evans",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jonathan",
+                    "middle": [],
+                    "last": "Katz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "NDSS",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Private set intersection for unequal set sizes with mobile applications",
+            "authors": [
+                {
+                    "first": "\u00c1gnes",
+                    "middle": [],
+                    "last": "Kiss",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jian",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Asokan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benny",
+                    "middle": [],
+                    "last": "Pinkas",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings on Privacy Enhancing Technologies",
+            "volume": "4",
+            "issn": "",
+            "pages": "177--197",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "The Art of Computer Programming",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "De Knuth",
+                    "suffix": ""
+                }
+            ],
+            "year": 1981,
+            "venue": "",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "A more efficient cryptographic matchmaking protocol for use in the absence of a continuously available third party",
+            "authors": [
+                {
+                    "first": "Catherine",
+                    "middle": [],
+                    "last": "Meadows",
+                    "suffix": ""
+                }
+            ],
+            "year": 1986,
+            "venue": "1986 IEEE Symposium on Security and Privacy",
+            "volume": "",
+            "issn": "",
+            "pages": "134--134",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Maximizing Privacy and Effectiveness in Covid-19 Apps",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Public-key cryptosystems based on composite degree residuosity classes",
+            "authors": [
+                {
+                    "first": "Pascal",
+                    "middle": [],
+                    "last": "Paillier",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "International conference on the theory and applications of cryptographic techniques",
+            "volume": "",
+            "issn": "",
+            "pages": "223--238",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Phasing: Private set intersection using permutation-based hashing",
+            "authors": [
+                {
+                    "first": "Benny",
+                    "middle": [],
+                    "last": "Pinkas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gil",
+                    "middle": [],
+                    "last": "Segev",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Zohner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "24th {USENIX} Security Symposium ({USENIX} Security 15",
+            "volume": "",
+            "issn": "",
+            "pages": "515--530",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Scalable private set intersection based on OT extension",
+            "authors": [
+                {
+                    "first": "Benny",
+                    "middle": [],
+                    "last": "Pinkas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Thomas",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michael",
+                    "middle": [],
+                    "last": "Zohner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "ACM Transactions on Privacy and Security (TOPS)",
+            "volume": "21",
+            "issn": "",
+            "pages": "1--35",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Analysis and design of cryptographic hash functions",
+            "authors": [
+                {
+                    "first": "Bart",
+                    "middle": [],
+                    "last": "Preneel",
+                    "suffix": ""
+                }
+            ],
+            "year": 1993,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Apps gone rogue: Maintaining personal privacy in an epidemic",
+            "authors": [
+                {
+                    "first": "Ramesh",
+                    "middle": [],
+                    "last": "Raskar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Isabel",
+                    "middle": [],
+                    "last": "Schunemann",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rachel",
+                    "middle": [],
+                    "last": "Barbar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kristen",
+                    "middle": [],
+                    "last": "Vilcans",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jim",
+                    "middle": [],
+                    "last": "Gray",
+                    "suffix": ""
+                },
+                {
+                    "first": "Praneeth",
+                    "middle": [],
+                    "last": "Vepakomma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Suraj",
+                    "middle": [],
+                    "last": "Kapa",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andrea",
+                    "middle": [],
+                    "last": "Nuzzo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rajiv",
+                    "middle": [],
+                    "last": "Gupta",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alex",
+                    "middle": [],
+                    "last": "Berke",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.08567"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Privacy Guidelines for Contact Tracing Applications",
+            "authors": [
+                {
+                    "first": "Manish",
+                    "middle": [],
+                    "last": "Shukla",
+                    "suffix": ""
+                },
+                {
+                    "first": "Sachin",
+                    "middle": [],
+                    "last": "Lodha",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gautam",
+                    "middle": [],
+                    "last": "Shroff",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ramesh",
+                    "middle": [],
+                    "last": "Raskar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2004.13328"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Decentralized privacy-preserving proximity tracing",
+            "authors": [
+                {
+                    "first": "Carmela",
+                    "middle": [],
+                    "last": "Troncoso",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mathias",
+                    "middle": [],
+                    "last": "Payer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jean-Pierre",
+                    "middle": [],
+                    "last": "Hubaux",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marcel",
+                    "middle": [],
+                    "last": "Salath\u00e9",
+                    "suffix": ""
+                },
+                {
+                    "first": "James",
+                    "middle": [],
+                    "last": "Larus",
+                    "suffix": ""
+                },
+                {
+                    "first": "Edouard",
+                    "middle": [],
+                    "last": "Bugnion",
+                    "suffix": ""
+                },
+                {
+                    "first": "Wouter",
+                    "middle": [],
+                    "last": "Lueks",
+                    "suffix": ""
+                },
+                {
+                    "first": "Theresa",
+                    "middle": [],
+                    "last": "Stadler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Apostolos",
+                    "middle": [],
+                    "last": "Pyrgelis",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniele",
+                    "middle": [],
+                    "last": "Antonioli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Github DP-3T documents",
+            "volume": "12",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Peer-to-Peer Contact Tracing: Development of a Privacy-Preserving Smartphone App",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Tyler",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Yasaka",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Brandon",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ronald",
+                    "middle": [],
+                    "last": "Lehrich",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Sahyouni",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "JMIR mHealth and uHealth",
+            "volume": "8",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "For example, in case of RSA based PSI implementation, communication and computation complexity for the server and the client are (O(C(M + N )), O(F (M + N ))) and (O(C(N )), O(F (N ) + MN )) respectively. Note that since, M >> N , the computation overhead of the server (O(F (M + N ))) is greater than that of the client (O(F (N ) + MN )).",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "PSI Scheme Based on Diffe-Hellman Approach",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "PSI Scheme based on Homomorphic Encryption Approach",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "PSI Scheme based on Blind RSA Approach",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF1": {
+            "text": "2000 cases per 1 million populations, as observed in hot zones like USA, Italy, and France 2 ), is infected with COVID-19. Then the total number of affected people with COVID-19 is approximately equal to 2 22 . We assume that the contact tracing app collects the GPS trails of affected persons. For the analysis purpose, the app records the GPS trail of a person once in a second. For a month, number of GPS trails related to each person collected is 2592000 trails. Since, a lot of GPS trails related to the person may not change",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "Computation and Communication Complexity of PSI Schemes. For Blind RSA Approach & Homomorphic Encryption Approach, it is assumed that inputs are hashed and keys are generated. Efforts for hashing and key generations are not included.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Performance Analysis of PSI Schemes with m = 2 30 and n = 2 10 .",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The computational complexities of the various operations discussed in this section are referred from [9, 12, 15] .(1) Calculation for number of digits of GPS data and time stamp\u2022 Latitude = 10 digits = 10 bytes \u2022 Longitude = 10 digits = 10 bytes \u2022 Time (long) = 8 bytes = 16 digits = 16 bytes \u2022 Concatenation = 36 bytes \u2248 2 9 bits (2) Computation Complexity of hash function\u2022 Depends on input size in bits (\u03b1) -output size in bits (\u03b2) -security parameter in bits (\u03c4 ) \u2022 Computational complexity is O((\u03b1 + \u03b2)\u03c4 ) \u2022 For contact tracing, \u03b1 = 2 9 , \u03b2 = 2 8 and \u03c4 = 2 8 , the time complexity for one GPS data is O(3 \u00d7 2 16 ) \u2248 1.96608 \u00d7 10 5 instructions \u2022 On 100 GHz machine, it takes approximately around 1.9661 micro seconds to compute one hash value of a GPS data \u2022 On 100 GHz machine, to hash 100 billion GPS data, it takes approximately around 1.96608 \u00d7 10 5 seconds (3) Computation Complexity of addition/subtraction of two numbers \u2022 Depends on sizes of the two numbers. We assume that both the numbers are of \u03b1 bits length \u2022 Computational complexity is O(\u03b1) (4) Computation Complexity of multiplication of two numbers\u2022 Depends on sizes of the two numbers. We assume both the numbers are of \u03b1 bits length \u2022 Computational complexity is O(\u03b1 2 ) (5) Computation Complexity of division of two numbers\u2022 Depends on sizes of the two numbers. We assume both the numbers are of \u03b1 bits length \u2022 Computational complexity is O(\u03b1(log \u03b1) 2 ) (6) Computation Complexity of modular exponentiation\u2022 Depends on sizes of the base (\u03b1) and exponent (k)\u2022 Computational complexity is O(\u03b1 2 k) (7) Computation Complexity of polynomial evaluation\u2022 Depends on the degree of the polynomial, size of the co-efficient , number of variates (variables) and size of the variable \u2022 We assume degree of polynomial is \u03b3 and size of the coefficients and variable is \u03b1 \u2022 Computational complexity (using Horner's method) is O(\u03b3 \u03b1(\u03b1 + 1)) (8) Computation Complexity to find the coefficients of a polynomial from its roots\u2022 Depends on the degree of the polynomial (number of roots), size of the roots \u2022 Using fundamental theorem of algebra (Vi\u00ebte's formula), coefficients of a polynomial from its roots can be determined \u2022 We assume degree of polynomial is \u03b3 and size of the roots and variable is \u03b1 \u2022 Computational complexity is O(\u03b3 2 (\u03b1 2 + \u03b1)) (9) Computation Complexity of Paillier additive homomorphic encryption \u2022 As part of the setup, u = pq, where p, q are two large prime numbers with \u0434cd(pq, (p \u2212 1)(p \u2212 1)) = 1 \u2022 \u2135 = lcm(p \u2212 1, q \u2212 1), \u0434 \u2208 Z * u 2 and \u00b5 = (L(\u0434 \u2135 (mod u 2 ))) \u22121 mod u, where L(\u03b8 ) = (\u03b8 \u2212 1)/u \u2022 Public key is (u, \u0434) and Private key is (\u2135, \u00b5) \u2022 Encryption of message s is c = E(s) = \u0434 s r u mod (u 2 ), r is random and \u0434cd(r , u) = 1 \u2022 Decryption of message is s = D(c) = L(c \u2135 mod u 2 )\u00b5 mod (u) \u2022 Homomorphic addition of two messages s 1 and s 2 is s 1 + s 2 = D(E(s 1 , r 1 ) * E(s 2 , r 2 )) \u2022 We assume that p, q are of size of \u03b1 bits and thus \u0434, r are of 2\u03b1 and \u03b1 bits respectively, message is of \u03b2 bits \u2022 For complexity analysis, we assume that public and private keys are generated \u2022 Computational complexity of encryption, decryption and homomorphic addition are O(2\u03b1 2 (\u03b1 + 2\u03b2 + 8)), O(4\u03b1(16\u03b1 2 + 4\u03b1 + (log 4\u03b1) 2 )) and O(16\u03b1 2 ) respectively",
+            "cite_spans": [
+                {
+                    "start": 101,
+                    "end": 104,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 105,
+                    "end": 108,
+                    "text": "12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 109,
+                    "end": 112,
+                    "text": "15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A APPENDIX"
+        }
+    ]
+}

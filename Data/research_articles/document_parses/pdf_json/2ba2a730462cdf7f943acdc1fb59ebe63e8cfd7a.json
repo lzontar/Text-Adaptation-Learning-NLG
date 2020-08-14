@@ -1,0 +1,1695 @@
+{
+    "paper_id": "2ba2a730462cdf7f943acdc1fb59ebe63e8cfd7a",
+    "metadata": {
+        "title": "Discrete SIRIR modelling using empirical infection data shows that SARS- CoV-2 infection provides short-term immunity",
+        "authors": [
+            {
+                "first": "Andrew",
+                "middle": [],
+                "last": "Mcmahon",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Clarendon Laboratory",
+                    "institution": "University of Oxford",
+                    "location": {
+                        "postCode": "OX1 3PU",
+                        "settlement": "Oxford",
+                        "country": "United Kingdom"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Nicole",
+                "middle": [
+                    "C"
+                ],
+                "last": "Robb",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Clarendon Laboratory",
+                    "institution": "University of Oxford",
+                    "location": {
+                        "postCode": "OX1 3PU",
+                        "settlement": "Oxford",
+                        "country": "United Kingdom"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The novel coronavirus SARS-CoV-2, which causes the COVID-19 disease, is now a global pandemic. Since December 2019, it has infected millions of people, caused the deaths of hundreds of thousands, and resulted in incalculable social and economic damage. Understanding the infectivity and transmission dynamics of the virus is essential for understanding how best to reduce mortality whilst ensuring minimal social restrictions to the lives of the general population. Anecdotal evidence is available, but detailed studies have not yet revealed whether infection with the virus results in immunity. In this work, we have extended the generic SIR framework to analyse empirical infection and fatality data from different regions to investigate the reinfection frequency of the disease. Our model predicts that cases of reinfection should have been observed by now if primary SARS-CoV-2 infection did not protect from subsequent exposure in the short term, however, no such cases have been documented. This work, therefore, provides a useful insight for serological testing strategies, lockdown easing and vaccine design.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The novel coronavirus SARS-CoV-2 is thought to have originated in China in late 2019, and has since spread globally, resulting in the COVID-19 pandemic. The virus is a respiratory pathogen that causes mild symptoms in the majority of cases, but can progress to Acute Respiratory Distress Syndrome (ARDS) in a small number of people, which can result in death [1] . To date, the virus has resulted in over six million confirmed infections, almost 400,000 deaths and caused huge social and economic damage. Over 90% of countries have implemented travel restrictions [2] and countless businesses have been closed.",
+            "cite_spans": [
+                {
+                    "start": 359,
+                    "end": 362,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 564,
+                    "end": 567,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The spike protein of the coronavirus is thought to be the primary antigenic target against which neutralizing antibodies are produced [3] [4] [5] . Longitudinal profiles of antibody responses in recovered SARS-CoV-1 patients showed that IgG levels were maintained in >90% of patients for 2 years, however this dropped to approximately 50% of the convalescent population after 3 years [6] . While it is too soon to predict the long term serological response of SARS-CoV-2, it has been shown in a study of 285 individuals presenting with COVID-19 that 100% tested positive for IgG [7] , and a study of hospital staff in France also supported the use of serologic testing to diagnose those who have recovered from SARS-CoV-2 [8] . Rhesus macaque monkeys that had recovered from a primary SARS-CoV-2 infection showed no recurrence of COVID-19 symptoms upon being re-challenged with the virus [9] [10] , however, it is not clear whether this immunity will apply to the human population, or how long it may last for. It is therefore important to investigate whether infection provides immunity against further reinfection, as this can open up new quarantine easing strategies and decrease the further social and economic burden of the virus. SIR (Susceptible, Infected, Recovered) modelling uses a set of differential equations to determine how the number of infected and recovered individuals changes over time given a specified rate of infection and recovery. It was first used in 1927 by Kermack and McKendrick [11] and has since been used to model epidemics from Acquired Immune Deficiency Syndrome (AIDS) [12] to SARS [13] . Variations of SIR modelling have been used during the COVID-19 pandemic to look at the varying burden on healthcare systems based on public health intervention [14] , the absence of a stable disease-free equilibrium [15] and infection rate [16] , as well as the eventual size of the overall pandemic [17] . An extension of the model has also been used to simulate the changing death rate as a function of the number of individuals infected, and it was found that an equilibrium point was reached where there are no further reinfections [18] .",
+            "cite_spans": [
+                {
+                    "start": 134,
+                    "end": 137,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 384,
+                    "end": 387,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 579,
+                    "end": 582,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 722,
+                    "end": 725,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 888,
+                    "end": 891,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 892,
+                    "end": 896,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1485,
+                    "end": 1512,
+                    "text": "Kermack and McKendrick [11]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1604,
+                    "end": 1608,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1617,
+                    "end": 1621,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 1784,
+                    "end": 1788,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 1840,
+                    "end": 1844,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1864,
+                    "end": 1868,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1924,
+                    "end": 1928,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 2160,
+                    "end": 2164,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this study, we have devised a simple dynamic model that uses empirical data taken from a compiled COVID-19 dataset [19] to investigate the reinfection frequency of the disease. By extending the generic SIR framework, we have separated the original infection from subsequent infections to produce our SIRIR (Susceptible, Infected, Recovered, Infected (two or more times), and Recovered (two or more times)) framework to investigate the susceptibility of a person to reinfection. The results of this analysis showed that a small number of cases classified as 'reinfections' should have occurred, however, no definitive cases of reinfection have been reported in the scientific literature to date. This suggests that primary SARS-CoV-2 infection is effective at preventing reinfection in the short term.",
+            "cite_spans": [
+                {
+                    "start": 118,
+                    "end": 122,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "When using this model, the rate of infection, recovery and fatality were assumed to be independent of how many previous infections a host had previously had. The number of infections, deaths and recoveries per day and the populations of the regions were taken from national statistics [19] . The number of susceptible persons at the beginning of the simulation, N, was taken to be the population of the region of interest [19] [20] . After all infections, recoveries and deaths for a day, the number of days into the simulation was increased by one, t\u2192t+1 up to tmax. The simulation was repeated 10,000 times to produce expectation values and standard deviations for the number of individuals classified as reinfections.",
+            "cite_spans": [
+                {
+                    "start": 285,
+                    "end": 289,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 422,
+                    "end": 426,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 427,
+                    "end": 431,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Simulations of United Kingdom infection data suggest a low number of reinfections should have occurred"
+        },
+        {
+            "text": "We initially ran the simulation for data in the United Kingdom [19] over the course of 106 days (from the first recorded case on the 1 st of February until the 17 th of May 2020 when the data was accessed). Figure 2 shows how the population of each state in the model changed over the course of a typical simulation. The number of susceptible individuals initially remained steady, until day 55, when there was a sharp decline due to the increase in primary infections (Figure 2A ). The number of individuals infected just once started to increase steadily after day 40, and continued to do so throughout the simulation until lockdown effects enacted on day 53 (the 23 rd of March 2020) took effect to control the number infected. The average recovery time used in the simulations was set as 28 days, as this is greater than the median recovery time suggested in the report of the WHO-China joint mission on coronavirus disease 2019 [21] . After the 28-day lag time, the individuals infected once started to recover, resulting in an increase in the Recovered (once) state through to the end of the simulation ( Figure 2B ). As the number of recovered individuals started to increase, so did the number of people infected for a second time, and similarly the number of people recovered for the second time started to increase after the 28 day recovery lag time ( Figure 2C ). The number of deaths started to rise from day 55 onwards, and fatalities continued to increase through to the end of the simulation ( Figure 2D ).",
+            "cite_spans": [
+                {
+                    "start": 63,
+                    "end": 67,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 933,
+                    "end": 937,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 207,
+                    "end": 215,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 469,
+                    "end": 479,
+                    "text": "(Figure 2A",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1111,
+                    "end": 1120,
+                    "text": "Figure 2B",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1362,
+                    "end": 1371,
+                    "text": "Figure 2C",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 1509,
+                    "end": 1518,
+                    "text": "Figure 2D",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Simulations of United Kingdom infection data suggest a low number of reinfections should have occurred"
+        },
+        {
+            "text": "By pooling the number of cases in the Infected (two or more times), Recovered (two or more times) and those deceased from the Infected (two or more times) states at the end of the simulation, we calculated an estimate of the number of reinfections that would be expected to occur. This number represents the total population that had passed through the infected (two or more times) state by the end of the simulation. In the United Kingdom, the number of expected reinfections is low (70\u00b18), particularly as a percentage of the total number of infections (Table 2 ). However, it is greater than zero, suggesting that reinfections should have already been seen. As no definitive cases of reinfection have been reported to date, this suggests that initial SARS-CoV-2 infection does provide immunity over the time period of our simulation.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 555,
+                    "end": 563,
+                    "text": "(Table 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Simulations of United Kingdom infection data suggest a low number of reinfections should have occurred"
+        },
+        {
+            "text": "The simulations were repeated with data from Australia [19] , Italy [19] , New York City [22] [20], Singapore [19] , Switzerland [19] and the United States of America (USA) [19] . In each case the model was run from the day of the first confirmed infection in the location to the 17 th of May 2020, when the data was accessed. The mean number of expected reinfections in each region or country for the 10,000 simulations that were run are shown in Table 2 .",
+            "cite_spans": [
+                {
+                    "start": 55,
+                    "end": 59,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 68,
+                    "end": 72,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 89,
+                    "end": 93,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 110,
+                    "end": 114,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 129,
+                    "end": 133,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 173,
+                    "end": 177,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 448,
+                    "end": 455,
+                    "text": "Table 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Simulations of infection data in other regions show a similar trend"
+        },
+        {
+            "text": "In Australia, the number of confirmed SARS-CoV-2 infections to date has been relatively low [19] , possibly due to early social distancing measures, the closing of international borders and mass testing and tracing measures. The number of modelled reinfections (0.1\u00b10.3; Table 2 ) reflects this, and so even without immunity from infection no reinfections would be expected to occur. Similarly, in Switzerland and Singapore, very low numbers of reinfections were predicted by the model (6.2\u00b12.5 and 6\u00b12 respectively; Table 2 ). It is possible that these very low numbers of reinfection cases could have been missed due to misdiagnosis or lack of follow up testing. We therefore applied our model to data from Germany [19] , Italy [19] , New York City [20] [22] and the USA as a whole [19] , which have recorded far higher numbers of SARS-CoV-2 infections (174355, 224760, 189027 and 1467884 respectively, when the data was accessed). The number of reinfection cases predicted for these countries was 30\u00b16, 89\u00b19, 335\u00b118 and 635\u00b125 for Germany, Italy, New York and the USA respectively (Table 2) . We reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [
+                {
+                    "start": 92,
+                    "end": 96,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 717,
+                    "end": 721,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 730,
+                    "end": 734,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 751,
+                    "end": 755,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 756,
+                    "end": 760,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 784,
+                    "end": 788,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 271,
+                    "end": 278,
+                    "text": "Table 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 517,
+                    "end": 524,
+                    "text": "Table 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 1084,
+                    "end": 1093,
+                    "text": "(Table 2)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Simulations of infection data in other regions show a similar trend"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint conclude that it is therefore very unlikely that all of these predicted cases, if true, were missed due to misdiagnosis or lack of testing. The actual number of cases of reinfection that have been reported in any of these regions or countries to date is zero, suggesting that worldwide, primary SARS-CoV-2 infection provides short term immunity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simulations of infection data in other regions show a similar trend"
+        },
+        {
+            "text": "Next, we repeated our simulation for New York City with the total number of infections replaced by the number of hospitalisations [23] . We hypothesised that hospitalised patients would be more likely to be clinically followed up and reinfections would be documented if they occurred. When we ran the simulation with an input of the total number of infections, the number of secondary infections continued to increase until day 75 (just before the end of the simulation on day 77), when the numbers appear to peak ( Figure 3A ). This was followed by an increase in the number of secondary recoveries after the 28day recovery lag time. In comparison, the hospitalisation data for New York showed no secondary recoveries as the reinfections occurred later into the simulation ( Figure 3B ). The total number of predicted reinfections from the New York hospitalised data was 12\u00b14 (Table 2) , however, there are no documented cases of rehospitalisations to date. It is unlikely that these cases would be missed, or that symptoms would be wrongly assigned as a different disease as people would be processed and fully tested on admission to hospital.",
+            "cite_spans": [
+                {
+                    "start": 130,
+                    "end": 134,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 516,
+                    "end": 525,
+                    "text": "Figure 3A",
+                    "ref_id": null
+                },
+                {
+                    "start": 776,
+                    "end": 785,
+                    "text": "Figure 3B",
+                    "ref_id": null
+                },
+                {
+                    "start": 877,
+                    "end": 886,
+                    "text": "(Table 2)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Comparison of infection and hospitalisation data in New York"
+        },
+        {
+            "text": "Recovery data is sparse or not available for most regions, likely due to lack of follow-up testing. In Germany, however, some recovery data was available [24] . We therefore compared the results of our simulation for Germany with and without the recovery data as an input. Without recovery data, the model used a 28-day lag before recoveries started, meaning very few secondary recoveries took place ( Figure 4A ). In contrast, when recovery data was included secondary recoveries began very soon after reinfections had taken place, usually the next day, and by the end of the simulation, almost the entire infected population had recovered ( Figure 4B ). Because secondary recoveries occurred faster, there were 76 more reinfections with the reinfection data than with the modelled data ( Table 2 ). This suggests that we have in fact underestimated the number of predicted reinfections in our model; as no documented reinfection cases have been reported this strongly supports our conclusion that initial SARS-CoV-2 infection is effective at preventing reinfection in the short term.",
+            "cite_spans": [
+                {
+                    "start": 154,
+                    "end": 158,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 402,
+                    "end": 411,
+                    "text": "Figure 4A",
+                    "ref_id": null
+                },
+                {
+                    "start": 643,
+                    "end": 652,
+                    "text": "Figure 4B",
+                    "ref_id": null
+                },
+                {
+                    "start": 790,
+                    "end": 797,
+                    "text": "Table 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Inclusion of recovery data suggests that predicted reinfections are underestimated"
+        },
+        {
+            "text": "The 28-day lag time used for the modelled recovery data ensured that we underestimated the recovery rate, and so also the rate of reinfection. To investigate a more life-like recovery rate, the United Kingdom simulations were repeated again using the modelled recovery data, while shortening the lag time for recovery. As expected, we found that the rate of reinfection was increased as the lag time was decreased from 28 days through to 7 days, as there was a larger population that recovered from a primary infection. With a 7-day lag time, the number of people in the infected (2 or more times) state peaked at around day 100 of the simulation ( Figure S1 ). The total number of people reinfected throughout the simulation increased with a decreasing lag time, with 70\u00b18, 121\u00b111, 187\u00b114 and 267\u00b116 reinfections for 28-day, 21-day, 14-day and 7-day recovery lag times respectively. With a median recovery time of one to two weeks for mild cases [21] , the 7-day or 14-day lag times represent more realistic figures for the recovery rate. It is therefore extremely unlikely that the large number of reinfections that these lag times suggest would have been missed, and so we conclude that initial infection results in immunity against SARS-CoV-2. reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [
+                {
+                    "start": 947,
+                    "end": 951,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 649,
+                    "end": 658,
+                    "text": "Figure S1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Inclusion of recovery data suggests that predicted reinfections are underestimated"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Inclusion of recovery data suggests that predicted reinfections are underestimated"
+        },
+        {
+            "text": "In this work we have presented a modelling strategy to determine whether SARS-CoV-2 reinfections can occur. We modelled actual infection and fatality data from different regions and countries around the world and found that all regions investigated, with the exception of Australia, should have recorded cases of reinfections if primary infection with SARS-CoV-2 did not provide some level of immunity. Australia may be an exception as the country was relatively quick to adopt early social distancing measures such as mass testing and contact tracing, as well as preventing international travel from high risk countries [25] . We also found that rehospitalisation cases should have been seen amongst hospitalised cases in New York City. To date, however, no reinfections have verifiably been recorded anywhere in the world. A report from South Korea suggested that 116 patients recovered from COVID-19 had tested positive by RT-PCR for the virus again [26] , however, this has since been explained as the 'false-positive' detection of remnants of viral RNA rather than reactivation or reinfection. The lack of documented reinfections suggests that short-term immunity to the virus is produced by an initial infection, however, our model cannot predict whether this immunity will last over longer time scales.",
+            "cite_spans": [
+                {
+                    "start": 621,
+                    "end": 625,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 953,
+                    "end": 957,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Our results are supported by a number of animal challenge studies. A study in rhesus macaques showed that, following initial viral clearance, the monkeys showed a reduction in their median viral load in comparison with primary infection when rechallenged with SARS-CoV-2 [10] . Similarly, Ryan et al. demonstrated that rechallenged ferrets were fully protected from acute lung pathology [27] . Finally, an adenovirus-vector vaccine tested on rhesus macaques elicited a humoral and cellular response that, on challenge with the virus, proved to significantly reduce the viral load in bronchoalveolar lavage fluid and respiratory tract tissue [28] .",
+            "cite_spans": [
+                {
+                    "start": 271,
+                    "end": 275,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 387,
+                    "end": 391,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 641,
+                    "end": 645,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "A report from the WHO-China joint mission on Coronavirus disease estimated the recovery time for SARS-CoV-2 infection as 2 weeks for mild cases and 3-6 weeks for severe or critical disease [21] ; based on this we used a long (28 day) recovery lag time in the modelled data. Comparison with realworld recovery data from Germany suggested that the actual recovery time may be significantly shorter, giving rise to an underestimation of the reinfection rate in our modelled data. This was supported by an increase in the number of predicted reinfections in the United Kingdom simulations when we used a shorter recovery lag time of 7, 14 or 21 days. In addition, there were no allowances in our model for transmission being localised to regions smaller than a nation or state; the daily infection data was likely to be only a fraction of the total number of infections due to asymptomatic or mild infections not being recorded, and infections were recorded on the date of testing, not the actual date of infection. We also note that significant differences in testing, reporting and shielding of the vulnerable exist between the different regions in this study. In every region, we expect that the impact on our simulation would be to underestimate the number of reinfections, though these differences mean direct comparisons between countries are not valid. Taken together, this suggests that the actual reinfection rate would be significantly higher than that predicted by our model if there was no immunity conferred by prior infection.",
+            "cite_spans": [
+                {
+                    "start": 189,
+                    "end": 193,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "The results documented here provide strong evidence, based on real data, to suggest that that there is at least short-term immunity conferred by an initial infection of SARS-CoV-2. This has implications for serological testing strategies, lockdown easing timescales and vaccine development. Our modelling strategy can also be extended to understand the reinfection dynamics of future pandemics.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "We have developed an extension to the discrete SIR model and used national infection and mortality data [19] [20] [22] [23] to investigate the reinfection dynamics of SARS-CoV-2. In our model, it was assumed that the infection rate was unchanged by prior infection, and so a comparison of real reinfections against modelled reinfections provides an insight into the true reinfection dynamics. reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 108,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 114,
+                    "end": 118,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Methods"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint Assumptions A number of assumptions have been made. Where possible, they have been made so that the number of reinfections is underestimated. These assumptions are:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Methods"
+        },
+        {
+            "text": "1. There is a large lag time for a recovery to take place (28 days). 2. The model does not consider social distancing or shielding and so assigns an equal probability of an infection to anyone. 3. Not all infections have been recorded due to lack of testing, misdiagnosis or asymptomatic infection. 4. Infections and recoveries are not necessarily recorded on the date that they first occurred. 5. There is no emigration out of, or immigration into, a population of interest. 6. Hospitalisations are limited to people previously hospitalised. 7. A homogeneous population density with no societal structure (e.g. equal residents per household).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Methods"
+        },
+        {
+            "text": "The probability of an infection is determined by the ratio of the population of the state being infected to the total number of uninfected individuals, Nt uninfected . The probability of any recovery or death is given by the ratio of the population recovering/dying to the total number of infected states, Nt infected . For example, for the probability of an infection from the Susceptible state St to the infected (first time) state It is given by:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assignment of probabilities is given by the size of the state and the total number of infected individuals"
+        },
+        {
+            "text": "where \u03b2tSt-1(It-1 + I't-1) is the number infected from the Susceptible state, St-1, to the Infected (once) state It; \u03b2tRt-1(It-1 + I't-1) is the number infected from the Recovered (once) state, Rt-1, to the Infected (two or more times) state I't and \u03b2tR't-1(It-1 + I't-1) is the number infected from the Recovered (two or more times state, R't-1, to the Infected (two or more times) state I't.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assignment of probabilities is given by the size of the state and the total number of infected individuals"
+        },
+        {
+            "text": "The equations relating how each of the states (Susceptible, Infected (once), Recovered (once), Infected (two or more times), Recovered (two or more times) and Deceased respectively) changed for each iteration of the simulation were:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The model equations"
+        },
+        {
+            "text": "It = It-1 + \u03b2tSt-1(It-1 + I't-1) -\u03b3tIt-1 -mtIt-1 (3) Rt = Rt-1 + \u03b3tIt-1 -\u03b2tRt-1(It-1 + I't-1)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The model equations"
+        },
+        {
+            "text": "I't = I't-1 + \u03b2tRt-1(It-1 + I't-1) -\u03b3tI't-1 + \u03b2tR't-1(It-1 + I't-1) -mtI't-1",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The model equations"
+        },
+        {
+            "text": "R't = R't-1 + \u03b3tI't-1 -\u03b2tR't-1(It-1 + I't-1)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The model equations"
+        },
+        {
+            "text": "(1) reuse, remix, or adapt this material for any purpose without crediting the original authors.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The model equations"
+        },
+        {
+            "text": "preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The model equations"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint Dt = Dt-1 + mtIt-1 + mtI't-1 (7) where the symbols are defined in Table 1 and the processes are shown in Figure 1 .",
+            "cite_spans": [
+                {
+                    "start": 168,
+                    "end": 171,
+                    "text": "(7)",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 205,
+                    "end": 212,
+                    "text": "Table 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 244,
+                    "end": 252,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "The model equations"
+        },
+        {
+            "text": "We have used the uniform distribution with range 1 to R, where R is a real integer, to determine states involved in infections, recoveries and deaths. The probability for every number in the range is equal and given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The uniform distribution used for attributing infections/recoveries/deaths"
+        },
+        {
+            "text": "For sampling, we have used the cumulative distribution function:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The uniform distribution used for attributing infections/recoveries/deaths"
+        },
+        {
+            "text": "The patients that were infected each day were chosen at random from the 3 states that are not infected with the virus (weighted by the number of persons in each state),",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning infections"
+        },
+        {
+            "text": "nt infected random numbers, x, are taken from the distribution p(x, Nt-1 uninfected ) -The infections are assigned to states going through all the random numbers xi:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning infections"
+        },
+        {
+            "text": "\u03b2tRt-1(It-1 + I't-1) \u2192 \u03b2tRt-1(It-1 + I't-1) + 1 if P(xi, Nt-1 uninfected ) \u2264 P(St-1 + Rt-1, Nt-1 uninfected ) (11) \u03b2tR't-1(It-1 + I't-1) \u2192 \u03b2tR't-1(It-1 + I't-1) +1 if P(xi, Nt-1 uninfected ) > P(St-1 + Rt-1, Nt-1 uninfected ) (12) where \u03b2tSt-1(It-1 + I't-1) is the number of people infected from the Susceptible state, St-1, to the Infected (once) state It; \u03b2tRt-1(It-1 + I't-1) is the number infected from the Recovered (once) state, Rt-1, to the Infected (two or more times) state I't ; \u03b2tR't-1(It-1 + I't-1) is the number infected from the Recovered (two or more times state, R't-1, to the Infected (two or more times) state I't and Nt-1 uninfected is the total number of people on day t-1 who are not in one of the infected states.",
+            "cite_spans": [
+                {
+                    "start": 110,
+                    "end": 114,
+                    "text": "(11)",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 226,
+                    "end": 230,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assigning infections"
+        },
+        {
+            "text": "The number of infections each day, nt infected , is taken from the real number of infections that occurred in the region of interest on each day.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning infections"
+        },
+        {
+            "text": "The patients that recover each day were chosen at random from the two states that were infected with the virus (weighted by the number of persons in each state).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "nt recovered random numbers, x, are taken from the distribution p(x, Nt-1 infected ) -The recoveries are assigned to states going through all the random numbers xi:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "\u03b3tIt-1 \u2192 \u03b3tIt-1 + 1 if P(xi, Nt-1 infected ) \u2264 P(It-1, Nt-1 infected ) (13) \u03b3tI't-1 \u2192 \u03b3tI't-1 +1 if P(xi, Nt-1 infected ) > P(It-1, Nt-1 infected )",
+            "cite_spans": [
+                {
+                    "start": 71,
+                    "end": 75,
+                    "text": "(13)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "where \u03b3tIt-1 is the number recovering from the Infected (once) state, It-1, to the Recovered (once) state Rt; \u03b3tI't-1 is the number recovering from the Infected (two or more times) state, I't-1, to the Recovered reuse, remix, or adapt this material for any purpose without crediting the original authors.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint (two or more times) state I't and Nt-1 infected is the total number of people on day t-1 who are in one of the infected states.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "The number of infections each day, nt recovered , is taken from the real number of recoveries that occurred in the region of interest on each day.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries with recovery data"
+        },
+        {
+            "text": "The patients that recover each day were chosen at random from the two states that were infected with the virus (weighted by the number of persons infected into each state a number of days earlier, trecovery).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries without recovery data"
+        },
+        {
+            "text": "nt recovered random numbers, x, are taken from the distribution p(x, n infected t-trecovery ) -The recoveries are assigned to states going through all the random numbers xi: \u03b3tIt-1 \u2192 \u03b3tIt-1 + 1 if P(xi, n infected t-trecovery ) \u2264 P(i first time t-trecovery , n infected t-trecovery ) (15) \u03b3tI't-1 \u2192 \u03b3tI't-1 +1 if P(xi, n infected t-trecovery ) > P(i first time t-trecovery , n infected t-trecovery ) (16) where \u03b3tIt-1 is the number recovering from the Infected (once) state, It-1, to the Recovered (once) state Rt; \u03b3tI't-1is the number recovering from the Infected (two or more times) state, I't-1, to the Recovered (two or more times) state I't ; Nt-1 infected is the total number of people on day t-1 who are in one of the infected states and i first time t-trecovery is the number of people infected for the first time on day t-trecovery. The number of infections each day, n t recovered , is given by the number of persons infected a number of days earlier, who would not be expected to have died",
+            "cite_spans": [
+                {
+                    "start": 284,
+                    "end": 288,
+                    "text": "(15)",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 400,
+                    "end": 404,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Assigning recoveries without recovery data"
+        },
+        {
+            "text": "Where nt deaths is the number of deaths on day t and nt infected is the number of people infected on day t.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries without recovery data"
+        },
+        {
+            "text": "The cycle between Infected (two or more times) and Recovered (two or more times) is permitted as we are only interested in reinfection rates.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning recoveries without recovery data"
+        },
+        {
+            "text": "The patients that die each day were chosen at random from the two states that were infected with the virus (weighted by the number of persons in each state).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "nt deaths random numbers, x, are taken from the distribution p(x, Nt-1 infected ) -The recoveries are assigned to states going through all the random numbers xi:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "where mtIt-1 is the number dying from the Infected (once) state, It-1, to the Deceased state Dt; mtI't-1 is the number dying from the Infected (two or more times) state, I't-1, to the Deceased state Dt (these are counted so the total number of individuals passing through the Infected (two or more times) state can be counted) and Nt-1 infected is the total number of people on day t-1 who are in one of the infected states.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The number of deaths each day, nt deaths , is taken from the real number of deaths that occurred in the region of interest on each day.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The deaths from the Infected (two or more times) state are counted so that the sum of this, the Infected (two or more times) and the Recovered (two or more times) values give the total number of reinfections up to that point of the simulation. reuse, remix, or adapt this material for any purpose without crediting the original authors.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint Table 1 . reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 139,
+                    "end": 146,
+                    "text": "Table 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. Table 2 . The number of predicted reinfections and their standard deviation in different locations worldwide as predicted from the model. Unless otherwise stated, these figures represent simulations using the total number of infections of each region and are modelled without the data on number of recoveries. S.D. standard deviation. reuse, remix, or adapt this material for any purpose without crediting the original authors.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 71,
+                    "end": 78,
+                    "text": "Table 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint Figure 3 . Comparison of total infections vs. hospitalisation data in New York City. Plots of the Infected (two or more times) and Recovered (two or more times) states for A) New York using all infection data B) New York using only the hospitalisations data. reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 139,
+                    "end": 147,
+                    "text": "Figure 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint Figure 4 . Use of actual recovery data from Germany suggests that the number of recovered individuals, and hence reinfections, are underestimated in our model. Plots of Infected (two or more times) and Recovered (two or more times) states with A) modelled recovery data and B) actual recovery data. reuse, remix, or adapt this material for any purpose without crediting the original authors. preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 139,
+                    "end": 147,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Assigning deaths"
+        },
+        {
+            "text": "The copyright holder has placed this this version posted June 5, 2020. . https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assigning deaths"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "World Health Organization",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Coronavirus Travel Update -Over 90% Of People Live Under Travel Restrictions",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Asquith",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Forbes",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "A DNA vaccine induces SARS coronavirus neutralization and protective immunity in mice",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Kong",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Huang",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Nature",
+            "volume": "428",
+            "issn": "",
+            "pages": "561--565",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Antigenic and immunogenic characterization of recombinant baculovirus-expressed severe acute respiratory syndrome coronavirus spike protein: implication for vaccine design",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Heck",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J Virol",
+            "volume": "80",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Contributions of the structural proteins of severe acute respiratory syndrome coronavirus to protective immunity",
+            "authors": [
+                {
+                    "first": "U",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Buchholz",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bukreyev",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Proc Natl Acad Sci",
+            "volume": "101",
+            "issn": "",
+            "pages": "9804--9813",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Duration of Antibody Responses after Severe Acute Respiratory Syndrome",
+            "authors": [
+                {
+                    "first": "L.-P",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "N.-C",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y.-H",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Chang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Emerging Infectious Diseases",
+            "volume": "13",
+            "issn": "10",
+            "pages": "1562--1564",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Antibody Responses to SARS-CoV-2 in Patients With COVID-19",
+            "authors": [
+                {
+                    "first": "Q.-X",
+                    "middle": [],
+                    "last": "Long",
+                    "suffix": ""
+                },
+                {
+                    "first": "B.-Z",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "H.-J",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Deng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Nat Med",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1038/s41591-020-0897-1"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Serologic responses to SARS-CoV-2 infection among hospital staff with mild disease in eastern Francer",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Fafi-Kremer",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Bruel",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Madec",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Reinfection could not occur in SARS-CoV-2 infected rhesus macaques",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Bao",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Deng",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Hong",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "SARS-CoV-2 infection protects against rechallenge in rhesus macaques",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Chandrashekar",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "J E"
+                    ],
+                    "last": "Martinot",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "A contribution to the mathematical theory of epidemics",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Kermack",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Mckendrick",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Walker",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "Proc. R. Soc. Lond. A",
+            "volume": "115",
+            "issn": "",
+            "pages": "700--721",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Evaluating the deterministic SERIUS model for disease control in an age-structured population",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Victor",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Oduwole",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Global Sci J",
+            "volume": "8",
+            "issn": "3",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "A double epidemic model for the SARS propagation",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Ng",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Turinici",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Danchin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "BMC Infect DIs",
+            "volume": "3",
+            "issn": "19",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Breaking down of healthcare system: mathematical modelling for controlling the novel coronavirus(2019-nCoV) outbreak in Wuhan, China",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Ming",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Zhang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Mathematical predictions for COVID-19 as a global pandemic",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Victor",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "SSRN Journal",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Statistics based predictions of coronavirus 2019-nCoV spreading in mainland China",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Nesteruk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Estimation of the final size of the coronavirus epidemic by the SIR model",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Batista",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Estimation of the Probability of Reinfection With COVID-19 by theSusceptible-Exposed-Infectious-Removed-Undetectable-SusceptibleModel",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Okheuse",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Coronavirus pandemic (COVID-19) -Country by country",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Ritchie",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Roser",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Ortiz-Ospina",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Hasell",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Our World in Data",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Kings County (Brooklyn Borough)",
+            "authors": [],
+            "year": 2020,
+            "venue": "Queens County (Queens Borough)",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Covid-19: Data",
+            "authors": [],
+            "year": 2020,
+            "venue": "NYC.gov",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "New coronavirus: Situation in Switzerland",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Germany Coronavirus Recovered",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Australia upbeat over slowing coronavirus spread, urges vigilance",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Kelly",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Reuters",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Explainer: South Korean findings suggest 'reinfected' coronavirus cases are false positives",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cha",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Smith",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Reuters",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Dose-dependent response to infection with SARS-CoV-2 in the ferret model: evidence of protection to re-challenge",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Ryan",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Bewley",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Fotheringham",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "ChAdOx1 nCoV-19 vaccination prevents SARS-CoV-2 pneumonia in rhesus macaques",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Van Doremalen",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Lambe",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Spencer",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Substantial undocumented infection facilitates the rapid dissemination of novel coronavirus (SARS-CoV-2)",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pei",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Chen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "368",
+            "issn": "6490",
+            "pages": "489--493",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "2020. reuse, remix, or adapt this material for any purpose without crediting the original authors",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Kcdc",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "It is no longer restricted by copyright. Anyone can legally share, The copyright holder has placed this this version posted",
+            "authors": [],
+            "year": 2020,
+            "venue": "the Public Domain",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1101/2020.06.03.20120113"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "A simple representation of the model. St represents the number of persons susceptible to infection who have had no prior infections on day t; It is the number of people currently infected for the first time on day t; Rt is the number of people who have recovered once on day t; I't is the number of people who have been infected two or more times and are infected on day t; R't is the number of people who have recovered two or more times and are not infected on day t of the model and Dt is the number of deceased persons on day t of the model. Further symbols are defined in",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Plots of the populations of each state in the model over the course of a typical simulation, using infection data from the United Kingdom. A) An example plot of the susceptible population in the model over the course of 106 days (from the first recorded case on the 1 st of February until the 17 th of May 2020 when the data was accessed). B) An example plot of the populations that are infected for the first time or recovered from a single infection. C) An example plot of the populations of the simulation that have been reinfected and recovered from infection twice. D) An example plot of the number of deceased individuals through the course of the simulation.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": ". https://doi.org/10.1101/2020.06.The number of days into the simulation. t=1 for the day of the first infection trecovery The average number of days for recovery. Here, we have used trecovery=28 tmax The number of days over which the simulation is run The total population in the model N = St + It + Rt + I't + R't + Dt \u2200 t Nt infected The number of infected individuals on day t Nt infected = It + I't Nt uninfected The number of uninfected individuals on day t Nt uninfected = St + Rt + R't nt infected The number of new infections on day t nt infected = \u03b2tSt-1(It-1+I't-1) + \u03b2tRt-1(It-1+I't-1) + \u03b2tR't-1(It-1+I't-1) nt recovered The number of recovering individuals on day t nt recovered = \u03b3tIt-1 + \u03b3tI't-1 nt deaths The number of deaths on day t nt deaths = mtIt-1 + mtI't-1 it first time The number of first time infections on day t. i.e. the number of St\u2192It transitions on day tTable 1. Definition of parameters in the Susceptible-Infected-Recovered-Infected (two or more times)-Recovered (two or more times) (SIRIR) model. reuse, remix, or adapt this material for any purpose without crediting the original authors.preprint (which was not certified by peer review) in the Public Domain. It is no longer restricted by copyright. Anyone can legally share,",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": ". https://doi.org/10.1101/2020.06.03.20120113 doi: medRxiv preprint",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "We thank Dr. Barak Gilboa for critical reading of the manuscript. This work was supported by Royal Society Dorothy Hodgkin Research Fellowship DKR00620 and Research Grant for Research Fellows RGF\\R1\\180054 (to N.C.R.).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        }
+    ]
+}

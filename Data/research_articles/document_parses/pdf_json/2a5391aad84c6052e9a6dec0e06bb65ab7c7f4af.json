@@ -1,0 +1,846 @@
+{
+    "paper_id": "2a5391aad84c6052e9a6dec0e06bb65ab7c7f4af",
+    "metadata": {
+        "title": "Correlations between thresholds and degrees: An analytic approach to model attacks and failure cascades",
+        "authors": [
+            {
+                "first": "Rebekka",
+                "middle": [],
+                "last": "Burkholz",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Frank",
+                "middle": [],
+                "last": "Schweitzer",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Two node variables determine the evolution of cascades in random networks: a node's degree and threshold. Correlations between both fundamentally change the robustness of a network, yet they are disregarded in standard analytic methods as local tree or heterogeneous mean field approximations, since order statistics are difficult to capture analytically because of their combinatorial nature. We show how they become tractable in the thermodynamic limit of infinite network size. This enables the analytic description of node attacks that are characterized by threshold allocations based on node degree. Using two examples, we discuss possible implications of irregular phase transitions and different speeds of cascade evolution for the control of cascades.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "How robust is a complex network? This is of fundamental interest for network science [1] [2] [3] and tightly linked to the study of binary state dynamics in physics, for instance, in the form of percolation models [4] , the zero-temperature random field Ising model [5] , fiber bundle models [6] , or models of epidemic spreading [7] . Similar approaches also describe phenomena diverse as opinion formation [8, 9] , financial systemic risk [10] [11] [12] [13] , black-out cascades in power grids [14] , and the resilience of food webs in ecology [2, 15] .",
+            "cite_spans": [
+                {
+                    "start": 85,
+                    "end": 88,
+                    "text": "[1]",
+                    "ref_id": null
+                },
+                {
+                    "start": 89,
+                    "end": 92,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 93,
+                    "end": 96,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 214,
+                    "end": 217,
+                    "text": "[4]",
+                    "ref_id": null
+                },
+                {
+                    "start": 266,
+                    "end": 269,
+                    "text": "[5]",
+                    "ref_id": null
+                },
+                {
+                    "start": 292,
+                    "end": 295,
+                    "text": "[6]",
+                    "ref_id": null
+                },
+                {
+                    "start": 330,
+                    "end": 333,
+                    "text": "[7]",
+                    "ref_id": null
+                },
+                {
+                    "start": 408,
+                    "end": 411,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 412,
+                    "end": 414,
+                    "text": "9]",
+                    "ref_id": null
+                },
+                {
+                    "start": 441,
+                    "end": 445,
+                    "text": "[10]",
+                    "ref_id": null
+                },
+                {
+                    "start": 446,
+                    "end": 450,
+                    "text": "[11]",
+                    "ref_id": null
+                },
+                {
+                    "start": 451,
+                    "end": 455,
+                    "text": "[12]",
+                    "ref_id": null
+                },
+                {
+                    "start": 456,
+                    "end": 460,
+                    "text": "[13]",
+                    "ref_id": null
+                },
+                {
+                    "start": 497,
+                    "end": 501,
+                    "text": "[14]",
+                    "ref_id": null
+                },
+                {
+                    "start": 547,
+                    "end": 550,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 551,
+                    "end": 554,
+                    "text": "15]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Most of these models can be mapped to a setup [16, 17] where the binary state s i \u2208 {0, 1} of a node i \u2208 V is determined by two variables: its load \u03bb i , which indicates the fragility of the node, and its threshold \u03b8 i , which indicates its robustness. A node fails (s i = 1) whenever its load exceeds its threshold, \u03b8 i \u03bb i (t ). The load \u03bb i (t ) can change over time, is measured in discrete time steps, t = 0, . . . , T , and is dependent on the interaction between nodes. Usually, an interaction is defined by a form of load distribution. A failing node sends load to nodes it is connected with (i.e., its network neighbors). The number of these neighbors is called the degree of the node. The load distribution can cause further node failures and kick off a failure cascade that spans a considerable share of the whole network. A robust network is considered to be less prone to large cascades that start from a few initial failures.",
+            "cite_spans": [
+                {
+                    "start": 46,
+                    "end": 50,
+                    "text": "[16,",
+                    "ref_id": null
+                },
+                {
+                    "start": 51,
+                    "end": 54,
+                    "text": "17]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Consequently, one way to prevent failure cascades is to allocate specific thresholds to nodes. While, in general, this allocation of thresholds could be dynamic, here, we focus on quenched networks where the thresholds and the network topology stay constant over time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In the following, we concentrate on allocation schemes based on node degrees so that thresholds and node degrees * rburkholz@ethz.ch \u2020 fschweitzer@ethz.ch become correlated. Such correlations are empirically grounded, e.g., well connected banks have the tendency of lower equity than less connected banks [10, 18] , even though the opposite is expected to lead to more robust systems [19, 20] . Some models already assume that a threshold depends explicitly on the node degree [17, 21, 22] or on degree-related centrality measures. Also the study of random or targeted attacks on networks can be described by our approach, as the allocation of a threshold that is smaller than the initial load \u03b8 \u03bb 0 implies the initial failure of the node with this threshold and can also be interpreted as an attack of this node. In this well studied context, it is important to note that, dependent on the specific network, attack strategies based on centrality measures can be more effective than attacks based on node degrees [23] .",
+            "cite_spans": [
+                {
+                    "start": 305,
+                    "end": 309,
+                    "text": "[10,",
+                    "ref_id": null
+                },
+                {
+                    "start": 310,
+                    "end": 313,
+                    "text": "18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 384,
+                    "end": 388,
+                    "text": "[19,",
+                    "ref_id": null
+                },
+                {
+                    "start": 389,
+                    "end": 392,
+                    "text": "20]",
+                    "ref_id": null
+                },
+                {
+                    "start": 477,
+                    "end": 481,
+                    "text": "[17,",
+                    "ref_id": null
+                },
+                {
+                    "start": 482,
+                    "end": 485,
+                    "text": "21,",
+                    "ref_id": null
+                },
+                {
+                    "start": 486,
+                    "end": 489,
+                    "text": "22]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1014,
+                    "end": 1018,
+                    "text": "[23]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Yet, in the following, we consider random graph ensembles with prescribed degree distribution p(k) [24, 25] . Thus, the main node variables of interest are node degrees and thresholds. The study of these ensembles has the advantage that ensemble averages of interesting quantities can be derived by analytic iterative approaches, so called local tree approximations (LTAs) or heterogeneous mean field approximations (HMFs). They become exact in the thermodynamic limit of infinite network size N \u2192 \u221e (where N is the number of nodes in the network). These approximations have been extended to capture degree-degree correlations. Yet, surprisingly, the equally fundamental correlations between degrees and thresholds have not been studied analytically. Only one specific case, i.e., the removal of nodes with higher degrees, has been studied for percolation [26, 27] . Other investigations of deterministic attacks so far rely on simulations [19, 22] . Imposing correlations includes the ranking of nodes and this leads to order statistics that are difficult to capture analytically. In this work, we show that for infinitely large networks the ranks simplify significantly and we can identify them by a transformation of the respective cumulative distribution function (cdf).",
+            "cite_spans": [
+                {
+                    "start": 99,
+                    "end": 103,
+                    "text": "[24,",
+                    "ref_id": null
+                },
+                {
+                    "start": 104,
+                    "end": 107,
+                    "text": "25]",
+                    "ref_id": null
+                },
+                {
+                    "start": 856,
+                    "end": 860,
+                    "text": "[26,",
+                    "ref_id": null
+                },
+                {
+                    "start": 861,
+                    "end": 864,
+                    "text": "27]",
+                    "ref_id": null
+                },
+                {
+                    "start": 940,
+                    "end": 944,
+                    "text": "[19,",
+                    "ref_id": null
+                },
+                {
+                    "start": 945,
+                    "end": 948,
+                    "text": "22]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "We further apply our derivations to two basic cascade models termed exposure diversification (ED) and damage diversification (DD) models and explore a phenomenon that is related to the robust-yet-fragile property, which scale free networks exhibit with respect to percolation [3] . We observe a similar phenomenon for ED cascades, interestingly for Poisson and scale free networks, not only for scale free networks. Yet, DD models do not support this finding, i.e.; it strongly depends on the dynamics of the cascade.",
+            "cite_spans": [
+                {
+                    "start": 276,
+                    "end": 279,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Let's assume that N degrees are drawn independently from a degree distribution p(k) with cdf F (k). We order them so that k 1/N k 2/N \u00b7 \u00b7 \u00b7 k N/N . Correspondingly, N thresholds are drawn independently from an arbitrary threshold distribution with cdf (\u03b8 ) and ordered \u03b8 1/N \u03b8 2/N \u00b7 \u00b7 \u00b7 \u03b8 N/N . Each node in the network receives exactly one degree and one threshold. A specific allocation or attack strategy a defines this assignment. It thus decides which nodes are prone to failure because of a small threshold. Formally, a is a bijective (Borel-measurable) function a : [0, 1] \u2192 [0, 1] that assigns each degree rank i/N a threshold rank a(i/N ). Thus, a node has degree k i/N and threshold \u03b8 a(i/N ) . While a can be nonlinear in general, the two most common heuristics correspond to linear a. In the case of the identity a(x) = x, thresholds and degrees are perfectly positively correlated. Nodes with a higher degree receive higher thresholds and are less prone to failure, while peripheral nodes with a small degree are conjectured to fail. We call this threshold allocation the peripheral failures (pf) scheme. The choice a(x) = 1 \u2212 x, on the other hand, means that degrees and thresholds are perfectly anticorrelated. Nodes with higher degrees receive lower thresholds and therefore are more prone to fail. Hence, this threshold allocation is focused on hubs and we refer to it as the central failures (cf) scheme.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "As i/N counts the fraction of nodes in the network with degree k k i/N , it coincides with the value of the empirical cdf i/N = F emp (k i/N ). In the case that several nodes have the same degree k, we assume that the index i belongs to the node with the highest index among the nodes with degree k. Thus, for N \u2192 \u221e, a rank i/N converges to a value of the theoretical cdf F (x) [i/N \u2192 F (x)] and, correspondingly, its threshold rank to a[F (x)], which belongs to a threshold \u03b8 with a[F (x)] = (\u03b8 ). Hence, for F (x) \u2208]F (k \u2212 1), F (k)], a node equipped with the rank F (x) has degree k and threshold \u22121 {a[F (x)]}, where \u22121 denotes the generalized inverse or quantile function of . Accordingly, we can express the threshold cdf F (k) (x) of a node conditional on its degree k as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "where | M denotes the restriction of to a set M, i.e.,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "The initial threshold cdf is restricted to thresholds that belong to nodes that we can identify with the interval ]F (k \u2212 1), F (k)], i.e., the nodes with degree k. It is renormalized by p(k), the probability mass of the respective set of nodes. Based on this consideration, we can also compute the Spearman rank The interval ]F (k \u2212 1), F (k)] (in cyan color) represents (the fraction of) all nodes with degree k in the network, while the blue interval corresponds to nodes with threshold \u03b8 x. Their intersection, the purple interval, can thus be associated with all nodes in the network which have degree k and a threshold smaller than or equal to x. correlation coefficient between thresholds and degrees as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "where\u0101 = 1 0 a(x) dx is defined as the average of a with respect to a uniform distribution. As we would expect, r s = 1 for peripheral failures and r s = \u22121 for central failures. Also the derivation of the conditional threshold distributions F (k) (x) becomes more intuitive for these two extreme cases.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "In Figs ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 7,
+                    "text": "Figs",
+                    "ref_id": null
+                }
+            ],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": ". Consequently, Eq. (1) simplifies for peripheral failures to ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "Formally, this formula measures the overlap between the intervals ]F (k \u2212 1), F (k)] and ]0, (x)], divided by the width |]F (k \u2212 1), F (k)]| = p(k) to normalize the cdf. The same idea applies also to central failures, however, in this case the fraction of nodes are ordered decreasingly. As illustrated in Fig. 2 , the position of nodes in the interval corresponds to the probability mass 1 \u2212 (x). Thus, nodes with a threshold bigger or equal to x correspond to the interval [0, 1 \u2212 (x)], while nodes with threshold smaller than or equal to x belong to [1 \u2212 (x), 1]. To calculate the fraction of failed nodes with a threshold smaller than or equal to x within the fraction of nodes with degree k, we have to measure the overlap between the intervals [1 \u2212 (x), 1] and ]F (k \u2212 1), F (k)]:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 306,
+                    "end": 312,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "II. THRESHOLD ALLOCATION IN FINITE AND INFINITELY LARGE NETWORKS"
+        },
+        {
+            "text": "To know the threshold distributions it is necessary to compute average quantities in infinitely large random networks. The cascade size, i.e., the fraction of failed nodes \u03c1(t ) = 1/N i s i (t ), is of particular interest as a measure of network robustness or systemic risk. We can express it as [28] ",
+            "cite_spans": [
+                {
+                    "start": 296,
+                    "end": 300,
+                    "text": "[28]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. CASCADE MODELS AND LOCAL TREE APPROXIMATIONS (LTAs)"
+        },
+        {
+            "text": "if the second moment of the degree distribution is finite, i.e., k p(k)k 2 < \u221e. The part k p(k) indicates an average over node fractions with a given degree k, while p (t ) (\u03bb)F (k) (\u03bb) d\u03bb refers to the fraction of failed nodes with degree k. A node with degree k and load \u03bb according to p (k,t ) (\u03bb) fails with probability F (k) (\u03bb), i.e., the probability that its load exceeds its threshold (k). This form simplifies for models where the load only depends on the number of failed neighbors m of a node. The term F (k) (\u03bb) then refers to the response function F k,m in Ref. [17] . In general, the iterative update of the load distribution p (t ) in time follows from the specific cascade model, for instance as in [12, 28, 29] , and can also depend on multiplex network structures [13] .",
+            "cite_spans": [
+                {
+                    "start": 575,
+                    "end": 579,
+                    "text": "[17]",
+                    "ref_id": null
+                },
+                {
+                    "start": 715,
+                    "end": 719,
+                    "text": "[12,",
+                    "ref_id": null
+                },
+                {
+                    "start": 720,
+                    "end": 723,
+                    "text": "28,",
+                    "ref_id": null
+                },
+                {
+                    "start": 724,
+                    "end": 727,
+                    "text": "29]",
+                    "ref_id": null
+                },
+                {
+                    "start": 782,
+                    "end": 786,
+                    "text": "[13]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. CASCADE MODELS AND LOCAL TREE APPROXIMATIONS (LTAs)"
+        },
+        {
+            "text": "To elucidate our approach, we use two well studied and generic models that have been termed exposure diversification (ED) and damage diversification (DD) [12] .",
+            "cite_spans": [
+                {
+                    "start": 154,
+                    "end": 158,
+                    "text": "[12]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "III. CASCADE MODELS AND LOCAL TREE APPROXIMATIONS (LTAs)"
+        },
+        {
+            "text": "The ED model, introduced in [8] , was applied to different fields, including opinion formation [30] and finance [19, 31] . It is based on the idea that a node simply carries the fraction of its failed neighbors as load, i.e., \u03bb i (t + 1) = n i (t )/k i , where n i (t ) denotes the number of failed neighbors of node i at time t. Thus, the failure of hubs usually has devastating consequences, as it impacts many nodes. The cascade size can be reduced by protecting nodes with higher degree, by assigning them higher thresholds (pf) without changing the overall threshold distribution. For infinitely large (configuration model) random graph ensembles, the fraction of failed nodes can be expressed as",
+            "cite_spans": [
+                {
+                    "start": 28,
+                    "end": 31,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 95,
+                    "end": 99,
+                    "text": "[30]",
+                    "ref_id": null
+                },
+                {
+                    "start": 112,
+                    "end": 116,
+                    "text": "[19,",
+                    "ref_id": null
+                },
+                {
+                    "start": 117,
+                    "end": 120,
+                    "text": "31]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Exposure diversification"
+        },
+        {
+            "text": "where the failure probability of a neighbor \u03c0 (t ) at time t is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Exposure diversification"
+        },
+        {
+            "text": "according to [12, 29] , where z = k p(k)k denotes the average degree and b(k, n, \u03c0 ) = ( k n )\u03c0 n (1 \u2212 \u03c0 ) k\u2212n .",
+            "cite_spans": [
+                {
+                    "start": 13,
+                    "end": 17,
+                    "text": "[12,",
+                    "ref_id": null
+                },
+                {
+                    "start": 18,
+                    "end": 21,
+                    "text": "29]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Exposure diversification"
+        },
+        {
+            "text": "The DD model is a cascade model variant [16] , where each failing node j spreads the load 1/k j to each of its neighbors, i.e., \u03bb i (t + 1) = j s j (t )/k j , where the sum runs over all neighbors of node i. Hence, the load that single neighbors receive from a failing hub is rather small. Thus, the negative impact of failing hubs is counteracted. The local tree approximation for this model has been derived by Ref. [12] and is of the form of Eq. (5). The load \u03bb(t, k) that a node with degree k carries is a random variable that is given by a sum",
+            "cite_spans": [
+                {
+                    "start": 40,
+                    "end": 44,
+                    "text": "[16]",
+                    "ref_id": null
+                },
+                {
+                    "start": 418,
+                    "end": 422,
+                    "text": "[12]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Damage diversification"
+        },
+        {
+            "text": "of independent variables L nb i (t \u2212 1) that represent the load that has been distributed by neighbors to the node under consideration before. Thus, the distribution of \u03bb(t, k) is given by the k-fold convolution of the distribution of L nb (t \u2212 1) that can be calculated iteratively and is defined as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Damage diversification"
+        },
+        {
+            "text": "for d > 0. \u03c0 (t \u2212 1) denotes again the failure probability of a neighbor and is given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Damage diversification"
+        },
+        {
+            "text": "A neighbor does not send any load if it has not failed with probability 1 \u2212 \u03c0 (t ). Otherwise, it sends the load 1/d if its degree is d with probability dp(d )/z and its load d\u22121 i=1 L nb i (t \u2212 1) has exceeded its threshold (d ). Its load here is the sum",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Damage diversification"
+        },
+        {
+            "text": "of all the loads sent to it previously by its remaining neighbors. A more detailed explanation is given by Refs. [12, 32] .",
+            "cite_spans": [
+                {
+                    "start": 113,
+                    "end": 117,
+                    "text": "[12,",
+                    "ref_id": null
+                },
+                {
+                    "start": 118,
+                    "end": 121,
+                    "text": "32]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. Damage diversification"
+        },
+        {
+            "text": "As we show, the cascade size can be reduced by protecting nodes with smaller degree, i.e., by assigning them higher thresholds, as in the central failures scheme (cf). ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. Damage diversification"
+        },
+        {
+            "text": "In the following, we explore different combinations of the two cascade models (ED, DD) and the two threshold allocation schemes (cf, pf). We use a standard setup [12, 28] , i.e., we calculate average cascade sizes on random graphs ensembles with Poisson degree distribution p(k) \u223c \u03bb k /k! or on scale free networks with p(k) \u223c k \u22123 , both with average degree z = k p(k)k = 3. Further, we assume normally distributed thresholds \u223c N (\u03bc, \u03c3 2 ) to test the influence of mean node robustness \u03bc and heterogeneity \u03c3 .",
+            "cite_spans": [
+                {
+                    "start": 162,
+                    "end": 166,
+                    "text": "[12,",
+                    "ref_id": null
+                },
+                {
+                    "start": 167,
+                    "end": 170,
+                    "text": "28]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "The ED model has been studied widely on different topologies and different degree-degree correlations. Only two studies concerning correlations between thresholds and degrees are known to us. Reference [19] considers directed networks with different degree distributions and normally distributed thresholds whose variance depends on the degree of a node as well via Monte Carlo simulations. Reference [22] focuses on directed networks with scale free out-degrees in combination with uniformly distributed thresholds (of different range) and is based on Monte Carlo simulations. The authors also provide semianalytic approximative master equations for the fraction of failed nodes and their specific choice of threshold distribution.",
+            "cite_spans": [
+                {
+                    "start": 202,
+                    "end": 206,
+                    "text": "[19]",
+                    "ref_id": null
+                },
+                {
+                    "start": 401,
+                    "end": 405,
+                    "text": "[22]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "Complementarily, we provide a general and exact local tree approximation approach (LTA) and demonstrate the correctness for different cascade models (ED and DD models) and normally distributed thresholds. Our analytic results are compared with Monte Carlo simulations (see Fig. 3 for details). We note that our calculations based on the analytic derivations perfectly match the simulation results, even at the discontinuous phase transition.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 273,
+                    "end": 279,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "We further discuss the influence of different threshold allocation schemes on systemic risk. For comparison, we also present the case of uncorrelated thresholds and degrees [12] . In this reference setup, the DD model usually leads to smaller average cascades \u03c1 than the ED model. Figure 4 provides an overview for all considered cases. Introducing correlations between threshold and degrees, we can confirm this finding for negative correlations, i.e., for the central failures scheme (the higher the degree the lower the threshold). However, if we choose positive correlations between threshold and degrees (peripheral failures), the ED model on average leads to smaller cascades than the DD model. Hence, positive correlations can significantly improve the robustness of the ED network.",
+            "cite_spans": [
+                {
+                    "start": 173,
+                    "end": 177,
+                    "text": "[12]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 281,
+                    "end": 289,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "Second, we compare the robustness for different network topologies and find that, in comparison to Poisson random graphs, scale free networks are more robust, even for combinations as DD and pf and ED and cf in a region of small \u03bc. This is interesting because so far mostly the opposite case, namely the increase of systemic risk because of the presence of hubs, has been discussed. The central failures scenario reflects that hubs have a high failure risk. However, their better risk diversification, expressed by the large number of neighbors, supports the system robustness.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "This finding is related to the robust-yet-fragile property that scale free networks exhibit with respect to percolation [3] . We observe a similar phenomenon for ED cascades, interestingly for both topologies, not only for scale free networks. Even more, correlations can lead to larger cascades than in case of uncorrelated threshold allocations. But this conclusion does not apply to DD models, i.e., it strongly depends on the dynamics of the cascade. Further, it is also sensitive to the parameters \u03bc and \u03c3 characterizing the threshold distribution. In some cases, even the combination DD and cf that is usually most robust can lead to the largest cascades. Still, the combination DD and cf is able to reduce the largest average cascades for both topologies. Hence, it can be considered as the most promising strategy for increasing cascades. This is the goal in the spreading of rumor, for instance.",
+            "cite_spans": [
+                {
+                    "start": 120,
+                    "end": 123,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "To shed light on the nontrivial dependence between dynamic processes on networks (ED and DD) and threshold allocation schemes (cf and pf), we compare the two combinations with lowest systemic risk: DD and cf and ED and pf. Figure 5 shows the results for scale free networks. Two remarkable facts are immediately apparent. First, the phase transition for ED and pf in Fig. 5 (a) is of irregular shape. Usually, increasing the threshold heterogeneity \u03c3 leads to a sudden increase of \u03c1 followed by a slow continuous decrease. Yet, for ED and pf, \u03c1 can jump several times for small changes of \u03c3 . The presence of positive correlations between thresholds and degrees (pf) changes even the qualitative nature of the ED phase diagram. Our simulations confirm that these observations cannot be attributed to (hypothetical) numerical instabilities when calculating our approximations. Second, neither of the two studied variants, ED and pf and DD and cf, outperforms the other for all threshold parameters, as depicted in Fig. 5(b) . While ED and pf leads to the smallest average cascades for most threshold parameters, DD and cf reduces the severity of cascades in the region of big cascades.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 223,
+                    "end": 231,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 367,
+                    "end": 373,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF4"
+                },
+                {
+                    "start": 1013,
+                    "end": 1022,
+                    "text": "Fig. 5(b)",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "Hence, to reduce systemic risk, system designers are confronted with two feasible options: ED and pf or DD and cf. It is left to them to decide whether they prefer to minimize the average cascade size for most threshold parameters or to reduce the parameter space where the system breaks down completely. One objective excludes the other, but both cases lead to a very different outcome with respect to the surviving nodes. FIG. 4 . Phase diagrams for the final fraction of failed nodes \u03c1 calculated numerically according to the analytic local tree approximation (LTA) for our two different degree distributions with average degree z = 3, diversification variants ED and DD, and threshold allocation schemes pf or cf. SF stands for scale free random networks, while Poisson indicates Poisson random graphs. We have always calculated 50 fixed point iterations. The left column presents results for pf and the right column presents results for cf. The middle column shows their difference, \u03c1 (pf) \u2212 \u03c1 (cf) . Figure 6 shows clearly that for the ED/pf combination nodes of almost every degree survive a cascade, while in the DD/cf only nodes with a small degree stay functional. In consequence, the remaining overall connectivity is much lower for DD and cf. This may have implications for the functionality of the overall system. Furthermore, the cascades evolve at different speeds. In the ED and pf cases, cascades tend to evolve much slower than in the DD and cf case, which leaves more time for interventions that could hinder cascades to grow larger.",
+            "cite_spans": [
+                {
+                    "start": 424,
+                    "end": 430,
+                    "text": "FIG. 4",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1006,
+                    "end": 1014,
+                    "text": "Figure 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "IV. NUMERICAL RESULTS"
+        },
+        {
+            "text": "We have discussed two basic cascade processes and simple threshold allocation schemes that either imply perfect correlation between node degrees and thresholds or perfect anticorrelation. Such correlations naturally occur in engineered or selforganizing systems, and can be even more fundamental to cascade effects than degree-degree correlations, hence they need to be included in any robustness analysis. To facilitate this, we have provided an analytic description in heterogeneous mean field or local tree approximations, respectively, which becomes exact in the thermodynamic limit of infinite networks size and which applies to quite general threshold allocation schemes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "In general, such correlations can change considerably the occurrence of phase transitions and the overall phase diagrams, as Ref. [22] has also noted for the exposure diversification (ED) model on directed networks and uniformly distributed thresholds. For a different process, the Susceptible -Infectious -Susceptible (SIS) model, Ref. [33] similarly highlights that differences in the susceptibility of individuals can lead to over-or underestimate a network's vulnerability to epidemic spreading. While this suggests a similar mechanism in place, importantly we show that the effect of positive or negative correlations on systemic risk depends considerably on the studied cascade process.",
+            "cite_spans": [
+                {
+                    "start": 130,
+                    "end": 134,
+                    "text": "[22]",
+                    "ref_id": null
+                },
+                {
+                    "start": 337,
+                    "end": 341,
+                    "text": "[33]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "In the ED model, where the failure of hubs usually triggers large cascades, it is worthwhile to consider protecting those hubs by assigning them higher thresholds, i.e., ED and pf. In contrast, the DD model limits the negative impact of the failure of hubs so that, for most threshold parameters, higher thresholds are better used to protect the failure of the majority of small degree nodes, i.e., DD and cf.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "We have highlighted a fundamental tradeoff for system designers which can hypothetically decide about the cascade mechanism and the threshold allocation scheme. They can either minimize the average cascade size for most threshold parameters (ED and pf) or to reduce the parameter space where the system breaks down completely (DD and cf).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "What conclusions can we draw from these insights for the control of cascades? While we have not studied the control of cascades explicitly, we have observed several aspects that would become relevant if we would like to steer the system to a state of small systemic risk. Let's assume that we want to minimize systemic risk by a good choice of the cascade mechanism, threshold allocation a, and a possible range of threshold distribution parameters (here \u03bc and \u03c3 ). While minimizing the fraction of failed nodes, we might also want to decide which nodes survive (hubs or leaves), the overall connectivity of the surviving network, and the speed of cascade evolution. A slower evolving cascade would allow for further dynamic interventions (e.g., the increase of some thresholds).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "In light of these criteria, the ED and pf model seems to be most beneficial. Yet, in the threshold parameter region where we find a phase transition of irregular shape, we argue that robust control is impossible in practice if we have to live with uncertainty (for instance, of the model, the data, the precise threshold parameters, finite size effects). Our findings suggest that already small changes in the studied parameters could demand a converse control strategy.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "We support the quest for such control strategies for general threshold models of cascades by incorporating threshold allocation schemes in analytic local tree approximations. This enables faster and exact computations, for instance, of the fraction of failed nodes and might even enable explicit optimization strategies that rely on gradients.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Dynamical Processes on Complex Networks",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Barrat",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Barth\u00e9lemy",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Vespignani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Networks: An Introduction",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "E J"
+                    ],
+                    "last": "Newman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Proc. Natl. Acad. Sci. USA",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Watts",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "",
+            "volume": "99",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1073/pnas.082090499"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Proc. Natl. Acad. Sci. USA",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Arinaminpathy",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kapadia",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "May",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "",
+            "volume": "109",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1073/pnas.1213767109"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Illustration of the threshold assignment for central failures.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": ". 1 and 2, all nodes of an infinitely large network are mapped to the interval [0, 1], where their position is defined by the degree cdf F . Thus, all nodes with degree k can be associated with the interval ]F (k \u2212 1), F (k)] (cyan color inFigs. 1 and 2). This way, we do not depict nodes, but fractions of nodes in the network or their probability mass when randomly sampling from all nodes in the network. Analogously, the bottom interval (inFig. 1) corresponds to the ordered thresholds. For peripheral failures(Fig. 1), nodes with degree k are equipped with threshold values in the interval",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Illustration of the threshold assignment for central failures analogously to Fig. denotes the indicator function that is defined for any set M as 1 M",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Comparison of the average final cascade size \u03c1 obtained from numerical analytic calculations and simulations, where lines represent the former and symbols in the same color correspond to the latter. Numerically, we consider T = 50 cascade time steps. In simulations, we realize 100 independent networks of size N = 10 5 by the configuration model and draw independently N normally distributed thresholds with mean \u03bc and standard deviation \u03c3 [ \u223c N (\u03bc, \u03c3 2 )] that are assigned to nodes according to pf or cf strategies. (a) pf: Results for scale free networks and \u03c3 = 0.5 are depicted in light blue triangles for the ED model and in red x for the DD model. Poisson random graphs and \u03c3 = 0.2 correspond to black circles for ED and to dark blue plus signs + for DD. (b) As in (a), but for cf.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Phase diagram for the fraction of failed nodes \u03c1 with thresholds distributed according to the order statistics obtained from a normal distribution N (\u03bc, \u03c3 2 ) on scale free random graphs with average degree z = 3. (a) ED with pf, and (c) DD with cf. The middle panel (b) shows their difference \u03c1 (a) \u2212 \u03c1(b)  . The inner graphic of (a) shows a snippet of (a) for \u03bc = 0.17 and varying \u03c3 , where the black curve belongs to numeric results and the red circles to simulations.FIG. 6. Fraction of failed nodes P(s(t ) = 1; k) with degree k 10 in Poisson random graphs, which fail at the time indicated by the color of the bar. Gray corresponds to fractions of nodes that remain functional. \u223c N (0.2, 0.3 2 ). (a) ED pf. (b) DD cf.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

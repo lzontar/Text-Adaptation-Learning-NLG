@@ -1,0 +1,2406 @@
+{
+    "paper_id": "0c1e353ff79d0120e3e224bac9dde7f6ef74d440",
+    "metadata": {
+        "title": "A Fast Algorithm for Geodesic Active Contours with Applications to Medical Image Segmentation",
+        "authors": [
+            {
+                "first": "Jun",
+                "middle": [],
+                "last": "Ma",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Dong",
+                "middle": [],
+                "last": "Wang",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Xiao-Ping",
+                "middle": [],
+                "last": "Wang",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Xiaoping",
+                "middle": [],
+                "last": "Yang",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The geodesic active contour model (GAC) is a commonly used segmentation model for medical image segmentation. The level set method (LSM) is the most popular approach for solving the model, via implicitly representing the contour by a level set function. However, the LSM suffers from high computation burden and numerical instability, requiring additional regularization terms or re-initialization techniques. In this paper, we use characteristic functions to implicitly approximate the contours, propose a new representation to the GAC and derive an efficient algorithm termed as the iterative convolutionthresholding method (ICTM). Compared to the LSM, the ICTM is simpler and much more efficient and stable. In addition, the ICTM enjoys most desired features (e.g., topological changes) of the level set-based methods. Extensive experiments, on 2D synthetic, 2D ultrasound, 3D CT, and 3D MR images for nodule, organ and lesion segmentation, demonstrate that the ICTM not only obtains comparable or even better segmentation results (compared to the LSM) but also achieves dozens or hundreds of times acceleration.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Abstract-The geodesic active contour model (GAC) is a commonly used segmentation model for medical image segmentation. The level set method (LSM) is the most popular approach for solving the model, via implicitly representing the contour by a level set function. However, the LSM suffers from high computation burden and numerical instability, requiring additional regularization terms or re-initialization techniques. In this paper, we use characteristic functions to implicitly approximate the contours, propose a new representation to the GAC and derive an efficient algorithm termed as the iterative convolutionthresholding method (ICTM). Compared to the LSM, the ICTM is simpler and much more efficient and stable. In addition, the ICTM enjoys most desired features (e.g., topological changes) of the level set-based methods. Extensive experiments, on 2D synthetic, 2D ultrasound, 3D CT, and 3D MR images for nodule, organ and lesion segmentation, demonstrate that the ICTM not only obtains comparable or even better segmentation results (compared to the LSM) but also achieves dozens or hundreds of times acceleration.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "Index Terms-Geodesic active contours, segmentation, convolution, thresholding",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "A CTIVE contours have been widely used in various segmentation tasks [1] and image modalities [2] , such as organs [3] in magnetic resonance (MR) scans, tumors in computed tomography (CT) scans ( [4] , [5] ), and ultrasound images ( [6] , [7] ). Basically, there are mainly two types of active contour models: edge-based active contours (e.g., [8] , [9] , [10] ) and region-based active contours (e.g., [11] , [12] , [13] , [14] ). Edge-based active contours are driven by edge indicator functions that are commonly defined by image gradients. The contour evolution is expected to stop on boundaries with high gradient magnitude. Region-based active contours are driven by regional information that can be defined by intensity statistical information inside and outside of the contour. The contour is expected to evolve to a position where the regional information inside and outside of the contour reaches a balance.",
+            "cite_spans": [
+                {
+                    "start": 69,
+                    "end": 72,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 94,
+                    "end": 97,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 115,
+                    "end": 118,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 196,
+                    "end": 199,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 202,
+                    "end": 205,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 233,
+                    "end": 236,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 239,
+                    "end": 242,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 344,
+                    "end": 347,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 350,
+                    "end": 353,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 356,
+                    "end": 360,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 403,
+                    "end": 407,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 410,
+                    "end": 414,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 417,
+                    "end": 421,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 424,
+                    "end": 428,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "This paper focuses on edge-based active contours that were firstly proposed by Kass et al. [15] in 1988 (also termed as the Manuscript received July 1, 2020. Jun Ma is with Department of Mathematics, Nanjing University of Science and Technology, Nanjing, 210094, P. R. China (junma@njust.edu.cn).",
+            "cite_spans": [
+                {
+                    "start": 91,
+                    "end": 95,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Dong Wang (corresponding author) is with Department of Mathematics, University of Utah, Salt Lake City, UT, 84112 USA (dwang@math.utah.edu).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Xiao-Ping Wang is with Department of Mathematics, Hong Kong University of Science and Technology, Clear Water Bay, Kowloon, Hong Kong (mawang@ust.hk).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Xiaoping Yang (corresponding author) is with Department of Mathematics, Nanjing University, Nanjing, 210093, P. R. China (xpyang@nju.edu.cn). snake model). The contour (explicitly represented by a parametric curve) evolves by the image gradient to the boundary of the desired object. Because one only tracks the explicit curve, the snake model is very efficient and requires low memory, allowing a fast evolution of an accurate boundary. However, the snake model suffers from numerical instabilities, and is difficult to automatically handle topological changes of the curve during the evolution (typically, it works only for a single closed curve) ( [16] , [9] ).",
+            "cite_spans": [
+                {
+                    "start": 651,
+                    "end": 655,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 658,
+                    "end": 661,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "To improve the evolution of the contour of the snake model, Caselles et al. proposed geodesic active contours [8] in 1997. The contour is implicitly represented by a level set function that automatically allows topological changes including splitting and merging and simultaneous segmentation of single or multiple objects. The key idea of the level set method (LSM), introduced by Osher and Sethian [17] , is to represent a curve as the zero level set of a graph function defined in a higher dimensional space. Nowadays, the LSM has been widely used in many applications including computer vision, computational geometry, fluid dynamics, material science, and so on (see [18] and references therein for more details). In particular, using the LSM to implicitly represent the contour and approximately solve the active contour models becomes the most popular choice [19] .",
+            "cite_spans": [
+                {
+                    "start": 110,
+                    "end": 113,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 400,
+                    "end": 404,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 672,
+                    "end": 676,
+                    "text": "[18]",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 866,
+                    "end": 870,
+                    "text": "[19]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Even the geodesic active contour model (GAC) allows to change the topology of the curve during evolution, it still suffers from numerical instability. In fact, even if the analytical model could generate a correct interface for all times, it might happen, for either the analytical or the numerical reason, that the gradient of the level set function would become \"too small\" or \"too large\" on the interface (i.e., on the zero-level set). The gradient of a level set function being too small will result in the location of the zero level set (the interface) being sensitive to perturbation. If the gradient is too large, one loses accuracy in the interface representation. To avoid this problem, the level set function is periodically reinitialized as a distance function from the interface, allowing to keep the norm of the gradient close to the unity and avoiding ill-conditioning. However, the reinitialization procedure usually involves many tricks, for example, it is hard to decide when it should be applied. Li et al. [9] proposed a penalty term to keep the regularity of the level set function during evolution. The core idea is to use the intrinsic property of the signed distance function: the magnitude of the gradient of the signed distance function equals one. A penalty term is then introduced to penalize this constraint. In addition, they proposed to keep the magnitude of the gradient of the level set function to be 1 in a neighborhood of the zero level set and the value of the level set function to arXiv:2007.00525v1 [cs.CV] 1 Jul 2020 be a constant at locations far away from the zero level set.",
+            "cite_spans": [
+                {
+                    "start": 1025,
+                    "end": 1028,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Compared to the classical snake model, GAC has achieved significant improvements by using the level set function to represent the contour. However, it is still inefficient because the level set is evolved by a time-dependent partial differential equation that has large computational burden to obtain a solution. Moreover, the solutions are usually obtained by explicit schemes that have stability issues regarding the choice of the time step.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Recently, Wang et al. ([20] , [21] ) proposed to use a characteristic function to represent the contour in region-based active contour models, where the perimeter of the contour is approximated by a heat kernel convolution with a characteristic function. Furthermore, they derived an iterative convolutionthresholding method (ICTM) to minimize a general energy functional with general fidelity terms, which enjoys the unconditionally energy-decaying property. Numerical experiments in ( [20] , [21] ) have shown that the ICTM is simple, efficient, and applicable to a wide range of region-based segmentation models. In [22] , Wang proposed a new ICTM-type method for reconstructing surfaces from point clouds, which can be interpreted as an anisotropic evolution of curves.",
+            "cite_spans": [
+                {
+                    "start": 10,
+                    "end": 27,
+                    "text": "Wang et al. ([20]",
+                    "ref_id": null
+                },
+                {
+                    "start": 30,
+                    "end": 34,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 487,
+                    "end": 491,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 494,
+                    "end": 498,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 619,
+                    "end": 623,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "An alternative way to represent contours is to employ characteristic functions of regions enclosed by the contours (beyond level sets), but how to use a characteristic function to represent the contour in the geodesic active contour model is still an unsolved problem because it is difficult to represent the dynamic boundary curve evolution by a non-differentiable binary function. This paper aims to answer the following two questions:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "\u2022 how to use a characteristic function to represent the geodesic active contour model? \u2022 how to develop a more efficient and stable minimization algorithm beyond the LSM? Motivated by ( [20] , [21] , [22] ), in this paper, we propose to use a characteristic function to implicitly represent the evolving contour, approximate the geodesic active contour energy functional and derive an efficient algorithm to minimize the energy. The main contributions are summarized as follows:",
+            "cite_spans": [
+                {
+                    "start": 186,
+                    "end": 190,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 193,
+                    "end": 197,
+                    "text": "[21]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 200,
+                    "end": 204,
+                    "text": "[22]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "1. We propose to use characteristic functions rather than the widely used level set functions to represent the contours in the GAC energy functional. 2. We develop an iterative convolution-thresholding method to minimize the energy functional of GAC. Our algorithm is more efficient and stable than the classical gradient descent methods in the level set-based evolution, which is the most popular algorithm in this area. 3. We theoretically prove that our algorithm enjoys the energy-decaying property. 4. Experiments on synthetic, ultrasound, CT and MR images for the tumor and organ segmentation imply that our method is superior than traditional LSM in terms of efficiency (running time), which achieves dozens or hundreds of times acceleration. The paper is organized as follows. In Section III we introduce the characteristic function-based representation of the contours, give an approximation of the energy functional and derive an efficient algorithm for minimizing the energy. In Section IV we show the performance and verify the efficiency of our method by extensive experiments. In Section V we discuss the intuitive understanding on the ICTM and other potential applications. We draw some conclusions in Section VI.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "For an image I on a domain \u2126, there are usually three methods to represent the evolution of object boundary curves in it: 1) parametric curves, 2) level set functions, and 3) characteristic functions. Table I presents the main features of above three representation methods. In the following, we first review the parametric curve-and level set-based approaches.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 201,
+                    "end": 208,
+                    "text": "Table I",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "1) Parametric curve representation: Let C(q) : [0, 1] \u2192 R 2 be a parametric curve. To find the object boundary, the classical snakes model [15] defines the following energy functional associated the curve C",
+            "cite_spans": [
+                {
+                    "start": 139,
+                    "end": 143,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where \u03b1, \u03b2, and \u03bb are real positive constants. The first two terms belong to the internal energy that controls the smoothness of the contours, while the third term is the external energy that drives the contours towards the boundary of the object. The snakes model is a pioneer that formulates the image segmentation problem as an energy functional minimization problem. Using a parametrized planar curve to represent an object contour allows a fast evolution with a spline function method [16] . However, it suffers from the fixed topological property. For example, if there are more than one objects in a given image and the initial segmentation contour surrounds the objects, the snake model can not detect all objects. In other words, the classical snakes model can not directly deal with topological changes.",
+            "cite_spans": [
+                {
+                    "start": 490,
+                    "end": 494,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "2) Level set representation: To address the drawback of the snakes model, Caselles et al. [8] proposed the wellknown GAC that is a geodesic computational problem in a Riemannian space whose metric is defined by the image information.",
+            "cite_spans": [
+                {
+                    "start": 90,
+                    "end": 93,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where g : [0, +\u221e) \u2192 R + is an edge indicator function. In general, g is defined by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where G \u03c3 is a Gaussian kernel with a standard deviation \u03c3 that is used to smooth the image. It is easy to see that g takes smaller values on the object boundary where the gradient magnitude is larger. Due to |C (q)|dq = ds, we write ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where |C| is the length of C and s is arc-length parameter that is intrinsic and related to the geometry of the curve. The energy functional can then be represented by embedding the dynamic contour C(s, t) as the zero level set of a time dependent level set function \u03c6 :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where \u03b4 is the Dirac delta function on the set \u03c6 = 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "One of the most significant advantages of level set-based contour representation is that it can handle topological changes (e.g., merging and splitting) in a natural way, which is not allowed in parametric-based contour representation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "In practice, an area term is usually introduced to speed up the motion of the zero level set during the evolution, which is important when the initial contour is far away from the desired object boundaries. The energy functional is then defined by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where H is the Heaviside function. The corresponding L 2 gradient flow with respect to \u03c6 can be derived as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where \u03b4 is a smooth approximation of \u03b4, which is defined by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "and > 0 is a hyper-parameter that controls the band width of the non-zero region. Although the level set methods have the desired property on handling topology changes, their applications suffer from issues on numerical instability. To be specific, a level set function is usually defined as a signed distance function and typically develops irregularities due to numerical errors during evolution, which could destroy the stability of the level set evolution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "3) Distance regularized level set: To address the numerical instability problem, reinitialization was periodically used in earlier level set methods [11] to force the level set to be a signed distance function during the contour evolution. To avoid the above problem, Li et al. proposed the following distance regularized level set evolution (DRLSE) method",
+            "cite_spans": [
+                {
+                    "start": 149,
+                    "end": 153,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "where \u00b5 > 0 is a weight hyper parameter and p(x) is a potential function that is used to keep the signed distance regularity of the level set function. Typically, the potential function p(x) can be defined as a single-well potential",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "or a double-well potential",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "In general, double-well potential is the default setting because it is more robust than single-well potential. With the smoothed Dirac delta function \u03b4 and Heaviside function H , one can derive the gradient flow of the energy functional (9) as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "x .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. PRELIMINARIES"
+        },
+        {
+            "text": "Although the LSM has many advantages than the classical parametric curve-based methods and the distance regularization approach makes the LSM more stable, they still have a main drawback: low computational efficiency. This is because solving the level set-based GAC needs to update the level set function according to a partial differential equation (12) , which has large computational burden.",
+            "cite_spans": [
+                {
+                    "start": 350,
+                    "end": 354,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "The characteristic function is defined by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "where \u0393 is the object boundary and \u2126 \u0393 denotes the region inside \u0393. It provides an alternative way to implicitly represent a curve, which not only owns the adaptively topological change property of the LSM but also is more computationally efficient and stable. In this paper, we propose to formulate the energy functional of GAC beyond existing level set methods. In particular, a characteristic function is introduced to approximate the energy (6), which allows us to design a more efficient algorithm for GAC. As shown in [23] , a general boundary integral can be approximated using the characteristic functions u by:",
+            "cite_spans": [
+                {
+                    "start": 524,
+                    "end": 528,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "where \u03c4 is a free parameter, * represents convolution between two functions, and",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": ").",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Here n is the dimension of the Euclidean space and \u0393 could be an interface when n = 2 or a surface when n = 3. Esedoglu and Otto [24] established a novel framework on modelling and simulating the multiphase mean curvature flow with arbitrary surface tensions based on this approximation.",
+            "cite_spans": [
+                {
+                    "start": 129,
+                    "end": 133,
+                    "text": "[24]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "To keep the symmetry of the formulation with respect to u and 1 \u2212 u, combining with the area term, we propose to approximate the geodesic active contour energy functional (6) by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Thus, we arrive at the following energy functional minimization problem u * = arg min",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "where",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "and BV (\u2126, R) denotes the space of functions with bounded variation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "B. Algorithm for problem (17) It is easy to see that the feasible set B of the energy functional minimization problem (17) is non-convex. To address this problem, we relax B to its convex hull K := {u \u2208 BV (\u2126, R)|u \u2208 [0, 1]} and derive the following relaxed minimization problem",
+            "cite_spans": [
+                {
+                    "start": 25,
+                    "end": 29,
+                    "text": "(17)",
+                    "ref_id": "BIBREF16"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Furthermore, we prove the equivalence between (17) and (18) in the following lemma. Lemma 3.1: The original problem (17) is equivalent to the relaxed problem (18) , in the sense that if u * is a solution of (17), so is (18) . Vice versa.",
+            "cite_spans": [
+                {
+                    "start": 158,
+                    "end": 162,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 219,
+                    "end": 223,
+                    "text": "(18)",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Proof: On the one hand, let\u00fb = arg min",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Then, it is obvious that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "because B K.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "On the other hand, let\u0169 = arg min u\u2208K E \u03c4 (u), we can use reduction to absurdity to prov\u1ebd",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Assume it is not true, then there exists a set A \u2286 \u2126 with nonzero measure and a > 0 such that the minimizer u * satisfies u * (x) \u2208 (a, 1 \u2212 a), \u2200x \u2208 A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Let u t = u * + t\u03c7 A where \u03c7 A is the characteristic function of A, we have u t \u2208 K for any |t| < a. Directly computing the first and the second derivatives of",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "with respect to t, we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Due to \u221a g \u2265 0 and \u221a g = 0 only on a set with zero",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "< 0 especially at t = 0 (i.e., u * ). However, this result contradicts with the assumption that u * is a minimizer ( d 2 E \u03c4 (u t ) dt 2 \u2265 0 at u * ). Thus, we have\u0169 \u2208 B, and then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Finally, based on (19)- (21), we obtain",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Next, we derive an iterative method to solve the relaxed problem (18) based on the sequential linear programming. At the k-th iteration u k , we compute the linearization (the first order Taylor expansion) of E \u03c4 (u) at u k as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "where",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Then, we can obtain the k + 1-th iteration u k+1 by solving the following linearized problem:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "Following, we carry out the linearized minimization problem (25) in a pointwise manner. That is,",
+            "cite_spans": [
+                {
+                    "start": 60,
+                    "end": 64,
+                    "text": "(25)",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "at each point x \u2208 \u2126. Due to the fact that the minimizer of a linear functional over a convex set must be reached at the boundary, we obtain the following solution",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "We summarize the proposed method in Algorithm 1 and term it as the iterative convolution-thresholding method (ICTM) because the main operators are only simple convolution and thresholding.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Representing GAC energy by characteristic functions"
+        },
+        {
+            "text": "The iterative convolution-thresholding method (ICTM) for geodesic active contours Input: Image edge indicator function, \u03c4 > 0 and initialization u 0 \u2208 B. Output: Segmentation results u * \u2208 B;",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 1"
+        },
+        {
+            "text": "while not converged do (1) Convolution. Fix u k , compute",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Algorithm 1"
+        },
+        {
+            "text": "For the convergence criteria, we stop the iteration if",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "end while"
+        },
+        {
+            "text": "where tol is a given error tolerance (1 \u00d7 10 \u22125 in this paper). Compared to the LSM, the proposed ICTM enjoys following advantages:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "end while"
+        },
+        {
+            "text": "1. No requirement for the addition regularization term; The LSM in (9) needs an auxiliary regularization term to maintain the numerical stability, while our algorithm is intrinsic stable during iterations as demonstrated in the following section. 2. Fewer hyper-parameters; Specifically, the LSM has three model hyper-parameters 1 : \u03b1, \u03bb, and \u00b5 (can be reduced to two by some normalizations) and two algorithm hyperparameters: time step and band width in \u03b4 and H , while our method reduces the number of hyperparameters to one model parameter \u03bb and one joint model-algorithm hyper-parameter \u03c4 . 3. Less computational burden; The LSM needs to solve a partial differential equation for the evolution of the contour as shown in the gradient flow (12) , while our algorithm only alternates simple convolution and thresholding operations. 1 The standard deviation \u03c3 in the Gaussian kernel of edge indicator function (Eq. (2)) is excluded because this hyper-parameter is not always necessary. For example, if an input image is clean, we do not need to use Gaussian filter to smooth the image.",
+            "cite_spans": [
+                {
+                    "start": 743,
+                    "end": 747,
+                    "text": "(12)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 834,
+                    "end": 835,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "end while"
+        },
+        {
+            "text": "In this section, we prove that the Algorithm 1 is unconditionally stable for any \u03c4 > 0, which means the total energy E \u03c4 (u) is decreasing during the iteration. Thus, the proposed method can always converge to a stationary segmentation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "Theorem 3.1: Let u k (k = 0, 1, 2, \u00b7 \u00b7 \u00b7 ) be the k-th iteration derived in Algorithm 1. We have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "for any \u03c4 > 0.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "Proof: As for E \u03c4 (u) defined in (16) , the linearization of E \u03c4 (u) at u k is defined by:",
+            "cite_spans": [
+                {
+                    "start": 33,
+                    "end": 37,
+                    "text": "(16)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "Direct calculation yields that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "Because u k+1 is the solution from the sequential linear programming, we have L \u03c4 (u k+1 , u k ) \u2264 L \u03c4 (u k , u k ). Then, we compute",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "Based on the semi-group property of the heat kernel convolution, i.e.,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "Therefore, we are led that ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "C. Convergence analysis"
+        },
+        {
+            "text": "In this section, we show the performance of Algorithm 1 on four different types of images, including synthetic images (2D), ultrasound (2D), CT (3D) and MR (3D) images, and compare with the well-known level set-based GAC [9] (DRLSE) to show the efficiency of the proposed method. The software code of LSM is obtained from Chunming Li's homepage 2 . For fair comparison, we also implement our algorithm with pure MATLAB code. All the experiments are ran on a Windows 10 laptop with Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz, 24 GM RAM. Our code will be publicly available upon acceptance. In all experiment, if not specifically pointed out, we set \u03c3 in (3) to be 15 and in (8) to be 1.5.",
+            "cite_spans": [
+                {
+                    "start": 221,
+                    "end": 224,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. NUMERICAL EXPERIMENTS"
+        },
+        {
+            "text": "We first apply the proposed method on two synthetic images to show that using characteristic functions can automatically handle the topological changes, such as merging and splitting, during evolution, which is the most important feature in level set-based methods. The hyper-parameters of the LSM follow the default setting in Chunming Li's code 2 . As for Algorithm 1, we set \u03c4 = 2 and choose the parameter \u03bb as -0.3 and 0.3 for merging and splitting experiments, respectively. Figure 1 displays the segmentation results of the proposed ICTM and the LSM on two synthetic images. The first two rows show the merging process while the last two rows show the splitting process, using selected snapshots during the iteration. The corresponding number of iterations and running time are listed at the top of each image. Based on these segmentation results, we observe that 1. Both the ICTM and the LSM can adaptively handle the topological changes. Specifically, the contours can adaptively merge and split during iterations. 2. Both the ICTM and the LSM can achieve same (or similar) segmentation results on the two synthetic images because they are just different approximations to the same model (i.e., GAC). 3. Compared to the LSM, the ICTM achieves the same segmentation results with many fewer iterations and much less running time. In particular, ICTM is approximate 58 times and 27 times faster than the LSM on the contour merging and splitting results, respectively.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 480,
+                    "end": 488,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "A. Experiments on synthetic images"
+        },
+        {
+            "text": "To validate the performance and efficiency of our method on real images, we apply it to breast nodule segmentation in ultrasound images. In this experiment, we use the BUSI dataset [25] and select 100 random benign breast ultrasound images to compare the efficiency between the LSM and the ICTM. The same rectangle initialization is generated based on ground truth for images. The width and height of each rectangle is half of the major axis and minor axis of the ground truth's bounding box, respectively. For a fair comparison, we apply grid search to each method to find the best set of hyperparameters that can achieve the best average Dice similarity coefficient (DSC) on this dataset. The main contribution in this work is a faster algorithm. Thus we try our best to achieve the best performance for both LSM and ICTM, and then compare their running time. Specifically, we search \u03b1, \u03bb and the time step for the LSM in {1, 2, \u00b7 \u00b7 \u00b7 , 10}, {\u22121, \u22122, \u00b7 \u00b7 \u00b7 , \u22125}, and {1, 2, \u00b7 \u00b7 \u00b7 , 5}, respectively. For ICTM, we search \u03c4 and \u03bb in {1, 2, \u00b7 \u00b7 \u00b7 , 4} and {\u22120.1, \u22120.2, \u00b7 \u00b7 \u00b7 , \u22120.4}, respectively. Table II shows the quantitative results of breast ultrasound image segmentation. The proposed ICTM method is slightly better than the LSM with 1.35% improvements in average DSC. For the average running time, the LSM takes about 74 seconds per image while the proposed ICTM only needs 0.66 seconds per image, achieving more than 100 times acceleration. Figure 2 displays 10 random selected images with segmentation results by the LSM and our ICTM, with corresponding DSC (yellow) and running time (white) printed on. The two methods start with the same initialization, and we observe that \u2022 The ICTM achieves similar or even better segmentation results than the LSM, indicating the feasibility of applying the ICTM into real image segmentation. \u2022 The ICTM requires much less running time than the LSM, implying the high efficiency.",
+            "cite_spans": [
+                {
+                    "start": 181,
+                    "end": 185,
+                    "text": "[25]",
+                    "ref_id": "BIBREF24"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1098,
+                    "end": 1106,
+                    "text": "Table II",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 1450,
+                    "end": 1458,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "B. Breast nodule segmentation in ultrasound images"
+        },
+        {
+            "text": "To validate the effectiveness of the ICTM on 3D organ segmentation tasks, we apply it to lung segmentation in COVID-19 CT scans. We use the public COVID-19-CT-Seg dataset ( [26] , [27] ) and select 10 random lung CT scans of earlier COVID-19 patients for segmentation experiments. The number of image slices ranges from 40 to 400. We set the same initialization for both the ICTM and the LSM, which is generated by eroding the ground truth with a sphere structure element (radius=10).",
+            "cite_spans": [
+                {
+                    "start": 173,
+                    "end": 177,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 180,
+                    "end": 184,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [],
+            "section": "C. Lung segmentation in COVID-19 CT"
+        },
+        {
+            "text": "For fair comparison, we apply the similar grid search (as shown in Section IV-B) to tune the hyper-parameters. Quantitative and qualitative segmentation results are displayed in Table II and Figure 3 , respectively. We observe that both two methods achieve comparable average DSC without significant differences, which implies that the ICTM can be an alternative choice (beyond the LSM) for the GAC. As for the efficiency, ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 178,
+                    "end": 186,
+                    "text": "Table II",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 191,
+                    "end": 199,
+                    "text": "Figure 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "C. Lung segmentation in COVID-19 CT"
+        },
+        {
+            "text": "To validate the effectiveness of our ICTM on 3D lesion segmentation tasks, we apply it to liver lesion segmentation in liver MR scans. We randomly collect 20 liver MR scans from a local hospital. Three experienced radiologists manually annotate them, and majority vote is used to generate final labels. The image sizes range from 256 \u00d7 256 \u00d7 105 to 400\u00d7400\u00d7120. The initialization of each MR scan is a cuboid inside the tumor that is generated from the ground truth. Figure  4 (a) and (d) show some initialization results (red rectangle) in 2D slices. It should be noted that not all tumor slices have initializations such as the first and third images in Figure 4 (a) because the segmentation method is applied in a 3D manner. In fact, only half of the tumor slices have initializations.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 467,
+                    "end": 476,
+                    "text": "Figure  4",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 656,
+                    "end": 664,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "D. Liver lesion segmentation in MR"
+        },
+        {
+            "text": "For fair comparison, we also apply the same grid search (as shown in Section IV-B) to tune the hyper-parameters. Quantitative and qualitative segmentation results are displayed in Table II and Figure 4 , respectively. We observe that, again, both two methods achieve similar average DSC without significant differences, indicating that the ICTM can obtain similar results to the LSM for the GAC. However, the ICTM requires much less running time compared to the LSM, which is about 68.8 times acceleration, implying the high efficiency of the ICTM.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 180,
+                    "end": 192,
+                    "text": "Table II and",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 193,
+                    "end": 201,
+                    "text": "Figure 4",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "D. Liver lesion segmentation in MR"
+        },
+        {
+            "text": "In Section IV, we have applied the proposed ICTM on synthetic, ultrasound, CT and MR images to show its effectiveness on nodule, organ and lesion segmentation. Compared to the LSM, the ICTM obtains similar or even better results but achieves dozens or hundreds of times acceleration. Furthermore, we discuss the intuitive understanding on the advantages of the ICTM (e.g., efficiency) and many potential applications especially in the modern deep learning era.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. DISCUSSION"
+        },
+        {
+            "text": "This is contributed to the simple and inherent features (Table I) of using characteristic functions to implicitly represent a contour. Specifically, there are several main reasons:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A. Why the proposed ICTM is faster than the LSM?"
+        },
+        {
+            "text": "1. Each iteration in the ICTM (Algorithm 1) is much simpler than each iteration in the LSM as shown in (12). 2. The ICTM directly minimizes the geodesic active contour energy functional, while the LSM usually needs to minimize additional energy term to stabilize the iteration. 3. At each iteration, our ICTM can find the optimal minimizer of the linearized functional. This is because the optimal minimizer of a linear functional over a convex set can be reached at the boundary. Moreover, the minimizer can give a smaller value in E \u03c4 because the graph of the functional E \u03c4 (concave) is always below its linear approximation. This accelerates the convergence of the ICTM. In the LSM, one needs to solve the level setbased partial differential equation (PDE) with a relatively small time step. This step more or less restricts the decay of the energy (at least not optimal). What's worse, the reinitialization step after it (or adding penalty terms in the level set equation) usually increases the energy, which decreases the value of the energy minimized at each iteration (increases the value of E \u03c4 ). This makes the LSM converge slower. In the ICTM, thanks to the concavity of E \u03c4 , the minimizer at each iteration automatically gives a new partition (i.e., the minimizer automatically remains at characteristic functions). No reinitialization and related regularization techniques are needed in the ICTM. We plot the energy curves of both methods during iterations for the synthetic image segmentation (see Figure 1 ), and observe that ICTM converges faster than the LSM. In particular, we observe more oscillations in the energy curve for the LSM.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1514,
+                    "end": 1522,
+                    "text": "Figure 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "A. Why the proposed ICTM is faster than the LSM?"
+        },
+        {
+            "text": "The ICTM is just a method for approximately solving an image segmentation model (i.e., minimizing an objective functional). On one hand, from extensive numerical experiments in this paper, we claim that, our our ICTM is much more efficient than the LSM for various segmentation tasks. On the other hand, the proposed ICTM may not be outside of the application scope of the LSM. This is because both two methods aim to approximately solve the same GAC (6), which mainly determines the accuracy of the segmentation. For better normalization, we apply max-min normalization to the energy values. We zoom in the energy curve of the last 50 iterations to better show the difference between two methods. It can be found that ICTM converges faster than the LSM. In particular, more oscillations occur in the energy curve for the LSM.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. What kind of images can the proposed ICTM work?"
+        },
+        {
+            "text": "C. What is the role of the traditional model-based geodesic active contours in modern deep learning era?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. What kind of images can the proposed ICTM work?"
+        },
+        {
+            "text": "Although deep learning-based segmentation methods have been increasingly popular and dominating current segmentation tasks, these methods generally require much annotated training data that is difficult to obtain in medical images. Deep learning techniques are still open for many mathematical explanations and theories, which may cause incomprehensible segmentation results.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. What kind of images can the proposed ICTM work?"
+        },
+        {
+            "text": "Model-based GAC has interpretable nature and still plays important roles in following three circumstances:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B. What kind of images can the proposed ICTM work?"
+        },
+        {
+            "text": "1. Assisting radiologists to annotate medical images (e.g.; tumor segmentation [28] ). 2. Serving as a post-processing method to refine the segmentation results that are generated by deep learning-based approaches (e.g.; breast tumor [29] , liver [30] , and dental root [31] segmentation). 3. Explicitly embedding shape information (e.g.; a left ventricle shape model that is learned by auto-encoder network can be embedded into the GAC [32] ). 4. Reformulating the active contour model as a loss function to guide CNNs to learning richer features, such as Mumford-Shah loss [33] , level set loss [34] , and active contour loss [35] . The proposed ICTM is expected to be applied to some of these situations directly, obtaining a dramatic acceleration. We leave these applications as our future work and will be reported elsewhere.",
+            "cite_spans": [
+                {
+                    "start": 79,
+                    "end": 83,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 234,
+                    "end": 238,
+                    "text": "[29]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 247,
+                    "end": 251,
+                    "text": "[30]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 270,
+                    "end": 274,
+                    "text": "[31]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 437,
+                    "end": 441,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 575,
+                    "end": 579,
+                    "text": "[33]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 597,
+                    "end": 601,
+                    "text": "[34]",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 628,
+                    "end": 632,
+                    "text": "[35]",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [],
+            "section": "B. What kind of images can the proposed ICTM work?"
+        },
+        {
+            "text": "In this paper, we have proposed an efficient iterative convolution-thresholding method (ICTM) to solve the wildly used geodesic active contours (GAC). The method mainly relies on a characteristic function-based representation for the contour and an integral approximation of the energy functional. A relaxation and linearization approach is used to derive the ICTM method. Extensive numerical experiments on four different types of images are presented to show the performance of the proposed method, indicating a dramatic improvement in the efficiency (compared to the level set-based approaches).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VI. CONCLUSION"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Computer vision: algorithms and applications",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Szeliski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Current methods in medical image segmentation",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Pham",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Prince",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Annual review of biomedical engineering",
+            "volume": "2",
+            "issn": "1",
+            "pages": "315--337",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Merging parametric active contours within homogeneous image regions for mri-based lung segmentation",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Ray",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Acton",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Altes",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "De Lange",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Brookeman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "IEEE transactions on medical imaging",
+            "volume": "22",
+            "issn": "2",
+            "pages": "189--199",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Integrating compact constraint and distance regularization with level set for hepatocellular carcinoma (hcc) segmentation on computed tomography (ct) images",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gui",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Qiu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Sensing and Imaging",
+            "volume": "18",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Computer-aided measurement of liver volumes in ct by means of geodesic active contour segmentation coupled with level-set algorithms",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Suzuki",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kohlbrenner",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Epstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Obajuluwa",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Hori",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Medical Physics",
+            "volume": "37",
+            "issn": "5",
+            "pages": "2159--2166",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Automatic renal lesion segmentation in ultrasound images based on saliency features, improved lbp, and an edge indicator under level set framework",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Gui",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Medical Physics",
+            "volume": "45",
+            "issn": "1",
+            "pages": "223--235",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Variable background active contour model for computer-aided delineationof nodules in thyroid ultrasound images",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Maroulis",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Savelonas",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Iakovidis",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Karkanis",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Dimitropoulos",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "IEEE Transactions on Information Technology in Biomedicine",
+            "volume": "11",
+            "issn": "5",
+            "pages": "537--543",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Geodesic active contours",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Caselles",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Kimmel",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Sapiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 1997,
+            "venue": "International journal of computer vision",
+            "volume": "22",
+            "issn": "1",
+            "pages": "61--79",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Distance regularized level set evolution and its application to image segmentation",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Xu",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Gui",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Fox",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "IEEE transactions on image processing",
+            "volume": "19",
+            "issn": "12",
+            "pages": "3243--3254",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Weighted level set evolution based on local edge features for medical image segmentation",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Khadidos",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Sanchez",
+                    "suffix": ""
+                },
+                {
+                    "first": "C.-T",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "IEEE Transactions on Image Processing",
+            "volume": "26",
+            "issn": "4",
+            "pages": "1979--1991",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Active contours without edges",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Chan",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Vese",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "IEEE Transactions on image processing",
+            "volume": "10",
+            "issn": "2",
+            "pages": "266--277",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Multiregion level-set partitioning of synthetic aperture radar images",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Ayed",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mitiche",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Belhadj",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+            "volume": "27",
+            "issn": "5",
+            "pages": "793--800",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Minimization of regionscalable fitting energy for image segmentation",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "C.-Y",
+                    "middle": [],
+                    "last": "Kao",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Gore",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Ding",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "IEEE transactions on image processing",
+            "volume": "17",
+            "issn": "10",
+            "pages": "1940--1949",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Localizing region-based active contours",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lankton",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tannenbaum",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "IEEE transactions on image processing",
+            "volume": "17",
+            "issn": "11",
+            "pages": "2029--2039",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Snakes: Active contour models",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kass",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Witkin",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Terzopoulos",
+                    "suffix": ""
+                }
+            ],
+            "year": 1988,
+            "venue": "International journal of computer vision",
+            "volume": "1",
+            "issn": "4",
+            "pages": "321--331",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Diffusion snakes: Introducing statistical shape knowledge into the mumford-shah functional",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Cremers",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Tischh\u00e4user",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Weickert",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Schn\u00f6rr",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "International Journal of Computer Vision",
+            "volume": "50",
+            "issn": "3",
+            "pages": "295--313",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Fronts propagating with curvaturedependent speed: algorithms based on hamilton-jacobi formulations",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Osher",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Sethian",
+                    "suffix": ""
+                }
+            ],
+            "year": 1988,
+            "venue": "Journal of computational physics",
+            "volume": "79",
+            "issn": "1",
+            "pages": "12--49",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Level set methods: an overview and some recent results",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Osher",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Fedkiw",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Journal of Computational physics",
+            "volume": "169",
+            "issn": "2",
+            "pages": "463--502",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Ayed, Variational and level set methods in image segmentation",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mitiche",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "5",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "An efficient iterative thresholding method for image segmentation",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wei",
+                    "suffix": ""
+                },
+                {
+                    "first": "X.-P",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Journal of Computational Physics",
+            "volume": "350",
+            "issn": "",
+            "pages": "657--667",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "The iterative convolution-thresholding method (ictm) for image segmentation",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X.-P",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1904.10917"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "An efficient iterative method for reconstructing surface from point clouds",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2005.11864"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Short-time heat flow and functions of bounded variation in R n",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Miranda",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Pallara",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Paronetto",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Preunkert",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Annales de la facult\u00e9 des sciences de Toulouse Math\u00e9matiques",
+            "volume": "16",
+            "issn": "",
+            "pages": "125--145",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Threshold dynamics for networks with arbitrary surface tensions",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Esedoglu",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Otto",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Communications on pure and applied mathematics",
+            "volume": "68",
+            "issn": "5",
+            "pages": "808--864",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Dataset of breast ultrasound images",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Al-Dhabyani",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gomaa",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Khaled",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Fahmy",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Data in Brief",
+            "volume": "28",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "COVID-19 CT Lung and Infection Segmentation Dataset",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ge",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "An",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Gao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Deng",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cao",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Wei",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mei",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Nie",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Tian",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Dong",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.5281/zenodo.3757476"
+                ]
+            }
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Towards efficient covid-19 ct annotation: A benchmark for lung and infection segmentation",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "An",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Ge",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Dong",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Ni",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2004.12537"
+                ]
+            }
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "System and method for lesion segmentation in whole body magnetic resonance images",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Unal",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Slabaugh",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Fang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lankton",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Canda",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Thesen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Qing",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "US Patent",
+            "volume": "8",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Automatic tumor segmentation in breast ultrasound images using a dilated fully convolutional network combined with an active contour model",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Hu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Yu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Zhou",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Chang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Medical physics",
+            "volume": "46",
+            "issn": "1",
+            "pages": "215--228",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Automatic liver segmentation by integrating fully convolutional networks into active contour models",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Schwartz",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Zhao",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Medical physics",
+            "volume": "46",
+            "issn": "10",
+            "pages": "4455--4469",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Automatic dental root cbct image segmentation based on cnn and level set method",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Ma",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Medical Imaging 2019: Image Processing",
+            "volume": "10949",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Combining deep learning and level set for the automated segmentation of the left ventricle of the heart from cardiac cine magnetic resonance",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Ngo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Carneiro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Medical image analysis",
+            "volume": "35",
+            "issn": "",
+            "pages": "159--171",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Mumford-shah loss functional for image segmentation with deep learning",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Ye",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE Transactions on Image Processing",
+            "volume": "29",
+            "issn": "",
+            "pages": "1856--1866",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Cnn-based semantic segmentation using level set loss",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Kim",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "2019 IEEE Winter Conference on Applications of Computer Vision (WACV)",
+            "volume": "",
+            "issn": "",
+            "pages": "1752--1760",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Learning active contour models for medical image segmentation",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Williams",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Vallabhaneni",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Czanner",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Williams",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Experimental results on two synthetic images. First two rows: selected snapshots of the merging process. Last two rows: selected snapshots of the splitting process. The red rectangles in the first column are the contour initialization. At the top of each image, the corresponding iteration number and running time are listed. See Section IV-A.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Breast nodule ultrasound image segmentation results. Columns (a) and (d) are input images and corresponding initialization (red rectangles). Columns (b) and (e) are segmentation results of the LSM. Columns (c) and (f) are segmentation results of Algorithm 1. Green and red contours denote ground truths and segmentation results, respectively. Yellow and white numbers at the top of images indicate segmentation accuracy (Dice similarity coefficient (DSC)) and running time. See Section IV-B.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Zoomed examples for lung CT segmentation results. Row (a) : input images and corresponding initialization (red rectangles). Row (b) : segmentation results of the LSM. Row (c) : segmentation results of the proposed ICTM. Green and red contours denote ground truths and segmentation results, respectively. Yellow and white numbers at the top of images point out segmentation accuracy (DSC) and running time. See Section IV-C.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Zoomed examples of liver lesion MR image segmentation results. Green and red contours denote ground truths and segmentation results, respectively. Yellow and white numbers at the top of images point out segmentation accuracy (DSC) and running time. The 1st and 4th images in row (a) and the 3rd and 6th images in row (d) do not have initializations because the segmentation method is applied in a 3D manner and not all tumor slices need initializations. See Section IV-D. the LSM spends averagely 1956.6 seconds for each case while the ICTM only needs 69.2 seconds, which achieves about 28.3 times acceleration.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Energy curves during iterations of the LSM and the ICTM in the synthetic image segmentation.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "OF THREE CONTOUR REPRESENTATION METHODS. \u2297 MEANS THAT THIS FEATURE REQUIRES SPECIAL DESIGN FOR THE METHOD (e.g., ADDITIONAL PENALTY TERM).",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "RESULTS IN DIFFERENT DATASETS IN TERMS OF AVERAGE DICE COEFFICIENT SIMILARITY (DSC) AND RUNNING TIME. THE ARROWS INDICATE WHICH DIRECTION IS BETTER. BOLD NUMBERS MEAN THAT THE IMPROVEMENTS ARE STATISTICALLY SIGNIFICANT AT",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

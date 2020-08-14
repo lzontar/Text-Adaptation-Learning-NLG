@@ -1,0 +1,257 @@
+{
+    "paper_id": "1fedc4b23dd21ed5e8df2ffd7f5ef4c6a78fb9ea",
+    "metadata": {
+        "title": "Existence Proof Obligations for Constraints, Properties and Invariants in Atelier B",
+        "authors": [
+            {
+                "first": "H\u00e9ctor",
+                "middle": [],
+                "last": "Ru\u00edz Barradas",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "CLEARSY Systems Engineering",
+                    "location": {
+                        "settlement": "Aix-en-Provence",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Lilian",
+                "middle": [],
+                "last": "Burdy",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "CLEARSY Systems Engineering",
+                    "location": {
+                        "settlement": "Aix-en-Provence",
+                        "country": "France"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "David",
+                "middle": [],
+                "last": "D\u00e9harbe",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "CLEARSY Systems Engineering",
+                    "location": {
+                        "settlement": "Aix-en-Provence",
+                        "country": "France"
+                    }
+                },
+                "email": "david.deharbe@clearsy.com"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Proof obligations of the B method and of Event B use predicates in the Constraints, Sets, Properties and Invariant clauses as hypotheses in proof obligations. A contradiction in these predicates results in trivially valid proof obligations and essentially voids the development. A textbook on the B method [3] presents three \"existence proof obligations\" to show the satisfiability of the Constraints, Properties and Invariant clauses as soon as they are stated in a component. Together with new existence proof obligations for refinement, this prevents the introduction of such contradictions in the refinement chain. This paper presents a detailed formalization of these existence proof obligations, specifying their implementation in Atelier B.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The vaunted rigour of formal methods, such as B and Event-B, not only come from the use of a formal notation, but also from the generation and subsequent verification of proof obligations (POs). For instance, in Event-B [2] , the model of a system is considered sound only when all POs have been demonstrated. In the B method [1] , they guarantee that the refinement-based construction results in implementations faithful to their specification.",
+            "cite_spans": [
+                {
+                    "start": 220,
+                    "end": 223,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 326,
+                    "end": 329,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Typically, POs are generated at key steps of the design process. Invalid POs reveal errors in the source artefact. By inspecting these proof obligations, the user then identifies, possibly, remaining errors and fixes the source artefact. The process is repeated until all POs are discharged. To conduct the demonstrations, these methods demand that they are conducted with tools. In practice, this is accomplished by a mix of automatic proof and interactive proof. POs are thus the cornerstone of every such formal development.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "A PO has the form H G, with H a set of hypotheses, and G the goal. Its validity may stem from a contradiction in H, i.e. have nothing to do with the goal. In the context of B and Event-B, a component with contradictory hypotheses in its POs will be (trivially) correct. In large developments, a contradiction may stay undetected. B addresses this issue with POs associated at the implementation level, i.e. at the very end of the development. At that point, this requires fixing the refinement chain up to the source of the contradiction, which is costly. Also, components in a B project that do not have an implementation (e.g., foreign interfaces) are not protected. Event-B does not fully address this issue.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Such situations can be easily avoided by adding so called \"existence\" POs whenever a contradiction may be introduced. An existence PO has the form \u0393 \u21d2 \u2203V \u00b7 (\u03d5), where \u0393 is the context predicate, \u03d5 the predicate that shall not be contradictory, and V a list of identifiers. A textbook on B [3] presents these POs, but without considering component visibility, inclusion and refinement. Existing tools for B and Event-B do not generate these, and we decided to add it to Atelier B. We present the formalization of the POs for the specification (Sect. 2) and the refinement (Sect. 3) levels. We discuss the case of standalone components, and generalize to components with dependencies.",
+            "cite_spans": [
+                {
+                    "start": 289,
+                    "end": 292,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Existence for Parameters. In B, specification components may have sets and scalar parameters. The constraints clause can be used to constrain these parameters. When the machine is instantiated, a PO asks to prove the establishment of the constraints clause, thus guaranteeing the absence of contradictions. If the parametrized machine is not instantiated, the constraints clause can contain undetected contradictions because no PO exists to detect them. Let p denote the parameters, C the predicate in the constraint clause, the existence PO given by [3] for parameters is \u2203p \u00b7 C. It has been implemented as such in Atelier B.",
+            "cite_spans": [
+                {
+                    "start": 551,
+                    "end": 554,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "Existence for Sets and Constants. The properties clause state constraints on sets and constants declared respectively in the sets and constants clauses. Enumerated sets have a single possible valuation, and abstract sets must satisfy the implicit constraint that they are finite non-empty sets of integers. In this way, in order to prove the absence of contradictions in the predicate P of the properties clause of a single machine, with no seen or included components, we define the following PO: e sets \u21d2 \u2203(c, s) \u00b7 (P \u2227 a sets), where e sets is the conjunction of declarations of enumerated sets in the sets clause, c is the list of abstract and concrete constants, s is the list of abstract sets, and a sets is the conjunction of predicates t \u2208 FIN 1 (INTEGER) for each variable t in s. Notice that the visibility rules of the language prohibit parameters in the predicate P , so it is useless to have predicate C as an antecedent.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "If there are seen components in the machine, the predicates in the properties clause from the seen components and their included components are in the antecedent of the PO. Moreover, for each abstract set u declared in the seen machine or declared in a machine included by the seen machine, the antecedent of the PO contains a predicate u \u2208 FIN 1 (INTEGER) . The definition of each enumerated set w declared in these machines is also in the antecedent.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 339,
+                    "end": 356,
+                    "text": "\u2208 FIN 1 (INTEGER)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "If the machine includes components, the definition of their enumerated sets are in the antecedent of the PO, their abstract and concrete constants and the identifiers of their abstract sets are existentially quantified in the consequent and the predicates of their properties clauses, together with the corresponding a sets predicates, are in the body of the existential quantifier.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "Following is an example of the existence PO for the sets, constants and properties clauses for a standalone component:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "Existence for State Variables. The predicate invariant may also contain contradictions. To prevent this, the existence PO of the invariant clause for a standalone machine is C \u2227 P \u2227 all sets \u21d2 \u2203(v) \u00b7 (I). The antecedent of this PO contains the predicates C and P from the constraints and properties clauses. The predicate all sets is the conjunction of e sets and a sets seen above. The quantifed variable v denotes the list of abstract and concrete variables of the machine.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "If there are seen or included components, the antecedent is strengthened with the conjunction of their properties, assertions, invariants and their all sets predicates. In this conjunction, we also consider the clauses of the components possibly included by the seen machines. Moreover, for the included components, the consequent of the PO quantifies over their variables and invariants.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proof Obligations in Specifications"
+        },
+        {
+            "text": "Refinement in B or Event B is used for stepwise development. Refinement POs are designed to be monotonic: If a component S is refined by a component T , these POs guarantee that the invariant of S is also preserved by operations in T . However, existence POs in a refinement are not monotonic in that sense. When an abstract constant or variable is refined by a concrete one, we still need to prove that the properties or invariants specified in the abstraction hold in the refinement.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proofs in Refinements"
+        },
+        {
+            "text": "Existence for Sets and Constants. For a refinement with no seen or included components and no seen or included components in any of its abstractions, the existence PO is intended to avoid contradictions in the predicate P of the properties clause of the refinement and all properties of the previous refinements, denoted by the following predicate: e sets \u2227 abs e sets \u21d2 \u2203(c, c a , s, s a ) \u00b7 (P \u2227 a sets \u2227 abs P \u2227 abs a sets)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proofs in Refinements"
+        },
+        {
+            "text": "The predicates e sets and a sets are defined as before, abs e sets denotes the conjunction of declarations of enumerated sets, and abs a sets denotes the conjunction of t \u2208 FIN 1 (INTEGER), for abstract sets t in previous refinements. Predicate abs P is the conjunction of the properties predicates in the previous refinements. The variable lists c and s contain the constants of the refinement and its abstract sets. Finally, the lists c a and s a denote all constants and abstract sets in previous refinements. If the refinement or any of its abstractions contains seen or included components, the antecedent and the consequent are strengthened with the clauses of these components as it was done in the corresponding PO of the specification. where abs all sets is the conjunction of predicates all sets of previous refinements, v c is the list of abstract and concrete variables of the refinement and J is its invariant.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proofs in Refinements"
+        },
+        {
+            "text": "If there are seen or included components, the antecedent and consequent of the PO are strengthened with the corresponding clauses of these components.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Existence Proofs in Refinements"
+        },
+        {
+            "text": "This paper presents details of the generation of existence POs for the formal methods B and Event-B. These POs detect inconsistencies that would make trivial, but useless, the correctness of the components, as soon as they are introduced in the development. Their generation has been implemented and will be available in a future release of Atelier B.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "The B-Book, Assigning Programs to Meanings",
+            "authors": [
+                {
+                    "first": "J.-R",
+                    "middle": [],
+                    "last": "Abrial",
+                    "suffix": ""
+                }
+            ],
+            "year": 1996,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Modelling in Event-B, System and Software Engineering",
+            "authors": [
+                {
+                    "first": "J.-R",
+                    "middle": [],
+                    "last": "Abrial",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "The B-Method",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Schneider",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Existence for State Variables. The corresponding PO defined for specification components guarantees the absence of contradictions in the invariant. Also, the PO of the establishment of the invariant by the initialization Init a guarantees the existence of values of the abstract variables v a satisfying the abstract invariant I(v a ). The PO of the refinement of Init a by the initialization of a refined component Init c is not sufficient to guarantee the absence of contradictions in the refinedinvariant J(v c , v a ). Therefore, in order to prove the absence of contradictions in the invariant J(v c , v a ) we need to show that the assignment of some concrete values v to the concrete variables v c is a refinement of Init a . Formally this refinement is stated by \u2203v \u00b7 ([v c := v]\u00ac[Init a ]\u00acJ which must be proved under the context of the refinement. After simplification, the existence PO for a standalone refinement and only standalone components in its abstractions is defined as follows:C \u2227 P \u2227 all sets \u2227 abs all sets \u2227 abs P \u21d2 \u2203(v c ) \u00b7 (\u00ac[Init a ]\u00acJ)",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

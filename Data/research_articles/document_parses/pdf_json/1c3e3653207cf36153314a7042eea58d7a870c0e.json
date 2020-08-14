@@ -1,0 +1,1286 @@
+{
+    "paper_id": "1c3e3653207cf36153314a7042eea58d7a870c0e",
+    "metadata": {
+        "title": "Verifying Farad\u017eev-Read Type Isomorph-Free Exhaustive Generation",
+        "authors": [
+            {
+                "first": "Filip",
+                "middle": [],
+                "last": "Mari\u0107",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Belgrade",
+                    "location": {
+                        "settlement": "Belgrade",
+                        "country": "Serbia"
+                    }
+                },
+                "email": "filip@matf.bg.ac.rs"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Many applications require generating catalogues of combinatorial objects, that do not contain isomorphs. Several efficient abstract schemes for this problem exist. One is described independently by I. A. Farad\u017eev and R. C. Read and has since been applied to catalogue many different combinatorial structures. We present an Isabelle/HOL verification of this abstract scheme. To show its practicality, we instantiate it on two concrete problems: enumerating digraphs and enumerating union-closed families of sets. In the second example abstract algorithm specification is refined to an implementation that can quite efficiently enumerate all canonical union-closed families over a six element universe (there is more than 100 million such families).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Cataloguing finite combinatorial structures (e.g., subsets, partitions, words, Latin squares, graphs, designs, codes) described by certain specified properties is required in many application domains. It is very desirable that such catalogues are exhaustive and isomorph-free i.e., to contain exactly one representative of each class of isomorphic structures. Often it is not enough to count objects (to enumerate them), but it is needed to generate them explicitly.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Efficient isomorph-free cataloguing algorithms are often divided into three types: (i) Farad\u017eev-Read-type orderly algorithms based on canonical representatives [8, 20] , (ii) McKay-type algorithms based on canonical orderings [1] , and (iii) algorithms based on the homomorphism principle for group actions [10] . These are applied to a wide variety of problems (according to Google Scholar, McKay's paper has more than 500 citations, most of which describe its concrete applications in mathematics, computer science, chemistry, biology etc.).",
+            "cite_spans": [
+                {
+                    "start": 160,
+                    "end": 163,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 164,
+                    "end": 167,
+                    "text": "20]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 226,
+                    "end": 229,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 307,
+                    "end": 311,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper we present a formal verification of Farad\u017eev-Read cataloguing scheme within Isabelle/HOL. Verified cataloguing of combinatorial structures is often used in formal proofs (e.g., enumeration of Tame Graphs given by Nipkow et al. [18] was an important part of the Flyspeck proof of Kepler conjecture). We advocate that verifying general isomorph-free catalouging schemes might facilitate verifying enumeration algorithms needed for concrete applications. Author's personal motivation for these algorithms comes from his previous and current work in formalizing combinatorics and finite geometry [15, 16] .",
+            "cite_spans": [
+                {
+                    "start": 241,
+                    "end": 245,
+                    "text": "[18]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 606,
+                    "end": 610,
+                    "text": "[15,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 611,
+                    "end": 614,
+                    "text": "16]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To demonstrate its usefulness, we applied our general framework on two concrete problems: cataloguing all directed graphs on n nodes (this was the first problem analyzed in the original Read's paper [20] ) and cataloguing families of subsets of an n-element domain, closed under unions. A solution for the second problem was described by Brinkmann and Deklerck in 2018 [4] and it combines Farad\u017eev-Read type orderly generation [8, 20] and the homomorphism principle [3] . For n = 6, their C implementation found around 100 million such families in several seconds, while for n = 7, it found around 2 \u00b7 10 15 in around 10 to 12 CPU years (on a cluster computer). We refine an abstract algorithm specification to an efficient implementation (still purely functional) and show that it can solve the case n = 6 within Isabelle/HOL in a matter of minutes.",
+            "cite_spans": [
+                {
+                    "start": 199,
+                    "end": 203,
+                    "text": "[20]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 369,
+                    "end": 372,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 427,
+                    "end": 430,
+                    "text": "[8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 431,
+                    "end": 434,
+                    "text": "20]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 466,
+                    "end": 469,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In the current paper we focus mainly on presenting definitions (in the most cases proofs are not discussed). It is assumed that the reader is familiar with functional programming and Isabelle/HOL [19] . Some definitions are slightly simplified, to make them more comprehensible. Proof documents are available in the Downloads section at http://argo.matf.bg.ac.rs/ and are going to be submitted to the Archive of Formal Proofs.",
+            "cite_spans": [
+                {
+                    "start": 196,
+                    "end": 200,
+                    "text": "[19]",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our central contribution is the verification of the abstract Farad\u017eev-Read scheme that can be instantiated for many concrete applications. Other contributions are: -a verified algorithm for cataloguing digraphs and other similar objects [20] ; -a verified efficient algorithm for generating union-closed families [4] ; -a small verified library for generating basic combinatorial objects (permutations and combinations); -verified bitwise representation of sets, set operations and families of sets by unsigned integers and some common \"bit-hacks\".",
+            "cite_spans": [
+                {
+                    "start": 237,
+                    "end": 241,
+                    "text": "[20]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 313,
+                    "end": 316,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Contributions."
+        },
+        {
+            "text": "Related Work. Literature on fast computer-based enumeration of various combinatorial objects is vast, but it seems that there are not many formally verified algorithms and tools. [7, 9] . We are not aware of any verified general methods for isomorph-free exhaustive combinatorial enumeration.",
+            "cite_spans": [
+                {
+                    "start": 179,
+                    "end": 182,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 183,
+                    "end": 185,
+                    "text": "9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Contributions."
+        },
+        {
+            "text": "Algorithms for generating combinatorial objects are usually based on recursive schemes that build larger objects by augmenting smaller ones. We shall assume that the set of all objects S is divided into its subsets S 0 , S 1 , S 2 , . . . grouped by object \"size\" (e.g., the size can be the number of edges in a graph or the number of sets in a family). Objects in S q+1 are produced by augmenting objects in S q . A classic, naive algorithm for isomorphism rejection maintains a list L q of objects of S q produced so far, and compares the current object with all objects in that list, adding it to the list L q only if L q does not contain its isomorph. That assumes that there is an efficient isomorphism test and is doomed to be inefficient when the list becomes long. Efficient schemes (including the Farad\u017eev-Read's) avoid comparing the current object with the previous ones an can deduce whether it should be added to the list only by examining the object itself.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "A central component of Faradzev-Read's scheme is a linear order (we shall denote it by <) in which objects are produced (the scheme is sometimes called orderly generation). L q shall always be sorted wrt. that order. Also, it is assumed that for each isomorphism class there is a single canonical object, that for each object we can test if it is canonical and that lists L q shall contain only canonical objects. We specify this in an Isabelle/HOL locale (use of locales for stepwise implementation is described by Nipkow [17] ).",
+            "cite_spans": [
+                {
+                    "start": 516,
+                    "end": 527,
+                    "text": "Nipkow [17]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "locale FaradzevRead' = fixes S :: \"nat \u21d2 ('s::linorder) set\" fixes equiv :: \"'s \u21d2 's \u21d2 bool\" fixes is canon :: \"'s \u21d2 bool\" fixes is canon test :: \"'s \u21d2 bool\" fixes augment :: \"'s \u21d2 's list\" assumes \" q. equivp on (S q) equiv\" assumes \" s s' q. equiv s s'; s \u2208 S q =\u21d2 s' \u2208 S q\" assumes \" s q. s \u2208 S q =\u21d2 \u2203! sc. equiv s sc \u2227 is canon sc\" assumes \" s s' q. is canon s; s' \u2208 set (augment s) =\u21d2 s \u2208 S q \u2190\u2192 s' \u2208 S (q + 1)\" assumes \" s s' q. s \u2208 S q; is canon s; s' \u2208 set (augment s) =\u21d2 is canon test s' \u2190\u2192 is canon s\"'",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "First two assumptions ensure that equiv is an equivalence (isomorphism) relation on every S q (note that Farad\u017eev-Read scheme does not require to have an executable isomorphism test). The third one ensures that each isomorphism class contains exactly one canonical representative. The fourth one describes the augmentation procedure that builds a list containing possible extensions of a given canonical object (their dimension is always increased by one). Definition of a canonical representative should be as simple as possible, since it is used in proofs. It need not be executable and if it is executable it need not be efficient. We provide another function is canon test that is used to test for canonicity. It does not need to match the abstract is canon definition in general, but they need to match on the objects obtained by augmenting canonical objects.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "Farad\u017eev-Read algorithm iterates through a sorted catalogue L q of canonical objects of S q and builds a sorted catalogue L q+1 for S q+1 . For each object p it iterates trough a list of objects s that augment it. If an object s is non-canonical it is eliminated. If it is canonical, then it is appended at the end of L q+1 only if it does not violate the list order. This procedure is specified as follows. Three conditions are sufficient for the correctness of the previous procedure. First, it must be possible to obtain each canonical object s in S q+1 by augmenting at least one canonical object in S q . If that holds, then all canonical objects in S q+1 will be enumerated at least once and we need to guarantee that they will survive the order test exactly once. Since the ordering of L q+1 is strict, a canonical object cannot survive the order test more than once. The first appearance of a canonical object s will be eliminated by the order test iff the list L q+1 constructed so far contains an object s such that s > s. Element s could be produced either by the same p that produced s or by some element p of L q that precedes p. The former cannot happen if the augmentation procedure always gives elements s in sorted order. Let f (s) = p be the first element of L q which produces s, and let f (s ) = p be the first element of L q which produces s . To forbid that s is produced by some element p of L p that precedes p, we must forbid that both s > s and f (s ) < f(s) hold i.e., we must require that s > s implies f (s ) \u2265 f (s). To formalize this, we first define the function f (we call it the minimal parent function).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "Then we extend the locale by requiring the following three conditions. locale FaradzevRead = FaradzevRead' + assumes \" s q. s \u2208 S (q + 1); is canon s =\u21d2 ( \u2203 p \u2208 S q. parent p s)\" assumes \" s q. s \u2208 S q; is canon s =\u21d2 sorted (filter is canon (augment s))\" assumes \" s s' p p' q.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "s \u2208 S (q + 1); is canon s; min parent p s; s' \u2208 S (q + 1); is canon s'; min parent p' s'; s < s' =\u21d2 p \u2264 p\"'",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "Now we can formulate and prove algorithm correctness. We define catalogue for S q as a strictly sorted list of canonical elements of S q that contains an element for each isomorphism class.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "It is easily shown that catalogue for every q is unique and that it always exists if Sq is finite (we denote it by the catalogue q).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "The central theorem states that the step function when applied to a catalogue for S q produces a catalogue for S q+1 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "theorem \"catalogue L q =\u21d2 catalogue (step L) (q + 1)\"",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "The original proof given by Read is as follows.\"Condition 1 ensures that every canonical configuration X in S q+1 is produced at least once. Condition 2 ensures that when X is produced for the first time from f (X) there cannot be an entry Y produced from f (Y ) = f (X) which follows X in L q+1 and whose presence will therefore block the addition of X to the list. Condition 3 ensures the same thing when f (X) = f (Y ).\" This informal proof sketch had to be expanded to around 300 lines long Isar proof which employed nested reverse list induction.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "Strict Farad\u017eev/Read Conditions. In some concrete instances stronger conditions are met that make possible to skip the order test within step function. Although that does not make the implementation much more efficient (the order test is usually quite fast), this can significantly simplify the depth-first variant of the procedure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "We formally showed that the order test can be skipped.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "We have also shown that strict conditions imply the original conditions (by showing that FaradzevReadStrict is a sublocale of FaradzevRead).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "General Farad\u017eev-Read Scheme"
+        },
+        {
+            "text": "When step function is iterated, objects are generated in breadth first fashion. A serious concern about such procedure is its memory usage, since at each step it needs to store both the whole list L q and the elements of L q+1 that are generated. We have defined a procedure that makes the catalogue in depth first fashion, and that usually consumes significantly less memory. Note that such procedure could have been defined in the non-strict Farad\u017eev/Read locale, but it would be more complicated, since, to be able to perform the order tests, it would have to store the largest element in L q for all recursion levels q. In many concrete applications, including both our case studies, strict conditions hold, so we opted only for the simpler variant. We have defined a function fold dfs that \"folds\" the elements of the Farad\u017eev-Read tree, enumerated in the DFS order, by some given accumulating function. This tree can be formed by augmenting each node in each possible way (using the augment function) and retaining only the canonical descendants (filtered by the is canon test function), but it is not explicitly built in the memory. The lvl parameter guarantees termination by controlling the depth of the generated tree. The definition of fold dfs is quite technical. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Depth First Variant."
+        },
+        {
+            "text": "Elements of the tree are usually folded by the following functions. The function catalogue dfs computes the catalogue by collecting all tree nodes in a list, while the function count dfs only counts nodes, without keeping their list.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "f s' (fold dfs (lvl -1) f x (filter is canon test (augment s')))) ss i)"
+        },
+        {
+            "text": "If the procedure catalogue dfs starts from a catalogue for S q , then it traverses over elements of all catalogues from S q to S q+lvl\u22121 (although in different order than the traversal based on the step function). This is formalized by the following theorem (where mset denotes the multiset of list elements). theorem assumes \"catalogue L q\" shows \"mset (catalogue dfs lvl L) = mset (concat (map the catalogue [q..<q+lvl]))\"",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "catalogue dfs lvl ss = fold dfs lvl (\u03bb s x. s # x) [] ss count dfs lvl ss = fold dfs lvl (\u03bb s x. x + 1) 0 ss"
+        },
+        {
+            "text": "The first case-study used to test our general scheme was cataloguing all loopless directed graphs (digraphs) with n nodes. It was the first problem described by Read [20] and we directly follow his approach. As this was just a toy-example, we did not invest much effort into low-level implementation details (e.g., we have used lists which are the simplest data structures)-additional refinement step that would introduce more efficient data structures and some other algorithmic enhancements could make the enumeration much more efficient.",
+            "cite_spans": [
+                {
+                    "start": 166,
+                    "end": 170,
+                    "text": "[20]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Cataloguing Digraphs"
+        },
+        {
+            "text": "Objects. Following [20] , digraphs are represented by their adjacency matrices. As only loopless digraphs with n nodes are considered, the diagonal can be excluded from the matrix and by concating matrix rows an n \u00d7 (n \u2212 1) vector (a list) representation can be obtained. Graphs will be augmented by adding branches, so we define sets S 0 , S 1 , . . . in the following way (the number of nodes n is fixed when interpreting the locale). Equivalence. Two graphs are equivalent if there is a permutation of nodes that would map one graph onto another. Permutations are represented by lists of length n (e.g., [2, 0, 1] denotes a permutation that maps 0 to 2, 1 to 0 and 2 to 1). For example, if nodes in the Fig. 1 are ordered 0, 1, 2 instead of 1, 0, 2, then the graph would be represented by the list [1, 0, 0, 0, 0, 1]. A direct (but not the most efficient) way to define action of node permutation to a list representing a digraph is to convert it to a matrix, permute the rows and columns of the matrix and then convert the matrix back to a digraph list.",
+            "cite_spans": [
+                {
+                    "start": 19,
+                    "end": 23,
+                    "text": "[20]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 706,
+                    "end": 712,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Cataloguing Digraphs"
+        },
+        {
+            "text": "Equivalence is often defined by using permutations, so we introduce it abstractly in a separate locale and prove its properties.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cataloguing Digraphs"
+        },
+        {
+            "text": "locale Permute = fixes invar :: \"nat \u21d2 'a \u21d2 bool\" fixes permute :: \"nat \u21d2 nat list \u21d2 'a \u21d2 'a\" assumes \" a p n. invar n a; is perm n p =\u21d2 invar n (permute n p a)\" assumes \" a n. invar n a =\u21d2 permute n (perm id n) a = a\" assumes \" a p1 p2 n. invar n a; is perm n p1; is perm n p2 =\u21d2 permute n (perm comp p1 p2) a = permute n p1 (permute n p2 a))\" assumes \" a p n. invar n a; is perm n p =\u21d2 permute n (perm inv p) (permute n p a) = a\"",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cataloguing Digraphs"
+        },
+        {
+            "text": "Predicate is perm abbreviates the condition p <\u223c\u223c> [0.. < n], where <\u223c\u223c> is the permutation relation from the Isabelle/HOL library. Permutations are applied on objects of some abstract type 'a (e.g., to lists that represent digraphs) that may satisfy some given invariant (e.g., that the list length is n(n \u2212 1)). The function permute is the action of permutations on the objects of type 'a. If it respects the permutation group operations (identity perm id, inverse perm inv, and composition perm comp), then we can use it to define equivalent objects and to prove that it is an equivalence relation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cataloguing Digraphs"
+        },
+        {
+            "text": "Ordering. The ordering is very simple -the lexicographic order on lists used to represent graphs is used, except that the order of list elements is reversed (1 is treated as less than 0).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Cataloguing Digraphs"
+        },
+        {
+            "text": "Permutations are also used to define canonical objects. An object is canonical if it is minimal among all its possible permutations. For example, the list [1, 0, 0, 0, 0, 1] is canonical for the graph shown in Fig. 1 . This definition is also generic and can be specified within the previous locale (a linear order on the type 'a is assumed). Then it can be proved that each equivalence class contains a single canonical representative (what is needed for Faradzev-Read enumeration).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 210,
+                    "end": 216,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Canonical Objects."
+        },
+        {
+            "text": "lemma \"inv n a =\u21d2 \u2203! c. equiv n a c \u2227 is canon n c\" An optimization can be made when checking canonicity of a digraph. By the definition of ordering, the list that starts with as most ones as possible will be always less than lists that have zeros at that initial positions. Therefore only permutations that put a maximal degree node at the beginning and nodes that it is connected to after it need to be considered. This is the essence of our is canon test definition (that we do not show here).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Canonical Objects."
+        },
+        {
+            "text": "Augmentation. Graphs are augmented by adding an edge i.e., by changing one 0 in the list to 1. If the list contains some elements 1, then only zeros behind the last 1 can be changed (otherwise any zero can be changed). For example, the list [1, 0, 0, 1, 0, 0] can be augmented to [1, 0, 0, 1, 1, 0] and [1, 0, 0, 1, 0, 1]. This can be formalized as a relation between two lists 1 . ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Canonical Objects."
+        },
+        {
+            "text": "All required properties of the augmentation procedure are proved using this abstract definition, and only then its concrete implementation is given (it is quite technical, so we do not show it here). It must return digraphs in sorted order, which is ensured by sequentially incrementing every 0, after the last 1, one by one.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Canonical Objects."
+        },
+        {
+            "text": "Results. The naive implementation we defined can catalogue all 1 540 944 digraphs with 6 nodes in 276 seconds (on an 2.4GHz, Intel Core i5, 8GB RAM laptop). Interestingly, the original paper reports only 1 540 744 digraphs [20] . Cataloguing more than 800 million digraphs with 7 nodes is possible, but would require significant improvements of the implementation.",
+            "cite_spans": [
+                {
+                    "start": 223,
+                    "end": 227,
+                    "text": "[20]",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Canonical Objects."
+        },
+        {
+            "text": "Families of sets closed under unions have gotten a lot of research attention due to the famous conjecture by P\u00e9ter Frankl, claiming that in each such family there is an element occurring in at least half of the sets. Although quite elementary, the conjecture is still open [5, 16] . Recently Brinkmann and Deklerck applied Farad\u017eev-Read type algorithm to catalogue union-closed and intersection-closed families [4] . We have formalized their procedure in Isabelle/HOL.",
+            "cite_spans": [
+                {
+                    "start": 273,
+                    "end": 276,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 277,
+                    "end": 280,
+                    "text": "16]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 411,
+                    "end": 414,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Cataloguing Union-Closed Families"
+        },
+        {
+            "text": "Objects. The most natural way to model sets of natural numbers in Isabelle/HOL is to use the built-in nat set type. The type nat set set could be used for families of sets. However, in order to apply Farad\u017eev-Read enumeration, we need to define a very specific total order of families (based on a specific ordering of sets). We cannot change the default ordering of sets on the type 'a set nor the ordering of families on the type 'a set set. Additionally, only finite sets can be ordered, so we must introduce the following two types. The union-closed property is defined as follows.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract Procedure Specification"
+        },
+        {
+            "text": "We want to enumerate all families closed for union whose largest set is {0, 1, . . . , n \u2212 1}. Since the empty set does not affect union-closedness, when enumerating union-closed families it is usually excluded from all families. Enumeration starts from the family {{0, 1, . . . , n \u2212 1}}, and extends it by adding sets with less elements. We define the dimension of a family, as the number of its sets without this largest set. Therefore, we define collections S 0 , S 1 , S 2 , . . . by the following definition.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract Procedure Specification"
+        },
+        {
+            "text": "Equivalence. The function permute family permutes every set in a family by applying the permute set function which permutes a set by applying the given permutation to each member. The function permute family interprets the locale Permute (with the invariant that all elements if family sets are less than n) and the definition and properties of equivalence given in that locale are used.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract Procedure Specification"
+        },
+        {
+            "text": "Ordering. The ordering of families is based on an ordering of sets. Sets are ordered first by their cardinality (sets with more elements are declared to precede sets with less elements). Sets of the same cardinality are ordered by lexicographically comparing reverse-sorted lists of their elements. For example, the following is a strictly increasing chain of sets Canonical Objects. Canonical families are also defined by using permutations, by reusing definitions and statements from the Permute locale-two families are equivalent if there is a permutation that transforms one family to the other, and a family is canonical if it is the least one (wrt. the ordering of families) among all its permutations. We have formalized an efficient method for testing if a given family is canonical. The crucial insight is that if a family is obtained by augmenting a canonical family (and that is always the case in the Faradzev-Read scheme), then it is certainly less than all families obtained by permutations that change some of its sets with cardinality greater than minimal. Therefore, it is enough to check only the permutations that fix such sets. For example, when extending the family {{0, 1, 2}, {0, 1}, {0, 2}, {0}} , the permutation 0 \u2192 1, 1 \u2192 2, 2 \u2192 0 needs not to be considered since it maps non-minimal cardinality sets {0, 1, 2}, {0, 1}, {0, 2} to {0, 1, 2}, {0, 1}, {1, 2} , thus always yielding a greater family. Only permutations that map 0 to 0 need to be analyzed. Note that this is one of the crucial components of the algorithm, since it tremendously reduces the number of permutations that have to be applied to check if a given family is canonical (as the number of sets in families is increased, that number very quickly drops to just a couple of permutations).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1180,
+                    "end": 1219,
+                    "text": "family {{0, 1, 2}, {0, 1}, {0, 2}, {0}}",
+                    "ref_id": "FIGREF3"
+                },
+                {
+                    "start": 1323,
+                    "end": 1382,
+                    "text": "sets {0, 1, 2}, {0, 1}, {0, 2} to {0, 1, 2}, {0, 1}, {1, 2}",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "Abstract Procedure Specification"
+        },
+        {
+            "text": "Augmentation. A family is augmented by adding sets that are larger than its largest set (wrt. the ordering of sets). Testing if a family is union-closed requires analyzing all pairs of sets. However, since families are generated by adding sets to smaller union-closed families, we only need to find unions of the new set s with the sets present in the family F that is being augmented. Since s is larger than all sets in F, the procedure can be optimized. It suffices to check only those sets of F that do not contain subsets in F (those sets form the reduction of F). Note that many previous definitions are not efficient or even not executable (e.g., in the augmentation procedure it is not specified how to construct sets larger than the given one, and the required sorted order of the resulting list of families is ensured by explicitly sorting the list, which would be inefficient in a real implementation). However, abstract specification like this one are very convenient for proving algorithm correctness, while efficient executable implementation can be defined later.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "min card F = Min (set card ' (sets F)) above card sets F c = {s. s \u2208 sets F \u2227 set card s > c} perm fixes F \u2190\u2192 (\u2200 s \u2208 F. permute set p s \u2208 F) filter perms ps F = (let F' = above card sets F (min card F) in filter (\u03bb p. perm fixes p F') ps) is canon test n F \u2190\u2192 ( \u2200 p \u2208 set (filter perms (permute [0..<n]) F). F \u2264 permute family p F)"
+        },
+        {
+            "text": "The abstract procedure specification already contains two very important optimizations: filtering permutations when checking canonicity and filtering sets when checking union-closedness. However, there are many additional optimizations that should be done in order to get an executable, efficient implementation of the procedure:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "-sets and families must be represented using efficient data structures; -objects should be generated in-order, and a-posteriori sorting must be avoided; -computations that are redundantly repeated many times should be avoided by applying memorization and storing results in lookup tables.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "Unlike abstract specification that is stateless, an efficient implementation must be stateful. There are many methods to handle state in functional programs, and we use the simplest one: it is explicitly passed trough function calls.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "Objects. Using bitwise representation is the best choice for representing sets and families. A set can be represented by an unsigned integer that has the bit i equal to 1 iff the set contains the element i. For example, if 8-bit words are used, the set {0, 2, 5} can be represented by 00100101, i.e., by 37. Similarly, a family can be represented by unsigned integer that has the bit i equal to 1 iff the family contains the set represented by i. Since there are 2 2 n families over {0, . . . , n \u2212 1}, 64-bit words can be used to represent families over {0, . . . , 5}.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "However, since we wanted to make a very clear separation between the highlevel algorithm correctness and low-level bit-twiddling hacks, we have introduced another layer of abstraction. We have introduced another locale, parametrised by the type 's for representing sets and 'f for representing families, and by some primitive operations over these types.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "For example, a type 's that represents sets must support a constant for the empty set, must support reading the list of set elements, checking if the set contains an element, adding an element to a set, finding union of two sets, determining the cardinality of a set, finding the list of all possible subsets of {0, . . . , n \u2212 1}, etc. It must be linearly ordered and that order must be compliant with the lexicographic order of reversed lists of set elements. Since only elements up to a certain size must be represented, all assumptions in our locale are guarded by the condition n \u2264 n max , where n max is a locale parameter. Based on such primitives, algorithm-specific set operations are defined (e.g., ordering of sets is defined based on card and <, and permuting sets is defined by traversing the list of elements and inserting their permuted images into a resulting set).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "A type 'f must support a constant for the empty family, must support reading the list of family sets, adding and removing set from the given family etc. Again, value n max assures that all families can be properly represented.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "Caching Information About Families. Each family F must contain information about all sets that it contains (and this is represented by a value of type 'f). However, in order to avoid repeating computations, we shall associate some additional data with each family. For augmentation of F we need to know the maximal set and the reduction of a family (so that we can efficiently check union-closure). For testing canonicity we need to know a list of permutations that fix sets in F with cardinality above minimal. We store all these in a record (permutations are represented by numbers from 0 to n! \u2212 1).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Implementation"
+        },
+        {
+            "text": "Ordering. Ordering families is a bit tricky in the general case. If bitwise representation is used, the order of family codes need not necessarily comply with our abstract ordering of families (which takes into account set cardinality). However, within the enumeration we only compare families with their permuted variants for permutations that fix all sets except those with the minimal cardinality. Therefore, it suffices just to extract sets with minimal cardinality and compare two families based only on those sets. When bitwise representation is used, since all other bits will be the same, it suffices just to compare family codes. (\u03bb (p, s) ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 639,
+                    "end": 648,
+                    "text": "(\u03bb (p, s)",
+                    "ref_id": null
+                }
+            ],
+            "section": "datatype ('f, 's) FamilyRecord = FamilyRecord (all sets : 'f ) (max set : 's) (reduction : 'f ) (perms : \"nat list\")"
+        },
+        {
+            "text": "In the previous code, the function permute is defined within our small library for generating basic combinatorial objects and it generates all permutations of the given list. The function that permutes a given family then just looks up permuted sets from the set perms mapping.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ". permute set n (ps ! p) s))"
+        },
+        {
+            "text": "permute family F p = foldl (\u03bb F' s. add F' (the (Mapping.lookup set perms (p, s) ))) empty family (sets F) Now the canonicity check can easily be implemented. The list of relevant permutations is stored within the family record. The first permutation in that list is always the identity permutation and it does not need to be checked (so in many cases no family permutations at all need to be made).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 48,
+                    "end": 80,
+                    "text": "(Mapping.lookup set perms (p, s)",
+                    "ref_id": null
+                }
+            ],
+            "section": ". permute set n (ps ! p) s))"
+        },
+        {
+            "text": "is canon test set perms F = list all (\u03bb p. less eq family (all sets F) (permute family set perms p (all sets F))) (tl (perms F)) Augmentation. Implementing augmentation has several important parts. First, we need to know how to enumerate all augmenting sets for a given set, then we need to check if adding an augmenting set to a family would leave it union-closed and finally, when the set is added we need to update the list of permutations that need to be tested when checking if the family is canonical, to update the reduction of the family and to update its maximal set. The function that finds all possible augmentations for a given set might be implemented in the following way (again, it does not need to be much efficient, since it is also called only once).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ". permute set n (ps ! p) s))"
+        },
+        {
+            "text": "The function combine is also defined within our small library for generating basic combinatorial objects and combine l k computes all k-element sublists of the given list l. Augmenting sets of a set s first contain sets with the same cardinality as s that are larger than it, and then, all sets of each cardinality less than the cardinality of s, in decreasing order (this gives a sorted list of all augmenting sets wrt. our set order).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "augment set n s = filter (\u03bb s'. s < s') (set of (combine [0..<n] (card s))) @ concat (map (\u03bb c'. set of (combine [0..<n] c')) (rev [1..<card s]))"
+        },
+        {
+            "text": "Since the same sets are augmented over and over again (as they occur in different families), results of augment set for each s in powerset n are stored in a lookup table and that lookup table becomes a parameter of the family augmentation procedure augment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "augment set n s = filter (\u03bb s'. s < s') (set of (combine [0..<n] (card s))) @ concat (map (\u03bb c'. set of (combine [0..<n] c')) (rev [1..<card s]))"
+        },
+        {
+            "text": "Each augmenting set is analyzed and it is checked if adding it to the family leaves it union-closed. This is done by examining only the sets from the reduced family (which are stored within the family record).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "augment set n s = filter (\u03bb s'. s < s') (set of (combine [0..<n] (card s))) @ concat (map (\u03bb c'. set of (combine [0..<n] c')) (rev [1..<card s]))"
+        },
+        {
+            "text": "If adding the set s to the family F leaves it union closed, then a new family record is created. The set is added to the collection of all sets using the primitive operation and it is set as the maximal set of the extended family (since the augmenting sets are always larger than all sets in the family). The reduction of the extended family is obtained by analyzing all sets in the reduction of the original family F, removing those that contain s (by means of the primitive operation), and by adding s to the reduction (as the maximal set it has the minimal cardinality and the family cannot contain its subset).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "is union closed F s = list all (\u03bb s'. contains set F (union s' s)) (sets (reduction F))"
+        },
+        {
+            "text": "Finally, the augmented set is added to the family and if its cardinality is strictly less than cardinality of other sets in the family, the set of permutations is filtered (permutations that do not fix sets above minimal cardinality are removed). Correctness Proof. The correctness proof reduces to showing that this stateful implementation corresponds to the abstract specification. Functions abs set and abs family that convert 's to Set and 'f to Family are easily defined and it is easily shown (by using the locale assumptions) that primitive operations given in a locale are in accordance with operations on sets (the real burden of showing this is when interpreting the locale by bitwise representation). Then, a set of lemmas is proved that connects each implemented function with its abstract counterpart. For example, the lemma that establishes the connection between the abstract test for canonicity and its implementation is the following. lemma assumes \"n \u2264 n max\" \"inv f n (all sets F)\" \"set perms OK set perms n\" \"perms filtered F n\" \"hd perms F\" shows \"FamilyImpl.is canon test n set perms F \u2190\u2192 FamilyAbs.is canon test n (abs fam (all sets F))\"",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "update reduction Rs s = (let Rs' = foldl (\u03bb Rs s'. if is subset s s' then remove Rs s' else Rs) Rs (sets Rs) in add Rs' s) add set F s = FamilyRecord (add (all sets F) s) (update reduction (reduction F) s) s (perms F)"
+        },
+        {
+            "text": "The assumptions require that all sets in the family record satisfy all required representation invariants (for example, this guarantees that all sets in F are subsets of {0, . . . , n\u2212 1}), that the lookup table set perms contains permutations of all sets, that the family record contains exactly those permutations that fix all sets of F with more elements than the minimal set of F, and that the first element in the list of those permutations is the identity permutation. In many cases such lemmas are proved almost immediately (by using similar lemmas about functions called in the current function definition). However, in some cases there is more work that should be done (e.g., we need to show that our augment set implementation builds a sorted and distinct list of sets that covers every set that is larger than the one being augmented).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "update reduction Rs s = (let Rs' = foldl (\u03bb Rs s'. if is subset s s' then remove Rs s' else Rs) Rs (sets Rs) in add Rs' s) add set F s = FamilyRecord (add (all sets F) s) (update reduction (reduction F) s) s (perms F)"
+        },
+        {
+            "text": "It is also necessary to show that functions preserve invariants. All lookup tables are initialized before the enumeration starts and we prove that functions that initialize lookup tables do that correctly. For example, we show that init set perms builds a lookup table that for each set s in powerset n and each permutation index p from 0 to n! \u2212 1 returns the set obtained by permuting s by the p-th permutation in the lexicographic ordering of permutations of [0, . . . , n \u2212 1]. Other invariants characterize data in the family record. For example, one such invariant claims that max set F is always a set in F that is the largest among all sets of F. Since the family record is updated only in the augment function, the major challenge is to show that it preservers all such invariants.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "update reduction Rs s = (let Rs' = foldl (\u03bb Rs s'. if is subset s s' then remove Rs s' else Rs) Rs (sets Rs) in add Rs' s) add set F s = FamilyRecord (add (all sets F) s) (update reduction (reduction F) s) s (perms F)"
+        },
+        {
+            "text": "Finally, we used the bitwise representation to represent sets and families, based on the Native word library [14] . Sets are represented by the type uint8, while families are represented by the type uint64. Primitive operations on sets are implemented using the bitwise operations. For example, adding element and removing element from a set, union and intersection of sets is defined by add x e = x OR (1 << k) remove x e = x AND NOT (1 << k) union x1 x2 = x1 OR x2 inter x1 x2 = x1 AND x2",
+            "cite_spans": [
+                {
+                    "start": 109,
+                    "end": 113,
+                    "text": "[14]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 403,
+                    "end": 411,
+                    "text": "(1 << k)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Bitwise Set Representation"
+        },
+        {
+            "text": "We have also implemented an efficient function for finding the cardinality of a set, by using the parallel bit-count algorithm. card s0 = (let s1 = (s0 AND 0x55) + ((s0 >> 1) AND 0x55); s2 = (s1 AND 0x33) + ((s1 >> 2) AND 0x33); s3 = (s2 AND 0x0F) + ((s2 >> 4) AND 0x0F) in nat of uint8 s3) However, since we calculate cardinality only for 8-bit numbers, it turns out that there is no much benefit to using a naive, sequential bit-testing algorithm.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Bitwise Set Representation"
+        },
+        {
+            "text": "Similarly, a list of sets in a family could be determined by a naive, sequential test of each of 64 bits. For families that do not contain many sets, it is more efficient to iterate only trough the bits that are set. Many hardware architectures offer count trailing zeros (ctz) instruction that is used to find the last set bit. Clearing last set bit can be achieved by calculating x & (x-1). Unfortunately, it seems that ctz instruction is not available from functional languages. It can be implemented by a binary search approach, yielding a six-step algorithm for 64-bit words, but our experiments reveal that using such implementation is less efficient than the naive algorithm.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Bitwise Set Representation"
+        },
+        {
+            "text": "Our verified implementation exported to Haskell catalogues all 108 281 182 union-closed families in around 11 min (on an 2.4GHz, Intel Core i5, 8GB RAM laptop). Our fastest, unverified implementation in C++ that uses the same algorithm, but is based on arrays, does it in around 28 seconds. Profiling shows that the verified implementation spends more than 60% of the time in RBT lookup. Replacing O(log n) RBT with O(1) lookup array reduces the time to less than 5 min (for this we can use the Isabelle Collections Framework [11] or Imperative/HOL [6] ). Unfortunately, a range-check is performed with each verified bitwise operation, and there is no direct access from Isabelle/HOL to all hardware implemented bitwise operations (e.g., builtin ctzl in GCC), so its hard to expect that C++ runtimes could be reached with standard Isabelle code generator. When families are only counted using the depth-first variant of the algorithm, memory consumption is not an issue.",
+            "cite_spans": [
+                {
+                    "start": 526,
+                    "end": 530,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 549,
+                    "end": 552,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Results"
+        },
+        {
+            "text": "We have formalized the general Farad\u017eev-Read scheme for making exhaustive, isomorph-free catalogues of combinatorial objects within Isabelle/HOL and have shown its applicability by instantiating in on two different problems: cataloguing directed graphs and cataloguing union-closed families. In the second case study we have created an efficient implementation capable of generating more than one hundred million union-closed families over a six-element domain.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions and Further Work"
+        },
+        {
+            "text": "Our experience shows that even with the general scheme verified, there is still much work to do for each concrete application, especially if efficient implementation is required (our rough estimate is that verifying the general scheme is around 30-50% of the effort needed to verify a concrete efficient algorithm). Still, a verified general scheme does save a significant amount of work in each concrete instance, and, more importantly, guides us towards elements that should be defined in order to get an efficient algorithm.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions and Further Work"
+        },
+        {
+            "text": "Specification and the correctness proof of the abstract Farad\u017eev-Read scheme contains 3 locales with around 10 assumptions, 10 definitions and 40 lemmas, consuming around 1200 lines of code (LOC). The case study of digraphs contains around 25 definitions and 100 lemmas, consuming around 4000 LOC. The case study of union-closed families contains around 105 definitions and 350 lemmas, consuming around 8000 LOC (5000 LOC are devoted to efficient implementation). Some definitions and lemmas are shared between both case studies.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions and Further Work"
+        },
+        {
+            "text": "We use refinement based on Isabelle/HOL locales to separate reasoning about abstract procedure properties and concrete implementation details. Using a framework (e.g., Isabelle refinement framework [12] ) might give us better proof automation and easier introduction of imperative features [13], so we plan to use it in our future work.",
+            "cite_spans": [
+                {
+                    "start": 198,
+                    "end": 202,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions and Further Work"
+        },
+        {
+            "text": "There are other general cataloguing schemes, some more efficient than Farad\u017eev-Read's. Most notable of them is McKay's canonical path generation [1] . In our further work we plan to formalize it, too. We hope that some parts of the developed theory could be reused (e.g., the definition of isomorphism based on permutations and their action and the definition of the catalogue). On the other hand, Faradzev/Read and McKay's approach are substantially different so we are not too optimistic that any parts of Faradzev/Read algorithm specification would be useful for computing canonical labellings. A prerequisite for McKay's algorithm trusted implementation is an efficient, trusted graph isomorphism testing algorithm which we plan to construct (either by its verification within a theorem prover, or by some kind of certificate checking).",
+            "cite_spans": [
+                {
+                    "start": 145,
+                    "end": 148,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions and Further Work"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Isomorph-free exhaustive generation",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Mckay",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "J. Algorithms",
+            "volume": "26",
+            "issn": "2",
+            "pages": "306--324",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "A verified algorithm enumerating event structures",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Bowles",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Caminati",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Geuvers",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "England",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Hasan",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Rabe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "CICM 2017",
+            "volume": "10383",
+            "issn": "",
+            "pages": "239--254",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-319-62075-6_17"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Isomorphism rejection in structure generation programs",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Brinkmann",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Discrete Mathematical Chemistry",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Generation of union-closed sets and Moore families",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Brinkmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Deklerck",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "J. Integer Sequences",
+            "volume": "21",
+            "issn": "1",
+            "pages": "9--18",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "The journey of the union-closed sets conjecture",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bruhn",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Schaudt",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Graphs Comb",
+            "volume": "31",
+            "issn": "6",
+            "pages": "2043--2074",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Imperative functional programming with Isabelle/HOL",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Bulwahn",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Krauss",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Haftmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Erk\u00f6k",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Matthews",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "TPHOLs 2008",
+            "volume": "5170",
+            "issn": "",
+            "pages": "134--149",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-71067-7_14"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Bounded exhaustive testing with certified and optimized data enumeration programs",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Erard",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Giorgetti",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ICTSS 2019",
+            "volume": "11812",
+            "issn": "",
+            "pages": "159--175",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-31280-0_10"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Constructive enumeration of combinatorial objects",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Faradzev",
+                    "suffix": ""
+                }
+            ],
+            "year": 1978,
+            "venue": "Colloques Int. CNRS",
+            "volume": "260",
+            "issn": "",
+            "pages": "131--135",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Combinatoire formelle avec why3 et coq",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Giorgetti",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Dubois",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Lazarini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Journ\u00e9es Francophones des Langages Applicatifs (JFLA 2019)",
+            "volume": "",
+            "issn": "",
+            "pages": "139--154",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Group actions, double cosets, and homomorphisms: unifying concepts for the constructive theory of discrete structures",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kerber",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Laue",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Acta Applicandae Mathematicae",
+            "volume": "52",
+            "issn": "",
+            "pages": "63--90",
+            "other_ids": {
+                "DOI": [
+                    "10.1023/A:1005998722658"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Collections framework. Archive of Formal Proofs. Formal proof development",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Lammich",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Archive of Formal Proofs. Formal proof development",
+            "authors": [
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Lammich",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Lammich",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "J. Autom. Reason",
+            "volume": "62",
+            "issn": "4",
+            "pages": "481--503",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10817-017-9437-1"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Native word. Archive of Formal Proofs. Formal proof development",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Lochbihler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Fast formal proof of the Erd\u0151s-Szekeres conjecture for convex polygons with at most 6 points",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Maric",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "J. Autom. Reasoning",
+            "volume": "62",
+            "issn": "",
+            "pages": "301--329",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Formalizing Frankl's conjecture: FC-families",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Mari\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "\u017divkovi\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Vu\u010dkovi\u0107",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "CICM 2012",
+            "volume": "7362",
+            "issn": "",
+            "pages": "248--263",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Verified efficient enumeration of plane graphs modulo isomorphism",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Nipkow",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "ITP 2011",
+            "volume": "6898",
+            "issn": "",
+            "pages": "281--296",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-642-22863-6_21"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Flyspeck I: tame graphs",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Nipkow",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bauer",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Schultz",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "IJCAR 2006. LNCS (LNAI)",
+            "volume": "4130",
+            "issn": "",
+            "pages": "21--35",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11814771_4"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Isabelle/HOL-A Proof Assistant for Higher-Order Logic",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Nipkow",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Paulson",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wenzel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "LNCS",
+            "volume": "2283",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-45949-9"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Every one a winner or how to avoid isomorphism search when cataloguing combinatorial configurations",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Read",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Algorithmic Aspects of Combinatorics",
+            "authors": [],
+            "year": 1978,
+            "venue": "Annals of Discrete Mathematics",
+            "volume": "2",
+            "issn": "",
+            "pages": "107--120",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "fold dfs lvl f i ss = (if lvl = 0 then i else fold (\u03bb s' x.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "S n q = {l. length l = n * (n -1) \u2227 set l \u2286 {0, 1} \u2227 sum list l = q} Example graph, its matrix and list representation are shown onFig. 1.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "A graph represented graphically, by a matrix and by a list",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "Set = \"{ s :: nat set. finite s }\" morphisms elems Set typedef Family = \"{ s :: Set set. finite s }\" morphisms sets Family",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "augment set n s = {s'. elems s' = {} \u2227 elems s' \u2286 {0..<n} \u2227 s' > s} augment n F = ( let Fs = {add set F s | s. s \u2208 augment set n (Max (sets F))} in sorted list of set {F' \u2208 Fs. union closed F'})",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "Objects. Due to a relatively low number of subsets of {0, . . . , n \u2212 1} (for n = 6, there are only 64 such sets) and a relatively low number of permutations of [0, . . . , n \u2212 1] (for n = 6, there are only 720 such permutations), the action of all permutations on all sets can be precomputed and stored into a lookup",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "As a part of Flyspeck project, Nipkow et al. used Isabelle/HOL to verify an algorithm for enumerating tame graphs [17,18]. Bowles and Caminati used Isabelle/HOL to verify an algorithm for enumerating event structures and, as a byproduct, all preorders and partial orders [2]. Giorgetti et al. used Why3 and Coq to generate basic combinatorial objects, used in software testing",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "order test s res = ( if res = [] \u2228 s > hd res then s # res else res)",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "zeros xs \u2190\u2192 (\u2200 i < length xs. xs ! i = 0) increment after last one xs ys \u2190\u2192 (\u2203 j. j < length xs \u2227 ys = xs [j := 1] \u2227 (all zeros xs \u2228 (\u2203 i. is last one xs",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Families are ordered by lexicographically comparing sorted lists of their sets (wrt. the previous ordering of sets). Family (Family F1) (Family F2) \u2190\u2192 sorted list of set F1 < sorted list of set F2",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "reduction F = {s \u2208 sets F. \u00ac (\u2203 s' \u2208 sets F. elems s' \u2282 elems s)}",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF5": {
+            "text": "table (we use a RBT Mapping available from the Isabelle/HOL library). The function that initializes the lookup table can easily be defined and it need not be very efficient (it is called only once at the very beginning of the procedure).",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF6": {
+            "text": "With these functions available, we define the augmenting procedure.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

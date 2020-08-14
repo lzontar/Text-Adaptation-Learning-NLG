@@ -1,0 +1,822 @@
+{
+    "paper_id": "1a42faa44aee40c070c8269a25e49e79f8a24e7d",
+    "metadata": {
+        "title": "Efficient Automated Reasoning About Sets and Multisets with Cardinality Constraints",
+        "authors": [
+            {
+                "first": "Ruzica",
+                "middle": [],
+                "last": "Piskac",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Yale University",
+                    "location": {
+                        "settlement": "New Haven",
+                        "country": "USA"
+                    }
+                },
+                "email": "ruzica.piskac@yale.edu"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "When reasoning about container data structures that can hold duplicate elements, multisets are the obvious choice for representing the data structure abstractly. However, the decidability and complexity of constraints on multisets has been much less studied and understood than for constraints on sets. In this presentation, we outline an efficient decision procedure for reasoning about multisets with cardinality constraints. We describe how to translate, in linear time, multisets constraints to constraints in an extension of quantifier-free linear integer arithmetic, which we call LIA*. LIA* extends linear integer arithmetic with unbounded sums over values satisfying a given linear arithmetic formula. We show how to reduce a LIA* formula to an equisatisfiable linear integer arithmetic formula. However, this approach requires an explicit computation of semilinear sets and in practice it scales poorly even on simple benchmarks. We then describe a recent more efficient approach for checking satisfiability of LIA*. The approach is based on the use of under-and over-approximations of LIA* formulas. This way we avoid the space overhead and explicitly computing semilinear sets. Finally, we report on our prototype tool which can efficiently reason about sets and multisets formulas with cardinality constraints.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "In the verification of container data structures one often needs to reason about sets of objects -for example, abstracting the content of a container data structure as a set. The need for cardinality constraints naturally arises in order to reason about the number of the elements in the data structure. We have all witnessed to the success of the BAPA logic [4, 5] that was, among others, used for verification of distributed algorithms [1] .",
+            "cite_spans": [
+                {
+                    "start": 359,
+                    "end": 362,
+                    "text": "[4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 363,
+                    "end": 365,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 438,
+                    "end": 441,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Similarly, when reasoning about container data structures that can hold duplicate elements, multisets are the obvious choice of an abstraction. Multisets are collections of objects where an element can occur several times. They can be seen as \"sets with counting\". Although multisets are interesting mathematical objects that can be widely used in verification, there was no efficient reasoner for multisets and sets with cardinality constraints until recently [6] . Moreover, for a long time it was not known if the logic of multisets with cardinality constraints is even decidable [7] . Nevertheless, researchers have recognized the importance of this logic and they have been studied multisets in combination with other theories.",
+            "cite_spans": [
+                {
+                    "start": 461,
+                    "end": 464,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 583,
+                    "end": 586,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Zarba [13] investigated decision procedures for quantifier-free multisets but without the cardinality operator. He showed how to reduce a multiset formula to a quantifier-free defining each multiset operation pointwise on the elements of the set. Adding the cardinality operator makes such a reduction impossible.",
+            "cite_spans": [
+                {
+                    "start": 6,
+                    "end": 10,
+                    "text": "[13]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Lugiez studied multiset constraints in the context of a more general result on multitree automata [7] and proved the decidability of multiset formulas with a weaker form of cardinality operator that counts only distinct elements in a multiset.",
+            "cite_spans": [
+                {
+                    "start": 98,
+                    "end": 101,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper we revive the first decision procedure for multisets with cardinality constraints [9, 10] . We represent multisets (bags) with their characteristic functions. A multiset m is a function E \u2192 N, where E is the universe used for populating multisets and N is the set of non-negative integers. The value m(e) is the multiplicity (the number of occurrences) of an element e in a multiset m. We assume that the domain E is fixed and finite but of an unknown size. We consider the logic of multisets constraints with the cardinality operator (MAPA), given in Fig. 1 . An atom in MAPA is either a multiset comparison, or it is a standard quantifier-free linear integer arithmetic atom, or it is a quantified formula (\u2200e.F in ), or it is a collecting sum formula. We allow only universal quantification over all elements of E. This way we can express, for example, that for a multiset k it holds \u2200e.k(e) = 0 \u2228 k(e) = 1 -in other words, k is a set. A collecting sum atom is used to group several formulas involving sums into a single atom. This is needed for the next step of the decision procedure. The sums are used in the definition of the cardinality operator:",
+            "cite_spans": [
+                {
+                    "start": 96,
+                    "end": 99,
+                    "text": "[9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 100,
+                    "end": 103,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 566,
+                    "end": 572,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Multisets with Cardinality Constraints"
+        },
+        {
+            "text": "Piskac and Kuncak [9] showed that every MAPA formula can be translated to an equisatisfiable LIA formula. The translation is linear and described in [9] . This way reasoning about MAPA formulas reduces to reasoning about LIA formulas.",
+            "cite_spans": [
+                {
+                    "start": 18,
+                    "end": 21,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 149,
+                    "end": 152,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Multisets with Cardinality Constraints"
+        },
+        {
+            "text": "top-level formulas: ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Multisets with Cardinality Constraints"
+        },
+        {
+            "text": "The LIA logic [10] is a standard linear integer arithmetic extended with a new operator: the star operator, which is defined over a set of integer vectors as follows:",
+            "cite_spans": [
+                {
+                    "start": 14,
+                    "end": 18,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Reasoning About LIA Formulas"
+        },
+        {
+            "text": "The result of the star operator applied to set S is a set if all linear additive combinations of vectors from S. Its syntax is given in Fig. 2 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 136,
+                    "end": 142,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Reasoning About LIA Formulas"
+        },
+        {
+            "text": "LIA formulas: \u03d5 :: To check a satisfiability of a LIA formula, we use the semilinear set characterization of solutions of integer linear arithmetic formulas. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Reasoning About LIA Formulas"
+        },
+        {
+            "text": "Sometimes, as a shorthand, we use \u03bbB = Ginsburg and Spanier showed (Theorem 1.3 in [3] ) that a solution set for every Presburger arithmetic formula is a semilinear set, and we use that result to eliminate the star operator. [10] ). Given a LIA atom",
+            "cite_spans": [
+                {
+                    "start": 83,
+                    "end": 86,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 225,
+                    "end": 229,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Definition 1 (Semilinear sets). A linear set LS(a, B) is defined by an integer vector a and a finite set of integer vectors"
+        },
+        {
+            "text": ") be a semilinear set describing the set of the solutions of formula F 2 . The atom x 1 \u2208 {x 2 | F 2 } is equisatisfiable to the following LIA formula:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1 (Lemmas 2 and 3 in"
+        },
+        {
+            "text": "By applying Theorem 1, checking satisfiability of a LIA formula reduces to reasoning about linear integer arithmetic. Note, however, that this approach results in automatically constructing a formula might be really large, depending on the size of a semilinear set. In addition, this approach relies on computing semilinear sets explicitly, both of which make it scale poorly even on simple benchmarks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 1 (Lemmas 2 and 3 in"
+        },
+        {
+            "text": "We illustrate now how is a decision procedure for MAPA working on the following simple multiset formula: for two multisets X and Y , the size of their disjoint union is the sum of their respective sizes. In other words, we need to prove the validity of the following formula |X Y | = |X| + |Y | As usual, we prove the unsatisfiability of the formula |X Y | = |X| + |Y |. The first step is to reduce this formula into an equisatisfiable LIA formula. To do that, we perform a sequence of steps that resemble the purification step in the Nelson-Oppen combination procedure [8] . In a nutshell, we introduce a new variable for every non-terminal expression.",
+            "cite_spans": [
+                {
+                    "start": 570,
+                    "end": 573,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "We first introduce a multiset variable M defining multiset expression X Y and then we introduce integer variables k 1 , k 2 , k 3 for each of the cardinality expressions. This way the formula becomes:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "We next apply the point-wise definitions of the cardinality and operators and we obtain the following formula:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "Grouping all the sum expressions together results in the formula:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "Piskac and Kuncak have shown in [9] that every multiset formula can be reduced to this form. They call it the sum normal form. It consists of three conjuncts. One is a pure LIA formula, the other is the summation and the third part is a universally quantified formula. By applying Theorem 2 from [9], the above MAPA formula is translated into an equisatisfiable LIA formula, where m, x and y are non-negative integer variables:",
+            "cite_spans": [
+                {
+                    "start": 32,
+                    "end": 35,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "To check the satisfiability of this formula, we first need to eliminate the star operator, which is done by computing a semilinear set describing the set of solutions of m = x + y. In this particular case, the semilinear set is actually a linear set, consisting of the zero vector and two vectors defining linear combinations:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "Having the semilinear set representation, we can apply Theorem 1. In particular, only one linear set and the zero vector can significantly simplify the corresponding equisatisfiable formula. As the result of applying Theorem 1, we obtain that formula (k 1 ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "This way we have eliminated the star operator from the given LIA formula. It is now reduced to an equisatisfiable linear integer arithmetic formula:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "The resulting LIA formula is unsatisfiable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Illustrating Example"
+        },
+        {
+            "text": "The described decision procedure is sound and complete. However, its crucial component is a computation of semilinear sets. While it is possible to compute Hilbert basis using the z3 [2] SMT solver, to the best of our knowledge there are no efficient tools for computing semilinear sets. Moreover, Pottier [12] showed that a semilinear set might contain an exponential number of vectors. To overcome the explicit computation of semilinear sets, Piskac and Kuncak [10] developed a new decision procedure for LIA which eliminates the star operator from the atom x 1 \u2208 {x 2 | F } by showing that x 1 is a linear combination of O(n 2 log n) solution vectors of F , where n is the size of the input formula. Although this new decision procedure avoids computing semilinear sets, it instantly produces a very large formula that could not be solved in practice by existing tools, not even for the most simple benchmarks.",
+            "cite_spans": [
+                {
+                    "start": 183,
+                    "end": 186,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 306,
+                    "end": 310,
+                    "text": "[12]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 463,
+                    "end": 467,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Efficient Reasoning About LIA Formulas"
+        },
+        {
+            "text": "Levatich et al. [6] used those insights to develop a new efficient and scalable approach for solving LIA formulas. The approach is based on the use of under-and over-approximations of LIA formulas. This way one avoids the space overhead and explicitly computing semilinear sets.",
+            "cite_spans": [
+                {
+                    "start": 16,
+                    "end": 19,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Efficient Reasoning About LIA Formulas"
+        },
+        {
+            "text": "The key insight of their approach is to construct a solution or a proof of unsatisfiability \"on demand\". Given a LIA formula F 1 (x 1 ) \u2227 x 1 \u2208 {x 2 | F 2 (x 2 )} , we first find any solution vector for formula F 2 , let us name it u 1 . We next check if formula F 1 (x 1 ) \u2227 x 1 = \u03bb 1 * u 1 is satisfiable. If this is the case, the given LIA formula is satisfiable as well. However, if this is not the case, we cannot conclude anything about the satisifiability of the given LIA formula, so we find a new different solution of formula F 2 , denoted by u 2 : F 2 (u 2 ) \u2227 u 1 = u 2 . Next, we check if the vector x 1 is a linear combination of those two solution vectors: F 1 (x 1 ) \u2227 x 1 = \u03bb 1 * u 1 + \u03bb 2 * u 2 . If this newly constructed formula is satisfiable, so is the original LIA formula, otherwise we repeat the process. This way, by finding and checking solution vectors of F 2 , we construct underapproximations of the set {x 2 | F 2 (x 2 )} . Moreover, we know that this process will terminate once we check sufficiently many solution vectors, as shown in [10] .",
+            "cite_spans": [
+                {
+                    "start": 1068,
+                    "end": 1072,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Efficient Reasoning About LIA Formulas"
+        },
+        {
+            "text": "However, if the given LIA formula is unsatisfiable, this approach will result in an equally large formula as in [10] , and again it does not scale. Therefore, in parallel to finding an under-approximation of the set {x 2 | F 2 (x 2 )} , we are also constructing a sequence of its over-approximation. The properties, that such an overapproximation should have, are encoded as a set of Constraint Horn Clauses and we use existing solvers to compute them. Such an overapproximation, if exists, is an interpolant that separates two conjuncts in the given LIA formula, proving this way that the formula is unsatisfiable.",
+            "cite_spans": [
+                {
+                    "start": 112,
+                    "end": 116,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Efficient Reasoning About LIA Formulas"
+        },
+        {
+            "text": "Finally, we have implemented the presented decision procedure and the tool is publicly available at https://github.com/mlevatich/sls-reachability. Because there were no MAPA benchmarks available, we had to create our own benchmarks. In addition, we also treated 240 BAPA benchmarks about sets, available in [1] , as MAPA benchmarks. While the full report on the empirical results is available in [6] , our general assessment is that the presented algorithm is effective on both SAT and UNSAT benchmarks. Our tool solved 83% of benchmarks in less than 50 seconds, and over 75% of those in under 3 seconds. We believe that this tool is the first efficient reasoner for multisets and sets with cardinality constraints.",
+            "cite_spans": [
+                {
+                    "start": 307,
+                    "end": 310,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 396,
+                    "end": 399,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Efficient Reasoning About LIA Formulas"
+        },
+        {
+            "text": "The presented work describes a sequence of decision procedures that has lead towards an efficient reasoner for multisets and sets with cardinality constraints. We noticed that some constraints arising in formal verification of protocols and data structures could have been expressed more succinctly and naturally, were they using multisets as the underlying abstract datatype in the specification. Nevertheless, due to the lack of tool support they use sets, resulting in more complex constraints. While there was an older tool for reasoning about multisets with cardinality constraints [11] , that tool served mainly as a proof of concept and was evaluated only on a handful of manually written formulas. We here presented a recent tool for reasoning about sets and multisets and we showed empirically that this tool scales well and can easily reason about complex multiset formulas. We hope that this work will lead to a renewed research interest in multisets and encourage their use in software analysis and verification.",
+            "cite_spans": [
+                {
+                    "start": 587,
+                    "end": 591,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Verification of thresholdbased distributed algorithms by decomposition to decidable logics",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Berkovits",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Lazi\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Losa",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Padon",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Shoham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "CAV 2019",
+            "volume": "11562",
+            "issn": "",
+            "pages": "245--266",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-25543-5_15"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Z3: an efficient SMT solver",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "De Moura",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bj\u00f8rner",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "TACAS 2008",
+            "volume": "4963",
+            "issn": "",
+            "pages": "337--340",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-78800-3_24"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Semigroups, Presburger formulas, and languages",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ginsburg",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Spanier",
+                    "suffix": ""
+                }
+            ],
+            "year": 1966,
+            "venue": "Pacific J. Math",
+            "volume": "16",
+            "issn": "2",
+            "pages": "285--296",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "An algorithm for deciding BAPA: Boolean algebra with Presburger arithmetic",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kuncak",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Rinard",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "CADE 2005",
+            "volume": "3632",
+            "issn": "",
+            "pages": "260--277",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/11532231_20"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Deciding Boolean algebra with Presburger arithmetic",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kuncak",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Rinard",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "J. Autom. Reason",
+            "volume": "36",
+            "issn": "3",
+            "pages": "213--239",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Solving LIA using approximations",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Levatich",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bj\u00f8rner",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Piskac",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Shoham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "VMCAI 2020",
+            "volume": "11990",
+            "issn": "",
+            "pages": "360--378",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-39322-9_17"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Multitree automata that count",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Lugiez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Theor. Comput. Sci",
+            "volume": "333",
+            "issn": "1-2",
+            "pages": "225--263",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Fast decision procedures based on congruence closure",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Nelson",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Oppen",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "J. ACM",
+            "volume": "27",
+            "issn": "2",
+            "pages": "356--364",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Decision procedures for multisets with cardinality constraints",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Piskac",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kuncak",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "VMCAI 2008",
+            "volume": "4905",
+            "issn": "",
+            "pages": "218--232",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-78163-9_20"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Linear arithmetic with stars",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Piskac",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kuncak",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "CAV 2008",
+            "volume": "5123",
+            "issn": "",
+            "pages": "268--280",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-540-70545-1_25"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "MUNCH -automated reasoner for sets and multisets",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Piskac",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kuncak",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "IJCAR 2010",
+            "volume": "6173",
+            "issn": "",
+            "pages": "149--155",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Minimal solutions of linear diophantine systems: bounds and algorithms",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Pottier",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "RTA 1991",
+            "volume": "488",
+            "issn": "",
+            "pages": "162--173",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-53904-2_94"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Combining multisets with integers",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Zarba",
+                    "suffix": ""
+                }
+            ],
+            "year": 2002,
+            "venue": "CADE-18",
+            "volume": "2392",
+            "issn": "",
+            "pages": "363--376",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/3-540-45620-1_30"
+                ]
+            }
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "The logic of multiset constraints with Presburger Arithmetic (MAPA)",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Linear integer arithmetic (LIA) and an extension with the Star Operator.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "i=1 \u03bb i b i . A semilinear set SLS(ls 1 , . . . , ls n ) isa finite union of linear sets ls 1 , . . . , ls n , i.e., SLS(ls 1 , .. . , ls n ) = n i=1 ls i .",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "all of the same dimension, as follows:",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgments. This presentation is based on the previously published results on reasoning about multisets with cardinality constraints [6, [9] [10] [11] . We sincerely thank the collaborators on these projects: Nikolaj Bj\u00f8rner, Maxwell Levatich, Viktor Kun\u010dak and Sharon Shoham, without whom this work would not be possible.",
+            "cite_spans": [
+                {
+                    "start": 138,
+                    "end": 141,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 142,
+                    "end": 145,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 146,
+                    "end": 150,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 151,
+                    "end": 155,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

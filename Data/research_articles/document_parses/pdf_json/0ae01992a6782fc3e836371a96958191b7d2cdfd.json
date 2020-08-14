@@ -1,0 +1,1184 @@
+{
+    "paper_id": "0ae01992a6782fc3e836371a96958191b7d2cdfd",
+    "metadata": {
+        "title": "Software-Illustrated Explanations of Econometrics Contributions by CR Rao for his 100-th Birthday",
+        "authors": [
+            {
+                "first": "H",
+                "middle": [
+                    "D"
+                ],
+                "last": "Vinod",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Since the vast array of scientific contributions by Dr. C. R. Rao are difficult to summarize in a short paper, we focus on (1) concepts relevant for applied statisticians including econometricians, (2) using the R software to explain the concepts to be",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "A review of Professor C. R. Rao's contributions in Statistics is available in Kumar et al. (2010) . It shows the important role played by Professor Rao in the founding of the Indian Econometric Society, which recently held a 54-th Annual meeting in Jammu, India, attended by over 400 econometricians from all parts of India and abroad. Rao helped late Prof. P. C. Mahalanobis, his colleague and mentor at the Indian Statistical Institute in Calcutta, in formulating economic policies of free India upon achieving independence in 1947. He encouraged sound statistical training for economists and encouraged spending resources for good economic data collection. The journal Econometric Theory paid tribute to Rao by printing a 70-page long interview with him in Bera (2003) , which includes detailed lists of Rao's 458 publications and various honors received. The Government of India acknowledged Rao's leadership in helping to improve Indian economic data collection and policy-a worthy activity for a potential Nobelist in Economics.",
+            "cite_spans": [
+                {
+                    "start": 78,
+                    "end": 97,
+                    "text": "Kumar et al. (2010)",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 760,
+                    "end": 771,
+                    "text": "Bera (2003)",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Instead of revisiting Kumar et al. (2010) in detail, this paper provides a short technical review, providing hands-on explanations of Rao's ideas with the help of R software absent in the earlier reviews and retrospectives. We hope to encourage young Econometricians to find inspiration and new insights from Rao's publications in their own research. Rao's ideas are explained anew with references to over 20 R packages, which should allow students to get a quick start with practical applications, even though some packaged examples might be from other sciences.",
+            "cite_spans": [
+                {
+                    "start": 22,
+                    "end": 41,
+                    "text": "Kumar et al. (2010)",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The input code snippets in R software and outputs produced by R are distinctly highlighted in the sequel, such that the reader can copy and paste the input and compare her locally produced output with our output reported here. Since the regression model is the bread and butter of applied econometrics, we use regressions to illustrate some ideas, even though some ideas can be more simply explained using the sample mean.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The usual linear regression model in matrix notation is where we have T observations, X is the T \u00d7 (p + 1) matrix of data on all regressor variables including the first column of ones to represent the intercept 0 , y is a T \u00d7 1 vector of data on the dependent variable, is a (p + 1) \u00d7 1 vector of regression coefficients, and is a T \u00d7 1 vector of unknown true errors. For example, we let y be the stopping distance ('dist') of a car (in feet), and x 1 be the speed of the car in miles per hour ('speed'), using Ezekiel's data called 'cars' always available in R. Our first R input code is: #??datasets #this command lists all data sets available in R cbind (head(cars,3) ,tail(cars,3)) # y=dist, x1=speed nrow(cars) #how many observations=T?",
+            "cite_spans": [
+                {
+                    "start": 657,
+                    "end": 670,
+                    "text": "(head(cars,3)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The following output has the first set of three row-values in the first two columns and the last set of three rows-values in the last two columns. R does not print to the screen the tailing (last) three row numbers 48-50.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "(1) Note that 'cars' data in R has T = 50 with y for a (50\u00d71 ) vector of stopping distances (2, 10, 4, ...,93, 120, 85) . We need to insert the first column of T ones in our (50\u00d72 ) X matrix for the intercept. The second column of X has x 1 representing car speeds. An R function for linear models (lm) creates an R object containing all regression results. We name the R object 'reg' in the following code.",
+            "cite_spans": [
+                {
+                    "start": 92,
+                    "end": 119,
+                    "text": "(2, 10, 4, ...,93, 120, 85)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The output of the above code is in a form suitable to produce the following (Latex) Table 1 , where standard errors of regression coefficients are in parentheses under the coefficient values. Now we discuss the theory of linear regression to set up our notation needed for explaining Rao's contributions, including Cramer-Rao lower bound on variance in the regression context. We have the following semi-parametric (when normality is not assumed) probabilistic structure for y and errors in matrix notation: where I T is a T \u00d7 T identity matrix, suggesting homoscedasticity or constant variances and zero covariances among errors. Note thatE(y) = X is also the conditional mean E(y|X) . If we further assume that (a) the X matrix of regressors has full column rank, (b) all columns of X are uncorrelated with errors, and (c) that y (and ) are multivariate Normal,y \u223c N( , 2 I ), then the usual t-tests and F tests on coefficients and the overall model are available. In particular, let the t-th error t have the following Normal density:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 84,
+                    "end": 91,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "where t is the t-th element of the vector(y \u2212 X ) and is known only when is known.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "Hence, the density f ( t ) is a function of data on y, X at time t, given specified numerical values of and 2 . The density is usually written as: f (y t , X t | , 2 ), where we assume that the numerical values of all items after the vertical bar are known. The joint density for all T observations is the product of such densities for all t fromt = 1 to t = T:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "where f ( t ) is defined in (3) and does depend on through = (y \u2212 X ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "Sir Fisher re-interpreted the same joint density function f joint (\u22c5) as f lkhd ( , 2 |y, X ). Its log is called the log-likelihood (LL) function. It is useful when the object is to find the unknown parameters from the given data. For the regression model (2), we are not assuming the form of the density of , only that we know its mean and variance-covariance matrix. A quasi-log-likelihood function can be defined from the assumptions of (1), by pretending (hence quasi) that errors have the same mean and variance as the corresponding Normal without having to be actually Normal. Now the quasi-LL and the usual LL by expanding the product in(4) after using (3) are given by where Now we assume that 2 is known for simplifying the following derivations and minimize \u2032 with respect to . An extension to the case where 2 is also unknown is obtained by maximizing the LL with respect to 2 is straightforward and available in textbooks. The matrix derivative of2 \u2032 X \u2032 y with respect to is2X \u2032 y , and the derivative of the quadratic form \u2032 X \u2032 X is 2X \u2032 X . Setting the derivative equal to zero, we get the first-order condition (FOC) from calculus given by \u22122X \ufffd y + 2X \ufffd X = 0 . Upon canceling the 2 and solving for , we have the ordinary least squares (OLS) estimator b as the solution:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "(2) y = X + , E( ) = 0, E( \ufffd ) = 2 I T ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "(3)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "Let us use the 'cars' data to illustrate a numerical implementation of the above formula.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "attach(cars) #access names speed, dist beta0=rep(1,50)#vector of ones X=cbind(beta0,speed)#create X matrix XTX=t(X)%*%X #get X'X XTy=t(X)%*%dist #get X'y XTXinv=solve(XTX) #inverse of X'X b=solve(XTX)%*%XTy #get OLS/ML estimator b",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "The output below of the above code shows that the OLS estimator b from first principles using the formula of Eq. (7) agrees with the R output in Table 1 ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 145,
+                    "end": 152,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "library(stargazer)# for nice regression output attach(cars) #to access columns by name reg=lm(dist~speed) #standard R method for regression stargazer(reg)"
+        },
+        {
+            "text": "We have verified that R software correctly estimates the OLS estimator derived by matrix algebra formulas. Next we verify that the OLS formula also maximizes the log-likelihood (LL). First, we define the score vector g * as the derivative of the LL function:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Score Function and Score Equation"
+        },
+        {
+            "text": "evaluated at the true parameter values. Since the first-order condition (FOC) for maximization of LL states that E(g * ) = 0 , also known as the score equation. We can cancel the 2 from the numerator and denominator of (8) and write the FOC as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Score Function and Score Equation"
+        },
+        {
+            "text": "Now the LL maximizing solution upon setting the left-hand-side equal to zero is the same b defied above in eq. (7):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Score Function and Score Equation"
+        },
+        {
+            "text": "Fisher information matrix is defined as the variance-covariance matrix of the score vector (from the outer product of the score vector) as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fisher Information Matrix"
+        },
+        {
+            "text": "The second-order condition for a maximum from calculus is that the matrix of second-order partial derivatives should be negative definite. It can be stated in terms of the Fisher information matrix based on the second-order partials as:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fisher Information Matrix"
+        },
+        {
+            "text": "Since the Fisher information matrix is a projection matrix, it is non-negative definite. Thus the ML estimator of the in Eq. (7) satisfies both first and second-order conditions for a maximum. We use the usual estimate s 2 of 2 from the residual sum of squares (RSS) divided by the degrees of freedom ( df = T \u2212 p \u2212 1).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Fisher Information Matrix"
+        },
+        {
+            "text": "In the above code, s2 equals RSS/df.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "df=length(speed)-2;df s2=sum(resid(reg)^2)/df;s2"
+        },
+        {
+            "text": "Note that this output agrees with the square of 'Residual Std. Error' of 15,380, reported in Table 1 . A slight discrepancy is due to the superior numerical accuracy of R.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 93,
+                    "end": 100,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "df=length(speed)-2;df s2=sum(resid(reg)^2)/df;s2"
+        },
+        {
+            "text": "The information matrix for our cars example is s 2 X \u2032 X with the R output given next.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "XTX=t(X)%*%X #get X X s2*XTX"
+        },
+        {
+            "text": "(10) Having set up the basic notation, we are ready to discuss one foundational contribution by Rao.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "XTX=t(X)%*%X #get X X s2*XTX"
+        },
+        {
+            "text": "The familiar notation A \u2212 to denote generalized inverse was first developed by Rao in 1955 based on an application to a study of long-term effects of radiation on Nagasaki-Hiroshima victims, (Rao 1991, p. 33) , independently of Penrose's 1955 work leading to Moore-Penrose inverse. The properties of generalized inverse were fully worked out by Rao. For example, if A \u2212 is a left inverse of A, then pre-multiplication should yield the identity matrix:",
+            "cite_spans": [
+                {
+                    "start": 191,
+                    "end": 208,
+                    "text": "(Rao 1991, p. 33)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "The Unified Theory of Linear Estimation"
+        },
+        {
+            "text": "then the generalized inverse of A is very easy to compute by the following one-line code in R:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The Unified Theory of Linear Estimation"
+        },
+        {
+            "text": "Rao's unified theory applies the generalized inverse to report some almost unbelievable properties described in the sequel. What is the motivation? Equation (2) assumes that X is of full column rank, implying that X \u2032 X can be inverted and also that V = \ufffd is non-singular. What if these matrices are singular? Rao has provided an elegant solution to both problems and introduced an \"inverse partitioned matrix,\" which yields summary statistics for linear models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "gen.inv=solve(t(A)%*%A) %*% A"
+        },
+        {
+            "text": "where superscript (\u2212) denotes any generalized inverse, and the matrices C 1 to C 4 are numerically known from the elements in a generalized inverse. Now we have several relations providing all estimators and statistics needed for inference.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "gen.inv=solve(t(A)%*%A) %*% A"
+        },
+        {
+            "text": "where P matrix defines a linear combination, df denotes degrees of freedom, where rank(V : X) denotes the rank of a matrix obtained by writing the two matrices sideby-side, and where Var denotes variance-covariance matrix. Now the R ode to verify these results for cars data is as follows.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "gen.inv=solve(t(A)%*%A) %*% A"
+        },
+        {
+            "text": "attach ( Next, we can verify Eq. (14) for degrees of freedom.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "gen.inv=solve(t(A)%*%A) %*% A"
+        },
+        {
+            "text": "The output agrees with Table 1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 23,
+                    "end": 30,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "library(fBasics) rk(cbind(V,X))-rk(X)"
+        },
+        {
+            "text": "Next, we verify Eq. (15) for error variance.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "library(fBasics) rk(cbind(V,X))-rk(X)"
+        },
+        {
+            "text": "The output s2 below agrees with its square root reported in Table 1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 60,
+                    "end": 67,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "s2=t(y)%*%C1 %*%y /df; s2"
+        },
+        {
+            "text": "Note that the matrix on the left side of Eq. (12) can be huge. If there are 500 elements in the rows of y, this is a 502 \u00d7 502 matrix. Numerical mathematics using computers suggests that one should avoid computing inverses of large matrices, since numerical rounding and truncation errors can be difficult to control, Vinod and McCullough (2003) .",
+            "cite_spans": [
+                {
+                    "start": 318,
+                    "end": 345,
+                    "text": "Vinod and McCullough (2003)",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "s2=t(y)%*%C1 %*%y /df; s2"
+        },
+        {
+            "text": "Hence if V \u22121 and (X \ufffd X) \u22121 exist, Eq. (12) is mainly of theoretical interest for its ability to yield all summary statistics of interest in one matrix operation. It is particularly useful when the inverses of V and ( X \u2032 X ) do not exist.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "s2=t(y)%*%C1 %*%y /df; s2"
+        },
+        {
+            "text": "If the left inverse is difficult to compute, one will need to use the singular value decomposition by the 'svd' function in R. We define an R object sv1 to store the decomposition of A into three matrices UDV, where D is diagonal. Note that A = UDV \ufffd and A \u2212 = UD \u22121 V \ufffd . Once the generalized inverse is computed, it is quite simple to compute the matrices C 1 to C 4 by partitioning the generalized inverse matrix.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "s2=t(y)%*%C1 %*%y /df; s2"
+        },
+        {
+            "text": "If the output of the above code does not give two nearly identical estimates of \u0302 (from C3 and C2) we have serious numerical (collinearity) problems, rendering the results from inverse partitioned matrix of Eq. (12) unreliable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "s2=t(y)%*%C1 %*%y /df; s2"
+        },
+        {
+            "text": "Let a log-likelihood function similar to Eq. (5) be twice differentiable, and the support of y does not depend on unknown parameters. If b is an unbiased estimator of , then using (10) we have: which suggests that the variance-covariance matrix of the OLS/ML estimator, 2 (X \ufffd X) \u22121 , reaches the Cramer-Rao lower bound. Hence b is Cramer-Rao efficient. Rao (1991) states that he established the inequality in 1943, when Rao was only 23, even though its publication was delayed due to the Second World War until 1945. Now we illustrate the Cramer-Rao lower bound of Eq. (17) using 'cars' data. We use the usual estimate of 2 from the residual sum of squares (RSS) divided by the degrees of freedom ( df = T \u2212 p \u2212 1). df=length(speed)-2;df s2=sum(resid(reg)^2)/df;s2 CRLB=s2*XTXinv;CRLB In the above code, s2 equals (RSS/df), and CRLB denotes the Cramer-Rao lower bound matrix. The usual standard errors of regression coefficients are simply square roots of the diagonal elements of CRLB, which agree with the R output in Table 1 . It can be shown that the usual unbiased estimator of 2 = (\u0302, )\u2215(T \u2212 p \u2212 1) does not reach the CRLB, since its variance 2 4 \u2215T.",
+            "cite_spans": [
+                {
+                    "start": 354,
+                    "end": 364,
+                    "text": "Rao (1991)",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1021,
+                    "end": 1028,
+                    "text": "Table 1",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "Cramer-Rao Lower Bound (CRLB)"
+        },
+        {
+            "text": "In addition to the median, economists are often interested in other quantiles. For example, the top 5% or bottom 5% of incomes help understand the richest and the poorest persons. Estimation of such quantiles is optimal in the sense of reaching the Cramer-Rao lower bound is established in Godambe (2001) by showing that the quantile is also the score function under appropriate distributional assumptions. Kale (1962) expounds the role of CRLB to \"estimating functions,\" which has spawned a vast literature.",
+            "cite_spans": [
+                {
+                    "start": 290,
+                    "end": 304,
+                    "text": "Godambe (2001)",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 407,
+                    "end": 418,
+                    "text": "Kale (1962)",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "Economists are often interested in certain functions of regression coefficients f ( ) besides the individual coefficients . A practical problem arises regarding the efficiency of the plug-in estimator f (\u0302) obtained by replacing the unknown by its estimate, where CRLB can help.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "Econometric practice often involves assuming normality or linearity in their parametric models. However, one fears misspecification in making these assumptions. Anytime functional forms of some components of the model are unknown, and we have so-called semi-parametric models. Newey (1990) reviews the statisticians' approach to these problems by using the CRLB with explicit econometric applications in mind. One considers parametric submodels of the semiparametric model and use the CRLB for submodels and their supremum. He proves that \"The asymptotic variance of any semiparametric estimator is no smaller than the supremum of the Cramer-Rao bounds for all parametric submodels.\"",
+            "cite_spans": [
+                {
+                    "start": 277,
+                    "end": 289,
+                    "text": "Newey (1990)",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "If one admits autocorrelation and heteroscedasticity among regression errors, we must rewrite Eq. (2) to replace the identity matrix by V. That is, we assume a nonspherical variance-covariance matrix of regression errors: E( \ufffd ) = 2 V . A feasible generalized least squares (FGLS) estimator extends the OLS estimator of (7) by inserting an estimate V of the matrix V as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "Newey argues that the semiparametric efficiency bound for FGLS is the asymptotic variance of the GLS estimator, which does reach CRLB.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "The Generalized method of moments (GMM) is a popular econometric tool. Its main selling point is that it reaches the CRLB. GMM is closely related to 'optimal estimating functions' (OptEF) similar to g * of Eq. (8). Vinod (2008) (Sec. 10.3) shows that the OptEF are optimal in the sense that they reach the CRLB.",
+            "cite_spans": [
+                {
+                    "start": 215,
+                    "end": 227,
+                    "text": "Vinod (2008)",
+                    "ref_id": "BIBREF17"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 228,
+                    "end": 239,
+                    "text": "(Sec. 10.3)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "Rao showed in a Sankhya paper in 1961 a notion of the first-order efficiency of a consistent estimator readily verified by the unit correlation between it and the score. This avoids linking efficiency to the variance and also avoids an anomaly created by Hodge's example of the nonexistence of lower bound on variance in some cases, (Rao 1991, p. 30) . Hall and Mathiason (1990) , almost never cited in Econometrics literature, shows with detailed proofs that CRLB provides a basis for defining efficiency and that ML estimators and certain 'one-step' variations achieve such efficiency. These results extend to models with nuisance parameters commonly present in Econometrics. Three useful results based on CRLB are: 1) Roots of score equations, g * = 0 , in the neighborhood of any preliminary root-nconsistent estimates provide efficient estimates. 2) Replacing nuisance parameters with consistent estimates continues to retain asymptotic efficiency. 3) A test statistic based on a quadratic form (e.g. g * \ufffd I \u22121 inf g * ) is asymptotically efficient and is distributed as a Chi-square random variable.",
+            "cite_spans": [
+                {
+                    "start": 333,
+                    "end": 350,
+                    "text": "(Rao 1991, p. 30)",
+                    "ref_id": null
+                },
+                {
+                    "start": 353,
+                    "end": 378,
+                    "text": "Hall and Mathiason (1990)",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Applications and Extensions of CRLB"
+        },
+        {
+            "text": "We list some R packages inspired by Rao's contributions with potential applications in Econometrics. signal-noise separation in random matrices by using eigenvalue spectrum analy-sis. The algorithm unravels the modular structure of a matrix -or the corresponding network.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rao's Tests in R Packages"
+        },
+        {
+            "text": "to divide the data into Gaussian type clusters. It allows the simultaneous use of various types of Gaussian mixture models. See https ://githu b.com/azure blue/cec. 19) 'CEoptim' Package by Benoit Liquet is a Cross-Entropy R Package for Optimization. 20) 'afCEC' Package by Krzysztof Byrski uses Rao's cross-entropy to construct a function for cross-entropy clustering done by partitioning n-dimensional data into clusters. It is preceded by finding the parameters of the mixed generalized multivariate normal distribution, that optimally approximates the scattering of the data in the n-dimensional space. See https ://githu b.com/Geige nPrin zipal /afCEC 21) 'pcaL1' Package by Paul Brooks is designed for L1-Norm principal components analysis methods pioneered by Rao in the 1950s. See http://www.optim izati ononlin e.org/DB_HTML/2012/04/3436.html and http://www.coin-or.org.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "18) 'CEC' Package by Konrad Kamieniecki does Cross-Entropy Clustering (CEC)"
+        },
+        {
+            "text": "There are likely many more R packages which use, if not explicitly cite, Rao's work.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "18) 'CEC' Package by Konrad Kamieniecki does Cross-Entropy Clustering (CEC)"
+        },
+        {
+            "text": "One is often interested in testing a null hypothesis involving k restrictions as functions of parameters: Aitchison and Silvey (1960) consider this test by setting up a Lagrangian involving the log-likelihood, LL( ) as:",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 133,
+                    "text": "Aitchison and Silvey (1960)",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "where the Lagrangian coefficients are j and has (p+1) parameters. Setting the derivative of L with respect to equal to zero. Let \u0303 denote a k \u00d7 1 vector of Lagrange multipliers upon solving the first-order condition (FOC), and F denote a (p + 1) \u00d7 k matrix of partial derivatives f j \u2215 evaluated a the solution of the FOC. Now Lagrange Multiplier (LM) test statistic:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "which is a quadratic form involving the information matrix of Eq. (10) and which uses Rao's score vector stated above in Eq. (8) was published in 1948. Note that the second equality in Eq. (21) above requires some simplification and is proved by Breusch and Pagan (1980) . They remark that the latter form of the LM test statistic is Rao's efficient score test statistic and recommend using Rao's version, even though they continue to call it the LM test. Recall that both Eqs. (10), and (11) yield Fisher's Information matrix, and the researcher's convenience can dictate which one to use in a particular application. There is considerable literature",
+            "cite_spans": [
+                {
+                    "start": 246,
+                    "end": 270,
+                    "text": "Breusch and Pagan (1980)",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "involving comparison of LM, likelihood ratio (LR) and Wald tests, sometimes called the 'holy trinity' of tests. It is shown that the three are asymptotically equivalent, that the LR test alone is unbiased and that simulations favor Rao's formulation of the LM test, which is devoid of explicit Lagrange multipliers. Rao (1991) reports papers where Rao's LM test works even better when the bias is removed and goes on to mention econometric references explicitly citing Rao. Breusch and Pagan (1980) describe important applications of Rao's score test (LM) for a model involving a test for the liquidity trap in monetary policy. Durbin's h test for autocorrelated residuals when a lagged dependent variable is present, and Box-Pierce test for autocorrelations are shown to be \"essentially LM\" tests. They also recommend the score test for error components, non-spherical error covariances, Zellner's seemingly unrelated regression systems, and non-nested hypotheses testing.",
+            "cite_spans": [
+                {
+                    "start": 316,
+                    "end": 326,
+                    "text": "Rao (1991)",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 469,
+                    "end": 498,
+                    "text": "Rao. Breusch and Pagan (1980)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "When ML estimators are too difficult to calculate due to the presence of I inf in the expression for the LM statistic based on Eq. (21), Section 4 of Breusch and Pagan (1980) suggests a pseudo-LM procedure using the following four steps: (1) first compute consistent estimates of the parameters under the null to get regression residuals \u0113 .",
+            "cite_spans": [
+                {
+                    "start": 150,
+                    "end": 174,
+                    "text": "Breusch and Pagan (1980)",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "(2) Regress \u0113 on all scores g * evaluated at the null so that the coefficient of determination is R * = g \ufffd * I \u22121 inf g * .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "(3) Regress \u0113 on scores g * 2 evaluated at the null on a subset of k coefficients (or coefficient functions) involved in the test, so that the coefficient of determination, R * * = g \ufffd * 2 I \u22121 inf g * 2 . (4) Now N(R * \u2212 R * * ) is a 2 (k) variable, allowing a test of the null. Many econometricians use this trick without being aware that it emanates from Rao's score test. Breusch and Pagan (1980) also show that small sample distribution of the LM statistic can often be determined by numerical means. Thus Rao's statistic remains appealing and relevant in a modern computing environment.",
+            "cite_spans": [
+                {
+                    "start": 376,
+                    "end": 400,
+                    "text": "Breusch and Pagan (1980)",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "LM test in Econometrics is Rao's Score Test"
+        },
+        {
+            "text": "Econometric models are often used for policy decisions by politicians and other non-professionals, where it is convenient not to use the entire sample, but discuss only a relevant sample statistic. A formal justification for this common practice requires us to use only so-called \"sufficient statistics,\" defined by Fisher as requiring that no other statistic from the same sample provides any additional information. Rao established the following result in 1945, showing a reduction in mean squared error (MSE).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rao-Blackwellization and Sufficient Statistics"
+        },
+        {
+            "text": "If t is an unbiased estimator of a parameter and if T is a sufficient statistic, then t * = E(t|T) is a function of T, unbiased for and MSE(t * ) \u2264 MSE(t).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rao-Blackwell Result"
+        },
+        {
+            "text": "Its use in improving the asymptotic efficiency of estimators is referred to as Rao-Blackwellization in the literature since Blackwell had independently published a similar result a bit later in 1947. It can be shown that sample mean and variance are jointly sufficient statistics for corresponding population parameters. The above result implies that if a crude estimate of a function f ( ) is available, its conditional expectation given a sufficient statistic gives an estimator which is optimal in the sense that its variance is 'small.'",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rao-Blackwell Result"
+        },
+        {
+            "text": "Although I am not aware of any econometric application of Rao-Blackwell-ization, it remains worth exploring. For example, let us consider the maximum entropy bootstrap from Vinod and L\u00f3pez-de-Lacalle (2009) implemented in the R package 'meboot.' It attempts to approximate a population ensemble \u03a9 of time series such that the observed time series x t is a realization from \u03a9 . The construction of \u03a9 is useful for the bootstrap inference for ubiquitous nonstationary time series in Econometrics.",
+            "cite_spans": [
+                {
+                    "start": 173,
+                    "end": 206,
+                    "text": "Vinod and L\u00f3pez-de-Lacalle (2009)",
+                    "ref_id": "BIBREF18"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rao-Blackwell Result"
+        },
+        {
+            "text": "One begins with the empirical cumulative distribution function (ecdf) of x t , where ecdf is known to be a sufficient statistic and uses random numbers from a uniform density to construct a large number of incarnations of x t denoted as \u03a9 i as i-th approximation to the true \u03a9 . Note that 'meboot' approximately preserves time dependence properties of x t such as autocorrelation coefficients of various orders and general shape of the spectral density of x t without imposing any parametric constraints. Hence meboot permits computer-intensive bootstrap inference, without injecting misspecifications of the original economic model by converting commonly occurring nonstationary economic time series (e.g., GDP, Consumption) into stationary series by differencing or de-trending, just for statistical inference.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Rao-Blackwell Result"
+        },
+        {
+            "text": "Each \u03a9 i satisfies the 'ergodic theorem' since ensemble average of all time series in it equals the time average x . Hence \u03a9 i is an unbiased estimate of \u03a9 . Since it is based on a sufficient statistic ecdf, the Rao-Blackwell result implies that conditional mean E(\u03a9 i |ecdf ) denoted by \u03a9 satisfies MSE(\u03a9) \u2264 MSE(\u03a9 i ) . Fenga (2020) has recently used 'meboot' for forecasting covid-19 diffusion in Italy, relying on the ergodic theorem. If an econometric estimator is not already a function of a sufficient statistic, Rao has suggested a way to improve it.",
+            "cite_spans": [
+                {
+                    "start": 321,
+                    "end": 333,
+                    "text": "Fenga (2020)",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rao-Blackwell Result"
+        },
+        {
+            "text": "It is a common problem in empirical work having access to (p + q) data series, whether the use of any additional q series is worthwhile. The usual variance ratio or F test used for this purpose in econometrics is a variant of Rao's U test from Rao (1948b) .",
+            "cite_spans": [
+                {
+                    "start": 244,
+                    "end": 255,
+                    "text": "Rao (1948b)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rao's U-Test for Additional Information"
+        },
+        {
+            "text": "Hotelling's canonical correlations have been applied in Econometrics for estimation of joint production functions with outputs wool and mutton and the usual capital and labor inputs, Vinod (1968) and Vinod (1976) . Hotelling maximizes the correlation between a linear combination of outputs and inputs. However, Rao seems to maximize the 'within input' and 'within output' correlations plus 'between input' and 'between output' correlations.",
+            "cite_spans": [
+                {
+                    "start": 183,
+                    "end": 195,
+                    "text": "Vinod (1968)",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 200,
+                    "end": 212,
+                    "text": "Vinod (1976)",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rao's U-Test for Additional Information"
+        },
+        {
+            "text": "Professor Rao's contributions relevant to Econometrics are too many to give an exhaustive survey. This section lists some of them not yet covered. 1) In the new world of Big Data, Rao's tools for dimension reduction based on separation theorems described in his articles in the Journal of Multivariate Analysis should become more and more relevant. 2) Multivariate analysis of variance (MANOVA) was first conceived by Rao as a multivariate analysis of dispersion. 3) Edgeworth expansions for a vector of variables in non-regular cases described in Bai and Rao (1991) have potential applicability in the bootstrap literature. 4) Kotz and Johnson have edited a book entitled \"Breakthroughs in Statistics: ,\" which includes a reprint of Rao (1948a) . Calling it a breakthrough is particularly appropriate for economists, since it had considerable influence on asymptotic econometrics. 5) Rao's new probability distributions called weighted distributions are applied in Econometrics in Vinod (1991) for studying unemployment statistics and Okun's law. 6) Maximum entropy concepts commonly used in Econometrics owe a great deal to the characterization of probability distributions developed by Rao and coauthors from Russia in Kagan et al. (1973) . 7) Rao's quadratic entropy (Rao 1991, p. 58) was motivated by trying to understand diversity between two groups by considering the average distance between two randomly chosen points. Rao's cross-entropy generalizes Kulback-Liebler 'directed divergence.' Financial economists who want to diversify their portfolios can use these divergence measures.",
+            "cite_spans": [
+                {
+                    "start": 548,
+                    "end": 566,
+                    "text": "Bai and Rao (1991)",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 734,
+                    "end": 745,
+                    "text": "Rao (1948a)",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 982,
+                    "end": 994,
+                    "text": "Vinod (1991)",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1222,
+                    "end": 1241,
+                    "text": "Kagan et al. (1973)",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1271,
+                    "end": 1288,
+                    "text": "(Rao 1991, p. 58)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Rao's Miscellaneous Contributions Relevant to Econometrics"
+        },
+        {
+            "text": "There is enough information here to justify treating Rao as eminently eligible to receive the Nobel prize in Economics. Dr. Rao's contributions have influenced a huge range of R packages. A sample of 21 such packages listed in this paper has been downloaded thousands of times every month. Dr. Rao obviously continues to be relevant for practicing researchers in all quantitative fields, including economics. Perhaps, awarding Dr. Rao the economics Nobel will further enhance the prestige of the award.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Final Remark"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Maximum-likelihood Estimation of Parameters Subject to Restraints",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Aitchison",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Silvey",
+                    "suffix": ""
+                }
+            ],
+            "year": 1960,
+            "venue": "Annals of Mathematical Statistics",
+            "volume": "29",
+            "issn": "",
+            "pages": "813--828",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Edgeworth Expansion of a Function of Sample Means",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Bai",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Rao",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Annals of Statistics",
+            "volume": "19",
+            "issn": "3",
+            "pages": "1295--1315",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "ET Interview: Professor C R Rao",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bera",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Econometric Theory",
+            "volume": "19",
+            "issn": "",
+            "pages": "331--400",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "The Lagrange multiplier test and its application to model specification in econometrics",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Breusch",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pagan",
+                    "suffix": ""
+                }
+            ],
+            "year": 1980,
+            "venue": "Review of Economic Studies",
+            "volume": "47",
+            "issn": "",
+            "pages": "239--253",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Forecasting the CoViD-19 diffusion in Italy and the related occupancy of Intensive Care Units",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Fenga",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "https:/www.medrxiv.org/content/10.1101/2020.03.30.20047894v1.full.pdf"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Estimation of Median: Quasi-Likelihood and Optimum Estimating Functions, Working paper, Statistics Department",
+            "authors": [
+                {
+                    "first": "V",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Godambe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "4524_Estim ation _of_Media n_Quasi -Likel ihood _and_Optim um_Estim ating _Funct ions. Accessed 13",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "On Large-Sample Estimation and Testing in Parametric Models",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Hall",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Mathiason",
+                    "suffix": ""
+                }
+            ],
+            "year": 1990,
+            "venue": "International Statistical Review",
+            "volume": "58",
+            "issn": "1",
+            "pages": "77--97",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Characterization Problems in Mathematical Statistics",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Kagan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yuv",
+                    "middle": [],
+                    "last": "Linnik",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Rao",
+                    "suffix": ""
+                }
+            ],
+            "year": 1973,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "An Extension of the Cramer-Rao Inequality for Statistical Estimation Functions",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Kale",
+                    "suffix": ""
+                }
+            ],
+            "year": 1962,
+            "venue": "Skandinavisk Aktuarietidisk Rift",
+            "volume": "45",
+            "issn": "",
+            "pages": "60--89",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Professor C.R. Rao's Contributions to Econometrics, SSRN eLibrary",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Kumar",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Deman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Semiparametric efficiency bounds",
+            "authors": [
+                {
+                    "first": "W",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Newey",
+                    "suffix": ""
+                }
+            ],
+            "year": 1990,
+            "venue": "Journal of Applied Econometrics",
+            "volume": "5",
+            "issn": "",
+            "pages": "99--135",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Large sample tests of statistical hypotheses concerning several parameters with applications to problems of estimation",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Rao",
+                    "suffix": ""
+                }
+            ],
+            "year": 1948,
+            "venue": "Proceedings of the Cambridge Philosophical Society",
+            "volume": "44",
+            "issn": "",
+            "pages": "50--57",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Tests of Significance in Multivariate Analysis",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Rao",
+                    "suffix": ""
+                }
+            ],
+            "year": 1948,
+            "venue": "Biometrika",
+            "volume": "35",
+            "issn": "",
+            "pages": "58--79",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "An Autobiographical Account of Research Work",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Rao",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "1M6: T. D. Dwivedi, Statistics '91 Canada",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Econometrics of joint production",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                }
+            ],
+            "year": 1968,
+            "venue": "Econometrica",
+            "volume": "36",
+            "issn": "",
+            "pages": "322--336",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Canonical ridge and econometrics of joint production",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                }
+            ],
+            "year": 1976,
+            "venue": "Journal of Econometrics",
+            "volume": "4",
+            "issn": "",
+            "pages": "147--166",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Rao's Weighted Distribution in Econometrics: An Application to Unemployment Statistics and Okun's Law",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "Journal of Quantitative Economics",
+            "volume": "7",
+            "issn": "2",
+            "pages": "247--254",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Hands-on Intermediate Econometrics Using R: Templates for Extending Dozens of Practical Examples",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "https:/www.worldscientific.com/worldscibooks/10.1142/6895"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Maximum Entropy Bootstrap for Time Series: The meboot R Package",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "L\u00f3pez-De-Lacalle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Journal of Statistical Software",
+            "volume": "29",
+            "issn": "",
+            "pages": "1--19",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Comments: Econometrics and software",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Vinod",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Mccullough",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "Journal of Economic Perspectives",
+            "volume": "17",
+            "issn": "1",
+            "pages": "223--224",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "12) 'Iboot' Package by Nicola Lunardon has iterated bootstrap tests and confidence sets. The package implements a general algorithm to obtain iterated bootstrap tests and confidence sets for a p-dimensional parameter based on the un-studentized version of the Rao statistic. 13) 'minque' Package by Jixiang Wu is designed (i) to construct a user-defined linear mixed model, (ii) to employ minimum norm quadratic unbiased estimation (MINQUE) for variance component estimation and random effect prediction; and (iii) to employ jackknife resampling tests. The package has an application to Maize variety trial with two years and multi-locations in China. 14) 'cpca' Package by Andrey Ziyatdinov is for Principal Component Analysis(PCA), and Trendafilov's stepwise estimation of common principal components. See https ://githu b.com/varia ni/cpca. 15) 'FactoMineR' package by Francois Husson implements using principal component analysis (PCA) when variables are quantitative, correspondence analysis (CA), and multiple correspondence analysis (MCA) when variables are categorical, Multiple Factor Analysis when variables are structured in groups. See http:// facto miner .free.fr. 16) 'svdvis' Package by Neo Christopher Chung provides Singular Value Decomposition (SVD) visualization useful for principal component analysis (PCA), factor analysis (FA) and related methods. 17) 'RMThreshold' Package by Uwe Menzel determines an objective threshold for",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF1": {
+            "text": "Regression of stopping distance on speed by standard R method * p <0.1; * * p < 0.05 ; * * * p < 0.01",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": ".",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF5": {
+            "text": "Now we can verify Eq. (13) by the following code:The output agrees withTable 1.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF7": {
+            "text": "1) 'aSPU' Package by Il-Youp Kwak provides R code for 'adaptive sum of powered score test.' It has applications in genetics focusing on pathways for genetic traits. See details at https ://githu b.com/ikwak 2/aSPU. These may be useful for the economic traits of sub-populations in econometric panel (longitudinal) data studies. 2) 'weightedScores' Package by Aristidis K. Nikoloulopoulos has R code for weighted scores for regression models with dependent data. It reports the results of an intermediate step for variable selection for longitudinal categorical and count data. 3) 'mdscore' Package by Antonio Hermes M. da Silva-Junior has a set of R functions to obtain a modified score test for generalized linear models. 4) 'IPWsurvival' Package by Y. Foucher has propensity score based adjusted survival curves and their log-rank statistic, where the adjustment acknowledges the presence of confounding factors. The log-rank test based on inverse probability weighting (IPW) is implemented. www.r-proje ct.org, www.labco m-risca .com.(18) b gls = (X \ufffdV \u22121 X) \u22121 X \ufffdV \u22121 y.5) 'mr.raps' package by Qingyuan Zhao implements methods for two-sample Men-delian randomization with summary statistics by using Robust Adjusted Profile Score (RAPS). 6) 'VGAM' Package by Thomas Yee has Vector Generalized Linear and Additive Models (VGAM) and reduced rank regressions inspired byRao and used  in Econometrics. See https ://www.stat.auckl and.ac.nz/~yee/VGAM. 7) 'SCGLR' Package by Guillaume Cornu extends the Fisher-Rao scoring algorithm StatCharrms' Package by Joe Swintek has repeated measures and multi-generation studies. It has Rao-inspired weighted ANOVA, mixed-effects ANOVA, repeated measures ANOVA, and the Dunnett test. https ://CRAN.R-proje ct.org/ packa ge=StatC harrm s 11) 'Select' Package by Daniel Laughlin determines species probabilities based on functional traits. It optimizes Rao's Q, a closed-form functional diversity index that incorporates species abundances, subject to other linear constraints. This framework optimizes both functional diversity and entropy simultaneously.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": []
+}

@@ -1,0 +1,1308 @@
+{
+    "paper_id": "0ece4fb9b8431ca574d59e769e79bd1353dbf1be",
+    "metadata": {
+        "title": "Network inoculation: Heteroclinics and phase transitions in an epidemic model",
+        "authors": [
+            {
+                "first": "Hui",
+                "middle": [],
+                "last": "Yang",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Electronic Science and Technology of China",
+                    "location": {
+                        "postCode": "610054",
+                        "settlement": "Chengdu",
+                        "country": "China"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Tim",
+                "middle": [],
+                "last": "Rogers",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "Centre for Networks and Collective Behaviour",
+                    "institution": "University of Bath",
+                    "location": {
+                        "addrLine": "Claverton Down",
+                        "postCode": "BA2 7AY",
+                        "settlement": "Bath",
+                        "country": "United Kingdom"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Thilo",
+                "middle": [],
+                "last": "Gross",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Bristol",
+                    "location": {
+                        "postCode": "BS8 1UB",
+                        "settlement": "Bristol",
+                        "country": "United Kingdom"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "In epidemiological modelling, dynamics on networks, and, in particular, adaptive and heterogeneous networks have recently received much interest. Here, we present a detailed analysis of a previously proposed model that combines heterogeneity in the individuals with adaptive rewiring of the network structure in response to a disease. We show that in this model, qualitative changes in the dynamics occur in two phase transitions. In a macroscopic description, one of these corresponds to a local bifurcation, whereas the other one corresponds to a non-local heteroclinic bifurcation. This model thus provides a rare example of a system where a phase transition is caused by a non-local bifurcation, while both micro-and macro-level dynamics are accessible to mathematical analysis. The bifurcation points mark the onset of a behaviour that we call network inoculation. In the respective parameter region, exposure of the system to a pathogen will lead to an outbreak that collapses but leaves the network in a configuration where the disease cannot reinvade, despite every agent returning to the susceptible class. We argue that this behaviour and the associated phase transitions can be expected to occur in a wide class of models of sufficient complexity. Published by AIP Publishing.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Throughout history, epidemic diseases have been a major cause of death in the human population. After a brief respite during the mid twentieth century, incidences of epidemics are now on the rise again, due to the emergence of new diseases such as Aids and Ebola, and the return of old killers, such as Tuberculosis and Influenza. Consequently, the study of epidemiology has received much recent attention from the mathematics and physics communities. In particular, network models provide a new theoretical tool by which the spreading of epidemic diseases can be understood and lessons for the real world can be learned. The present direction of this field is to push network models to greater realism by incorporating more and more aspects of real world epidemics, while maintaining mathematical and/or numerical tractability of the models. In this paper, we study the combined effect of two properties of real world contact networks across which real epidemics spread: adaptivity and heterogeneity. The network is adaptive in the sense that individuals in the network can respond to the presence of the disease, and it is heterogeneous in the sense that the individuals represented by network nodes have different properties, making them more or less susceptible to the disease. We show that combining these features leads to a phenomenon that we call network inoculation. Exposure of a given initial network to a pathogen can lead to an outbreak that collapses and leaves the network resistant to future outbreaks. This resistance is acquired solely through the rewiring of the network structure, without any nodes becoming physically immune to the disease. We use a variety of tools, including agent-based simulation, moment expansions, percolation methods, and numerical continuation, to reveal the heteroclinic mechanism that leads to this inoculation phenomenon.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "A central goal in complex systems research is to understand how macroscopic transitions arise from the microscopic interactions within a system. 1 In this context, an important role is played by coarse-grained models, describing the system in terms of a set of ordinary differential equations (ODEs). 2, 3 By capturing the dynamics of the system in terms of a suitable set of variables, it is sometimes possible to construct a faithful model of a given transition that is easy enough to be tractable by the tools of nonlinear dynamics. In the analysis, the transition then appears as a bifurcation, whose study reveals deep insights into the nature and behaviour of the underlying microscopic system.",
+            "cite_spans": [
+                {
+                    "start": 145,
+                    "end": 146,
+                    "text": "1",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 301,
+                    "end": 303,
+                    "text": "2,",
+                    "ref_id": null
+                },
+                {
+                    "start": 304,
+                    "end": 305,
+                    "text": "3",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "A paradigmatic example is the epidemiological susceptibleinfected-susceptible (SIS) model. 4 In its simplest incarnation, this model describes the propagation of an infectious disease in a group of randomly interacting agents. Each agent is either infected with the disease (state I) or susceptible to the disease (state S). In time, the state of agents changes due to transmission of the disease and recovery of infected agents. The dynamics of this system can be understood by writing a single differential equation that captures a) Electronic mail: jenifferyang25@gmail.com the proportion of agents [I] that are infected. Depending on the details of interactions, the system either approaches a state where the disease is extinct or a state where it persists at a constant level. In the ODE-based model, the transition between the two qualitatively different types of behaviours occurs at a threshold parameter value that is a bifurcation point.",
+            "cite_spans": [
+                {
+                    "start": 91,
+                    "end": 92,
+                    "text": "4",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In the SIS model, and many other models besides, the important bifurcation is local, i.e., it is a bifurcation that can be characterised by changes in the phase portrait in the proximity of a single steady state or other invariant set. 5 For instance, in the epidemic example, this bifurcation is a transcritical bifurcation in which a steady state with non-zero density of infected agents intersects the state where the disease is extinct, and the two exchange their stability. Thus, the relevant changes in the phase portrait occur in the vicinity of the extinct steady state.",
+            "cite_spans": [
+                {
+                    "start": 236,
+                    "end": 237,
+                    "text": "5",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "The transcritical bifurcation and its close relatives, the fold and pitchfork bifurcations, have been linked to phase transitions in a wide variety of systems including epidemics, 4 collective motion of animals, 6, 7 human opinion formation, 8, 9 neuronal dynamics, 10, 11 and others. In a smaller number of models, the underlying bifurcation is a Hopf bifurcation, which marks the onset of, at least transient, oscillations. [12] [13] [14] However, even the Hopf bifurcation is a local bifurcation. By comparison, models in which a phase-transition corresponds to a non-local bifurcation in a macroscopic model are rare.",
+            "cite_spans": [
+                {
+                    "start": 180,
+                    "end": 181,
+                    "text": "4",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 212,
+                    "end": 214,
+                    "text": "6,",
+                    "ref_id": null
+                },
+                {
+                    "start": 215,
+                    "end": 216,
+                    "text": "7",
+                    "ref_id": null
+                },
+                {
+                    "start": 242,
+                    "end": 244,
+                    "text": "8,",
+                    "ref_id": null
+                },
+                {
+                    "start": 245,
+                    "end": 246,
+                    "text": "9",
+                    "ref_id": null
+                },
+                {
+                    "start": 266,
+                    "end": 269,
+                    "text": "10,",
+                    "ref_id": null
+                },
+                {
+                    "start": 270,
+                    "end": 272,
+                    "text": "11",
+                    "ref_id": null
+                },
+                {
+                    "start": 426,
+                    "end": 430,
+                    "text": "[12]",
+                    "ref_id": null
+                },
+                {
+                    "start": 431,
+                    "end": 435,
+                    "text": "[13]",
+                    "ref_id": null
+                },
+                {
+                    "start": 436,
+                    "end": 440,
+                    "text": "[14]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In nonlinear dynamics, several non-local bifurcations have been described. An example of particular interest for the present paper is the heteroclinic bifurcation. [15] [16] [17] In this bifurcation, a transition in the macroscopic dynamics of a system occurs, due to the appearance of a trajectory connecting different invariant sets (see Fig. 1 ). Such bifurcations already occur robustly in relatively low-dimensional dynamical systems. 17 The closely related homoclinic bifurcation often marks the point where a limit cycle is destroyed and thus causes a discontinuous phase transitions in many systems. One of these is the adaptive SIS model: an SIS system, where additionally the susceptible nodes try to avoid infection by rewiring their links away from infected nodes. 13 In the adaptive SIS model, the importance of these homoclinic bifurcations is very minor but can play the role of an epidemic threshold in a small parameter space. Homoclinic bifurcations have also been observed in other network models, where information is exchanged globally between nodes, e.g., Ref. 18 .",
+            "cite_spans": [
+                {
+                    "start": 164,
+                    "end": 168,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 169,
+                    "end": 173,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 174,
+                    "end": 178,
+                    "text": "[17]",
+                    "ref_id": null
+                },
+                {
+                    "start": 440,
+                    "end": 442,
+                    "text": "17",
+                    "ref_id": null
+                },
+                {
+                    "start": 777,
+                    "end": 779,
+                    "text": "13",
+                    "ref_id": null
+                },
+                {
+                    "start": 1083,
+                    "end": 1085,
+                    "text": "18",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 340,
+                    "end": 346,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Homoclinics, heteroclinics, and other non-local bifurcations are also known to play a major role in fluid dynamics and climate system modelling. 19, 20 Perhaps, the best known example is the Lorenz model. 21 Furthermore, heteroclinic orbits feature prominently in the analysis of switching in stochastic dynamics systems, where they describe optimal paths connecting regular saddles. 22, 23 However, these models are directly formulated on the macroscopic level, such that no direct connection to the phase transition in the underlying microscopic dynamics can be made. Evidence for such bifurcation was also seen in macro-level models of population dynamics. 24, 25 However, apart from a notable exception, 26 models that resolve the detailed dynamics are often too complex to reveal a detailed picture of heteroclinics in the dynamics by use of bifurcation theory.",
+            "cite_spans": [
+                {
+                    "start": 145,
+                    "end": 148,
+                    "text": "19,",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 149,
+                    "end": 151,
+                    "text": "20",
+                    "ref_id": null
+                },
+                {
+                    "start": 205,
+                    "end": 207,
+                    "text": "21",
+                    "ref_id": null
+                },
+                {
+                    "start": 384,
+                    "end": 387,
+                    "text": "22,",
+                    "ref_id": null
+                },
+                {
+                    "start": 388,
+                    "end": 390,
+                    "text": "23",
+                    "ref_id": null
+                },
+                {
+                    "start": 660,
+                    "end": 663,
+                    "text": "24,",
+                    "ref_id": null
+                },
+                {
+                    "start": 664,
+                    "end": 666,
+                    "text": "25",
+                    "ref_id": null
+                },
+                {
+                    "start": 708,
+                    "end": 710,
+                    "text": "26",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "In a recent paper, we investigated the dynamics of a heterogeneous adaptive SIS model, which combined SIS dynamics and disease avoidance behaviour with heterogeneity in the susceptibility of the population. Both heterogeneity and adaptivity are known to impact the dynamics of diseases of humans 27 and are therefore presently high on the agenda in network epidemiology. For instance, adaptivity was shown to significantly increase the epidemic threshold and lead to a first-order transition at the onset of the disease [28] [29] [30] [31] [32] and can induce robust oscillations. 3 Moreover, studies showed that adaptive disease avoidance behaviour can effectively enhance the impact of disease control efforts. [33] [34] [35] [36] The heterogeneity between individuals was shown to lower the epidemic threshold in some networks [37] [38] [39] but can also reduce the size and risk of outbreaks. [39] [40] [41] [42] [43] [44] In Ref. 45 , we found that a plausible disease avoidance mechanism can lead to states where the network has a heterogeneous topology but is more resilient to the invasion of diseases than it would be possible in less heterogeneous topologies. These findings are thus contrary to the intuition gained from landmark results for simpler models, 37, 46 which seem to suggest that heterogeneous topologies would always aid the transmission of the disease.",
+            "cite_spans": [
+                {
+                    "start": 296,
+                    "end": 298,
+                    "text": "27",
+                    "ref_id": null
+                },
+                {
+                    "start": 520,
+                    "end": 524,
+                    "text": "[28]",
+                    "ref_id": null
+                },
+                {
+                    "start": 525,
+                    "end": 529,
+                    "text": "[29]",
+                    "ref_id": null
+                },
+                {
+                    "start": 530,
+                    "end": 534,
+                    "text": "[30]",
+                    "ref_id": null
+                },
+                {
+                    "start": 535,
+                    "end": 539,
+                    "text": "[31]",
+                    "ref_id": null
+                },
+                {
+                    "start": 540,
+                    "end": 544,
+                    "text": "[32]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 581,
+                    "end": 582,
+                    "text": "3",
+                    "ref_id": null
+                },
+                {
+                    "start": 713,
+                    "end": 717,
+                    "text": "[33]",
+                    "ref_id": null
+                },
+                {
+                    "start": 718,
+                    "end": 722,
+                    "text": "[34]",
+                    "ref_id": null
+                },
+                {
+                    "start": 723,
+                    "end": 727,
+                    "text": "[35]",
+                    "ref_id": null
+                },
+                {
+                    "start": 728,
+                    "end": 732,
+                    "text": "[36]",
+                    "ref_id": null
+                },
+                {
+                    "start": 830,
+                    "end": 834,
+                    "text": "[37]",
+                    "ref_id": null
+                },
+                {
+                    "start": 835,
+                    "end": 839,
+                    "text": "[38]",
+                    "ref_id": null
+                },
+                {
+                    "start": 840,
+                    "end": 844,
+                    "text": "[39]",
+                    "ref_id": null
+                },
+                {
+                    "start": 897,
+                    "end": 901,
+                    "text": "[39]",
+                    "ref_id": null
+                },
+                {
+                    "start": 902,
+                    "end": 906,
+                    "text": "[40]",
+                    "ref_id": null
+                },
+                {
+                    "start": 907,
+                    "end": 911,
+                    "text": "[41]",
+                    "ref_id": null
+                },
+                {
+                    "start": 912,
+                    "end": 916,
+                    "text": "[42]",
+                    "ref_id": null
+                },
+                {
+                    "start": 917,
+                    "end": 921,
+                    "text": "[43]",
+                    "ref_id": null
+                },
+                {
+                    "start": 922,
+                    "end": 926,
+                    "text": "[44]",
+                    "ref_id": null
+                },
+                {
+                    "start": 935,
+                    "end": 937,
+                    "text": "45",
+                    "ref_id": null
+                },
+                {
+                    "start": 1269,
+                    "end": 1272,
+                    "text": "37,",
+                    "ref_id": null
+                },
+                {
+                    "start": 1273,
+                    "end": 1275,
+                    "text": "46",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "FIG. 1. Sketch of the phase portrait before, during, and after a heteroclinic bifurcation. In the system, two attractors (black dots) coexist with two saddles (white and grey dots). The flow field is indicated by thin blue arrows. Before the bifurcation, a small perturbation launches the system on a trajectory leading to the left attractor (a). As parameters are changed, a heteroclinic connection between the saddles is formed, shown by the red strong arrow in (b). After the bifurcation, fluctuations on the white saddle can now lead to a final state at the right attractor (c), while the left attractor has become unreachable from the white saddle.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "While our previous publication 45 pointed to a mechanism that leads to the emergence of extraordinarily stable heterogeneous topologies, the actual transition at which this mechanisms sets in was too complicated to analyze within the scope of that paper. Here, we investigate this transition first in the previously proposed model and then in a highly stylized model that enables a deeper understanding of the phenomenon.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "We find that the threshold for the onset of an endemic infection does not correspond to a loss of stability of the disease-free state. Instead, there is a large parameter range in which initial disease-free networks are unstable and thus permit disease invasion, but outbreaks do not lead to an endemic state but collapse back to another disease-free state, with different network topologies. The outbreak-and-collapse dynamics of the system in this region is thus reminiscent of an susceptible-infected-recovered (SIR) model. However, there is no recovered (R) agent state in the model that confers immunity. Instead, an initial outbreak leads to the formation of more resilient network topologies and thus \"inoculates\" the network against future disease invasion.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "Network inoculation is characterized by the presence of heteroclinic orbits that connect different disease free states. Because of the basic physics of the system, the disease-free states form a manifold. As the infectivity of the disease is changed, the orbit starting from a given initial steady state connects to a (unique) saddle point. When this happens, a saddle-heteroclinic bifurcation occurs, which ends the inoculation-type dynamics from the respective initial network. For all higher values of infectivity, the heteroclinic trajectory from that initial state leads to an endemic state where the disease can persist in the system indefinitely. Thus, the onset of endemic disease dynamics is marked by a phase transition caused by a heteroclinic bifurcation in the underlying dynamics. This paper is organized as follows: We start by reviewing the previously proposed model (Sec. II). In agent-based simulations, we observe that the outcomes of simulation runs can be classified into 3 different types (Sec. III). We then explore the phase boundaries between the three different types of outcomes. Using percolation theory, we analytically compute the threshold where outbreaks start to occur (Sec. IV). Thereafter, using moment expansions, we formulate a macroscopic model of the dynamics in terms of ordinary differential equations (Sec. V), and this model allows us to study the dynamics by tools of dynamical systems theory. Combining results from all of the tools established up to this point, we show that the transition from outbreaks to endemic behavior occurs due to a heteroclinic bifurcation (Sec. VI). To understand this transition in greater detail, we finish by formulating and analyzing a simpler solvable model for the network inoculation phenomenon (Sec. VII).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "I. INTRODUCTION"
+        },
+        {
+            "text": "We consider a population of N agents, which can be either infected (state I) or susceptible to the disease (state S). The agents are connected by a total of K bidirectional social contacts. Thus, the system can be described as a network in which the agents are the network nodes and the social contacts are the links. In time, the system evolves (a) because of the epidemic dynamics and (b) due to a behavioural response of the agents to the disease, which leads to the rewiring of links.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. HETEROGENEOUS ADAPTIVE SIS MODEL"
+        },
+        {
+            "text": "In the epidemic dynamics (a) for every link connecting a susceptible and an infected agent, there is a chance that the susceptible agent becomes infected, amounting to an infection rate of bw (per link), where b is a parameter that controls the overall infectivity of the disease and w is a parameter that describes the susceptibility of the susceptible agent. In particular, we consider the case where two types of agents exist: highly susceptible agents (type A) and less susceptible agents (type B). These types are intrinsic properties of the agents, i.e., unlike the epidemic states the type of an agent never changes. Furthermore, all infected agents recover at a fixed rate l, which is identical for all agents. Upon recovery, agents immediately become susceptible again.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. HETEROGENEOUS ADAPTIVE SIS MODEL"
+        },
+        {
+            "text": "We denote the proportion of agents of type A in the population by p a and their susceptibility by w a . The remaining portion of agents p b \u00bc 1 \u00c0 p a is of type B and has susceptibility w b < w a . In the following, we chose these parameters such that p a w a \u00fe p b w b \u00bc hwi \u00bc 0:5. We thus control the heterogeneity of susceptibility in the population by changing w a and w b simultaneously such that the mean susceptibility hwi remains fixed. Hence, the intra-individual heterogeneity is indicated by one of the parameters, say, w a , whereas the overall spreading rate is controlled by the epidemic parameter b.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. HETEROGENEOUS ADAPTIVE SIS MODEL"
+        },
+        {
+            "text": "In the social dynamics (b), the agents react to the presence of the disease by rewiring their social connections. In each small time interval of length dt, a susceptible agent who is linked to an infected agent breaks that link with probability xdt. For every link a susceptible agent breaks, the agent establishes a new link to a randomly chosen susceptible agent, such that the total number of links is conserved.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. HETEROGENEOUS ADAPTIVE SIS MODEL"
+        },
+        {
+            "text": "In the following, we use the parameters N \u00bc 10 5 ; K \u00bc 10 6 ; x \u00bc 0:2; l \u00bc 0:002, and hwi \u00bc 0:5 unless noted otherwise. Hence, the mean degree of the network is hki \u00bc 2K=N \u00bc 20. This is a typical parameter set where the model shows its generic behaviour. In our experience, the results obtained are very similar for other parameter sets unless extreme values are chosen.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "II. HETEROGENEOUS ADAPTIVE SIS MODEL"
+        },
+        {
+            "text": "We start the analysis by numerically exploring the possible outcomes in agent-based simulations. We initialize the system as an Erd} os-R enyi random graph, where the number of agents N and links K is fixed and mean degree is then given by hki \u00bc 2K=N. Each agent (regardless of type) is initially infected with probability i 0 \u00bc 0:0002 and susceptible otherwise. We then simulate the time evolution of the system of agents using a Gillespie algorithm. 47, 48 Three typical outcomes are shown in Fig. 2 . Depending on the parameter values, we observe either a rapid collapse to a disease-free state, before a significant proportion of the agents have been infected (type I), an initial epidemic outbreak, in which a large proportion of agents are infected (type II), or an outbreak leading to an endemic state where the disease persists indefinitely (type III).",
+            "cite_spans": [
+                {
+                    "start": 452,
+                    "end": 455,
+                    "text": "47,",
+                    "ref_id": null
+                },
+                {
+                    "start": 456,
+                    "end": 458,
+                    "text": "48",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 495,
+                    "end": 501,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "III. CLASSIFICATION OF OUTCOMES"
+        },
+        {
+            "text": "Let us try to extrapolate from the finite-size simulation to arbitrarily large systems. The results of this analysis should hold in large finite systems encountered in the real world or studied in large agent-based simulations, where finite size effects are mostly irrelevant, due to the size of the system considered. Moreover, referring to an infinitely large system is attractive because it allows us to avoid problems in the classification of behaviours that exist in the finite system. Consider that in the finite case the difference between type-I (recovery to the disease-free state) behaviour and type-II (outbreak, collapse) behaviour is not rigorously defined, i.e., the transition is gradual as the number of infected at maximum increases. Furthermore, even the difference between type-II and type-III (persistent) behaviour becomes fuzzy: The finite size agent-based simulation has a finite probability to spontaneously collapse to the absorbing disease-free state. Thus, persistent dynamics cannot be a true long-term behaviour, although we never observed such a collapse of apparently persistent epidemics in all but the smallest simulation runs (e.g., N < 100) or when the system is just at the epidemic threshold.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. CLASSIFICATION OF OUTCOMES"
+        },
+        {
+            "text": "By contrast, the different types of behaviours can be cleanly defined in the infinite system. We say, that the behavior of the system is of type I, if the epidemic never grows to a point where a finite proportion of the agents is infected. This makes type-I behavior qualitatively different from type II and type III, where at some point a finite proportion of the agents is infected. We further distinguish type-II and type-III behaviours by their long-term behavior: We can say, that a system shows type-III behavior if in the infinite size limit, a finite proportion of the agents are infected after arbitrarily long time. Now returning to finite systems, the considerations above enable us to classify the dynamics using scaling relationships. However, in practice, this is not necessary as the differences in sufficiently large simulations are clear cut. Results from simulations with N \u00bc 10 5 nodes in Fig. 3 show that the three types of outcomes can be clearly distinguished. We note that none of the simulation runs has I max 2 \u00f00:1; 0:6\u00de or I 1 2 \u00f00:1; 0:75\u00de. Thus, choosing thresholds anywhere in these ranges will lead to the same classification of outcomes.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 908,
+                    "end": 914,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "III. CLASSIFICATION OF OUTCOMES"
+        },
+        {
+            "text": "We observe that in some ranges of infectivity, different types of outcomes are possible. The regions in which different outcomes are possible seem to overlap, and around b \u00bc 0:33 there is heterogeneity in the prevalence of the endemic state. The latter is a numerical effect which appears due to intrinsic stochasticity of the agent based simulation, which leads to different amounts of rewiring during the approach to the endemic state. The mechanism that causes these differences between trajectories will become apparent in Sec. VI. To explore the former effect in more detail, we use the proposed classification to plot the propensity of outcomes in Fig. 4 . For low values of heterogeneity between nodes w a \u00bc 0:55, we find that for systems there are only two possible outcomes, namely, type-I (recovery) and type-III 03), there is an initial outbreak, which infects a large proportion of the agents. However, subsequently this outbreak collapses and the system once again approaches the disease free state. If infectivity is high (right, b \u00bc 0:035), then the system approaches an endemic state where the diseases remain in the system in the long term. Bottom row: Degree distributions in the final state (symbols) in comparison to the initial degree distribution (line). If the infectivity is low (left, b \u00bc 0:022), the disease has only a very minor impact on the degree distribution due to its quick collapse. For intermediate infectivity (center, b \u00bc 0:03), the rewiring leads to a bimodal distribution where many links are concentrated on the nodes of the less susceptible type, which prevents further outbreaks. If infectivity is high (right, b \u00bc 0:035), ongoing rewiring leads to a broad continuous distribution, but this is no longer sufficient to lead to a collapse of the epidemic. Parameters:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 654,
+                    "end": 660,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "III. CLASSIFICATION OF OUTCOMES"
+        },
+        {
+            "text": "(endemic) behavior. However, if the susceptibility of agents is very heterogeneous, then also type-II (outbreak, collapse) behavior is observed.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "III. CLASSIFICATION OF OUTCOMES"
+        },
+        {
+            "text": "In Fig. 4 , we see that regions of different types of outcomes are separated by transition regions where 2 outcomes are possible. To prepare for the more detailed exploration below, let us now construct a 2-parameter phase diagram of the system (Fig. 5) . In this diagram, we draw the phase boundaries at the points where different types of outcomes occur in simulation, e.g., the phase boundary between outcomes of type I and type II b l is set of points where the type-II outcome starts to show up and the same to the phase boundary between type II and type III b u .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 9,
+                    "text": "Fig. 4",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 245,
+                    "end": 253,
+                    "text": "(Fig. 5)",
+                    "ref_id": null
+                }
+            ],
+            "section": "III. CLASSIFICATION OF OUTCOMES"
+        },
+        {
+            "text": "Let us now try to understand the phase diagram analytically. We start by considering the onset of outbreaks, i.e., the boundary of type-I behaviour. The ability of a disease to spread in a population can be quantified in terms of the basic reproductive number R 0 , which denotes the number of FIG. 3. Classification of outcomes from agent-based simulations. Shown are the maximal proportion of infected agents encountered in a simulation run, I max (top left) and the proportion of infected after long time t, I 1 (t \u00bc 10 7 , bottom left). The symbols represent observed outcomes for each of 100 simulation runs for each value of infectivity b, many of which are so similar that they are indistinguishable. It is apparent that three qualitatively different outcomes are observed: I 1 % 0; I max % 0 (type I), I 1 % 0; I max > 0 (type II), and I 1 > 0; I max > 0 (type III). While two different outcomes are possible for some values of b, they can be clearly distinguished in this case, see Histograms in the panels on the right, with values of b corresponding to the thin lines shown in the left plots. Parameters: secondary infections, caused by one infected, in the limit of low disease prevalence. If R 0 > 1, the disease can percolate through the network and thus outbreaks become possible.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "We can compute R 0 by considering a typical newly infected agent and computing the number of neighbours this agent will infect before recovering. Following Ref. 13 , we take into account that the number of links of the focal agent decreases in time as neighbouring agents rewire away. The loss rate of links is equal to the rewiring rate x. Thus, the remaining degree after time t is",
+            "cite_spans": [
+                {
+                    "start": 161,
+                    "end": 163,
+                    "text": "13",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "where k 0 is the initial number of neighbours. Since we are interested in the limit of low prevalence, all neighbours can be assumed to be susceptible and we can find the number of secondary infections by multiplying the probability of transmission, which we call p for the moment, and then integrating over the typical time to recovery 1=l. This yields",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "For the heterogeneous network, we can express the probability of transmission p as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "where x a is the probability that a randomly chosen neighbour is of type A and x b is the probability that a randomly chosen neighbour is of type B. As the initial network is an Erd} os-R enyi random graph, x a \u00bc p a , x b \u00bc p b , and k 0 \u00bc hki. Substituting into Eq. (2) and setting R 0 \u00bc 1 yields",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "and hence the threshold",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "with hwi \u00bc p a w a \u00fe p b w b . Expectedly, this equation is very closely related to the epidemic threshold in the homogeneous system. The two values of w are effectively averaged and only the numerical mean appears. A comparison of the outbreak threshold identified based on percolation arguments and the numerical results show good qualitative agreement (Fig. 5) . In the simulations, we observe the outbreak only at slightly higher levels of infectivity, which is most likely a finite size effect. Closely above to the theoretical threshold for the infinite size system, the finite size simulation can still collapse to the absorbing disease free state due to stochastic extinction.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 355,
+                    "end": 363,
+                    "text": "(Fig. 5)",
+                    "ref_id": null
+                }
+            ],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "The results obtained above were based on the assumption that agents of type A and type B are well mixed. While this assumption is true in the initial state, very different outbreak thresholds can be found if the assumption is violated, for instance, if rewiring in response to an earlier outbreak led to a non-random mixing in the population. We explore this particular scenario in detail in Section V.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "To gain a general understanding of the effects of assortativity in the disease free state, let us now consider a disease free state with given number of a-a and b-b links. We denote the density of these links in the population by \u00bdaa and \u00bdbb, respectively. The numerical values of both of these quantities are understood to be normalized with respect to the total number of nodes N. In this notation, the density of a-b links \u00bdab can then be computed from the conservation law hki \u00bc 2\u00f0\u00bdaa \u00fe \u00bdab \u00fe \u00bdbb\u00de:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "Given \u00bdaa and \u00bdbb, we can therefore write the number of nodes of types i that are infected by a given node of type j as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "These values form the entries in a 2 \u00c2 2 next-generation matrix. The disease can spread if the leading eigenvalue of this matrix is larger than one. By pulling the repeated factor out of the matrix, we get the condition",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "where k is the leading eigenvalue of",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "This provides a condition that can be solved for, say, the critical number of a-a links \u00bdaa at which outbreaks start. While easy to compute, this condition is quite lengthy and is hence omitted here. The result is shown in Fig. 6 . The computation shows that for a given value of infectivity, an outbreak can occur if the density of a-a links is sufficiently high. This is intuitively reasonable as a disease FIG. 6. Impact of the network structure in the initial state. Shown is the stability threshold found by percolation methods, Eq. (8) (dashed line), in comparison to local asymptotic stability of the disease-free state computed based on the eigenvalues of the Jacobian matrix of the moment equations (Sec. V). The figure shows the regions of stable disease free (type I, light grey), outbreak and collapse (type II, medium grey), and endemic (type III, dark grey) behavior, where we used numerical integration of the moment equations to distinguish between types II and III. In the remainder of the figure (white), no networks exist as the sum of a-a links and b-b links would be greater than the total number of links in the system. The figure shows that the agreement between the threshold for the onset of outbreaks computed by the two different approximations is almost perfect. Parameters: w b \u00bc 0:05; w a \u00bc 0:65; x \u00bc 0:2; l \u00bc 0:002, i 0 \u00bc 0:0002; N \u00bc 10 5 ; K \u00bc 10 6 , and \u00bdaa \u00fe \u00bdab \u00fe\u00bdbb \u00bc hki=2.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 223,
+                    "end": 229,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "close to the threshold will mainly spread in the highly susceptible (type A) population.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "IV. ONSET OF OUTBREAKS"
+        },
+        {
+            "text": "Percolation approaches, such as the ones above, are powerful tools for exploring the onset of the epidemic. However, these approaches cannot reveal insights into the dynamics that occur after the onset. We therefore have to switch to a different modelling approach. Here, we use network moment expansions. Following the procedure in Refs. 13 and 45, we write a system of differential equations that capture the dynamics of the abundances of different types of links and node states. We use symbols of the form \u00bdX u and \u00bdX u Y v with X; Y 2 fI; Sg and u; v 2 fa; bg to, respectively, denote the proportion of agents and per capita density of links between agents of a given type. For instance, \u00bdI a is the proportion of agents that are infected and of type A, and \u00bdS a I b is density of links between susceptible agents of type A and infected agents of type B. All of these variables are normalized with respect to the total number of nodes N. Given the number of infected nodes of a given type, we can thus find the number of susceptible nodes by using the conservation law \u00bdI u \u00fe \u00bdS u \u00bc p u .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "The time evolution of the proportion of nodes that are infected and of types A and B can be, respectively, written as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "For the link densities, using a pair-approximation leads to equations of the form",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "where the terms on the right-hand-side describe the impact of the different processes on the motif considered, \u00bdS a S a in this example. For instance, the first term corresponds to the creation of S a -S a links due to recovery of the infected node in S a -I a links. In total, the I a nodes recover at the rate l\u00bdI a . Every such recovery event creates an expected number of S a -S a links that is identical to the average number of I a -S a links anchored on an I a node, which is \u00bdI a S a =\u00bdI a . In summary, the change in the density of S a -S a links due to recovery of I a nodes is l\u00bdI a \u00bdI a S a =\u00bdI a \u00bc l\u00bdI a S a , which explains the first term in Eq. (12) . In addition to the equation shown above, there are 8 other differential equations capturing the density of other types of links. For conciseness, these equations are shown in the Appendix. In contrast to the percolation approach and agent-based simulations, the moment expansion allows us to investigate the dynamics directly on an emergent level. In the context of the moment equations, the different types of long-term behaviours now appear as attractors of a dynamical system. We analyze this system by numerical continuation of solution branches in AUTO. 49 Results from this analysis are shown in Fig. 7 .",
+            "cite_spans": [
+                {
+                    "start": 660,
+                    "end": 664,
+                    "text": "(12)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1226,
+                    "end": 1228,
+                    "text": "49",
+                    "ref_id": "BIBREF48"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1269,
+                    "end": 1275,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                }
+            ],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "At sufficiently high infection rate, there is a stable steady state where the disease persists with high prevalence. When we gradually lower the infection rate, this steady state becomes unstable due to a saddle-node bifurcation, or by undergoing a Hopf bifurcation quickly followed by saddlenode bifurcation, depending on parameters. The limit cycle formed in the Hopf bifurcation only exists in a very small parameter range before it is destroyed in further bifurcations.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "The situation is more complex for the disease free states. While the branches of steady states where the disease is present have well-defined values in all of the dynamical variables, the disease free states form a manifold. All states in which the density of infected nodes is zero are necessarily stationary. However, this still permits networks with different values of the variables \u00bdaa and \u00bdbb.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "Above we already explored the stability of the manifold of disease-free steady states using the microscopic branching process approach. We can now replicate these results using the macroscopic moment expansion approach. For this purpose, we compute the Jacobian matrix of the moment equations on the manifold of the disease-free steady states. These states are then stable if the leading eigenvalue of the Jacobian has a negative real part. A comparison of the threshold that is thus obtained with the previous results (see Fig. 6 ) shows that the two approaches are in almost perfect agreement. We have furthermore verified by direct simulation of the agent-based model that introduction of the disease does not cause outbreaks in networks where the disease-free state is predicted to be stable.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 524,
+                    "end": 530,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "V. MOMENT EXPANSIONS"
+        },
+        {
+            "text": "Let us now turn our attention to the transition between type-II and type-III behavior. In Secs. IV and V, we have investigated the local bifurcations of the initial state and FIG. 7 . Bifurcation diagram of the moment equations. Shown is the stationary disease prevalence I as a function of infectivity b for two values of heterogeneity, w a \u00bc 0:55 (black) and w a \u00bc 0:65 (red/gray). Numerical continuation reveals both stable (solid) and unstable (dashed branches). Stability changes due to a transcritical (TC) and saddle-node bifurcations (SN). Between these two bifurcations, a hysteresis loop is formed that is typical for adaptive SIS models. Parameters: w b \u00bc 0:05; x \u00bc 0:2; l \u00bc 0:002; N \u00bc 10 5 ; K \u00bc 10 6 . endemic states. The results show that in sufficiently heterogeneous systems, the local bifurcations of these states do not coincide with the phase transition to endemic behavior: This initial state is unstable and the endemic state is stable before the onset of type-III behavior. This is possible because the initial state is not in the basin of attraction of the endemic state. Starting from the initial state, the system undergoes a single outbreak before it falls back to a different disease-free state (with a different distribution of links between node types) which is then stable against further outbreaks.",
+            "cite_spans": [
+                {
+                    "start": 175,
+                    "end": 181,
+                    "text": "FIG. 7",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "VI. TRANSITION TO THE ENDEMIC STATE"
+        },
+        {
+            "text": "The transition between type-II (single outbreak) and type-III (endemic state) behavior is represented by a transition of the initial disease-free saddle from one basin of attraction to another. For a given parameter set, we can visualize three different basins of attraction (Fig. 6) . We note that type-II (outbreak-collapse) behavior occurs when the density of a-a links is high, whereas endemic behavior is observed for intermediate density of a-a links. While the a-a link density has to exceed a threshold value to allow outbreaks, the outbreak eventually collapses if a second threshold is exceeded.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 275,
+                    "end": 283,
+                    "text": "(Fig. 6)",
+                    "ref_id": null
+                }
+            ],
+            "section": "VI. TRANSITION TO THE ENDEMIC STATE"
+        },
+        {
+            "text": "We note that outbreak (type II) dynamics always land the network in a final state that is characterized by a lower connectivity of the highly susceptible type A nodes, in which disease propagation is suppressed. We verified this observation both in the moment equations and by agent-based simulation. 45 Hence, one can say, that the outbreak inoculates the network against subsequent outbreaks of the same disease.",
+            "cite_spans": [
+                {
+                    "start": 301,
+                    "end": 303,
+                    "text": "45",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "VI. TRANSITION TO THE ENDEMIC STATE"
+        },
+        {
+            "text": "In the transition from type-II to type-III behaviour, the saddle point that is the initial state leaves the basin of attraction of the stable disease-free state and enters the basin of attraction of the endemic state (Fig. 8 ). For such a transition of a saddle from one basin to another, a heteroclinic bifurcation is a likely candidate. Moreover, as the parameter is tuned closer to the transition point, the trajectories start to approach the saddle point that is formed in the fold bifurcation of the endemic state (see Fig. 7 ). In Fig. 8 , one can see one of the trajectories turning sharply in as it passes close to the saddle. This shows the transition between type-II and type-III behaviour, which provides further evidence that the transition is caused by a saddle-heteroclinic bifurcation. In this bifurcation, the stable manifold from the saddle hits the initial state, such that a heteroclinic connection between saddles is formed. This connection also marks a basin boundary, such that in the bifurcation the initial state passes from one basin of attraction to the other.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 217,
+                    "end": 224,
+                    "text": "(Fig. 8",
+                    "ref_id": null
+                },
+                {
+                    "start": 524,
+                    "end": 530,
+                    "text": "Fig. 7",
+                    "ref_id": null
+                },
+                {
+                    "start": 537,
+                    "end": 543,
+                    "text": "Fig. 8",
+                    "ref_id": null
+                }
+            ],
+            "section": "VI. TRANSITION TO THE ENDEMIC STATE"
+        },
+        {
+            "text": "We can illustrate the situation with a simplified sketch of the phase portrait (Fig. 9 ). The figure shows how two thresholds divide the manifold of disease-free steady states into different sections in which perturbations lead to three different types of outcomes observed. If other parameters of the system change, then these two thresholds move such that for a given initial condition, the transitions appear as transcritical and heteroclinic bifurcations, respectively.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 79,
+                    "end": 86,
+                    "text": "(Fig. 9",
+                    "ref_id": null
+                }
+            ],
+            "section": "VI. TRANSITION TO THE ENDEMIC STATE"
+        },
+        {
+            "text": "Let us emphasize that the x-axis in Fig. 9 cannot be the variable \u00bdaa as the different types of behaviour would occur in a different order (cf. Fig. 6 ). The different order of sections when plotted over \u00bdaa does not imply qualitatively different dynamics but is more difficult to visualize in a twodimensional sketch.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 36,
+                    "end": 42,
+                    "text": "Fig. 9",
+                    "ref_id": null
+                },
+                {
+                    "start": 144,
+                    "end": 150,
+                    "text": "Fig. 6",
+                    "ref_id": null
+                }
+            ],
+            "section": "VI. TRANSITION TO THE ENDEMIC STATE"
+        },
+        {
+            "text": "Even the simplified ODE system discussed above has eleven degrees of freedom, and as such it is difficult to FIG. 8 . Trajectories from agent-based simulation. Shown are 15 trajectories starting from the same initial state at different values of infectivity b. At low infectivity, the trajectories remain in the vicinity of the initial state (inset). At higher infectivity, there is an initial outbreak leading to high values of prevalence I before collapsing back to a disease free state, where the ratio between the degree of type B and type A nodes is now much higher than in the initial network. At even higher values of infectivity, endemic behavior is observed as the system approaches a stable state with high prevalence. The transition to endemic behaviour occurs when trajectories encounter a point where the dynamics is almost stationary, which points to a heteroclinic bifurcation. Parameters: w a \u00bc 0:65; w b \u00bc 0:05; x \u00bc 0:2, l \u00bc 0:002; i 0 \u00bc 0:0002; N \u00bc 10 5 ; K \u00bc 10 6 .",
+            "cite_spans": [
+                {
+                    "start": 109,
+                    "end": 115,
+                    "text": "FIG. 8",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "FIG. 9. Simplified sketch of the phase portrait in the epidemic model. Shown is a flow field (thin blue arrows), the attracting endemic state (black circle), a saddle point (grey circle) and a manifold of disease-free steady states (strong grey/black line), which can be stable (black) or unstable (grey). Depending on the initial value of the x-axis, we can distinguish between stable disease-free (type-I), outbreak and collapse (type-II), and endemic (type-III) behavior, indicated by labels on the axis. The behaviour changes at two threshold values (T 1 , T 2 ) which are marked by a local change in the stability of the manifold and the heteroclinic connection. We note that this sketch has been simplified from the situation in the epidemic model. If the x-axis was the a-a link density \u00bdaa, the type-II behavior would occur for intermediate values, whereas the type-III behavior would occur at high values, which is harder to visualize in a 2d-plot, but qualitatively similar. analyse in detail. However, the basic phenomenon of inoculation via a heteroclinic bifurcation can be captured in a solvable two-dimensional stylized model as we now describe. We consider a well-mixed population with two susceptible types (denoted S a and S b as previously) and a single infective type I. To see inoculation without resolving the network structure, it is necessary to introduce a new non-linear term to induce bistability. We keep the same infection as above but make a modification to recovery: instead of spontaneous recovery, infectious individuals may be coopted back to a susceptible state by interaction with a pair of susceptible individuals of the same type.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "While the cooption to the susceptible type may seem strange at first glance, very similar mechanisms are typically considered in threshold models of opinion formation, including, for instance, an adaptive network model for opinion formation among locusts. 7 While we intend the proposed model mainly as an abstract illustration, one can imagine that very similar models can be relevant in situations where both opinion formation and epidemic processes occur. This is the case, for instance, when choices can be made that prevent infection (e.g., vaccination) or transmission (e.g., hygiene and safer sex).",
+            "cite_spans": [
+                {
+                    "start": 256,
+                    "end": 257,
+                    "text": "7",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "The dynamics of the simplified model are captured by the rate equations",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "Note that the system is two-dimensional since \u00bdS a \u00fe\u00bdS b \u00fe\u00bdI \u00bc 1 is a conserved quantity. The line \u00bdI \u00bc 0 is a manifold of fixed points. Along the absorbing lines \u00bdS a \u00bc 0 or \u00bdS b \u00bc 0, the system is reduced to the one-dimensional ODE",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "where \u00c3 2 fa; bg. The form of this equation already suggests the existence of a heteroclinic bifurcation. There are always steady states at \u00bdI \u00bc 0 (extinction) and \u00bdI \u00bc 1 (endemic infection), with the possibility of a third at \u00bdI \u00bc 1 \u00c0 bw \u00c3 =l.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "If this third steady state lies in (0, 1) then it is a saddle, and the extinct and endemic states are stable. If it lies outside the physically relevant region, then the extinct state is unstable. By choosing w b < w a appropriately, we are able to realise a situation in which there is a saddle on the \u00bdS a \u00bc 0 line but not on \u00bdS b \u00bc 0. This structure motivates the unusual non-linear choice made for recovery.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "The phase portrait of the system is shown in Fig. 10 . From the figure, perturbation around a state with \u00bdI \u00bc 0 has three possible outcomes. For small \u00bdS a , we have a type-I region, where no outbreaks can occur. For large \u00bdS a , the trajectory is carried all the way to the stable endemic equilibrium at \u00bdI \u00bc 1 in a type-III scenario. In between, there is a range of values for \u00bdS a with type-II trajectories that initially depart but then return to the \u00bdI \u00bc 0 line. This region is bounded on the left by the point where the non-zero eigenvalue of the Jacobian matrix changes sign, which we compute to be the point where \u00bdS a solves 0 \u00bc bw a \u00bdS a \u00fe bw b \u00f01 \u00c0 \u00bdS a \u00de \u00c0 l\u00bdS a 2 \u00c0 l\u00f01 \u00c0 \u00bdS a \u00de 2 : (15) On the right, the type-II region is bounded by the separatrix of the endemic and extinct states, which can be found by examining",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 45,
+                    "end": 52,
+                    "text": "Fig. 10",
+                    "ref_id": null
+                }
+            ],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "implying the separatrix \u00bdI \u00bc 1 \u00c0 \u00bdS a \u00c0 bw b =l.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "The results above allow us also to draw a phase diagram of the system (Fig. 11) . In this diagram, stable disease-free behavior (type I) is separated from epidemic behavior (type II and III) by a transcritical bifurcation, while outbreak (type II) and epidemic (type III) behaviour are separated by the heteroclinic bifurcation.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 70,
+                    "end": 79,
+                    "text": "(Fig. 11)",
+                    "ref_id": null
+                }
+            ],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "Trajectories starting in the type-II phase lead to final states in the type-I phase. In fact, the black arrow is the trajectory for b \u00bc 0:5; \u00bdS a 0 \u00bc 0:6. Again, we can think of this kind of event as an inoculation, since the initial outbreak is crushed, and we are left with fewer type A susceptibles so that future outbreaks need a much higher b (around 1.8 in this case) to succeed.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VII. SOLVABLE STYLIZED MODEL"
+        },
+        {
+            "text": "In this paper, we investigated a previously proposed model for the spreading of a disease across a network in the face of behavioral responses to the disease and intraindividual heterogeneity of epidemic parameters. To understand the dynamics of this system, we used a variety of tools, including agent-based simulation, percolation theory, FIG. 10 . Phase portrait for the simplified model. The phase portrait contains a manifold of steady states (strong black line) at zero prevalence. In addition, there are two steady states at non-zero prevalence (black dots). The lower of these two states is a saddle whose stable manifold (red line) forms the separatrix between outbreak and endemic behavior. This is illustrated by the flow field (blue arrows) and example trajectories (thin blue lines).",
+            "cite_spans": [
+                {
+                    "start": 341,
+                    "end": 348,
+                    "text": "FIG. 10",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "moment expansions, analytical bifurcation theory, numerical integration of ODEs, and continuation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "Our results point to a phenomenon that we named network inoculation. Introducing a disease into a given network may lead to an outbreak that collapses and leaves the network with a different topology as agents have rewired their connections in response to the disease. Although the altered topology will be generally more heterogeneous than the initial topology, it is more resilient to disease outbreaks. In this sense, network inoculation is strongly reminiscent of immunological inoculation as in both cases contact to the pathogen leads to a response that hardens the system against future exposure to the pathogen.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "Our analysis showed that the outbreak and collapse dynamics characteristics of network inoculation occur in a region bordered by two phase transitions. When viewed from a macroscopic perspective, one of these transitions is a transcritical bifurcation, whereas the other is a saddleheteroclinic bifurcation. Network inoculation thus provides a (rare) example of a phenomenon where a global bifurcation causes a phase transition in a model that can be understood both on the micro-and macroscale.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "We emphasize that network inoculation is not a peculiarity of the specific model studied here. By contrast, we expect the phenomenon to occur in a wide variety of models as soon as certain requirements are met. While the phenomenon may as well occur in other models, let us for consistency summarise the requirements of network inoculation in epidemic terms. Network inoculation can occur if there is (1) a disease-free attractor (inoculated outcome), (2) an endemic attractor (endemic outcome), and (3) a variety of unstable disease-free states (initial states).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "The actual inoculation strictly speaking only requires conditions 1 and 3, whereas condition 2 makes the onset of inoculation via a heteroclinic bifurcation possible.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "If the first two conditions are met, there will be generally a saddle of some sort whose stable manifold marks the separatrix between the basins of the two attractors. Network inoculation will occur if the initial state is in (or on) the basin of the inoculated outcome. When parameters are changed, the separatrix will generally move, which can cause an initial state to enter or leave the basin of the inoculated outcome, in a heteroclinic bifurcation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "The conditions above require a bistability between an endemic (1) and a disease-free (2) state. While such bistability is not observed in the most simple models, it is very common in even slightly more complex models. In particular, this bistability has been observed in numerous variants of the adaptive SIS models. It therefore seems to be a robust feature of epidemiological models that appears once behavioral responses to the disease are modelled.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "Furthermore, we require the existence of multiple disease-free states with different stability properties. While the simplest epidemiological models have only a single disease-free state, multiple disease-free states naturally appear as soon as an additional macroscopic variable exists.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "Network inoculation was not observed in the previous investigations of the adaptive SIS models. While this model shows robust bistability, it has only a unique disease free state and hence does not meet the requirements of network inoculation. Likewise, network inoculation was not observed in the previous models of epidemics in heterogeneous populations. In these models, there are naturally multiple diseasefree states which differ in the connectivity of the different classes of individuals. However, because these previous models did not consider adaptive rewiring of links, the connectivities of the different classes of agents are parameters, rather than dynamical variables. Thus, the different diseasefree states are not observed simultaneously for one choice of parameters, hence again inoculation-type dynamics cannot occur.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "Once intra-individual heterogeneity and adaptive network rewiring are both considered, multiple disease free states that differ in the connectivity of classes of individuals occur robustly. Because adaptive rewiring can change these connectivities, they are now dynamical variables, and the multiple disease-free states can be observed simultaneously, for a given set of the remaining parameters. When multiple disease-free states exist, the generic expectation is that they will have different stability properties at least in some region of the parameter space, and thus there will, in general, be a parameter region where the conditions for network inoculation in the narrow sense are met.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        },
+        {
+            "text": "Because bistability between endemic and disease free states has proven to be a very robust feature of adaptive epidemiological models, we can moreover expect the onset of network inoculation via the heteroclinic bifurcation to be a common phenomenon. Both ingredients, the adaptive response of the network to the disease and intra-individual heterogeneity, are known to exist in the real world. In the light of the arguments above, we expect network inoculation, and its onset via the heteroclinic bifurcation to occur whenever these two ingredients are combined in the same model. FIG. 11 . Phase diagram of the simplified model. Transcritical (solid line) and heteroclinic (dashed line) bifurcation separated phases of qualitatively different behaviors: type I (disease free, light grey), type II (outbreak and collapse, medium grey), and type III (endemic, dark grey). Outbreaks take the system from the type-II region into the type-I region (black arrow) and thus inoculate it against further outbreaks. Parameters: l \u00bc 0:5; w a \u00bc 1, and w b \u00bc 0:25.",
+            "cite_spans": [
+                {
+                    "start": 582,
+                    "end": 589,
+                    "text": "FIG. 11",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "VIII. CONCLUSIONS"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Statistical Mechanics: Entropy, Order Parameters, and Complexity",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Sethna",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Infectious Diseases of Humans",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "May",
+                    "suffix": ""
+                }
+            ],
+            "year": 1991,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Elements of Applied Bifurcation Theory",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Kuznetsov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Nonlinear Oscillations, Dynamical Systems, and Bifurcations of Vector Fields",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Guckenheimer",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Holmes",
+                    "suffix": ""
+                }
+            ],
+            "year": 1983,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Methods of Qualitative Theory in Nonlinear Dynamics",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Shilnikov",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Shilnikov",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Turaev",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [
+                        "O"
+                    ],
+                    "last": "Chua",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Synchronization: A Universal Concept in Nonlinear Sciences",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pikovsky",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rosenblum",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kurths",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Bio-Inspired Models of Network, Information, and Computing Systems",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Shaw",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Tunc",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "519--520",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "AUTO-07P: Continuation and Bifurcation Software for Ordinary Differential Equations",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Doedel",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "F"
+                    ],
+                    "last": "Fairgrieve",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Sandstede",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Champneys",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Kuznetsov",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Three simulation results from agent-based simulations. Top row: If the infectivity is low (left, b \u00bc 0:022), then the epidemic dies out quickly and the system freezes in the disease-free state (note the different axis scalings on this plot). For intermediate infectivity (center, b \u00bc 0:",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Propensity of outcomes depending on infectivity (b) and heterogeneity (w a ). Shown is the probability that a given type of behavior is observed when simulating a random initial network with the respective parameter values (see text). These probabilities were estimated by classifying the outcomes of 100 simulation runs for each parameter combination. For low values of heterogeneity (top, w a \u00bc 0:55), we observe type-I (recovery) behavior if infectivity is low and type-III (endemic) behavior if infectivity is high. At intermediate values, there is a transition region where both outcomes are possible. For systems with strong heterogeneity (bottom, w a \u00bc 0:65), additionally type-II (outbreak, collapse) behavior is observed at intermediate values of infectivity, which is separated from type-I and type-III behavior by two transition regions. Parameters:w b \u00bc 0:05; x \u00bc 0:2; l \u00bc 0:002; i 0 \u00bc 0:0002; N \u00bc 10 5 ; K \u00bc 10 6 .FIG. 5. Phase boundaries between different types of outcomes: b l refers to the I/II boundary and b u to the II/III boundary. Shown are results from the classification of simulation runs (symbols) and an estimate using percolation theory from Eq. (5) (dashed line). Parameters: w b \u00bc 0:05; x \u00bc 0:2; l \u00bc 0:002; i 0 \u00bc 0:0002; N \u00bc 10 5 ; K \u00bc 10 6 .",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Thus, it seems that the reason why network inoculation has not been observed in the past is not the phenomenon itself is rare, but rather that the models that have been studied so far have been too strongly simplified to capture this, potentially common, phenomenon.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "annex"
+        },
+        {
+            "text": "This study did not use any primary research data. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "DATA STATEMENT"
+        },
+        {
+            "text": "The additional differential equations for link densities are as follows:(A7)(A8)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "APPENDIX: LINK DENSITY DIFFERENTIAL EQUATIONS"
+        }
+    ]
+}

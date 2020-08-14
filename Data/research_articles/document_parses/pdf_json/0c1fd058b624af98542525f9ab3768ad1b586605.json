@@ -1,0 +1,1161 @@
+{
+    "paper_id": "0c1fd058b624af98542525f9ab3768ad1b586605",
+    "metadata": {
+        "title": "Pixelate to communicate: visualising uncertainty in maps of disease risk and other spatial continua",
+        "authors": [
+            {
+                "first": "Aimee",
+                "middle": [
+                    "R"
+                ],
+                "last": "Taylor",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Harvard T. H. Chan School of Public Health",
+                    "location": {
+                        "postCode": "02115",
+                        "settlement": "Boston",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "James",
+                "middle": [
+                    "A"
+                ],
+                "last": "Watson",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Mahidol University",
+                    "location": {
+                        "postCode": "10400",
+                        "settlement": "Bangkok",
+                        "country": "Thailand"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Caroline",
+                "middle": [
+                    "O"
+                ],
+                "last": "Buckee",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Harvard T. H. Chan School of Public Health",
+                    "location": {
+                        "postCode": "02115",
+                        "settlement": "Boston",
+                        "region": "MA",
+                        "country": "USA"
+                    }
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Maps have long been been used to visualise estimates of spatial variables, in particular disease burden and risk. Predictions made using a geostatistical model have uncertainty that typically varies spatially. However, this uncertainty is difficult to map with the estimate itself and is often not included as a result, thereby generating a potentially misleading sense of certainty about disease burden or other important variables. To remedy this, we propose simultaneously visualising predictions and their associated uncertainty within a single map by varying pixel size. We illustrate our approach using examples of malaria incidence, but the method could be applied to predictions of any spatial continua with associated uncertainty.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The contemporary relevance of disease mapping cannot be overstated in view of pandemics such as covid-19. Since the removal of a contaminated water pump handle following John Snow's pioneering map of cholera in London (1854) [1] , disease maps have informed decisions in public health and epidemiology. Increasingly, researchers, governments, and organisations like the WHO and the UN set their priorities based on spatially varying predictions of disease burden. Interpolation and extrapolation from observed data using statistical models allow for prediction of disease burden at arbitrarily fine scales. These predictions have associated uncertainty. Communication of spatially heterogeneous uncertainty is vital to avoid misinterpretation and to highlight data gaps.",
+            "cite_spans": [
+                {
+                    "start": 225,
+                    "end": 228,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Maps of disease risk typically depict spatially varying predictions either shaded-in-area (cloropleth risk map) or distributed over a spatial continuum (isopleth risk map) [1, 2] . We focus on the latter. Isopleth maps can be used to depict spatial continua of any type, including fixed phenomena (e.g. elevation). Traditional isopleth maps feature isopleths (e.g. contour lines). Contemporary ones tend to represent variations across spatial continua using colour and shade.",
+            "cite_spans": [
+                {
+                    "start": 172,
+                    "end": 175,
+                    "text": "[1,",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 176,
+                    "end": 178,
+                    "text": "2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Predictions depicted by isopleth maps are typically generated using geostatistical or geospatial models [3, 4] . (Geospatial is a general term that applies to a wide class of models including geostatistical models that are specifically concerned with spatial continua). To understand the uncertainty associated with predictions made using geostatistical models (and their geospatial counterparts), we briefly describe the geostatistical framework, albeit separate from that of visualisation. Under a geostatistical model it is assumed that there is a latent spatially continuous stochastic process (e.g. unobserved malaria risk) that underpins a measurement variable whose realisations we can observe (e.g. malaria cases) [3] . Given possibly noisy observations of the measurement variable at discrete sampling locations, a common goal is to predict this variable elsewhere (e.g. predict malaria cases at unsampled locations). Via the covariance structure of the stochastic process, the model imposes spatial correlation between observations. Typically, the predictive variance for locations distant from sampled locations exceeds that of nearby predictions. Sampling locations are often spatially heterogeneous (malaria case observations, for example, are almost always sparse and clustered in places with better access to care). As such, uncertainty can be highly variable in space (spatial heteroscedasticity). In addition to data on the measurement variable, spatial data on explanatory variables (e.g. elevation, vegetation) are sometimes included in the model to improve predictive accuracy and can thus influence the spatial heteroscedasticity.",
+            "cite_spans": [
+                {
+                    "start": 104,
+                    "end": 107,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 108,
+                    "end": 110,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 722,
+                    "end": 725,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Advances in computational methods and large scale data collection, especially for explanatory variables, support highly resolved predictions (e.g. on a 5 km grid in the latest global malaria maps [5, 6] ). This has led to prolific high-profile mapping exercises in many fields, notably in public health, e.g. [7, 8, 5, 6] . Highly resolved maps are aesthetically pleasing. However, this high resolution can be extremely misleading, creating an illusion of precision where there is sometimes none. Maps of spatially varying uncertainty sometimes accompany predictions in the main text, e.g. [5] . However, due to restricted space, they are often incomplete (accompany a subset of predictions) or relegated to supplementary files. Other times they are simply ignored due to the difficulty of visual comparison across multiple maps; see illustrative example.",
+            "cite_spans": [
+                {
+                    "start": 196,
+                    "end": 199,
+                    "text": "[5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 200,
+                    "end": 202,
+                    "text": "6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 309,
+                    "end": 312,
+                    "text": "[7,",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 313,
+                    "end": 315,
+                    "text": "8,",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 316,
+                    "end": 318,
+                    "text": "5,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 319,
+                    "end": 321,
+                    "text": "6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 590,
+                    "end": 593,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "We propose varying pixel size as a simple, visually intuitive method to merge predictions and their uncertainty, thereby ensuring uncertainty visualisation in a single map. To support our proposal and demonstrate our method, we provide a simple R package, pixelate (github.com/artaylor85/pixelate).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our main result is a proposed method to visualise uncertainty in maps of disease risk and other spatial continua using pixelation. Specifically, we propose varying pixel size such that areas of high average uncertainty are unresolved, while areas with high average certainty are resolved (analogous to highly versus lowly resolved satellite images), thereby inviting a sense of precision only in areas where confidence is merited. To vary pixel sizes, predictions are first grouped into a number of large initial pixels (squares or rectangles comprising many predictions), whose lower bound is specified. The average uncertainty of the predictions within each large initial pixel is then computed; and, for each large initial pixel, predictions are either averaged across it (if the average uncertainty within it is high), or across smaller pixels nested within it (if the average uncertainty within it is lower). The resulting plot of averaged predictions is deliberately and selectively pixelated, similar to a photo that is deliberately and selectively pixelated to disguise a person's identity. For each large initial pixel, the size of any nested pixels depends on the quantile interval into which the associated average uncertainty falls, where quantiles are based on the empirical distribution of average uncertainty across all large initial pixels, and the number of quantile intervals (thus different pixel sizes) is user-specified. Quantile interval allocation plots show how uncertainty varies across large initial pixels; while tables summarising pixel dimensions quantify how pixel size translates to average uncertainty (see the vignette of package pixelate). The smallest pixel contains a single prediction; the per-pixel prediction count of larger pixels is calculated according to above mentioned parameters (plus two others that control the rate at which nested pixels scale); see the documentation of the pixelate function in the pixelate package. Pixelation can thus be fine tuned according to the needs of the researcher. Pixelation parameters should be reported alongside pixelated maps, similar to model parameters. It is also important to report if spatial covariance is accounted for, since pixelation relies on averaging uncertainty at the largest pixel size; see [9] and the vignette of the pixelate package for full details. ",
+            "cite_spans": [
+                {
+                    "start": 2290,
+                    "end": 2293,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Methodological overview"
+        },
+        {
+            "text": "Our proposed methodological approach supports spatially continuous predictions of any kind provided that they have an associated measure of uncertainty. We illustrate our method using predicted malaria incidence: in a single map (Figure 1a) we represent both predictions of Plasmodium falciparum incidence and the corresponding uncertainty (Figures 1b and 1c , adaptations of Figures 4 and S40 of [6] ). In Figure 1a , areas with high average uncertainty around the predicted P. falciparum incidence are visualised with large pixels and are thus unresolved, e.g. parts of the Democratic Republic of the Congo; areas of relative certainty are visualised with smaller pixels and are thus more resolved, e.g. Uganda. The pixelated risk map also includes areas of missing predictions (blue) and of predictions that are zero with certainty (white). These are excluded from the pixelation process and thus appear exactly as they do in the original unpixelated map of predicted incidence (Figure 1b) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 229,
+                    "end": 240,
+                    "text": "(Figure 1a)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 340,
+                    "end": 358,
+                    "text": "(Figures 1b and 1c",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 376,
+                    "end": 400,
+                    "text": "Figures 4 and S40 of [6]",
+                    "ref_id": null
+                },
+                {
+                    "start": 407,
+                    "end": 416,
+                    "text": "Figure 1a",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 981,
+                    "end": 992,
+                    "text": "(Figure 1b)",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Mapping malaria burden with uncertainty"
+        },
+        {
+            "text": "By merging into a single map (Figure 1a ) predictions ( Figure 1b) and their uncertainty (Figure 1c) , pixelation allows the consumer of the map to make decisions based on both types information concurrently. For example, considering enhanced surveillance, areas of high and low priority can be identified rapidly: high priority areas with high but uncertain risk are pixelated and dark; low priority areas with low but uncertain risk are pixelated and pale (Figure 1a) . Meanwhile, resources can be allocated rapidly among areas with adequate surveillance: high priority areas with certain high risk are resolved and dark; low priority areas with certain low risk are resolved and pale (Figure 1a ). Such operationally relevant information -critical for policy markers -cannot be extracted from the standalone map of unpixelated predictions (Figure 1b) , and is difficult to extract rapidly from Figures 1b and 1c side-by-side: without referring to Figure 1a , we challenge the reader to identify accurately and rapidly areas of 1) certain high risk; 2) uncertain high risk; 3) uncertain low risk and 4) certain low risk.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 29,
+                    "end": 39,
+                    "text": "(Figure 1a",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 56,
+                    "end": 66,
+                    "text": "Figure 1b)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 89,
+                    "end": 100,
+                    "text": "(Figure 1c)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 458,
+                    "end": 469,
+                    "text": "(Figure 1a)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 687,
+                    "end": 697,
+                    "text": "(Figure 1a",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 842,
+                    "end": 853,
+                    "text": "(Figure 1b)",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 897,
+                    "end": 914,
+                    "text": "Figures 1b and 1c",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 950,
+                    "end": 959,
+                    "text": "Figure 1a",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Mapping malaria burden with uncertainty"
+        },
+        {
+            "text": "The variation in pixel size in Figure 1a invites a sense of precision only in areas where confidence is merited. Among these resolved regions, high certainty is expected where epidemiological data are dense, e.g. likely Uganda (assuming that the temporal density shown in Figure S1 of [6] correlates with spatial density). However, information from explanatory variables can also contribute to increased certainty. For example, despite presumably sparse epidemiological data, the central region of the Albertine rift has low uncertainty (including many predictions that are zero with certainty), likely due to elevation. In future work, we will develop interactive maps that provide per-pixel summaries of the different contributions to average certainty. However, this requires enhancing model output as well as its visualisation.",
+            "cite_spans": [
+                {
+                    "start": 285,
+                    "end": 288,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 31,
+                    "end": 40,
+                    "text": "Figure 1a",
+                    "ref_id": "FIGREF1"
+                },
+                {
+                    "start": 272,
+                    "end": 281,
+                    "text": "Figure S1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Mapping malaria burden with uncertainty"
+        },
+        {
+            "text": "The problem of visualising uncertainty in maps of spatial continua is notoriously hard. We propose one solution based on pixelation. Pixelation has been used previously to communicate uncertainty in chloropleth maps [10] . The R package Vizumap (github.com/lydialucchesi/Vizumap) includes a function pixelate for cloropleth map pixelation. It also supports other visualisations of mapped uncertainty including bivariate choropleth and exceedance probability (EP) maps [10, 11] . Bivariate maps (e.g. of disease prevalence and its uncertainty [7] ) have been described as visual puzzles: very sophisticated but not very intuitive [1] . EP maps convey probabilities (e.g. the probability that a disease exceeds a specified prevalence [8] ), thus provide actionable insight for policy makers [11] . They do not circumvent an illusion of precision, however.",
+            "cite_spans": [
+                {
+                    "start": 216,
+                    "end": 220,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 468,
+                    "end": 472,
+                    "text": "[10,",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 473,
+                    "end": 476,
+                    "text": "11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 542,
+                    "end": 545,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 629,
+                    "end": 632,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 732,
+                    "end": 735,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 789,
+                    "end": 793,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Our approach averts misleading illusions of precision and is intuitive, but it does have it own limitations. The perception of area (e.g. pixel size) varies across different people [1] . However, in most cases, mapping aims to provide a relative overview (e.g. to enable policy makers to identify quickly priority regions) not absolute numbers. Perception may also differ according to expertise: to a geostatistician, smoothness in the covariance structure is a hallmark of data sparsity, whereas we rely on a non-technical interpretation of smoothness: regions with relative certainty are depicted using smaller pixels and are thus more resolved, akin to an information rich satellite image. Since mapping is intended to transfer knowledge e.g. from the geostatistician to a policy maker, we think its more appropriate to rely on a non-technical interpretation. Other limitations are surmountable: if there is no spatial variation among pixelated predictions, spatial variation in uncertainty will be invisible. In this case, it would make more sense to plot uncertainty directly (e.g. Figure 1c ). Finally, it is important to note that pixelation is a visualisation approach only.",
+            "cite_spans": [
+                {
+                    "start": 181,
+                    "end": 184,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1087,
+                    "end": 1096,
+                    "text": "Figure 1c",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "Visualisation alone cannot correct for inadequate model output (e.g. if the coverage of the prediction variance is poor, if the predictions are outdated, or if spatial covariance is unaccounted for).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Pixelation provides a simple, flexible, and intuitive way to combine spatially continuous predictions with their uncertainty thereby enhancing communication and veracity. Uncertainty visualisation for maps of spatial continua is especially important in public health, where increasingly maps of disease risk are central for policy planning and research. Our proposed method provides proof of concept. Experiments are needed to determine the impact of parameter choices, to check for visual distortion, and to compare with alternative approaches.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        },
+        {
+            "text": "All code was written in R [12] . The package pixelate centres around a single function whose output is visualised using functions from the packages ggplot2 [13] and sf [14] . Shape file data used in the plots were obtained using function getShp from the R package malariaAtlas [15] . Dark red was chosen to depict higher levels of both incidence and uncertainty following [1] . The optimal choice and interpretation of colour is beyond the scope of this brief report, however. The script written to generate the plots, pixelate plots.R, is available online: github.com/jwatowatson/Pixelation.",
+            "cite_spans": [
+                {
+                    "start": 26,
+                    "end": 30,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 156,
+                    "end": 160,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 168,
+                    "end": 172,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 277,
+                    "end": 281,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 372,
+                    "end": 375,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Methods"
+        },
+        {
+            "text": "We illustrate the our proposal using spatial predictions of P. falciparum malaria incidence in 2017 [6] , available from the Malaria Atlas Project. Specifically, we downloaded posterior predictive summaries of P. falciparum incidence by selecting ANNUAL MEAN OF PF INCIDENCE at map.ox.ac.uk/malaria-burdendata-download/. We formatted the downloads using the script format pf incidence.R in the data-raw/ directory of the pixelate source package, available online (github.com/artaylor85/pixelate).",
+            "cite_spans": [
+                {
+                    "start": 100,
+                    "end": 103,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Methods"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "The visual display of quantitative information",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Edward R Tufte",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "",
+            "volume": "2",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Geostatistical analysis of disease data: accounting for spatial support and population density in the isopleth mapping of cancer mortality risk using area-to-point poisson kriging",
+            "authors": [
+                {
+                    "first": "Pierre",
+                    "middle": [],
+                    "last": "Goovaerts",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "International Journal of Health Geographics",
+            "volume": "5",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Model-based geostatistics",
+            "authors": [
+                {
+                    "first": "Jonathan",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Peter J Diggle",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Tawn",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Moyeed",
+                    "suffix": ""
+                }
+            ],
+            "year": 1998,
+            "venue": "Journal of the Royal Statistical Society: Series C (Applied Statistics)",
+            "volume": "47",
+            "issn": "3",
+            "pages": "299--350",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Random forest as a generic framework for predictive modeling of spatial and spatiotemporal variables",
+            "authors": [
+                {
+                    "first": "Tomislav",
+                    "middle": [],
+                    "last": "Hengl",
+                    "suffix": ""
+                },
+                {
+                    "first": "Madlene",
+                    "middle": [],
+                    "last": "Nussbaum",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Marvin",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Wright",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Gerard",
+                    "suffix": ""
+                },
+                {
+                    "first": "Benedikt",
+                    "middle": [],
+                    "last": "Heuvelink",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Gr\u00e4ler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "PeerJ",
+            "volume": "6",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Mapping the global endemicity and clinical burden of plasmodium vivax, 2000-17: a spatial and temporal modelling study",
+            "authors": [
+                {
+                    "first": "Katherine",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Battle",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Tim",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michele",
+                    "middle": [],
+                    "last": "Lucas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rosalind",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Anita",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Howes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Katherine",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Nandi",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Twohig",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Daniel",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ewan",
+                    "middle": [],
+                    "last": "Pfeffer",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Cameron",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Puja",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Rao",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Casey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "The Lancet",
+            "volume": "394",
+            "issn": "",
+            "pages": "332--343",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Mapping the global prevalence, incidence, and mortality of Plasmodium falciparum, 2000-17: a spatial and temporal modelling study",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Daniel",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Weiss",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Tim",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michele",
+                    "middle": [],
+                    "last": "Lucas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Anita",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Donal",
+                    "middle": [],
+                    "last": "Nandi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Katherine",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Bisanzio",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ewan",
+                    "middle": [],
+                    "last": "Battle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Katherine",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Cameron",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Twohig",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Daniel",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jennifer",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Pfeffer",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rozier",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "The Lancet",
+            "volume": "394",
+            "issn": "",
+            "pages": "322--331",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Local Burden of Disease Child Growth Failure Collaborators and others. Mapping child growth failure across low-and middle-income countries",
+            "authors": [],
+            "year": 2020,
+            "venue": "Nature",
+            "volume": "577",
+            "issn": "7789",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Geographical distribution and prevalence of podoconiosis in rwanda: a cross-sectional country-wide survey",
+            "authors": [
+                {
+                    "first": "Aimable",
+                    "middle": [],
+                    "last": "Kebede Deribe",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jorge",
+                    "middle": [],
+                    "last": "Mbituyumuremyi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mbonigaba",
+                    "middle": [
+                        "Jean"
+                    ],
+                    "last": "Cano",
+                    "suffix": ""
+                },
+                {
+                    "first": "Emanuele",
+                    "middle": [],
+                    "last": "Bosco",
+                    "suffix": ""
+                },
+                {
+                    "first": "Eugene",
+                    "middle": [],
+                    "last": "Giorgi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ursin",
+                    "middle": [],
+                    "last": "Ruberanziza",
+                    "suffix": ""
+                },
+                {
+                    "first": "Uwayezu",
+                    "middle": [],
+                    "last": "Bayisenge",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jean",
+                    "middle": [
+                        "Paul"
+                    ],
+                    "last": "Leonard",
+                    "suffix": ""
+                },
+                {
+                    "first": "Aniceth",
+                    "middle": [],
+                    "last": "Bikorimana",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Rucogoza",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "The Lancet Global Health",
+            "volume": "7",
+            "issn": "5",
+            "pages": "671--680",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Quantifying aggregated uncertainty in Plasmodium falciparum malaria prevalence and populations at risk via efficient space-time geostatistical joint simulation",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Peter W Gething",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Anand",
+                    "suffix": ""
+                },
+                {
+                    "first": "Simon I",
+                    "middle": [],
+                    "last": "Patil",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Hay",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "PLoS Computational Biology",
+            "volume": "6",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Visualizing uncertainty in areal data with bivariate choropleth maps, map pixelation and glyph rotation",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Lydia",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Lucchesi",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Christopher K Wikle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Stat",
+            "volume": "6",
+            "issn": "1",
+            "pages": "292--302",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Making management decisions in the face of uncertainty: a case study using the burdekin catchment in the great barrier reef",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Pm Kuhnert",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "De Pagendam",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bartley",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Dw Gladish",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Lewis",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Bainbridge",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Marine and Freshwater Research",
+            "volume": "69",
+            "issn": "8",
+            "pages": "1187--1200",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "R Core Team",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "ggplot2: Elegant Graphics for Data Analysis",
+            "authors": [
+                {
+                    "first": "Hadley",
+                    "middle": [],
+                    "last": "Wickham",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Simple Features for R: Standardized Support for Spatial Vector Data",
+            "authors": [
+                {
+                    "first": "Edzer",
+                    "middle": [],
+                    "last": "Pebesma",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "The R Journal",
+            "volume": "10",
+            "issn": "1",
+            "pages": "439--446",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "malariaatlas: an r interface to global malariometric data hosted by the malaria atlas project",
+            "authors": [
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Pfeffer",
+                    "suffix": ""
+                },
+                {
+                    "first": "Tim",
+                    "middle": [],
+                    "last": "Lucas",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "May",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joseph",
+                    "middle": [],
+                    "last": "Harris",
+                    "suffix": ""
+                },
+                {
+                    "first": "Jennifer",
+                    "middle": [],
+                    "last": "Rozier",
+                    "suffix": ""
+                },
+                {
+                    "first": "Katherine",
+                    "middle": [],
+                    "last": "Twohig",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ursula",
+                    "middle": [],
+                    "last": "Dalrymple",
+                    "suffix": ""
+                },
+                {
+                    "first": "Carlos",
+                    "middle": [],
+                    "last": "Guerra",
+                    "suffix": ""
+                },
+                {
+                    "first": "Catherine",
+                    "middle": [],
+                    "last": "Moyes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Mike",
+                    "middle": [],
+                    "last": "Thorn",
+                    "suffix": ""
+                },
+                {
+                    "first": "Michele",
+                    "middle": [],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Samir",
+                    "middle": [],
+                    "last": "Bhatt",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ewan",
+                    "middle": [],
+                    "last": "Cameron",
+                    "suffix": ""
+                },
+                {
+                    "first": "Daniel",
+                    "middle": [],
+                    "last": "Weiss",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rosalind",
+                    "middle": [],
+                    "last": "Howes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Katherine",
+                    "middle": [],
+                    "last": "Battle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Harry",
+                    "middle": [],
+                    "last": "Gibson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Peter",
+                    "middle": [],
+                    "last": "Gething",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Malaria Journal",
+            "volume": "17",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF1": {
+            "text": "Pixelation of predicted 2017 P. falciparum incidence (cases per person per annum) in central Africa[6]. Panel 1a shows pixelated predictions; panels 1b and 1c show the original predictions and their uncertainties (adaptations ofFigures 4 and S40 of [6]). The bottom-left inset of panel 1b delineates the central African region. The lower bound on the number of large initial pixels in both the horizontal and vertical direction was set to 12. Other parameters were set to default values: six different pixel sizes (zoom to see the smallest) that scale by iterative multiplication with factor one.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": []
+}

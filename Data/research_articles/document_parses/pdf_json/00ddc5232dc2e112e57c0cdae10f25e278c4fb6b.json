@@ -1,0 +1,1878 @@
+{
+    "paper_id": "00ddc5232dc2e112e57c0cdae10f25e278c4fb6b",
+    "metadata": {
+        "title": "While Stability Lasts: A Stochastic Model of Stablecoins *",
+        "authors": [
+            {
+                "first": "Ariah",
+                "middle": [],
+                "last": "Klages-Mundt",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Andreea Minca \u2021",
+                    "location": {}
+                },
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The 'Black Thursday' crisis in cryptocurrency markets demonstrated deleveraging risks in over-collateralized lending and stablecoins. We develop a stochastic model of over-collateralized stablecoins that helps explain such crises. In our model, the stablecoin supply is decided by speculators who optimize the profitability of a leveraged position while incorporating the forward-looking cost of collateral liquidations, which involves the endogenous price of the stablecoin. We formally characterize stable and unstable domains for the stablecoin. We prove bounds on the probabilities of large deviations and quadratic variation in the stable domain and distinctly greater price variance in the unstable domain. The unstable domain can be triggered by large deviations, collapsed expectations, and liquidity problems from deleveraging. We formally characterize a deflationary deleveraging spiral as a submartingale that can cause such liquidity problems in a crisis. We also demonstrate 'perfect' stability results in idealized settings and discuss mechanisms which could bring realistic settings closer to the idealized stable settings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "On March 12, 2020, called 'Black Thursday' during the COVID-19 market panic, cryptocurrency prices dropped \u223c 50% in the day. This was accompanied by cascading liquidations on cryptocurrency leverage platforms, including both centralized platforms like exchanges and new decentralized finance (DeFi) platforms that facilitate on-chain over-collateralized lending. Among many events from this day, the story of Maker's stablecoin Dai stands out, which entered a deflationary deleveraging spiral. This triggered high volatility of the 'stable' asset and a breakdown of the collateral liquidation process. Due to market illiquidity exacerbated by network congestion, some collateral liquidations were performed at near-zero prices. As a result, the system developed a collateral shortfall, which prompted an emergency response and had to be made up by selling new equity-like tokens to recapitalize [18] .",
+            "cite_spans": [
+                {
+                    "start": 895,
+                    "end": 899,
+                    "text": "[18]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "During this time, there was a huge demand for Dai. It became a much riskier and more volatile asset, yet traded at a high premium and fetched lending rates in the mid double digits. Leveraged speculators, who must repurchase Dai in order to deleverage their positions, were exhausting Dai liquidity, driving up the price of Dai and subsequently increasing the cost of future deleveraging (we discuss some further causes that led to market illiquidity in developing the model in the next section). These speculators began to realize that, in these conditions, they face concrete risk that a debt reduction of $1 could cost a significant premium. Eventually, a new exogenously stable asset-the USDbacked custodial stablecoin USDC-had to be brought in as a new collateral type to stabilize the system [10].",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "A stablecoin is a cryptocurrency with added economic structure that aims to stabilize price/purchasing power. For a recent overview of stablecoins, see e.g. [4] and the references therein. Stablecoins are meant to bootstrap price stability into cryptocurrencies as a stop-gap measure for adoption. Current projects are either custodial and rely on custodians to hold reserve assets off-chain (e.g., $1 per coin) or non-custodial and set up a risk transfer market through onchain contracts. Non-custodial stablecoins aim to retain the property of reduced counterparty/censorship risk.",
+            "cite_spans": [
+                {
+                    "start": 157,
+                    "end": 160,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Stablecoins"
+        },
+        {
+            "text": "Non-custodial stablecoins transfer risk from stablecoin holders to speculators, who hold leveraged collateralized positions in cryptocurrencies. 1 A dynamic deleveraging process balances positions if collateral value deviates too much, as determined by a price feed. This is similar to a tranche structure, in which stablecoins act like senior debt, with the addition of dynamic deleveraging. Two major risks in these stablecoins emerge around market structure collapse and price feed and governance manipulation. In this paper, we focus completely on the market structure risk, assuming that price feeds, governance, and the underlying blockchain perform as expected. 2 In addition to the COVID-19 panic, the effects of these risks are also witnessed in bitUSD, Steem Dollars, and NuBits, which have suffered serious depegging events in 2018 [16] , and Terra and Synthetix, which suffered price feed manipulation attacks in 2019 ([27] , [28] , [30] ) and similar manipulations on the bZx lending protocol in 2020 ([22] , [23] ). Stablecoins currently serve a central role in an increasingly complex decentralized finance environment, involving composability with other DeFi platforms. In addition, many other blockchain assets, such as synthetic and cross-chain assets, rely on the basic mechanism behind stablecoins, which we discuss further in the discussion section.",
+            "cite_spans": [
+                {
+                    "start": 669,
+                    "end": 670,
+                    "text": "2",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 843,
+                    "end": 847,
+                    "text": "[16]",
+                    "ref_id": null
+                },
+                {
+                    "start": 930,
+                    "end": 935,
+                    "text": "([27]",
+                    "ref_id": null
+                },
+                {
+                    "start": 938,
+                    "end": 942,
+                    "text": "[28]",
+                    "ref_id": null
+                },
+                {
+                    "start": 945,
+                    "end": 949,
+                    "text": "[30]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1014,
+                    "end": 1019,
+                    "text": "([22]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1022,
+                    "end": 1026,
+                    "text": "[23]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Stablecoins"
+        },
+        {
+            "text": "In this paper, we construct a stochastic model of over-collateralized stable assets, including non-custodial stablecoins, with an endogenous price (Section 2). The system is based on a speculator who solves an optimization problem accounting for potential returns from leverage as well as potential liquidation costs. The speculator decides the supply of stablecoins secured by its collateral position while considering demand for the stablecoin.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "This paper"
+        },
+        {
+            "text": "We derive fundamental results about the model, including economic limits to the speculator's behavior, in Section 3. In Section 4 we develop the primary results of the paper: we analytically characterize regions in which the stablecoin exhibits stability (Theorems 1 and 2) and relative instability (Theorems 4 and 5), and a region in which a deleveraging spiral occurs that can cause liquidity problems in a crisis (Theorem 3).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "This paper"
+        },
+        {
+            "text": "The context for our analytical results is a model with a single speculator facing imperfectly elastic demand for the stablecoin; however, many of the methods can extend to generalized settings. We consider such generalizations of the model in Section 5 and consider how the stability results will differ given different model structure, including 'perfect' stability in idealized settings and practical applications to realistic settings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "This paper"
+        },
+        {
+            "text": "We discuss in Section 6 a seeming contradiction that arises: while the goal is to make decentralized non-custodial stablecoins, these can only be fully stabilized from deleveraging effects by adding uncorrelated assets, which are currently centralized/custodial. This is a consequence of our instability results in Section 4 and, as introduced in Section 5, the absence of a stable region in idealized settings when underlying asset markets deviate from a submartingale setting. We suggest an alternative: a buffer to dampen deleveraging effects without directly incorporating custodial assets. This buffer works by separating those who are willing to have stablecoins swapped to custodial assets in a crisis (in return for an ongoing yield from option buyers) from those who require full decentralization.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "This paper"
+        },
+        {
+            "text": "While there is a rich literature on related financial instruments, there is limited research directly applicable to stablecoins.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "We develop a simple stable asset model in [15] and introduce the concept of deleveraging spirals. This paper supersedes that model and its results. Whereas the model in [15] doesn't directly account for the actual repurchase price in deleveraging-instead delegating to a risk constraint in the optimization-we set up a stochastic process model in this paper that includes forward-looking liquidation prices in the speculator's optimization. Our analytical results in this paper supersede [15] in the following ways:",
+            "cite_spans": [
+                {
+                    "start": 42,
+                    "end": 46,
+                    "text": "[15]",
+                    "ref_id": null
+                },
+                {
+                    "start": 169,
+                    "end": 173,
+                    "text": "[15]",
+                    "ref_id": null
+                },
+                {
+                    "start": 488,
+                    "end": 492,
+                    "text": "[15]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "\u2022 We formally characterize a deleveraging spiral as a submartingale, whereas",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "[15] lacks a formal treatment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "\u2022 Stability results in [15] are based on a volatility estimator. We prove stability in terms of probabilities of large deviations and quadratic variation.",
+            "cite_spans": [
+                {
+                    "start": 23,
+                    "end": 27,
+                    "text": "[15]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "\u2022 An unstable region is conjectured in [15] , backed by simulation. We formally prove distinct price variances in stable and unstable regions.",
+            "cite_spans": [
+                {
+                    "start": 39,
+                    "end": 43,
+                    "text": "[15]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "Option pricing theory is applied in [6] to value tranches in a proposed stablecoin using PDE methods. In doing so, they need the simplifying assumption that payouts (e.g., from liquidations) are exogenously stable, whereas they are actually made in ETH and can cause price feedback effects in the stable asset. In particular, stablecoin holders either hold market risk or are required to rebuy into a reduced stablecoin market following liquidations. This motivates our model to understand stablecoin feedback effects.",
+            "cite_spans": [
+                {
+                    "start": 36,
+                    "end": 39,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "Stability in proposed stablecoins is simulated in [8] and [24] , but under very strict assumptions.",
+            "cite_spans": [
+                {
+                    "start": 50,
+                    "end": 53,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 58,
+                    "end": 62,
+                    "text": "[24]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "[9] discusses stablecoin concepts based on monetary policy and hedging strategies and introduces methods for enhancing liquidity using combinatorial auctions and automated market makers.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "[17] studied custodial stablecoins and considers the use of hedging techniques to build an asset-backed cryptocurrency.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "[11] explores the robustness of decentralized lending protocols to shocks and liquidations. [7] explores competition between decentralized lending yields and staking yields in proof-of-stake blockchains. However, these do not model a stablecoin mechanism with endogenous price behavior.",
+            "cite_spans": [
+                {
+                    "start": 92,
+                    "end": 95,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "[13] designs a reputation system for crypto-economic protocols to reduce collateral requirements. This does not readily apply to understanding stablecoin collaterals, however, as it requires identification of 'good' behavior and, additionally, stablecoin speculators face leveraged exchange rate bets and will have reason to provide greater than minimal collateral. This additionally motivates our model to understand how liquidation effects affect speculator decisions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "Stablecoins share similarities with currency peg models, e.g., [20] and [12] . In these models, the government plays a mechanical market making role to seek stability and is not a player in the game. In contrast, in non-custodial stablecoins, decentralized speculators take the market making role. They issue/withdraw stablecoins to optimize profits and are not committed to maintaining a peg. In a stablecoin, the best we can hope is that the protocol is well-designed and that the peg is maintained with high probability through incentives. A fully strategic model would be a complicated (and likely intractable) dynamic game.",
+            "cite_spans": [
+                {
+                    "start": 72,
+                    "end": 76,
+                    "text": "[12]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "There are also similarities with collateral and debt security markets and repurchase agreements. These have also experienced unprecedented stress in the COVID-19 market panic, during which even 30-year US government bondsnormally highly liquid-have been difficult to trade [25] . Such debt securities differ from stablecoins in that dollars are borrowed against the collateral as opposed to a new instrument, like a stablecoin, with an endogenous price. These debt security markets do, however, demonstrate that liquidity in the underlying markets can dry up in crises even in highly liquid markets. Stablecoins face this liquidity risk in the underlying market as well as an endogenous price effect on the stable asset.",
+            "cite_spans": [
+                {
+                    "start": 273,
+                    "end": 277,
+                    "text": "[25]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "The problem resembles classical market microstructure models (e.g., [21] ); it is a multi-period system with agents subject to leverage constraints that take recurring actions according to their objectives. In contrast, the stablecoin setting has no exogenously stable asset that is efficiently and instantly available. Instead, agents make decisions that endogenously affect the price of the 'stable' asset and affect futures incentives.",
+            "cite_spans": [
+                {
+                    "start": 68,
+                    "end": 72,
+                    "text": "[21]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Relation to Prior Work"
+        },
+        {
+            "text": "Our model is very closely related to Maker's stablecoin Dai [19] . The model contains a stablecoin market and two assets: a risky asset (ETH) 3 with exogenous price X t and an ETH-collateralized stablecoin STBL with endogenous price Z t . The stablecoin market connects stablecoin holders, who seek stability, and speculators, who make leveraged bets backing STBL. The STBL protocol requires the STBL supply to be over-collateralized in ETH by collateral factor \u03b2.",
+            "cite_spans": [
+                {
+                    "start": 60,
+                    "end": 64,
+                    "text": "[19]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "In order to focus on the effects of speculator decisions in this paper, we simplify the stablecoin holder demand as exogenous with constant unit priceelasticity. This is equivalent to a fixed STBL demand D in dollar terms, though not quantity. We relax this to arbitrary elasticity in Section 5, including the perfectly elastic case. Note that there is no direct redemption process for stablecoin holders aside from a global settlement/shutdown of the system at par value, which can be triggered by a governance process (see [19] ).",
+            "cite_spans": [
+                {
+                    "start": 525,
+                    "end": 529,
+                    "text": "[19]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "From a practical perspective, STBL demand is not elastic, at least shortterm, even if it were in principle elastic longer-term. A significant portion of stablecoin supplies are locked in other applications, like lending protocols and lotteries. These applications promise (in some sense) value safety in overcollateralization, but don't guarantee liquidity to withdraw. Additionally, Ethereum transactions cannot be executed in parallel; during volatile times, transactions can be delayed due to congestion, causing timely trades (especially involving transfer to/from centralized exchanges) to fail. This occurs even if, in principle, there is liquidity in these markets. On the other hand, longer-term demand elasticity will naturally depend on the presence of good uncorrelated alternatives. 4 We focus on the case of a single speculator, though we consider generalizations that accommodate many speculators in Section 5. The speculator has ETH locked in the system and decides the STBL supply, which represents a liability against its locked collateral. At the start of step t, there are L t\u22121 STBL coins in supply. The speculator holds N t\u22121 ETH and chooses to change the STBL supply by \u2206 t = L t \u2212 L t\u22121 . If \u2206 t > 0, the speculator sells new STBL on the market for ETH at the market clearing price Z t , which is added to N t . If \u2206 t < 0, the speculator buys STBL on the market, reducing N t . The specula-tor's locked collateral isN t and may or may not be equivalent to N t . Informed by limitations of actual implementations, we develop a particular formulation for the process (N t ) based on (N t ) in this section, though we discuss ways that this can be generalized in Section 5. 5 The speculator decides L t by optimizing expected profitability in the next period based on expectations about ETH returns and the cost of collateral liquidation if the collateral factor is breached.",
+            "cite_spans": [
+                {
+                    "start": 795,
+                    "end": 796,
+                    "text": "4",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1695,
+                    "end": 1696,
+                    "text": "5",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "Given supply and demand, the STBL market clears by setting demand equal to supply in dollar terms. This yields the clearing price Z t = D Lt . This clearing equation is related to the quantity theory of money and is similar to the clearing in automated market makers [1] but processed in batch.",
+            "cite_spans": [
+                {
+                    "start": 267,
+                    "end": 270,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "We formalize the model as follows. We define the following parameters:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 D = STBL demand in dollar value (equivalent to constant unit priceelasticity)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 \u03b2 = STBL collateral factor",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 \u03b1 \u2265 1 liquidation fee (representing 1+% fee)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "The system is composed of the following processes:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 (X t ) t\u22650 = exogenous ETH price process",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 L t = stablecoin supply at time t that obeys",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "where L t\u22121 > 0 is the speculator's STBL liabilities from the previous period, \u2206 t is the speculator's change in liabilities at time t (such that L t = L t\u22121 + \u2206 t ), and \u03b6 \u2265 0 is an outside amount of STBL assumed to be constant over time",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 N t = speculator's ETH position at time t, including collateral \u2022N t = speculator's locked ETH collateral at time t (and start of time t + 1)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "\u2022 (Y t ) t\u22650 = speculator's value process",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "Lt defines the STBL price process We take (F t ) t\u22650 to be the natural filtration where F t = \u03c3(X 0 , . . . , X t , L 0 , . . . , L t ). The system is driven by the process (X t ) subject to the speculator's decisions \u2206 t (equivalently L t given L t\u22121 ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "To simplify the exposition of analytical results going forward, we simplify to the case that \u03b2 = 3 2 (the collateral factor used in Maker's Dai stablecoin) and \u03b6 = 0. Note that under these conditions, and in the remainder of the paper, we use L t and L t interchangeably. However, similar analytical results will extend to the general setting, as we discuss in Section 5. We note that a non-zero \u03b6 may make numerical results more applicable to real settings as it removes the singularity effect if L t approaches 0, which is why we leave it in the model exposition.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Formal setup"
+        },
+        {
+            "text": "The collateral constraint requires the collateral locked in the system to be \u2265 a factor of \u03b2 times by liabilities. It applies in both a pre-decision and postdecision sense. The pre-decision version determines when a liquidation occurs: a liquidation is triggered at the start of time t if",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Collateral constraint"
+        },
+        {
+            "text": "The post-decision version constrains the speculator's decision-making, limiting L t such thatN t X t < \u03b2L t .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Collateral constraint"
+        },
+        {
+            "text": "We assume the speculator is risk-neutral and optimizes its next-period expected value, taking into account expectations around liquidations. Note that the assumption of risk neutrality can be removed by instead applying an appropriate utility function-in some reasonable cases the results will still hold. Its value at time t is its equity at the start of period (pre-decision), given by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Speculator decides \u2206 t"
+        },
+        {
+            "text": "A liquidation effect is triggered as outlined in a following subsection.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Speculator decides \u2206 t"
+        },
+        {
+            "text": "Note that N t is a function of the decision variable \u2206 t , and recall L t = L t\u22121 + \u2206 t . The speculator decides \u2206 t (equivalently L t given L t\u22121 ) to optimize next-period expected value subject to the post-decision collateral constraint in the current period: max",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Speculator decides \u2206 t"
+        },
+        {
+            "text": "We take the speculator's collateral at stake at the start of time t + 1 to b\u0113 N t = N t\u22121 minus any collateral liquidation that happens at time t. This is consistent with the speculator's collateral being blocked: it cannot be used to repurchase STBL in the same step. This means that the speculator (1) has an outside amount (or is able to borrow) to repurchase STBL if \u2206 t < 0 and then alter repays this from unlocking collateral and (2) can't post proceeds of new STBL issuance (\u2206 t > 0) as collateral within the same step. While there are settings in which we could alternatively use N t as the collateral at stake at the start of t + 1 (e.g., if flash loans are used), the choice of N t\u22121 additionally leads to a simpler exposition of results as it decouples the collateral from the decision variable. This said, the general methods and results would extend into the setting with N t collateral, as we discuss in the Appendix [refer to section].",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Speculator's collateral at stake"
+        },
+        {
+            "text": "In time t + 1, the pre-decision collateral constraint isN t X t+1 \u2265 \u03b2L t . If this is breached, then the speculator's collateral is partially liquidated, if possible, to repurchase an amount \u2113 t+1 > 0 of STBL such that post liquidation,N t X t+1 \u2212 \u2113 t+1 = \u03b2(L t \u2212 \u2113 t+1 ). If a liquidation occurs, this is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Collateral liquidation mechanics"
+        },
+        {
+            "text": "In a time step with a liquidation, the liquidation forces an upper bound \u2206 t+1 \u2264 \u2212\u2113 t+1 , but the speculator could choose to repurchase more STBL to further reduce leverage. The repurchase of \u2113 t+1 through the liquidation mechanism is subject to a liquidation fee multiple \u03b1 \u2265 1-i.e., the effective repurchase price is \u03b1\u00d7 the STBL market price. The purpose of this fee is that, in real stablecoin systems, these liquidations are performed by arbitrageurs who capture this fee. Notice that the STBL market price will itself be affected by the liquidation. The liquidation does not guarantee that the collateral constraint is met post-liquidation; whether this occurs will depend on the repurchase price in the market.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Collateral liquidation mechanics"
+        },
+        {
+            "text": "Two thresholds are relevant at time t for calculating expectations of a liquidation effect at time t + 1. These are non-time-dependent functions of the random variable L t :",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Collateral liquidation mechanics"
+        },
+        {
+            "text": "The threshold b(L t ) gives the highest t+1 ETH price that breaches the collateral constraint while the threshold c(L t ) gives the t + 1 ETH price that consumes the entirety of the speculator's locked collateral in a liquidation repurchase due to the effect on STBL repurchase price. 6 Below this level, the speculator cannot meet the collateral demand even by liquidating everything. The formulation of b(L t ) follows directly from the collateral constraint; the formulation of c(L t ) follows from equating the repurchase cost of liquidation \u2113 t+1 toN t X t+1 and solving for X t+1 .",
+            "cite_spans": [
+                {
+                    "start": 285,
+                    "end": 286,
+                    "text": "6",
+                    "ref_id": "BIBREF5"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Collateral liquidation mechanics"
+        },
+        {
+            "text": "This represents a repurchase of \u2113 t+1 STBL (reducing collateral by the repurchase price D Lt\u2212\u2113t+1 with liquidation fee factor \u03b1) and subsequent reduction of the speculator's liabilities by the \u2113 t+1 . The variables L t+1 and N t are affected similarly. 7 If X t+1 < c(L t ), then the speculator's collateral position is zeroed out in the liquidation. We define the corresponding events",
+            "cite_spans": [
+                {
+                    "start": 253,
+                    "end": 254,
+                    "text": "7",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Collateral liquidation mechanics"
+        },
+        {
+            "text": "Putting all the pieces together, we have the following system of random variables driven by the random process (X t ):",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System of random variables"
+        },
+        {
+            "text": "In the above, the first case for \u2206 * t comes from maximizing expected value subject to the post-decision collateral constraint while the second cases for \u2206 * t , N t , andN t apply the liquidation effects that occur during time t.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System of random variables"
+        },
+        {
+            "text": "In this section, we derive foundational results about the model that we will use to prove the primary results of the paper in the next section.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Foundational Results"
+        },
+        {
+            "text": "We begin by defining the assumptions we will use in the rest of the paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumptions"
+        },
+        {
+            "text": "Note that the submartingale assumption can be relaxed somewhat while preserving some results. It is useful, though not necessarily critical, in our proof of problem concavity. However, the results are most meaningful in a setting like a submartingale, which always provides a fundamental reason that a speculator might desire leverage. In such a setting, it is conceivable that the stablecoin could maintain a dollar peg, whereas in long periods of negative expected returns, the stablecoin concept falls apart as no speculators will want to participate. As noted in the introduciton, such a deviation from the submartingale setting appears to have occurred in March 2020. In Section 5, we elaborate how the concept falls apart in such negative settings, even given otherwise perfect market structure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumptions"
+        },
+        {
+            "text": "Also note that the submartingale differences need not be independent for most results. In the Appendix, we further consider ways in which independence of (X t ) and (L t ) can be relaxed.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumptions"
+        },
+        {
+            "text": "Each X t+1 has a conditional probability distribution given F t , which admits a density function f t that is a.s. continuous.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "Equivalently, we consider the process in terms of returns R t , where X t+1 = X t R t+1 . Conditioned on F t , then R t+1 admits density function g t . In the i.i.d. setting for (R t ), the time dependence can be dropped. As noted above, for most results, we do not need to assume i.i.d.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "The next assumption is needed to interchange derivative and integration operators in the improper setting. Note that it also translates to an upper bound on L t and a lower bound on N t\u22121 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "The next assumption bounds the STBL price away from singularity. As discussed previously, it can be avoided under an alternative formulation of the model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "The next assumption simplifies repurchase considerations. It is reasonable given a reasonable bound r on expected returns. Assumption 6. The liquidation premium factor \u03b1 is sufficiently high that the repurchase price in a liquidation is a.s. > 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "The next assumption translates to a reasonable condition on X distributions considering b(L t ) is increasingly linearly whereas c(L t ) decreases with L t .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "Note that \u03c8 could have a subscript t, or equivalently other time t inputs (N t , X t , g t ), but we relax notation as we only use it in the context of time t. The next assumption ensures that \u03c8 is concave in L t , a result that we prove in Prop. 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "Additionally, the next assumption ensures that \u03c8 is strictly concave in L t , which we also prove in Prop. 1. Notice that this means that either the submartingale inequality is strict at time t or there is non-zero probability that a liquidation is triggered in the next step. Given that the latter is certainly reasonable, this assumption is not much stronger than the basic submartingale assumption.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "While strict concavity of \u03c8 is not necessary for all results, it does simplify the analysis considerably. More generally, concavity of \u03c8 could reasonably be expected in many settings, and so the assumptions can probably be relaxed. Informally, reasonable distributions for X t will have concentration about the center. In this case, moving \u2206 t in the positive direction, expected liabilities increase faster than revenue from new STBL issuance. Moving \u2206 t in the negative direction, the cost to buyback grows faster than the decrease in expected liabilities.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Assumption 2."
+        },
+        {
+            "text": "Our first result is to prove that \u03c8(L t ) is concave in L t .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concavity and scale invariance"
+        },
+        {
+            "text": "Further, given additional Assumption 9, \u03c8(L t ) is strictly concave in L t .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concavity and scale invariance"
+        },
+        {
+            "text": "In deriving some results, it will be useful to make assumptions about the scale of the system. The next result shows that results about Z t should translate to differently scaled systems, validating that such results will describe the STBL price process more generally. In the following, we define h to output L t as a function of the system state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "As a result, the STBL price process (Z t ) is equivalent across these system rescalings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "[Link to Proof]",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Under these condtions, we can interchange derivative and integration operators in \u2202\u03c8 \u2202Lt according to Leibniz integral rules (a variation of dominated convergence theorems). The speculator's choice of L t will fulfill the first order condition of \u2202\u03c8 \u2202Lt = 0. From concavity, we can then conclude that the speculator chooses to increase the STBL supply when \u2202\u03c8 \u2202Lt (L t\u22121 ) > 0 and to decrease the STBL supply when \u2202\u03c8 \u2202Lt (L t\u22121 ) < 0. Note that we can derive sufficient conditions for these events using Lemma 2 from the Appendix. Such conditions can be useful as concrete interpretations of the events and can be checked against incoming data. That said, these general sufficient conditions are far from necessary if we are given additional information about the return distributions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "We now present some fundamental results that bound the speculator's decisionmaking. These results will be useful in developing the primary results of the paper in the next section. The next result introduces a lower bound to the speculator's STBL supply decision that arises from the fundamental price impact of repurchasing STBL.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "Prop. 3. Suppose the pre-decision collateral constraint is met at time t. There is a computable lower bound to \u2206 t .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "We can interpret the lower bound in terms of a balance sheet constraint describing when the speculator's ETH position is exhausted in a repurchase. We give the specific bound in the proof but note that it is not especially useful on its own. Given information about the returns distribution and the level of current collateral and considering \u2202\u03c8 \u2202Lt , much better bounds are possible.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "[Link to Proof]",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "The next result provides a useful upper bound to the speculator decision L t . The result is derived from incentives to issue STBL. Intuitively, it says that if supply is below this bound, then in some sense a marginal speculator may see a profitable opportunity to expand supply. It's simply not profitable to issue more STBL than this bound. This doesn't mean that the speculator decides to achieve the bound, however, as it underestimates the liquidation costs that the speculator might face. 8 Notice that the bound is strongest when we have \u03ba \u223c 1.",
+            "cite_spans": [
+                {
+                    "start": 496,
+                    "end": 497,
+                    "text": "8",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "Prop. 4. Suppose either of the following hold for given \u03ba:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "The first condition comes from the derivative of the expected liquidation effect with respect to L t taking \u03b2 = 3 2 . The integrand can be interpreted as the effective leverage change in a given liquidation. Notice that this is < 0 evaluated at b(L t ) (small liquidations effectively reduce leverage) whereas it is > 0 evaluated at c(L t ) (in very large liquidations, leverage reduction may not be effective due to effect on repurchase price). The integral condition then says that, in expectation, liquidations effectively reduce leverage. This is a generally reasonable assumption given a starting state of sufficient over-collateralization, since reasonable distributions of X t+1 will place most mass in the integral around b(L t ) as opposed to c(L t ), which is a tail event.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "The second (alternative) condition says that the probability of having a liquidation is sufficiently smaller than not having a liquidation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "This result holds if either of the two conditions hold, both of which could be checked in data-driven modeling. We will formalize an assumption like the first condition in the next section. Note, however, that similar results going forward could be derived instead using a variation on the second condition.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Economic limits to speculator behavior"
+        },
+        {
+            "text": "The primary results of the paper characterize regions in which the stablecoin price process can be interpreted as 'stable' and 'unstable'. In this section, we derive these results for the given model of a single speculator facing imperfectly elastic demand for STBL. In the next section, we consider generalizations of the model and how the stability results will differ given different model structure.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stable and Unstable Domains"
+        },
+        {
+            "text": "We establish stability results in terms of barriers. While the stablecoin process is within certain barriers, we prove that it behaves in ways that are interpretable as 'stable' and 'unstable'. These barriers are generally stopping times, and we proceed by considering the stopped processes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "Assume that in the initial condition, E 1 L1 |F 0 \u2264 1 L0 . We define the following stopping times:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "\u2022 T m is the hitting time of Z t > m, for m \u2265 Z 0 ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "\u2022 S 2 is the hitting time of E[L t+1 |F t ] \u2265 L t such that S 2 > S 1 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "As we will see, while the stablecoin mechanism is working as intended, we generally expect the STBL supply to increase (equivalently in this setting, the STBL price to decrease, though in slow and bounded way). With this context in mind, \u03c4 represents the first time we expect the STBL price to increase. Notice that this is an expectation of reciprocal of supply, a convex function, and so through Jensen's inequality, this is weaker than expecting the speculator to deleverage/reduce supply. It will be influenced heavily by the tails possibilities. In particular, we have \u03c4 \u2264 S 1 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "Note that the expectations of the process are not necessarily the same as the actual movements of the process: \u03c4 does not necessarily correspond to the first time the process actually increases in price. We track this with T m , the time the STBL price breaches a given level above Z 0 , which may be before or after \u03c4 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "The stopping times S 1 and S 2 track when expectations about STBL supply change. These can be equivalently stated (and calculated in a data-driven model) based on expectations about the derivative of E[Y t+2 |F t ] with respect to L t+1 evaluated at L t , similarly to the discussion from the previous section on concavity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "Before proceeding, we formalize stopped versions of assumptions in Prop. 4. The interpretation of these assumptions is the same as discussed in the previous section. Note that the results going forward could also apply more generally subject to additional stopping times embedding these assumptions. For notational simplicity, we just present the results subject to the stopping times already defined with the assumptions given.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "Notice that \u03ba will be > 1 but \u223c 1 as X < c(L t ) is a low probability event.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "Recall that the STBL price Z t is a function of collateral value, expectations about ETH returns, and expectations of liquidation costs (related to tail risks). These factors go into the speculator's supply decision, which goes into Z t . Going forward, we will explore how changes in these affect the STBL price process.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Domain barriers/Stopped processes"
+        },
+        {
+            "text": "We characterize stability of the stablecoin process subject to the barriers \u03c4 and T m . In this domain, we derive bounds relating to large price movements and quadratic variation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stable domain"
+        },
+        {
+            "text": "Our first stability result bounds Z t under the condition T Z0 > \u03c4 . Conditioned on this, the price is contained within small variation-e.g., consider Z 0 = 1 and consider 1 \u03bar \u223c 1.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stable domain"
+        },
+        {
+            "text": "And for any t, L t\u2227\u03c4 \u2264 \u03baDr and Z t\u2227\u03c4 \u2265 1 \u03bar .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stable domain"
+        },
+        {
+            "text": "Notice, however, that the condition T Z0 > \u03c4 introduces dependence on future events. As such, we can't conclude with the information at time t that the t + 1 price is bounded in this way.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "However, we can bound our expectations on the t + 1 price given the information at time t (F t ). This approach relies on the fact that the versions of the process behaves nicely as submartingales in the stopped setting.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Prop. 6. (L t\u2227\u03c4 ) is a submartingale bounded above and (Z t\u2227\u03c4 ) is a supermartingale bounded below. Thus they converge a.s.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "An immediate bound on expected price comes from the fact that stopped version of Z t is a supermartingale. This is the first result of the next proposition. Additionally, with a stronger assumption on (X t ) that conditional expectation of returns is non-decreasing within the domain barriers, we can bound the expected price further.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Prop. 7. The process (Z t\u2227\u03c4 \u2227TZ 0 ) is bounded in expectation by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Further, assuming that for t < \u03c4 , (E[R t+1 |F t ]) is non-decreasing, then for t \u2264 \u03c4 ,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Going forward, we will work with a variation on the price process",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Using m = 1, this has concrete interpretation as the absolute price deviation from the stablecoin peg. The stopped version of this process has the useful property of being a non-negative submartingale. In addition, (Z \u2032 t ) shares similar large deviation and quadratic variation properties with (Z t ), which we explore in the remainder of this subsection. Lemma 1. The stopped process (Z \u2032 t\u2227\u03c4 \u2227Tm ) is a non-negative submartingale.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "We define the maximum process over some process (\u03b8 t ) as \u03b8 * N = max t\u2264N |\u0398 t |. The next result bounds the expected maximum of the deviation process (Z t ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Suppose any one of the following conditions holds:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "[Link to Proof]",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "The value (m \u2212 1 \u03bar ) describes the range of the domain considered. Prior to T m , we know that the price falls in this range. The nontrivial part is describing what happens at the stopping time as it exceeds this range if the stop is triggered by T m . The value E is the expected deviation at the stopping time given that T m triggers the stop. By definition, E > 0. Given reasonable \u03ba, r, and m, the condition for Prop. 8 is satisfied quite broadly. For instance, the concrete instance with m = 1 is satisfied since 1 \u03bar < 1 taking into account the above discussion on \u03ba.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Notice that the analysis for the proof can lead to better bounds if we have more information about E or p := P(Z \u03c4 \u2227Tm \u2264 m), e.g., by incorporating information from other results above or from knowledge about the distributions of (X t ). Additionally, the analysis can be used to bound either E or p given bounds on the other.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "We now state the first main results of the paper. Our next result applies Doob's inequality to bound the probability of large deviations in the stopped process.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Theorem 1. For m \u2265 Z 0 and \u01eb > 0,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "[Link to Proof]",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "The result can be pretty powerful. Consider the concrete case of m = 1, in which case Z \u2032 t describes the deviation from the peg, and take (arguably reasonable) \u03ba \u22121 = 0.999 (99.9% chance X t won't drop below c(L t )) and r annualized as 1.5 (daily r = 1.0011). Then the probability that the stablecoin deviates from the peg by more than 0.1 is P(Z \u2032 * \u03c4 \u2227T1 > 0.1) \u2264 0.042. Our next result derives from a form of Burkholder's inequality that applies to non-negative submartingales. We define the quadratic variation of (Z \u2032 t ) by",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "The quadratic variation is a stochastic process that measures how spread out the underlying process is. Its expectation at time t is related to the variance at that time, supposing variance is defined-in particular, they are equal if the underlying process is a martingale. The result bounds the probability of large quadratic variation in the stopped process. In essence, with high probability, the quadratic variation can't be too far away from the expected maximum.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Theorem 2. Suppose m \u2265 Z 0 and \u01eb > 0. Then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "This result is also pretty powerful. Considering the same setting as above, we have P( [Z \u2032 ] \u03c4 \u2227T1 > 0.1) \u2264 0.127 in the stable domain.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Bounds on the expectation of quadratic variation can also be obtained using a more classical form of Burkholder's inequality, albeit with stronger assumptions. We develop this idea in the next remark.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "There is an additional form of Burkholder's inequality that extends to non-negative submartingales. If we are additionally given a useful bound on E Z \u2032 \u03c4 \u2227Tm p for some 1 < p < \u221e (for instance, if we have some distribution assumptions on (X t )), then we can apply Lemma 3.1 in [5] to derive the following bound on quadratic variation expectations:",
+            "cite_spans": [
+                {
+                    "start": 279,
+                    "end": 282,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Remark 1."
+        },
+        {
+            "text": "There is a lot of research on obtaining the best constants/bounds in Burkholder's inequality, which may be able to tighten the bound.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 1."
+        },
+        {
+            "text": "Note that the classical two-sided Burkholder inequailty may not extend to non-negative submartinagales. In general, only the first half of the Burkholder inequality (bounding expectations about quadratic variation by the maximum) extends to this setting and only for 1 < p < \u221e. This contrasts with Prop. 2, where we can derive results about probability of large quadratic variation of nonnegative submartingales for the p = 1 case. From a practical point of view, this may be good enough.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 1."
+        },
+        {
+            "text": "Notice that with an effective bound on the expectation of quadratic variation (QV) of the entire stable process, we have by law of large numbers QV n \u2192 0 as n \u2192 \u221e.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 1."
+        },
+        {
+            "text": "So the longer the process is stable, the smaller the variability. As we've characterized the stable domain based on \u03c4 and T m , an exit from this region corresponds to either a change in expectations (\u03c4 ) or a large deviation event (T m ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 1."
+        },
+        {
+            "text": "We now characterize how the stablecoin can be unstable outside of the stable region barriers described above. The intuition for instability is that, in unstable regions, the speculator's position is nearer to c(L t ) and b(L t ), and so expected costs of liquidation increase and are more sensitive to the threshold proximity, in addition to being driven by the volatile process (X t ). The remaining results in this section characterize a deflationary region and instability in terms of variance of stablecoin prices corresponding to large deviations into such regions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unstable domain"
+        },
+        {
+            "text": "Our next result characterizes a deflationary region defined by stopping times S 1 and S 2 . In such a setting, an opposite behavior occurs compared to the stable region: (Z t ) behaves as a submartingale, depicting a deleveraging spiral. Theorem 3. Restarting the process at S 1 , we have (L t\u2227S2 ) is a supermartingale and (Z t\u2227S2 ) is a submartingale.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Unstable domain"
+        },
+        {
+            "text": "The previous result guarantees that the process, after crossing S 1 , enters a deflationary region in a precise sense. Such a deflationary region will correspond to depressed ETH expectations or collateral levels or increased expectations around liquidation or deleveraging costs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "We now derive more practical tools to characterize instability without having to detect if S 1 has occurred. With these tools, we will establish more measurable results in terms of forward-looking price variance of the stablecoin. We begin in the next remark by setting up a variance estimation idea based on Taylor approximation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Taylor approximations can be applied to estimate the variances of the stablecoin process. Consider X t = X t\u22121 R t for return R t \u2265 0. For notational clarity, define 9 h(\u03c1, n) := arg max",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "where \u03c1, n are realizations of R t ,N t . Variance in stablecoin supply follows",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "And the stablecoin price variance approximation is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "This is given informally, but could in principle be formalized using two steps of compounded Taylor approximation error. The approximation error is arguably moderate considering that our domain is bounded away from singularities (e.g., our lower bound results on L).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "This variance approximation (Eq. 1 in Remark 2) is low in the stable domain and can be high in the unstable domain, as formalized in the following Theorem 4. We introduce a few more assumptions that we use only in deriving the remaining results in this section. Note that all of these assumptions come down to assumed properties of the R t distribution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "Assumption 12. The post-decision collateral constraint at time t is not binding in the speculator's maximization.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "This first assumption means that the speculator's objective fully accounts for the post-decision collateral constraint (i.e., by maximizing the objective, the speculator by extension also satisfies the constraint), which is reasonable unless expected returns are excessively high.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "Assumption 13. Returns R t\u22121 and R t are independent.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "Assumption 14. \u03c8 is twice continuously differentiable.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "This last assumption restricts the density g t . We now present the result, which applies the implicit function theorem to derive the derivatives of h, which describe the sensitivity of h to price and collateral level. Theorem 4. Under the above assumptions, the following hold:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "2. \u2202 \u2202\u03c1 h(\u03c1, n) \u2265 0 and is increasing in \u2212\u03c1 by order of 1 \u03c1 for \u03c1 \u2265 bt\u22121 Xt\u22121 , L t > 8.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "3. \u2202 \u2202n h(\u03c1, n) \u2265 0 and is increasing in \u2212n by order of 1 n for n \u2265 bt\u22121 Xt , L t > 8.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "As a result, the variance approximation in Eq. 1 increases by order of 1",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Remark 2. (Estimating variances)"
+        },
+        {
+            "text": "Theorem 4 shows that the variance approximation in Eq. 1 in Remark 2 increases by order of 1 R 2 t during an ETH return shock (result 2). Similarly, settings with lower collateralization in the initial conditions have higher variance approximation by order of 1 N 2 t (result 3). Such differences in initial conditions of collateral could result from, for example, different realizations of liquidations or the speculator abandoning its collateral position (and so extracting any excess collateral it can). Result 4 shows that there are cases where the h \u2032 factor in the variance approximation is > 1, meaning that the variance of R t , the inherently volatile process, will carry through directly to Z t , the 'stable' process.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Note that the extra conditions on the scale of L t and c t in Theorem 4 results 2-4 may seem strange at first sight. Since the (Z t ) process is scale-invariant, as proven in Prop. 2, the results about Z t variance hold more generally. In particular, recall that a term of \u223c 1 Lt shows up in the variance approximation in Remark 2, which will cancel out the conditions on scale.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Up to this point, we have only been able to say things about variance estimations. We will now show that the 'stable' and 'unstable' regimes are well-defined in the following sense: given different initial conditions of the same process, the forward-looking stablecoin price variances are indeed distinct. This is what justifies calling them stable as opposed to unstable. If we start in the unstable regime, we will always have variance higher than if we start in the stable regime. The next result formalizes this.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Theorem 5. In addition to the previous assumptions, suppose X t \u2265 b(L t\u22121 )+\u01eb for some \u01eb > 0 (the pre-decision collateral constraint is exceeded by \u01eb, which restricts the ranges of both X t andN t\u22121 ). Consider two possible states s and u of the stablecoin at time t that differ only in collateral amountsN s t\u22121 > N u t\u22121 and evolve driven by the common price process (X t ). Then the forward-looking price variances satisfy",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Notice that special care should be given to the treatment of Z t under the condition X t \u2264 c(L t\u22121 ), as the STBL price may no longer be well-defined without \u03b6 > 0 as no collateral remains. In a real system, this is equivalent to the event that all speculators are wiped out. The reason for our condition on X t in the above result is partly to keep things well-defined and partly because there can be a non-smooth point in h at X t = b(L t\u22121 ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "Similar variance difference results can be derived for varying initial conditions of X t\u22121 and L t\u22121 as opposed toN t\u22121 . In some sense, these are all similar as they change the initial collateralization level, though there will be some difference in price effect.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "The above analytical results describe domains of relative stability and instability for the stablecoin. They may also be adaptable into data-driven risk tools, for instance to estimate probabilities of peg deviations and to infer about when barriers are crossed exiting the stable domain. However, an obvious caution applies that specific numerical results are highly model-specific and sensitive to market structure and distributions of underlying assets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "[Link to Proof]"
+        },
+        {
+            "text": "We now explore how the analytical results will extend to different settings. We first demonstrate good stability results in settings with 'perfect' market structure. We then consider how analytical results from the previous section will extend to generalized model settings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Extending to Generalized Settings"
+        },
+        {
+            "text": "In the previous section, we considered the given model of a single speculator facing imperfectly elastic demand for STBL. We now consider idealized settings, in which STBL demand is perfectly elastic and/or unlimited speculator supply exists.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "Perfectly elastic demand Under perfectly elastic demand, STBL demand is time-dependent D t , which adapts in each time period to match STBL supply. This results in Z t = 1. In this case, the speculator's issue and repurchase price is always $1 and $\u03b1 in a liquidation. The problem simplifies to evaluating",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": ".",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "In this setting, we have \u2202\u03c8",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "Recalling P(A t ) and P(B t ) are functions of L t and supposing a non-binding collateral constraint, the speculator chooses L t such that",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "Noting that E[R t+1 ] \u2265 1, P(A t \u222a B t ) is decreasing in L t but generally \u223c 1, and P(B t ) is increasing in L t , this is interpretable as the speculator balancing expected return against 3\u00d7 the expected (constant) liquidation cost in deciding whether to issue a new unit of STBL.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "In this setting, the STBL price is identically $1 and the speculator only faces the risk of leveraged ETH declines subject to a fixed liquidation fee. Liquidations generally work well to keep the system over-collateralized, and the only real risk to STBL holders is from extreme single period declines in ETH price.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "Unlimited speculator supply Suppose there is an infinite depth of speculators (with capital) ready to enter the STBL market given what they see as a profitable opportunity subject to STBL demand D. A marginal speculator in such a market would choose to deposit collateral and issue new STBL at time",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "where \u03b3 represents the marginal speculator's expected liability and liquidation cost after entering the market. Arguably, \u03b3 \u223c 1 as, in an infinite depth market, the marginal speculator can start from a position of low leverage.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "The marginal profitability will be 0, which yields",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "Notice the similarity with the upper bound in Prop. 4. In this case, we attain the upper bound on supply because either the initial speculators act to increase supply or a marginal speculator will see a profitable opportunity and bring us to the upper bound. Further using that (X t ) is a submartingale, in which case E[R t+1 |F t ] \u2265 1, we find the STBL price is constrained to a small range of Z 0 \u2265 Z t \u2265 1 \u03b3r . This resembles the perfectly elastic demand case as existing speculators are able to liquidate positions without influencing STBL price, in this case because new marginal speculators are always willing to issue new STBL to offset a liquidation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "No stable region if (X t ) is not a submartingale Notice that the mechanisms that give the idealized settings perfect stability break down when the ETH price process (X t ) is not a submartingale. This stresses how fragile the stablecoin market is to negative expectations in the primary ETH market, even under these idealized settings. In the unlimited speculator case, marginal speculators no longer enter the market if expectations are negative, and so we don't achieve the supply bound developed above. Instead, we return to the main setting of the paper, which is unstable under negative expectations as it leads to deleveraging effects. In the perfectly elastic demand setting, the STBL supply goes to zero as the speculator chooses not to participate.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Stability results in 'perfect' settings"
+        },
+        {
+            "text": "We can generalize the single speculator model while retaining similar analytical results. We briefly sketch out what these generalized models can look like and discuss how these relate to realistic settings.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Generalizing the model"
+        },
+        {
+            "text": "In the main analysis, we considered the speculator's collateral at stake at time t to be N t\u22121 (minus any applicable liquidation). Alternatively, we now consider the collateral at stake at time t to be",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "where the second term represents the value in ETH obtained from issuing new stablecoins at time t (negative if redeeming).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "For notational simplicity drop subscripts as follows:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "Notice that N is now a function of L. Both b and c, which were previously functions of L with parameter N , are now further complicated by N 's dependency on L.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "In this setting we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "The partials become more complicated algebraically since N is now a function of L, e.g., partial with respect to L is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "Second partials of \u03c8 are further complicated, as are the partials of b and c. Similar results can in principle be derived in this setting, although we need further conditions, for instance to extend the \u03c8 concavity proof (e.g., to ensure \u2202b \u2202L \u2265 0).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "Generalized STBL demand We can consider more general STBL demand functions that depend on Z t . For instance, consider a constant elasticity market. Let q be the quantity demanded of STBL at $1 price and suppose the quantity demanded changes with price subject to a constant price elasticity \u2212\u03b3 < 0. Then we can consider the STBL demand function",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "This leads to a dollar-denominated demand function",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "Our analysis in the previous section becomes the simplified case where \u03b3 = 1, in which case dollar-denominated demand (but not quantity demanded) is constant.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "In clearing the market, the generalized price process becomes",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "and the collateral process becomes",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "which we can apply to get the generalized version of \u03c8. The general methods used above can again apply to this formulation, though additional assumptions may again be needed, for instance to extend the \u03c8 concavity proof.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "Generalized collateral factors and supply depth For a simple exposition, we made the simplifications that the STBL supply is composed solely of coins issued by the speculator (i.e., L t = L t with outside supply \u03b6 = 0) and the collateral factor \u03b2 = 3/2. The results will apply for more general \u03b6 \u2265 0 and \u03b2 > 1. The equations for this setting are as follows.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "Drop subscripts:N t \u2192 N , X t \u2192 X, L t \u2192 L, c t \u2192 c, b t \u2192 b, g t \u2192 g, R t+1 \u2192 R. And recall L t = \u03b6 + L t . Then",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "with c(L) and b(L) similarly redefined.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Concurrent collateral"
+        },
+        {
+            "text": "We can also extend the model to consider certain endogenizations of ETH prices. The intuition here is that a large enough liquidation of collateral could have a market impact on ETH prices. One possible way to endogenize ETH prices is to replace X t+1 \u2192 f (X t+1 ,N t , L t ), where f describes the market impact of a collateral liquidation at t + 1 on t + 1 ETH price and X t+1 describes the (exogenous) price of ETH absent any liquidation. We expect that the general methods used in this paper can be applied to partial equilibrium settings such as this. Naturally, this would necessitate conditions on f . Notice that the transformed ETH price process f (X t+1 ,N t , L t ) t\u22650 may no longer be a submartingale. In this case, we would need further conditions on f that ensure \u03c8 remains concave.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Endogeneity of ETH prices"
+        },
+        {
+            "text": "Formulating as a multi-period control problem So far, we've specified the speculator's decision-making in terms of a sequence of one-period optimization problems. However, there could be better long-term strategies. Alternatively, the speculator could strategically coordinate the sequence of decisions further into the future.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Endogeneity of ETH prices"
+        },
+        {
+            "text": "This can be formulated using an exit time for the speculator based on a random clock, possibly exponential. If this terminal time is deterministic, the problem can be formulated as a dynamic program, in which the terminal decision is the one-period optimization, intermediate decisions solve a Bellman equation conditioned on the information revealed up to that point, and random returns are independent. It is possible to extend these results to a random exit time, if that exit time is a 'nice' stopping time. For instance, [2] sets up a supermodular game, for which this works.",
+            "cite_spans": [
+                {
+                    "start": 526,
+                    "end": 529,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Endogeneity of ETH prices"
+        },
+        {
+            "text": "For this to make sense conceptually, we need to assume the speculator can cash out of its position by selling to someone else at par at the exit time. This can include a noise factor of when this is possible. We expect that this noise factor would need to be independent of the state of the system in order for the problem to be tractable. A main challenge is that this will not in reality be independent.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Endogeneity of ETH prices"
+        },
+        {
+            "text": "Realistic settings are likely to be somewhere in between the idealized settings described in the previous subsection and the single speculator with imperfectly elastic demand setting explored in this paper. As discussed in the model setup, demand will be imperfectly elastic, at least in the short term. A reasonable inelastic setting can be set by choosing an appropriate elasticity parameter for the model.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Note on realistic settings and applications"
+        },
+        {
+            "text": "A realistic setting will have multiple speculators, including some marginal speculators, but the depth of the speculators will not be infinite. Further complications will come when different speculators maintain positions with different leverage points and/or ETH expectations. This can lead to a sequential schedule of liquidation points at a given time throughout the system, which will be reflected in a speculator's expected liquidation costs. In particular, a given speculator will take into account price effects from the potential liquidations of other speculators' positions in addition to their own when evaluating expected liquidation costs. Additionally, expected liquidation costs will reflect expectations of marginal speculators stepping in to expand the supply. Of course, given finite depth, the speculator market can dry up. For instance, the number of people who expect positive ETH returns in an extended bear market may be quite limited.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Note on realistic settings and applications"
+        },
+        {
+            "text": "From the perspective of data-driven applications, we would use a complementary version of the model that incorporates an estimation function that the speculator uses to estimate liquidation costs and price effect since the exact market structure is not generally known in a real setting. See [1] and [14] for examples developing agent-based models in this direction.",
+            "cite_spans": [
+                {
+                    "start": 292,
+                    "end": 295,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 300,
+                    "end": 304,
+                    "text": "[14]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Note on realistic settings and applications"
+        },
+        {
+            "text": "This paper presents a new stochastic model of over-collateralized stablecoins with an endogenous price. In this model, we formally characterize stable and unstable domains for the stablecoin and a deflationary deleveraging spiral as a submartingale, which can cause liquidity problems in a crisis. We prove that the stablecoin behaves in a stable way by bounding the probabilities of large deviations and quadratic variation, restricted to a certain region. We also prove that price variance is distinctly greater in a separate region, which can be triggered by large deviations, collapsed expectations, and liquidity problems from deleveraging.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "An observation from the model is that the speculator chooses a collateral level above the required collateral factor. This is because the expected liquidation cost is greater than the $1 face value. The speculator will desire to increase the collateralization during times when the expected liquidation cost is higher, which can occur after a shock to collateral value or if the speculator expects the collateral to be more volatile. This generally explains the high level of over-collateralization seen in Dai, which typically ranges 2.5 \u2212 5\u00d7 although the collateral factor is 1.5\u00d7.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "The presence of deleveraging effects poses fundamental trade-offs in decentralized design. One way to bring the stablecoin closer to the 'perfect' stability cases is to increase elasticity of demand. This relies on the presence of good uncorrelated alternatives to the stablecoin. As all non-custodial stablecoins likely face similar deleveraging risks, greater elasticity relies on custodial stablecoins or greater exchangeability to fiat currencies. Another way to bring the stablecoin closer 'perfect' stability is to increase the supply of marginal speculators. As there will not be unlimited supply of speculators with positive ETH expectations (especially during an extended bear market), this relies on having another uncorrelated collateral asset. As all decentralized assets are very correlated, this again largely relies on including custodial collateral assets, like Maker's recent addition of USDC. 10 While these measures strengthen the stability results, it's at the expense of greater centralization and moves the system away from being 'non-custodial'.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "We suggest a buffering idea toward damping deleveraging effects without greater centralization. The Maker system charges fees to speculators, part of which it passes on to Dai holders as an interest rate if the holder locks the Dai into a savings pool. With modified mechanics, this savings pool can provide a buffer to deleveraging effects. For instance, if we allow Dai in the savings pool to be bought out at a reasonable premium by a speculator who uses it to deleverage, then deleveraging effects are bounded by the premium amount up to the size of the savings buffer. The Dai holders who participate in this savings pool are then compensated for providing a repurchase option to the speculator. The Dai holder could elect to have the repurchase fulfilled in the collateral asset, or something else, like a custodial stablecoin. In this way, this mechanism can provide some of the benefits of the 'perfect' stability settings while enabling Dai holders to choose how decentralized they want to be. A Dai holder who does not require high decentralization would elect to receive the compensation from the savings pool whereas a Dai holder who requires higher decentralization would choose not to use the savings pool. Our model is easily extended to consider mechanisms like this.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Our model and results can also apply more broadly to synthetic and crosschain assets and over-collateralized lending protocols that allow borrowing of illiquid and/or inelastic assets-whenever the mechanism is based on leveraged positions and leads to an endogenous price of the created or borrowed asset. Synthetic assets generally use a similar mechanism just with a different target peg. Cross-chain assets that port an asset from a blockchain without smart contract capability (e.g., Bitcoin) to a blockchain with smart contracts (e.g., Ethereum) also tend to rely on a similar mechanism. In non-custodial constructions such as [31] and [29], vault operators are required to lock ETH collateral in addition to the deliverable BTC asset. They bear a leveraged ETH/BTC exchange rate risk and face similar deleveraging risk. In particular, to reduce exposure, they need to repurchase the version of the cross-chain asset on Ethereum. [22] Peckshield. bZx hack full disclosure (with detailed profit analysis). https://medium.com/@peckshield/bzx-hack-full-disclosure-with-detailed-profit-analysis-e6b1fa9b18fc , 17 Feb 2020.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "[23] Peckshield. bZx hack II full disclosure (with detailed profit analysis).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "https://medium.com/@peckshield/bzx-hack-ii-full-disclosure-with-detailed-profit-analysis-8126eecc1360 , 18 Feb 2020.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "[24] Platias, N., Di Maggio, M. Terra money: stability stress test. https://agora.terra.money/t/stability-stress-test/55 , Jun 2019.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "[25] Rennison, J., Stafford, P., Smith, C., Wigglesworth, R.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "'Great liquidity crisis' grips system as banks step back. Financial Times, https://www.ft.com/content/bd3c0ccc-6ce8-11ea-9bca-bf503995cd6f, 23 Mar 2020, [27] Synthetix. Synthetix response to oracle incident. https://blog.synthetix.io/response-to-oracle-incident/, 25 Jun 2019.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "[28] Synthetix. Prop. 3",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Proof. The speculator can at most buy back using all its ETH. At time t, this amount is the solution \u2206t to the following",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "supposing there is no liquidation at time t. It is straightforward to verify the solution, giving the lower bound:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Note that if the speculator is not soluble at time t, then there is no real solution.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Prop. 4",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Proof. As above, consider X t+1 = XtR t+1 . And for notational simplicity, drop subscripts as follows:Nt \u2192 N , Xt \u2192 X, Lt \u2192 L, \u2206 = Lt \u2212 L t\u22121 , c(Lt) \u2192 c, b(Lt) \u2192 b, gt \u2192 g, R t+1 \u2192 R, P(At|Ft) \u2192 P(A), P(Bt|Ft) \u2192 P(B). Suppose the first condition is true. We have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Notice this is monotonic decreasing in L over the domain, so the critical point will be a bound for the optimal value of L * . Setting equal to 0, we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Now suppose the second condition is true instead. We have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "which delivers the desired result as above.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Prop. 5",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Proof. By assuming T Z 0 > \u03c4 , we have Z 0 \u2265 Zt\u2227\u03c4 . Applying Proposition 4 to Zt = D Lt provides Zt\u2227\u03c4 \u2265 D \u03baL t\u2227\u03c4 \u22121 r . Notice that the upper bound on Lt and the lower bound on Zt can be written respectively as increasing and decreasing sequences in t starting from initial state as follows: Applying Proposition 5, Lt\u2227\u03c4 is bounded above and Zt\u2227\u03c4 is bounded below. Thus they converge a.s. by Doob's martingale convergence theorem.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Proof. The first inequality follows from Prop. 5 and supermartingale properties.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Prop. 7"
+        },
+        {
+            "text": "Since Zt\u2227\u03c4 is supermartingale, we have ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Prop. 7"
+        },
+        {
+            "text": "Proof. For t \u2212 1 < \u03c4 \u2227 Tm,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 1"
+        },
+        {
+            "text": "by Jensen's inequality and the condition for t \u2212 1 < Tm that m \u2212 Z t\u22121 \u2265 0. Thus Z \u2032 t\u2227\u03c4 \u2227Tm is a non-negative submartingale.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Lemma 1"
+        },
+        {
+            "text": "Proof. Note for t < \u03c4 \u2227 Tm, have Z * t \u2264 m, and so Z \u2032 * \u03c4 \u2227Tm\u22121 \u2264 m \u2212 1 \u03bar . Thus Z \u2032 * \u03c4 \u2227Tm \u2264 max m \u2212 1 \u03bar , Z \u2032 \u03c4 \u2227Tm . Consider time t = \u03c4 \u2227 Tm and note that optional stopping applies since Z is bounded. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Prop. 8"
+        },
+        {
+            "text": "Proof. Apply Theorem 3.1 in [5] , noting that sup n E[Z \u2032",
+            "cite_spans": [
+                {
+                    "start": 28,
+                    "end": 31,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 2"
+        },
+        {
+            "text": "n\u2227\u03c4 \u2227Tm ] \u2264 E[Z \u2032 * \u03c4 \u2227Tm ] by Jensen's inequality.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 2"
+        },
+        {
+            "text": "Proof. For S 1 \u2264 t < S 2 , we have",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3"
+        },
+        {
+            "text": "by Jensen's inequality and the S 1 condition E[Lt|F t\u22121 ] \u2264 L t\u22121 . Thus (Z S 1 \u2228t\u2227S 2 ) is a submartingale (though note that it can be a submartingale for more general stopping times than this).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3"
+        },
+        {
+            "text": "L started at S 1 and stopped S 2 is a supermartingale (by def).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 3"
+        },
+        {
+            "text": "Proof. As above, consider X t+1 = XtR t+1 . And for notational simplicity, drop subscripts as follows:Nt \u2192 N , X t\u22121 \u2192 X (notice this is different from previous usage), Lt \u2192 L, \u2206 = Lt \u2212 L t\u22121 , c(Lt) \u2192 c, b(Lt) \u2192 b, and gt \u2192 g. Let \u03c1 be (deterministic) variable representing the outcome of Rt, such that now we have the outcome Xt = X\u03c1. And define h(\u03c1) = arg max L \u03c8(\u03c1, L) = E[Y t+1 |Ft]. By first order condition, \u2202 \u2202L \u03c8(\u03c1, h(\u03c1)) = 0. The assumptions on \u03c8 provide unique maximum and fulfill conditions of the implicit function theorem, which gives us \u2202h \u2202\u03c1 (\u03c1) exists and \u2202h \u2202\u03c1 (\u03c1) = \u2212 \u2022 \u2202f \u2202n is (strictly) increasing in x This is because h is increasing in x and \u2202h \u2202n is non-negative and increasing in x (previous bullet).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4"
+        },
+        {
+            "text": "Note additionally that, from the system setup assumptions, all of the functions are appropriately bounded.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4"
+        },
+        {
+            "text": "Thus we can apply Theorem 3.1 in [26] to get Var f (X, N s )|F t\u22121 < Var f (X, N u )|F t\u22121 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4"
+        },
+        {
+            "text": "Note that the variances exist because h = Lt is bounded, as shown in previous results. The variances of Z s t and Z u t are then obtained by multiplying the above inequality by D 2 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Theorem 4"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "An analysis of Uniswap markets",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Angeris",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Kao",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Chiang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Noyes",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Chitra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Crypto Economic Systems",
+            "volume": "20",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "The blockchain folk theorem",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Biais",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Bisiere",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Bouvard",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Casamatta",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Swiss Finance Institute Research Paper",
+            "volume": "",
+            "issn": "",
+            "pages": "17--75",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Convex Optimization",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Boyd",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Vandenberghe",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "In search for stability in crypto-assets: Are stablecoins the solution? ECB Occasional Paper No",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Bullmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Klemm",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pinna",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Distribution function inequalities for martingales",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Burkholder",
+                    "suffix": ""
+                }
+            ],
+            "year": 1973,
+            "venue": "The Annals of Probability",
+            "volume": "1",
+            "issn": "1",
+            "pages": "19--42",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Designing stable coins. Duo Network Academic Whitepaper",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Chao",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kou",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Competitive equilibria between staking and on-chain lending. Crypto Economic Systems",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Chitra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "20",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "An analysis of the stability characteristics of Celo",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Clabs Team",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Smart markets for stablecoins",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Detrio",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "See, C.T., Chen, J. (2008). Inequalities on the variances of convex functions of random variables. Journal of inequalities in pure and applied mathematics, 9(3):5.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "These have limits L\u221e = \u03baDr and Z \u221e = 1 \u03bar that also bound Lt and Zt respectively. Jensen's inequality and condition for \u03c4 > t \u2212 1. Thus we have E[Lt\u2227\u03c4 |F t\u22121 ] \u2265 L t\u2227\u03c4 \u22121 and (Lt\u2227\u03c4 ) is a submartingale. (Zt\u2227\u03c4 ) is a supermartingale by condition of \u03c4 .",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Calculating derivatives using the Leibniz integral rule (recalling c, b are functions of L)N b \u2212 L) 2 = 3 \u2212",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "\u03b1D\u03b2L 2(L(\u03b2 \u2212 1)) 2 = 3 \u2212",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "(2\u03b1D + L \u2212 \u03b1D + L) \u22122\u03b1D(2\u03b1D + L) + 2L(\u03b1D + L) + 2\u03b1 2 D 2",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "https://www.coindesk.com/makerdao-adds-usdc-as-defi-collateral-following-black-thursday-chaos, 17 Mar 2020[11] Gudgeon, L., Perez, D., Harz, D., Gervais, A., Livshits B. (2020). The decentralized financial crisis: attacking DeFi. Available at arXiv.[12] Guimaraes, B., Morris, S. Risk and Wealth in a Model of Self-Fulfilling Currency Attacks. Journal of Monetary Economics, 54(8):2205-2230 (2007). [13] Harz, D., Gudgeon, L., Gervais, A., Knottenbelt, W. (2020). Balance: dynamic adjustment of cryptocurrency deposits. In Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security, 1485-1502. [14] Kao, H.T., Chitra, T., Chiang. R., Morrow, J. (2020). Market risk assessment: an analysis of the financial risk to participants in the Compound protocol. https://gauntlet.network/reports/CompoundMarketRiskAssessment.pdf. [15] Klages-Mundt, A., Minca, A. (2019) (In)stability for the blockchain: deleveraging spirals and stablecoin attacks. Presented at Crypto Valley Conference on Blockchain Technology '19. Available at arXiv. https://medium.com/coinmonks/the-state-of-stablecoins-update-2018-56fb82efe6de , 14 Dec 2018. [17] Lipton, A., Hardjono, T., Pentland, A. (2018). Digital Trade Coin (DTC): Towards a more stable digital currency. Journal of the Royal Society Open Science-Special Issue on Blockchain Technology. [18] MakerDAO. Black Thursday response thread. https://forum.makerdao.com/t/black-thursday-response-thread/1433, 12 Mar 2020. https://makerdao.com/whitepaper/DaiDec17WP.pdf , 2017. [20] Morris, S., Shin, H.S. Unique equilibrium in a model of self-fulfilling currency attacks. American Economic Review, 88(3):587-597 (1998). [21] O'Hara, M. Market Microstructure Theory, Basil Blackwell, Cambridge, MA (1995).",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "https://blog.synthetix.io/addressing-claims-of-deleted-balances/, 16 Sep 2019. https://docs.keep.network/tbtc, Mar 2020. https://agora.terra.money/t/increasing-robustness-of-the-terra-oracle/82 , 1 Jul 2019.[31] Zamyatin, A., Harz, D., Lind, J., Panayioutou, P., Gervais, A., Knottenbelt, W. (2019).XClaim: trustless, interoperable cryptocurrency-backed assets. IEEE Symposium on Security and Privacy '19.Proof. Easily verifiable by substitution, noting that factors of \u03b3 cancel in the integral limits.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "Z t\u22121 \u2265 E[Zt|F t\u22121 ]. Assume (E[R t+1 |Ft])is non-decreasing for t < \u03c4 . Then subject to the stopping time \u03c4 ,E[Zt|F t\u22121 ] \u2265 E D \u03baL t\u22121 E[R t+1 |Ft] |F t\u22121 (Apply Prop. 4) \u2265 D \u03baL t\u22121 E E[R t+1 |Ft]|F t\u22121 (Jensen's inequality) = D \u03baL t\u22121 E[R t+1 |F t\u22121 ] (Tower property) \u2265 D \u03baL t\u22121 E[Rt|F t\u22121 ] since E[R t+1 |Ft] \u2265 E[Rt|F t\u22121 ].",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Denote W := m \u2212 Zt, E := E[\u2212W |Zt > m], and p := P(Zt \u2264 m). From optional stopping, we recall that m \u2265 E[Zt] \u2265 1 \u03bar , and so 0 \u2264 E[W ] \u2264 m \u2212 1 \u03bar . ThenE[W ] = E[W \u00bd Zt\u2264m ] \u2212 E[\u2212W \u00bd Zt>m ] Combining with 0 \u2264 E[W ], we have 0 \u2264 p(m \u2212 1 \u03bar ) \u2212 (1 \u2212 p)E, which gives p \u2265 E m \u2212 1 \u03bar + E Then noting that (1 \u2212 p)E \u2264 E(1 \u2212 ), p \u2264 1, and E[Z \u2032 t ] = E[W \u00bd Zt\u2264m ] + E[\u2212W \u00bd Zt>m ], we have E[Z \u2032 * t ] \u2264 p E[Z \u2032 * t\u22121 ] + (1 \u2212 p)E Noticefurther that given either of the following conditions \u2022 1 \u03bar > m and E > 1 \u03bar \u2212 m \u2022 1 \u03bar = m and E > 0 \u2022 1 \u03bar < m ad E \u2265 0 then 0 \u2264 (1 \u2212 p)E \u2264 Thus, recalling we used t = \u03c4 \u2227 Tm, we get the following result E[Z \u2032 * \u03c4 \u2227Tm ] \u2264 2 m \u2212 Proof. Given Lemma 1 and Prop. 8 and noting E[Z \u2032 \u03c4 \u2227Tm ] \u2264 E[Z \u2032 * \u03c4 \u2227Tm ], apply Doob's maximal inequality.",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "In the proofs, we often use the following elementary result Lemma 2. For \u03b1, D, L \u2265 0, \u03b1D + L \u2264 \u03b1 2 D 2 + 4\u03b1DL + L 2 \u2264 min 2\u03b1D + L, \u03b1D + L + \u221a 2\u03b1DLProof. Define \u03b5 := \u221a \u03b1 2 D 2 + 4\u03b1DL + L 2 . We have \u03b5 \u2264 2\u03b1D + L as long as \u03b1D \u2265 L( \u221a 3 \u2212 2), which is true since \u03b1, D, L \u2265 0. Next, notice that \u03b5 = (\u03b1D + L) 2 + 2\u03b1DL. Thus \u03b5 > \u03b1D +L since 2\u03b1DL \u2265 0. Lastly, by concavity, \u03b5 \u2264 \u03b1D + L + \u221a 2\u03b1DL.Prop. 1Proof. Consider X t+1 = XtR t+1 . For notational simplicity, drop subscripts as follows:ThenRecall that the integrand factor 3L \u2212 \u03b1DL 2NXz\u2212L \u2212 2N Xz evaluated at Xz = c is L \u2212 N c (the liquidation zeros out the speculator's collateral position), and evaluated at Xz = b is 0 (on the threshold of liquidation).Taking derivatives using Leibniz integral rule:Notice that \u2202b \u2202L > 0, \u2202c \u2202L > 0, g \u2265 0, andby assumption that liquidation repurchase price always \u2265 1. Additionally, the remaining integral is always positive as the integrand is positive between the limits and and g \u2265 0.Finally, E[R|Ft] \u2265 0 since (Xt) is a submartingale. Thus under the given conditions, \u2202 2 \u03c8 \u2202L 2 \u2264 0 as all terms are \u2264 0.Further supposing that eitherNotice that the 1 2 in the bound is related to the choice \u03b2 = 3 2 .This is \u2264 2 when L \u2265 27 46 \u03b1D. Thus under this conditionNote that all terms of \u2202 2 \u03c8 \u2202\u03c1\u2202L are non-negative and all terms of \u2202 2 \u03c8 \u2202L 2 are non-positive. Given \u03c1 \u2265 b/X, we have g c X\u03c1 and g b X\u03c1 are increasing in 1/\u03c1. Note also that \u2202b \u2202L , \u2202c \u2202L , andare constant in \u03c1. Lastly, the numerator and denominator integrals can be rewritten respectively asAnd so the terms in the numerator of |h \u2032 (\u03c1)| are growing by a factor 1/\u03c1 faster than the terms in the denominator as \u03c1 decreases, proving (2).Next, note that under the condition 0 < \u03c1 < 1,The last relation uses the fact that dc dL \u2264 2\u03b1D+L 2(\u03b1D+L) + 1 < 2, and so c > dc dL under the problem setup.Next note that for \u03c1 \u2264 L 8 and c \u2264 X\u03c1z \u2264 b, we have \u03b1DN Xz(N X\u03c1zThis is because the expression (1) simplifies to N X\u03c1z + L \u2265 2\u03c1, (2) to be true over the whole range of z, we need N c + L \u2265 2\u03c1, and (3) \u03c1 \u2264 L 8 is sufficient for this. Thus Then note that all terms in the numerator of h \u2032 (\u03c1) are greater than and grow faster in 1/\u03c1 than the comparable terms in the denominator. This leaves the first term in the numerator, which is constant in \u03c1. To get (3), then note that \u03b5 can be chosen such that for \u03c1 = \u03b5, the numerator and denominator are equal.We can derive the results for \u2202h \u2202n in essentially the same way. Alter the above dropping of subscripts with Xt \u2192 X, let n be a variable representing the realization ofNt, and consider h as a function of n. Note the following relevant derivatives.And translating the following to the new notationAnd by applying implicit function theorem, we get.From here we can proceed with the same analysis using factors of 1 n instead of 1 \u03c1 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Proofs"
+        },
+        {
+            "text": "Proof. For notational simplicity, drop subscripts Xt \u2192 X,N t\u22121 \u2192 N , L t\u22121 \u2192 L. And consider x a realization of X as variable in h. Define the function f (X, n) = 1 h(X,n) where n represents the realization of N . With probability 1, the following are true:\u2022 h is concave in x and n because h \u2032 is decreasing, as shown in the previous result.\u2022 f is differentiable (wrt n and x) over domain using chain rule and implicit function theorem.\u2022 f is convex: it's the composition of 1/x and h, and since 1/x is convex and nonincreasing and h is concave, so is f (see [3] 3.2.4).\u2022 f is (strictly) decreasing (in n and x) since h is increasing.\u2022 By assumption, we've restricted N X. The derivative of f at the minimum value exists and is bounded.\u2022 f is non-negative since h is non-negative.\u2022 \u2202f \u2202n is (strictly) increasing in n. We havewhere h \u2032 (x, n) is derived in the previous proof using the implicit function theorem. h is increasing in n and h \u2032 is non-negative and decreasing in n. Thus h \u2032 h 2 is decreasing in n, and so \u2212 h \u2032 h 2 is increasing. \u2022 \u2202h \u2202n is increasing in x. This can be seen using the formulation at the end of the proof for the previous result as terms in \u2202 2 \u03c8 \u2202L 2 grow slower in x (in magnitude) than terms in \u2202 2 \u03c8 \u2202n\u2202L . In particular, the first term of \u2202 2 \u03c8 \u2202L 2 is decreasing in magnitude since L is increasing in x. And the integral in \u2202 2 \u03c8 \u2202n\u2202L increases faster in x than the integral in \u2202 2 \u03c8 \u2202L 2 , as can be seen by comparing the integrand numerators (a factor of x 2 in \u2202 2 \u03c8 \u2202n\u2202L vs. a factor of x in \u2202 2 \u03c8 \u2202L 2 ).",
+            "cite_spans": [
+                {
+                    "start": 560,
+                    "end": 563,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Theorem 5"
+        }
+    ]
+}

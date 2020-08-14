@@ -1,0 +1,2646 @@
+{
+    "paper_id": "1d9529d3a101773ad158072a13e23db5ea3f0054",
+    "metadata": {
+        "title": "On detecting urgency in short crisis messages using minimal supervision and transfer learning",
+        "authors": [
+            {
+                "first": "Mayank",
+                "middle": [],
+                "last": "Kejriwal",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Peilin",
+                "middle": [],
+                "last": "Zhou",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Humanitarian disasters have been on the rise in recent years due to the effects of climate change and socio-political situations such as the refugee crisis. Technology can be used to best mobilize resources such as food and water in the event of a natural disaster, by semi-automatically flagging tweets and short messages as indicating an urgent need. The problem is challenging not just because of the sparseness of data in the immediate aftermath of a disaster, but because of the varying characteristics of disasters in developing countries (making it difficult to train just one system) and the noise and quirks in social media. In this paper, we present a robust, low-supervision social media urgency system that adapts to arbitrary crises by leveraging both labeled and unlabeled data in an ensemble setting. The system is also able to adapt to new crises where an unlabeled background corpus may not be available yet by utilizing a simple and effective transfer learning methodology. Experimentally, our transfer learning and low-supervision approaches are found to outperform viable baselines with high significance on myriad disaster datasets.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "The 1 United Nations Office for the Coordination of Human Affairs (OCHA) reported 2 that in 2018, more than 141 million people were in need of humanitarian assistance, with over 9 billion dollars of unmet requirements. Using technology to address this shortfall by assisting aid agencies and first responders to mobilize and send resources where they are needed the most is an important problem with the potential for widespread long-lasting social impact (Palen and Anderson 2016; Sakaki et al. 2010) .",
+            "cite_spans": [
+                {
+                    "start": 456,
+                    "end": 481,
+                    "text": "(Palen and Anderson 2016;",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 482,
+                    "end": 501,
+                    "text": "Sakaki et al. 2010)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To achieve this goal, the problem of semi-automatic urgency detection needs to be solved, especially on short message streams like social media that support real-time news feeds and micro-updates from citizens on the ground. We define an urgent message in the crisis context as one that expresses an actionable need that needs to be resolved in a short time frame.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Urgency detection is related to the problem of detecting relevant or informative tweets from a stream of tweets, not all of which are pertinent to the crisis at hand. Urgency detection may be understood to be a very specific version of the relevance detection problem. Similar to the latter, urgency detection also falls in a class of information retrieval (IR) problems, which attempt to detect and rank relevant messages and documents. However, there is an added dimension to urgency detection, since (as defined above) an actionable need, possibly implied, must be expressed in the tweet that could potentially be resolved if dealt with in a time-sensitive manner. For example, a message such as 'Roof collapse in building on Main Street; multiple people trapped inside' may be deemed to be urgent; however, messages such as 'Roof collapse due to storm at midnight; all people successfully evacuated' and 'Avalanche in Nepal caused four deaths' are relevant and may assist in studying the disaster further (or even mobilizing long-term response) but are not particularly urgent, either because it does not require immediate action or because the damage has already occurred. Informativeness as a broad problem has undergone some study (Olteanu et al. 2014 ) (see also Sect. 2), but to our knowledge, urgency as a specific IR area has not received the same kind of special attention despite its utility to first responders in times of crisis.",
+            "cite_spans": [
+                {
+                    "start": 1238,
+                    "end": 1258,
+                    "text": "(Olteanu et al. 2014",
+                    "ref_id": "BIBREF30"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Put intuitively, solutions to the urgency detection problem can be framed in terms of probabilistic binary classification, a common machine learning paradigm involving other related tasks like sentiment analysis (Pang et al. 2008) . Although urgency detection has some similarity with sentiment analysis (both are subjective to a degree, since annotators can, and do, sometimes disagree), the core problem is different, since the goal is to flag messages that express urgency, which is almost always a negative or panic-ridden emotion. However, it can be difficult to distinguish urgencyrelated tweets from just negative tweets. We provide an illustrative set of real-world examples 3 in Table 1 .",
+            "cite_spans": [
+                {
+                    "start": 212,
+                    "end": 230,
+                    "text": "(Pang et al. 2008)",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 688,
+                    "end": 695,
+                    "text": "Table 1",
+                    "ref_id": "TABREF0"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "In this paper, we present practical approaches for crisisspecific minimally supervised urgency detection on short message streams such as Twitter. The presented approaches cover two scenarios that often emerge in the real world. In the first scenario, a small amount (a few hundred messages) of training data labeled as urgent or non-urgent is available, along with a copious 'unlabeled' background corpus. In the second scenario, similar data are available for a 'source' domain but not for the target domain (expressing a 'new crisis') for which the urgency detection needs to be deployed. In other words, as messages are streaming in for this new domain, investigators label a few samples, but cannot rely on the availability of a background corpus since urgency needs to be tagged in real time before the crisis has fully subsided. To accomplish this challenging goal, our approach relies on a simple and robust transfer learning methodology (Pan and Yang 2010) . Experimental results on three real-world datasets and several performance metrics validate our methods. To the best of our knowledge, this is the first such paper investigating the problem of urgency detection in social media, both algorithmically and empirically, for arbitrary disasters in low-supervision and transfer learning settings.",
+            "cite_spans": [
+                {
+                    "start": 946,
+                    "end": 965,
+                    "text": "(Pan and Yang 2010)",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The rest of this paper is structured as follows. Section 2 describes some related work, Sect. 3 specifies our two research questions, and Sect. 4 describes our approaches in support of answering those questions. Section 5 covers the experiments, and Sect. 6 concludes the paper.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Crisis informatics is emerging as an important field for both data scientists and policy analysts. A good introduction to the field was provided in a recent Science policy forum article (Palen and Anderson 2016) . The field draws on interdisciplinary strands of research, especially with respect to collecting, processing and analyzing real-world data. Particularly, social media platforms like Twitter have emerged as important channels ('social sensors ' Sakaki et al. 2010) for situational awareness in support of crisis informatics. Although situational awareness is a broad notion extending beyond crisis informatics (e.g., military situational awareness), urgency detection is a special kind of situational awareness that tends to arise mainly in the crisis domain. A direct application is to help first responders and aid agencies assess needs in crisis-stricken areas and mobilize resources effectively (i.e., where needs are most urgent). While the initial primary focus of situational awareness and sensing systems was on earthquakes (Avvenuti et al. 2014; Crooks et al. 2013) , the focus has diversified in recent years to disasters as diverse as floods, fire, and hurricanes (Arthur et al. 2017; Vieweg et al. 2010) . We note that Twitter is by far the most monitored social media platform during crises (Simon et al. 2015) due to the availability of the published data and its real-time nature. Increasingly sophisticated approaches have been presented for data collection, including dynamic lexicons (Olteanu et al. 2014) and analysis tools like TweetTracker (Kumar et al. 2011) .",
+            "cite_spans": [
+                {
+                    "start": 186,
+                    "end": 211,
+                    "text": "(Palen and Anderson 2016)",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 455,
+                    "end": 476,
+                    "text": "' Sakaki et al. 2010)",
+                    "ref_id": null
+                },
+                {
+                    "start": 1044,
+                    "end": 1066,
+                    "text": "(Avvenuti et al. 2014;",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1067,
+                    "end": 1086,
+                    "text": "Crooks et al. 2013)",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 1187,
+                    "end": 1207,
+                    "text": "(Arthur et al. 2017;",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 1208,
+                    "end": 1227,
+                    "text": "Vieweg et al. 2010)",
+                    "ref_id": "BIBREF48"
+                },
+                {
+                    "start": 1316,
+                    "end": 1335,
+                    "text": "(Simon et al. 2015)",
+                    "ref_id": "BIBREF43"
+                },
+                {
+                    "start": 1514,
+                    "end": 1535,
+                    "text": "(Olteanu et al. 2014)",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 1573,
+                    "end": 1592,
+                    "text": "(Kumar et al. 2011)",
+                    "ref_id": "BIBREF22"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Crisis informatics and situational awareness"
+        },
+        {
+            "text": "In the last few years, and even just the last few weeks (in the wake of the COVID-19) crisis, a number of important works in network science have addressed crises. We only cite a few recent papers by way of reference. Recently, (Purohit et al. 2020) have described a method to rank and group social media requests for emergency services, a work that is particularly relevant since the outbreak of COVID-19. Recent work in opinion mining (e.g., see Keyvanpour et al. 2020) , especially using lexicons and machine learning in social media, is also relevant to our work. Another extremely relevant work is a recent article that described a lightweight and multilingual framework for crisis information extraction from Twitter data (Interdonato et al. 2019 ). The research presented in that paper, though not resolving the problem of detecting urgent tweets, is compatible with our own work since it presents a relatively unsupervised and lightweight paradigm, and uses similar metrics. Other papers have tried to look at specific crises, e.g., the work by (Ladner et al. 2019) in analyzing tweets to determine the activeness of the Syrian refugee crisis. Another article has tried to do disaster damage assessment from Twitter data using statistical features and 'informative words,' not dissimilar to our own lexicon-based approach (Madichetty and Sridevi 2019) . A last example is the work in (Klein et al. 2012) , which describes a project called SABESS that uses social network analysis for identifying reliable tweets and apply content analysis in order to summarize important 'emergency facts.' These six examples are among a sample of several pieces of work that have tried to use social media productively in helping to analyze or provide actionable intelligence during a crisis situation attesting to the ongoing importance of the problem.",
+            "cite_spans": [
+                {
+                    "start": 228,
+                    "end": 249,
+                    "text": "(Purohit et al. 2020)",
+                    "ref_id": "BIBREF37"
+                },
+                {
+                    "start": 448,
+                    "end": 471,
+                    "text": "Keyvanpour et al. 2020)",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 728,
+                    "end": 752,
+                    "text": "(Interdonato et al. 2019",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 1053,
+                    "end": 1073,
+                    "text": "(Ladner et al. 2019)",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 1330,
+                    "end": 1359,
+                    "text": "(Madichetty and Sridevi 2019)",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1392,
+                    "end": 1411,
+                    "text": "(Klein et al. 2012)",
+                    "ref_id": "BIBREF19"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Crisis informatics and situational awareness"
+        },
+        {
+            "text": "NLP methods have been widely used in extracting situational awareness from Twitter, e.g., see the work by (Verma et al. 2011) . Another important line of work is in analyzing events other than natural disasters (such as mass convergence and disruption events), but still relevant to crisis informatics. For example, Stabird et al. presented a collaborative filtering system for identifying on-the-ground 'Twitterers' during mass disruptions (Starbird et al. 2012) . Similar techniques could be employed to supplement the work in this paper. In a similar vein, the CrisisTracker system (Rogstadius et al. 2013) is another example of a system that uses crowdsourced social media curation for disaster awareness. The system does not specifically address the urgency detection problem, however. AIDR is a system that is more closely aligned with the goal of using AI for better disaster response (Imran et al. 2014) , but its goal is to classify messages into a set of user-defined categories of information such as 'needs' and 'damages.' In contrast, we consider needs at a higher-level of classification; namely, is it urgent or nonurgent? The outputs of AIDR are compatible with our own since both systems provide actionable information to first responders.",
+            "cite_spans": [
+                {
+                    "start": 106,
+                    "end": 125,
+                    "text": "(Verma et al. 2011)",
+                    "ref_id": "BIBREF47"
+                },
+                {
+                    "start": 441,
+                    "end": 463,
+                    "text": "(Starbird et al. 2012)",
+                    "ref_id": "BIBREF45"
+                },
+                {
+                    "start": 585,
+                    "end": 609,
+                    "text": "(Rogstadius et al. 2013)",
+                    "ref_id": "BIBREF39"
+                },
+                {
+                    "start": 892,
+                    "end": 911,
+                    "text": "(Imran et al. 2014)",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Crowdsourcing and existing crisis informatics platforms"
+        },
+        {
+            "text": "Another important crowdsourcing tool that has been especially useful in working with SMS messages is Ushahidi, a project that was a grassroots effort that started in Kenya and that was used initially to encourage Kenyans to report incidents (especially, acts of violence) that they have witnessed. The website was very successful, and the model has since been replicated in other countries. Just like the other systems considered in this section, we believe Ushahidi's goals and technology are compatible with the capabilities presented herein.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Crowdsourcing and existing crisis informatics platforms"
+        },
+        {
+            "text": "More generally, projects like CrisisLex, Crisis Computing 4 and EPIC (Empowering the Public with Information in Crisis) have emerged as major efforts in the crisis informatics space due to two reasons: First, the abundance and fine granularity of social media data implies that mining such data during crises can lead to robust, real-time responses; second, the recognition that any technology that is thus developed must also address the inherent challenges (including problems of noise, scale and irrelevance) in working with such datasets. CrisisLex provides a repository of crisisrelated social media data and tools, including collections of crisis data and lexicons of crisis terms (Olteanu et al. 2014) . It also includes tools to help users create their own collections and lexicons. In contrast, Project EPIC, launched in 2009 and supported by a US National Science Foundation grant, is a multi-disciplinary effort involving several universities and languages with the goal of utilizing behavioral and technical knowledge of computer-mediated communication for better crisis study and emergency response. Since its founding, Project EPIC has led to several advances in the crisis informatics space; see, for example, Palen et al. 2015; Kogan et al. 2015; Anderson et al. 2013; Soden et al. 2014) .",
+            "cite_spans": [
+                {
+                    "start": 687,
+                    "end": 708,
+                    "text": "(Olteanu et al. 2014)",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 1225,
+                    "end": 1243,
+                    "text": "Palen et al. 2015;",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 1244,
+                    "end": 1262,
+                    "text": "Kogan et al. 2015;",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 1263,
+                    "end": 1284,
+                    "text": "Anderson et al. 2013;",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 1285,
+                    "end": 1303,
+                    "text": "Soden et al. 2014)",
+                    "ref_id": "BIBREF44"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Crowdsourcing and existing crisis informatics platforms"
+        },
+        {
+            "text": "The work presented in this article is intended to be compatible with these efforts, although we are addressing a specific problem that was not addressed by any of the works cited above. We have released our model openly, and potentially, this released model could be integrated into some of the platforms described above. Crowdsourcing could be used in lieu of (or even in addition to) the active learning framework presented as one of the solutions to the low supervision challenge described later in this article. It could also be used to provide more confidence in the annotations, since there is an inherent element of subjectivity when one is labeling a tweet as 'urgent.' Note that most labeling problems in machine learning involve some subjectivity, and inter-annotation agreement has been found to be a concern in some cases. Whether such concerns arise in the case of urgency detection is an unknown issue that does not fall within the scope of the presented work, but could be a valuable issue to address in future research.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Crowdsourcing and existing crisis informatics platforms"
+        },
+        {
+            "text": "Other lines of work relevant to this paper involve minimally supervised machine learning, representation learning and transfer learning. Concerning minimally supervised machine learning (ML), in general, ML techniques where there are few, and in the case of zero-shot learning (Palatucci et al. 2009; Romera-Paredes and Torr 2015) , no observed instances for a label has been a popular research agenda for many years (Uszkoreit et al. 2009; Aggarwal and Zhai 2012) . In addition to weak supervision approaches Aggarwal and Zhai (2012) , both semi-supervised and active learning have also been studied in great depth, with surveys provided by (Zhu 2005; Settles 2010 ). However, to the best of our knowledge, a successful systems-level conjunction of various minimally supervised ML techniques has not been achieved for the task of short-text urgency detection. Such as empirical assessment is an important goal of this paper. Due to the current renaissance of neural networks (Sahlgren 2005), embedding and representation learning methods have become more popular due to the advent of fast and effective models like skip-gram. Recent work has used such embeddings in numerous NLP and graph-theoretic applications (Collobert et al. 2011) , including information extraction (Kejriwal and Szekely 2017) , named entity recognition (Nadeau and Sekine 2007) and entity linking (Moro et al. 2014 ). The most well-known example is word2vec (for words) (Mikolov et al. 2013) , followed by similar models like paragraph2vec (for multi-word text) and fasttext (Dai et al. 2015; Joulin et al. 2016) , the last two being most relevant for the work in this paper. For a recent evaluation study on representation learning for text, including potential problems, we refer the reader to (Faruqui et al. 2016) .",
+            "cite_spans": [
+                {
+                    "start": 277,
+                    "end": 300,
+                    "text": "(Palatucci et al. 2009;",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 301,
+                    "end": 330,
+                    "text": "Romera-Paredes and Torr 2015)",
+                    "ref_id": "BIBREF40"
+                },
+                {
+                    "start": 417,
+                    "end": 440,
+                    "text": "(Uszkoreit et al. 2009;",
+                    "ref_id": null
+                },
+                {
+                    "start": 441,
+                    "end": 464,
+                    "text": "Aggarwal and Zhai 2012)",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 510,
+                    "end": 534,
+                    "text": "Aggarwal and Zhai (2012)",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 642,
+                    "end": 652,
+                    "text": "(Zhu 2005;",
+                    "ref_id": null
+                },
+                {
+                    "start": 653,
+                    "end": 665,
+                    "text": "Settles 2010",
+                    "ref_id": "BIBREF42"
+                },
+                {
+                    "start": 1213,
+                    "end": 1236,
+                    "text": "(Collobert et al. 2011)",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 1272,
+                    "end": 1299,
+                    "text": "(Kejriwal and Szekely 2017)",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 1327,
+                    "end": 1351,
+                    "text": "(Nadeau and Sekine 2007)",
+                    "ref_id": "BIBREF27"
+                },
+                {
+                    "start": 1371,
+                    "end": 1388,
+                    "text": "(Moro et al. 2014",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 1444,
+                    "end": 1465,
+                    "text": "(Mikolov et al. 2013)",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 1549,
+                    "end": 1566,
+                    "text": "(Dai et al. 2015;",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 1567,
+                    "end": 1586,
+                    "text": "Joulin et al. 2016)",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 1770,
+                    "end": 1791,
+                    "text": "(Faruqui et al. 2016)",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Representation, transfer and deep learning in NLP and social media"
+        },
+        {
+            "text": "Finally, transfer learning is a central agenda in this paper; an excellent survey of dominant techniques may be found in (Pan and Yang 2010) . More recent work on domain adaptation may be found in , with the work in (Pedrood and Purohit 2018 ) applied specifically to the disaster response problem. Pedrood and Purohit (2018) also applied transfer learning to the problem of mining help intent on Twitter. Other relevant work in crisis informatics, both in terms of defining 'actionable information' problems like urgency and need mining, and providing multimodal Twitter datasets from natural disasters, may be found in (He et al. 2017; Purohit et al. 2018) and . Caragea et al., for example, present an approach to identifying informative messages in crises by using CNNs (Caragea et al. 2016) . Other similar works include Burel et al. (2017) Burel and Alani (2018), Nguyen et al. (2016) , (2017) and ). An important difference between the class of papers cited and our own work is that we are not seeking to detect events in crisis situations, but are instead trying to assign urgency scores to sub-events that are happening in the aftermath of a disaster. The two problems are related in that better accuracy on event detection (for which these deep learning systems could be used to great effect) would lead to better identification of urgent events. However, urgency detection is a difficult problem in and of itself, beyond the broader problem of isolating informative events related to the disaster from an incoming stream of messages. Some of the work above is multimodal (e.g., the paper by Nguyen et al. (2017) ), which would be an interesting direction for future research for urgency detection (from images and videos, rather than just text).",
+            "cite_spans": [
+                {
+                    "start": 121,
+                    "end": 140,
+                    "text": "(Pan and Yang 2010)",
+                    "ref_id": "BIBREF34"
+                },
+                {
+                    "start": 216,
+                    "end": 241,
+                    "text": "(Pedrood and Purohit 2018",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 299,
+                    "end": 325,
+                    "text": "Pedrood and Purohit (2018)",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 621,
+                    "end": 637,
+                    "text": "(He et al. 2017;",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 638,
+                    "end": 658,
+                    "text": "Purohit et al. 2018)",
+                    "ref_id": "BIBREF38"
+                },
+                {
+                    "start": 774,
+                    "end": 795,
+                    "text": "(Caragea et al. 2016)",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 826,
+                    "end": 845,
+                    "text": "Burel et al. (2017)",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 870,
+                    "end": 890,
+                    "text": "Nguyen et al. (2016)",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 1602,
+                    "end": 1622,
+                    "text": "Nguyen et al. (2017)",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Representation, transfer and deep learning in NLP and social media"
+        },
+        {
+            "text": "An alternate way of looking at the problem is as an 'event detection' problem, e.g., in (Zheng et al. 2017 ) Zheng et al. study semi-supervised event-related tweet identification which also tries to identify the urgent tweets related to earthquakes and floods. These works are complementary to the minimally supervised, low-resource setting in this paper. Finally, we note that there has been some very recent work in few-shot models that use little to no training data and are similar to this paper in that regard , Kruspe et al. (2019) . However, there are significant differences from our own work. For example, while consider a specific disaster situation (flood risk assessment in a particular city in India), Kruspe et al. (2019) considers the earlier problem of detecting tweets that are relevant to the crisis itself, rather than the problem of assigning an urgency score to events that are detected. In general, we are not aware of a few-shot or minimally supervised technique that tackles urgency detection for the purposes of triage.",
+            "cite_spans": [
+                {
+                    "start": 88,
+                    "end": 106,
+                    "text": "(Zheng et al. 2017",
+                    "ref_id": "BIBREF49"
+                },
+                {
+                    "start": 517,
+                    "end": 537,
+                    "text": "Kruspe et al. (2019)",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 715,
+                    "end": 735,
+                    "text": "Kruspe et al. (2019)",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Representation, transfer and deep learning in NLP and social media"
+        },
+        {
+            "text": "Page 5 of 12 58",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Representation, transfer and deep learning in NLP and social media"
+        },
+        {
+            "text": "We briefly enumerate below the research questions under consideration in this paper. While the first question captures the classical low-supervision setting, the second question introduces an element of transfer learning.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Research questions"
+        },
+        {
+            "text": "How do we build an urgency detection system for a specific crisis when given as training input both a small number of manually labeled tweets and a large number of unlabeled tweets (background corpus) for that crisis? 2. Low-supervision Transfer Learning for Urgency Detection: How do we build an urgency detection system for a specific crisis when given as training input a small number of manually labeled tweets for that crisis, as well as 'auxiliary' training input of (a small number of) manually labeled tweets and unlabeled background tweets from a different crisis?",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Low-supervision Training for Urgency Detection:"
+        },
+        {
+            "text": "Unlike the first scenario, the second scenario applies to a very short period (hours, or even minutes) after the crisis has struck; this is why a background corpus is not available (yet) for that crisis. Instead, only a few manually labeled messages that have been acquired till that point are available.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Low-supervision Training for Urgency Detection:"
+        },
+        {
+            "text": "The approach for addressing the first research question is schematized in Fig. 1 . The first step in the workflow involves data preprocessing of the corpus. We follow a standard set Fig. 1 Training workflow for urgency detection of preprocessing steps. First, we apply a tokenizer to split the sentences into lists of words and delete words with special prefixes (including @ and RT, which are particularly prevalent in Twitter) and special suffixes. We also remove non-alphanumeric characters and convert the entire sentence to lowercase. Next, similar to traditional machine learning pipelines, we extract a set of manual features for expressing prior human knowledge about urgency detection. Our manual features are thus called because they are primarily keyword-based and binary, with keywords selected based on data exploration and domain knowledge. We consider ten such keywords, namely hit, help, kill, injure, strand, miss, urgent, die, need, food. If any of these keywords are present 5 , the corresponding feature is set to 1. Note that these keywords are associated with situations that are generally urgent, like people who have been attacked or affected by a crisis and need urgent help, but some are noisier than others 6 . Additionally, we also utilize an eleventh feature that checks to see if any numeric digits are present in the dataset. The rationale behind this feature is that, in more urgent tweets, numbers are often present, e.g., '15 climbers are currently trapped on Everest due to the avalanche.'",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 74,
+                    "end": 80,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                },
+                {
+                    "start": 182,
+                    "end": 188,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Low-supervision urgency detection"
+        },
+        {
+            "text": "In the Experiments section, we show that the manual features are not adequate for addressing low-supervision urgency detection. Besides, it is prudent to utilize the large number of unlabeled tweets (background corpus) if it serves a useful purpose in improving performance. To that end, we train a skip-gram based word embedding model based on the 'bag of tricks' model released by researchers from Facebook in a package called fastTextJoulin et al. (2016) . The reason behind using fastText, as opposed to alternate word embedding models like GloVe and word2vec Mikolov et al. (2013) , is several-fold. First, fastText is very fast and easy to execute and is well maintained. Second, preliminary analyses showed that it does quite well on social media tasks and because of the bag of tricks methodology (that uses character and sub-word embeddings to gracefully deal with OOVs 7 and misspellings), it is able to generalize much better. Finally, fastText's APIs include a way to get sentence embeddings directly after training the word embedding model. By training fastText on the background corpus, we are able to train a robust embedding model. In both the training and test phases, we use this model to get feature vectors for our messages besides the 11-dimensional manual feature vector described earlier.",
+            "cite_spans": [
+                {
+                    "start": 451,
+                    "end": 457,
+                    "text": "(2016)",
+                    "ref_id": null
+                },
+                {
+                    "start": 564,
+                    "end": 585,
+                    "text": "Mikolov et al. (2013)",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Low-supervision urgency detection"
+        },
+        {
+            "text": "However, given that the background corpus might not be as extensive or representative as a 'general' corpus like Wikipedia, we try to smooth the feature space by also using a pre-trained embedding model trained over the English Wikipedia corpus and publicly available 8 . The vectors obtained from this model have 300 dimensions and were trained using skip gram with default parameters.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Low-supervision urgency detection"
+        },
+        {
+            "text": "As Fig. 1 illustrates, we use all of these feature sets to build an ensemble by combining local embedding features, manual features and Wikipedia pre-trained word embedding features. The final score of the ensemble model is achieved by weighting the scores of the three linear regression models (one for each feature set), with weights adding to 1. The weights are set using a held-out validation set.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 3,
+                    "end": 9,
+                    "text": "Fig. 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Low-supervision urgency detection"
+        },
+        {
+            "text": "When the urgency of a new 'test' message needs to be determined, we preprocess the message, extract all three feature sets 9 and get the weighted score from the three regression models. If the score falls above a pre-determined threshold (again, determined through validation), then the message is flagged as urgent; otherwise, it is not.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Low-supervision urgency detection"
+        },
+        {
+            "text": "In this section, we describe our approach for 'urgency detection transfer' whereby a source dataset is given (similar to RQ1, where both an unlabeled background corpus and a small manually labeled training set are available) along with a target dataset (only a small manually labeled training set and no background corpus), representing the crisis under investigation. Our approach for urgency transfer is captured in Algorithm 1. Many of the steps are similar to those for RQ1, including preprocessing, but there are some important differences; hence, we use pseudocode to express the workflow more precisely. For example, while the Wiki embedding model remains the same as earlier, the manual features are obviously extracted over the target domain (since they do not require a background corpus) and importantly, the 'local' embedding model is now trained over the source domain corpus, since there is no target domain unlabeled background corpus available.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Urgency detection using transfer learning"
+        },
+        {
+            "text": "To 'sync' the source and target domains, we consider a simple, but empirically effective, approach. Rather than use just the labeled target domain data for training the three linear regression models, we combine the labeled training data from both the source and target domains, but the target training data are up-sampled to allow its properties to emerge more concretely in the training. The up-sampling margin is a parameter in Algorithm 1; in practice, a factor of 6 (meaning the target labeled dataset is up-sampled by 6x) has been found to work well. To maximize training dataset utility, we do not use a validation set for classifier weight optimization, but consider the average of all three classifiers as the final score.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Urgency detection using transfer learning"
+        },
+        {
+            "text": "comprises a collection of tweets collected in the aftermath of the 2015 Nepal earthquake (also called the Gorkha earthquake), while Macedonia was not an actual disaster but a realistic live-action simulation (of a disaster) conduced in 1. Train word embedding W s on text in D su \u222a D sl ; 2. Up-sample D t by factor u and 'mix' with D sl to get expanded training set, D train : D tu \u222a D s l 3. Extract manual feature set F m , source embedding feature set F s (using W s ), and Wiki feature set F w (using W w ) from each message in D train ; 4. Train linear regression models C s , C m and C w on F s , F m and F w resp. to get classifier; 5. Return final classifier model C : avg score(C s , C m , C w );",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Urgency detection using transfer learning"
+        },
+        {
+            "text": "For evaluating the approaches laid out in Sect. 4, we consider three real-world datasets described in Table 2 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 102,
+                    "end": 109,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "Data"
+        },
+        {
+            "text": "Two of the datasets (Nepal and Macedonia) were made available to us through the DARPA LORELEI program 10 , under which this project is funded. The Nepal dataset Macedonia toward the end of 2018. Macedonia does not have much noise and is 'information-dense,' but small. As such, it provides a good test of the transfer learning abilities of the approach presented. Kerala describes tweets in the aftermath of the Kerala floods in South India in 2018 and is the largest dataset, with many relevant and irrelevant tweets. We note that these datasets were collected independently by an external participant in the program and made available to all performers in the program for research.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Data"
+        },
+        {
+            "text": "Originally, all the raw messages for the datasets described in Table 2 were unlabeled, in that their urgency status was unknown. Since the Macedonia dataset only contains 205 messages and is a small but information-dense dataset, we labeled all messages in Macedonia as urgent or non-urgent (hence, there are no unlabeled messages in Macedonia as given in Table 2 ). For the two other Twitter-based datasets, we used active learning to compose a labeled set that would contain challenging examples. The basic process was to do data preprocessing as described in Sect. 4, followed by training the local fastText-based word embedding model on all messages in the corpus. Next, we randomly labeled 50 urgent and non-urgent tweets and fed them into a classifier. The classifier was applied on the rest of the unlabeled data to obtain 'ambiguous' examples (where the classifier's probability of the positive label was closest to 50%). We labeled another 100 samples this way and continued to re-train and apply the classifier for two more iterations till we obtained a total of 400 labeled points 11 . Note that the final labeled dataset may not be balanced in terms of urgent and non-urgent messages. Table 2 shows that Nepal is roughly balanced, while Kerala is imbalanced. We used stratified sampling therefore to split the labeled pool into training and testing datasets for evaluating the two research questions. We used 90% for training and 10% for testing. While the data cannot be made publicly available due to privacy concerns, we have released both the trained models and instructions for how to re-train the model on novel datasets as a Docker container 12 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 63,
+                    "end": 70,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 356,
+                    "end": 363,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 1197,
+                    "end": 1204,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                }
+            ],
+            "section": "Data"
+        },
+        {
+            "text": "We consider four standard metrics, namely accuracy, precision, recall and F-measure. Accuracy is simply the ratio of correctly labeled messages to the size of test set, precision is the ratio of the true positives to the sum of true positives and false positives, recall is the ratio of true positives to the sum of true positives and false negatives, and finally, F-measure is the harmonic mean of precision and recall and captures their trade-off.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Metrics"
+        },
+        {
+            "text": "Datasets for investigating RQ1 include Nepal and Kerala since Macedonia does not have a large unlabeled corpus available, which is an assumption made per RQ1. Recall that we used stratified random sampling to split the labeled data for each dataset into training (90%) and test (10%) sets. Of the 90% training set, a further split was done, with 90% kept for 'training' and 10% for setting optimal weights for the 3 linear classifiers 13 trained in Section IV. To account for the effects of randomness, each experiment was conducted across ten trials, with averages reported on all four metrics described previously for all baselines described below and our approach. Among the different machine learning classifiers in the sklearn package tested, the linear regression was found to work well and used as the classifier of choice where applicable. We use six baselines to evaluate the approach for RQ1 described in Sect. 4. Note that statistical significance is tested using the one-sided Student's paired t-test by comparing the best system (on each metric) against the Local baseline, which is a reasonable choice since in a high-supervision (or even normal-supervision) setting, this baseline has been found to perform quite well. Significance at the 90% level is indicated with a *, at the 95% level with a ** and at the 99% level with a *** (Table 3) .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1346,
+                    "end": 1355,
+                    "text": "(Table 3)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Research question (RQ) 1"
+        },
+        {
+            "text": "The protocol for investigating RQ2 is similar to the one for RQ1. We consider three baselines besides our own approach:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Research question (RQ) 2"
+        },
+        {
+            "text": "Target-only Local (Target Local): This baseline is essentially the Wiki-Manual baseline described in the previous section and trained on the target dataset (i.e., no transfer learning is used, and no source is assumed). This baseline is used to illustrate the benefits of transfer learning, since this baseline sets the minimum benchmark that has to be bested by a transfer learning baseline.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Research question (RQ) 2"
+        },
+        {
+            "text": "Locally Supervised with Source Embedding (Embedding Transform): Similar to our approach on RQ1, manual features, source embeddings and pre-trained Wikipedia embeddings are used to train three classifiers (but on the labeled target domain) and average their probabilities as the final result. While the local embeddings are trained on the source domain (since unlabeled data are not available for the target domain), all classifier training is always done on the target. Locally Supervised with Up-sampling and Source Embedding (Upsample): This baseline is the same as Embedding Transform, except to boost the power of the baseline, we upsample the labeled data (in the target dataset) by 6x. Thus, this baseline tries to mitigate source bias and concept drift by giving more importance to the transfer domain. This baseline is also more appropriate for the case where the target training data are extremely limited. Table 4 illustrates the result for RQ1 on the Nepal and Kerala datasets. The results illustrate the viability of urgency detection in low-supervision settings (with our approach yielding 69.44% F-measure on Nepal, at 99% significance compared to the local baseline), with different feature sets contributing differently to the four metrics. While the local embedding model can reduce precision, for example, it can help the system to improve and accuracy and recall. Similarly, manual features reduce recall, but help the system to improve accuracy and precision (sometimes considerably). To truly address the urgency problem, therefore, a multipronged ensemble approach is justified, as also argued intuitively in Section IV. We also note that the pre-trained Wikipedia embedding model proved to be an important tool in improving the generalization ability of the model and not requiring any labeled or unlabeled data; in essence, serving as a free resource that could be helped to regularize and stabilize models that would otherwise be uncertain in lowsupervision settings.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 916,
+                    "end": 923,
+                    "text": "Table 4",
+                    "ref_id": "TABREF3"
+                }
+            ],
+            "section": "Research question (RQ) 2"
+        },
+        {
+            "text": "Concerning transfer learning experiments (RQ2), we note that source domain embedding model can improve the performance for target model, and upsampling has a generally positive effect (Tables 5, 6, 7, 8) . As expected, transfer learning performance (RQ2) is generally lower compared to the low-supervision urgency detection on a single dataset 14 (RQ1). Note that at least one of the transfer learning methods always bests the Local baseline on all metrics (except precision in Table 7 , a result not found to be significant even at the 90% level). Our approach shows a slight improvement over the upsampling baseline on two of the four scenarios (Tables 5, 7) by 2-2.7% on the F-measure metric, which shows the diminishing returns from mixing source and target labeled training data. Further improving performance by high margins will require a radically new approach left for future work.",
+            "cite_spans": [
+                {
+                    "start": 184,
+                    "end": 194,
+                    "text": "(Tables 5,",
+                    "ref_id": null
+                },
+                {
+                    "start": 195,
+                    "end": 197,
+                    "text": "6,",
+                    "ref_id": null
+                },
+                {
+                    "start": 198,
+                    "end": 200,
+                    "text": "7,",
+                    "ref_id": null
+                },
+                {
+                    "start": 201,
+                    "end": 203,
+                    "text": "8)",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 478,
+                    "end": 485,
+                    "text": "Table 7",
+                    "ref_id": null
+                }
+            ],
+            "section": "Results: RQ2"
+        },
+        {
+            "text": "This paper presented minimally supervised urgency detection approaches for short texts (such as tweets) in the aftermath of an arbitrary humanitarian crisis such as the 2015 Nepal earthquake. The presented systems covered two scenarios that often emerge in the real world. In the first scenario, a small amount (a few hundred messages) of training data labeled as urgent or non-urgent is available, along with a copious background corpus. In the second scenario, similar data are available for a 'source' domain but not for the target domain (expressing a 'new crisis') for which the urgency detection needs to be deployed. As messages are streaming in for this new domain, investigators label a few samples, but cannot rely on the availability of a background corpus since urgency needs to be tagged in real time before the crisis has fully subsided. To accomplish this challenging goal, our approach relies on a simple but robust transfer learning methodology. Experimental results on three real-world datasets validate our methods.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion and future work"
+        },
+        {
+            "text": "Some of the obvious avenues for future work are to improve the existing approach incrementally by (for example) adding more manual features and using more sophisticated local embedding model, possibly with more advanced tuning of hyperparameters like the learning rate and vector dimensionality. For improving transfer learning, we are considering using a deep learning model with priors to truly leverage the presence of a source, albeit one covering a domain that is different from the target. Deep learning for transfer learning is still in its infancy in the machine learning community, e.g., a recent survey on deep transfer learning (Tan et al. 2018) shows that most current research 'focuses on supervised learning, how to transfer knowledge in unsupervised or semi-supervised learning by deep neural network may attract more and more attention in the future'. In looking at the references they cite, the effectiveness of deep transfer learning does not seem to have been demonstrated thus far for difficult and irregular social media datasets However, we believe that this presents an opportunity for further study, especially as new and different crises like COVID-19 continue to threaten our way of life at a global scale.",
+            "cite_spans": [
+                {
+                    "start": 639,
+                    "end": 656,
+                    "text": "(Tan et al. 2018)",
+                    "ref_id": "BIBREF46"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Conclusion and future work"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Flood risk assessment of Srinagar city in Jammu and Kashmir, India",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Aggarwal",
+                    "suffix": ""
+                },
+                {
+                    "first": "C ;",
+                    "middle": [],
+                    "last": "Zhai",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Berlin Alam",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Bhat",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Farooq",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Ahmad",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ahmad",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Sheikh",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Int J Disaster Resil Built Environ",
+            "volume": "9",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Domain adaptation with adversarial training and graph embeddings",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Alam",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Joty",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Imran",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1805.05151"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Crisismmd: multimodal twitter datasets from natural disasters",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Alam",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Ofli",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Imran",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Twelfth international AAAI conference on web and social media",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Architectural implications of social media analytics in support of crisis informatics research",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Schram",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Alzabarah",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IEEE Data Eng Bull",
+            "volume": "36",
+            "issn": "",
+            "pages": "13--20",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Social sensing of floods in the UK",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Arthur",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Boulton",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Shotton",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Williams",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1711.04695"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Getting the query right: User interface design of analysis platforms for crisis research",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Avvenuti",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Cresci",
+                    "suffix": ""
+                },
+                {
+                    "first": "La",
+                    "middle": [],
+                    "last": "Polla",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Marchetti",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Tesconi",
+                    "suffix": ""
+                },
+                {
+                    "first": "M ; Ieee",
+                    "middle": [],
+                    "last": "Barrenechea",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Aydin",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Hakeem",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Jambi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Pervasive computing and communications workshops (PERCOM Workshops)",
+            "volume": "",
+            "issn": "",
+            "pages": "547--564",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "On semantics and deep learning for event detection in crisis situations",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Burel",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Saif",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Fernandez",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Alani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Crisis event extraction service (crees)-automatic detection and classification of crisis-related content on social media",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Burel",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Alani",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Identifying informative messages in disaster events using convolutional neural networks",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Caragea",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Silvescu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Tapia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "International conference on information systems for crisis response and management",
+            "volume": "",
+            "issn": "",
+            "pages": "137--147",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Natural language processing (almost) from scratch",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Collobert",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Weston",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Bottou",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Karlen",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kavukcuoglu",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Kuksa",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "J Mach Learn Res",
+            "volume": "12",
+            "issn": "",
+            "pages": "2493--2537",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "# earthquake: Twitter as a distributed sensor system",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Crooks",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Croitoru",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Stefanidis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Radzikowski",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Trans GIS",
+            "volume": "17",
+            "issn": "1",
+            "pages": "124--147",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Document embedding with paragraph vectors",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Dai",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Olah",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Le",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1507.07998"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Problems with evaluation of word embeddings using word similarity tasks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Faruqui",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Tsvetkov",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Rastogi",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Dyer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1605.02276"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "The signals and noise: actionable information in improvised social media channels during a disaster",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "He",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Lu",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Margolin",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Idrissi",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Lin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the 2017 ACM on web science conference",
+            "volume": "",
+            "issn": "",
+            "pages": "33--42",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "A lightweight and multilingual framework for crisis information extraction from twitter data",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Imran",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castillo",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Lucas",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Meier",
+                    "suffix": ""
+                },
+                {
+                    "first": "S ; Acm",
+                    "middle": [],
+                    "last": "Vieweg",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Interdonato",
+                    "suffix": ""
+                },
+                {
+                    "first": "J-L",
+                    "middle": [],
+                    "last": "Guillaume",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Doucet",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Proceedings of the 23rd international conference on world wide web",
+            "volume": "9",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Bag of tricks for efficient text classification",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Joulin",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Grave",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Bojanowski",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Mikolov",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1607.01759"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Information extraction in illicit web domains",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kejriwal",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Szekely",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the 26th international conference on world wide web",
+            "volume": "",
+            "issn": "",
+            "pages": "997--1006",
+            "other_ids": {}
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Robust filtering of crisis-related tweets",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kersten",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kruspe",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wiegmann",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Klan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "ISCRAM 2019 conference proceedings-16th international conference on information systems for crisis response and management",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Omlml: a helpful opinion mining method based on lexicon and machine learning in social networks",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Keyvanpour",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Zandian",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Heidarypanah",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Soc Netw Anal Mining",
+            "volume": "10",
+            "issn": "1",
+            "pages": "1--17",
+            "other_ids": {}
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Detection and extracting of emergency knowledge from twitter streams",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Klein",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Laiseca",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Casado-Mansilla",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "L\u00f3pez-De-Ipi\u00f1a",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Nespral",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "International conference on ubiquitous computing and ambient intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "462--469",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Think local, retweet global: retweeting by the geographically-vulnerable during hurricane sandy",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Kogan",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of the 18th ACM conference on computer supported cooperative work & social computing. CSCW '15",
+            "volume": "",
+            "issn": "",
+            "pages": "981--993",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/2675133.2675218"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Detecting event-related tweets by example using few-shot models",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kruspe",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kersten",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Klan",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Tweettracker: an analysis tool for humanitarian and disaster relief",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kumar",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Barbier",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Abbasi",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Activeness of Syrian refugee crisis: an analysis of tweets",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Ladner",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Ramineni",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "George",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Soc Netw Anal Mining",
+            "volume": "9",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Disaster damage assessment from the tweets using the combination of statistical features and informative words",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Madichetty",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Sridevi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Soc Netw Anal Mining",
+            "volume": "9",
+            "issn": "1",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Distributed representations of words and phrases and their compositionality",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Mikolov",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Sutskever",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Corrado",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dean",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Advances in neural information processing systems",
+            "volume": "",
+            "issn": "",
+            "pages": "3111--3119",
+            "other_ids": {}
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Entity linking meets word sense disambiguation: a unified approach",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Moro",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Raganato",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Navigli",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Trans Assoc Comput Linguistics",
+            "volume": "2",
+            "issn": "",
+            "pages": "231--244",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "A survey of named entity recognition and classification",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Nadeau",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Sekine",
+                    "suffix": ""
+                }
+            ],
+            "year": 2007,
+            "venue": "Lingvisticae Investig",
+            "volume": "30",
+            "issn": "1",
+            "pages": "3--26",
+            "other_ids": {}
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Applications of online deep learning for crisis response using social media information",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Joty",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Imran",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Sajjad",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Mitra",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1610.01030"
+                ]
+            }
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Automatic image filtering on social networks using deep learning and perceptual hashing during crises",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Nguyen",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Alam",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Ofli",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Imran",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1704.02602"
+                ]
+            }
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "CrisisLex: a lexicon for collecting and filtering microblogged communications in crises",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Olteanu",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castillo",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Diaz",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Vieweg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Proc. int. conf. weblogs and social media (ICWSM)",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Zero-shot learning with semantic output codes",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Palatucci",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Pomerleau",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hinton",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Mitchell",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Advances in neural information processing systems",
+            "volume": "",
+            "issn": "",
+            "pages": "1410--1418",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Crisis informatics?new data for extraordinary times",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Science",
+            "volume": "353",
+            "issn": "6296",
+            "pages": "224--225",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Success & scale in a data-producing organization: the socio-technical evolution of openstreetmap in response to humanitarian events",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Soden",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Barrenechea",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Proceedings of the 33rd annual ACM conference on human factors in computing systems. CHI '15",
+            "volume": "",
+            "issn": "",
+            "pages": "4113--4122",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/2702123.2702294"
+                ]
+            }
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "A survey on transfer learning",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Pan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "IEEE Trans Knowl Data Eng",
+            "volume": "22",
+            "issn": "10",
+            "pages": "1345--1359",
+            "other_ids": {}
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Opinion mining and sentiment analysis",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Pang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                }
+            ],
+            "year": 2008,
+            "venue": "Foundations Trends\u00ae Inform Retr",
+            "volume": "2",
+            "issn": "1-2",
+            "pages": "1--135",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Mining help intent on twitter during disasters via transfer learning with sparse coding",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Pedrood",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Purohit",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "International conference on social computing, behavioral-cultural modeling and prediction and behavior representation in modeling and simulation",
+            "volume": "",
+            "issn": "",
+            "pages": "141--153",
+            "other_ids": {}
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Ranking and grouping social media requests for emergency services using serviceability model",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Purohit",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castillo",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pandey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Soc Netw Anal Mining",
+            "volume": "10",
+            "issn": "1",
+            "pages": "1--17",
+            "other_ids": {}
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "Social-EOC: serviceability model to rank social media requests for emergency operation centers",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Purohit",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Castillo",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Imran",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pandey",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "2018 IEEE/ACM International conference on advances in social networks analysis and mining (ASONAM)",
+            "volume": "",
+            "issn": "",
+            "pages": "119--126",
+            "other_ids": {}
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Crisistracker: crowdsourced social media curation for disaster awareness",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rogstadius",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vukovic",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Teixeira",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Kostakos",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Karapanos",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Laredo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "IBM J Res Dev",
+            "volume": "57",
+            "issn": "5",
+            "pages": "1--4",
+            "other_ids": {}
+        },
+        "BIBREF40": {
+            "ref_id": "b40",
+            "title": "An embarrassingly simple approach to zero-shot learning",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Romera-Paredes",
+                    "suffix": ""
+                },
+                {
+                    "first": "Torr",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "International conference on machine learning",
+            "volume": "",
+            "issn": "",
+            "pages": "2152--2161",
+            "other_ids": {}
+        },
+        "BIBREF41": {
+            "ref_id": "b41",
+            "title": "Earthquake shakes twitter users: real-time event detection by social sensors",
+            "authors": [
+                {
+                    "first": "M ;",
+                    "middle": [],
+                    "last": "Sahlgren",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Okazaki",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Matsuo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Proceedings of the 19th international conference on world wide web",
+            "volume": "",
+            "issn": "",
+            "pages": "851--860",
+            "other_ids": {}
+        },
+        "BIBREF42": {
+            "ref_id": "b42",
+            "title": "Active learning literature survey",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Settles",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "",
+            "volume": "52",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF43": {
+            "ref_id": "b43",
+            "title": "Socializing in emergencies?a review of the use of social media in emergency situations",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Simon",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Goldberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Adini",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Int J Inf Manage",
+            "volume": "35",
+            "issn": "5",
+            "pages": "609--619",
+            "other_ids": {}
+        },
+        "BIBREF44": {
+            "ref_id": "b44",
+            "title": "Resilience-building and the crisis informatics agenda: lessons learned from open cities Kathmandu",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Soden",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Budhathoki",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF45": {
+            "ref_id": "b45",
+            "title": "Learning from the crowd: collaborative filtering techniques for identifying on-the-ground twitterers during mass disruptions",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Starbird",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Muzny",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Proceedings of 9th international conference on information systems for crisis response and management, ISCRAM",
+            "volume": "",
+            "issn": "",
+            "pages": "1--10",
+            "other_ids": {}
+        },
+        "BIBREF46": {
+            "ref_id": "b46",
+            "title": "Analysis and improvement of minimally supervised machine learning for relation extraction",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Tan",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kong",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "International conference on artificial neural networks",
+            "volume": "",
+            "issn": "",
+            "pages": "8--23",
+            "other_ids": {}
+        },
+        "BIBREF47": {
+            "ref_id": "b47",
+            "title": "Natural language processing to the rescue? extracting\" situational awareness\" tweets during mass emergency",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Verma",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Vieweg",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Corvey",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Martin",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Palmer",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Schram",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Fifth international AAAI conference on weblogs and social media",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF48": {
+            "ref_id": "b48",
+            "title": "Microblogging during two natural hazards events: what twitter may contribute to situational awareness",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Vieweg",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Hughes",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Starbird",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Palen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "Proceedings of the SIGCHI conference on human factors in computing systems",
+            "volume": "",
+            "issn": "",
+            "pages": "1079--1088",
+            "other_ids": {}
+        },
+        "BIBREF49": {
+            "ref_id": "b49",
+            "title": "Semi-supervised event-related tweet identification with dynamic keyword generation",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Han",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Proceedings of the 2017 ACM on conference on information and knowledge management",
+            "volume": "",
+            "issn": "",
+            "pages": "1619--1628",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "for a single linear classifier are sentence embeddings (with each pre-processed message treated as a 'sentence') trained using the 5-gram skip gram-based fastText model with vector dimensionality set to 20 Manual feature-based (Manual) This baseline only considers the 11 manual features described earlier in Sect. 4 Wikipedia word embedding (Wiki) This baseline only considers the linear classifier trained on the pretrained Wikipedia embedding model Local embedding and manual feature-based ensemble (Local-Manual) This baseline combines Local and Manual by training two linear regression classifiers and weighting their probabilities to get the final result (using the validation set). Local embedding and Wikipedia word embedding ensemble (Wiki-Local) This baseline combines Local and Wiki using the same methodology as for Local-Manual. Wikipedia word embedding and manual feature-based ensemble (Wiki-Manual) This baseline combines Manual and Wiki using the same methodology as for Local-Manual.",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Urgent and non-urgent examples from three real-world datasets that we describe further in Sect. 5Wow. ndtv just showed the same Philippines earthquake picture and said it's from Kathmandu on TV. Macedonia Some people are trapped in the marketplace need help.the streets are filled with fecal and water no water We re trapped at the national commissioner s house the first floor s loaded with the kids have begun scared.",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF2": {
+            "text": "",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF3": {
+            "text": "Results investigating RQ1 on the Nepal and Kerala datasetsThe bold values in each column represent the best results achieved on that column's metric",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF4": {
+            "text": "Results investigating RQ2 using the Nepal dataset as source and Macedonia dataset as targetThe bold values in each column represent the best results achieved on that column's metric Results investigating RQ2 using the Kerala dataset as source and Macedonia dataset as targetThe bold value in each column represents the best result achieved on that column's metric Results investigating RQ2 using the Nepal dataset as source and Kerala dataset as targetThe bold value in each column represents the best result achieved on that column's metricTable 8Results investigating RQ2 using the Kerala dataset as source and Nepal dataset as targetThe bold value in each column represents the best result achieved on that column's metric",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "The authors gratefully acknowledge the ongoing support and funding of the DARPA LORELEI program and our partner collaborators in providing detailed analysis. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorsements, either expressed or implied, of DARPA, AFRL, or the US Government.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        },
+        {
+            "text": "Conflict of interest The authors declare that they have no conflict of interest.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Compliance with ethical standards"
+        }
+    ]
+}

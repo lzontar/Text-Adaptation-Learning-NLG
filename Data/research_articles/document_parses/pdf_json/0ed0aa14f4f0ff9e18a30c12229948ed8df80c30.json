@@ -1,0 +1,1699 @@
+{
+    "paper_id": "0ed0aa14f4f0ff9e18a30c12229948ed8df80c30",
+    "metadata": {
+        "title": "DIFFERENTIAL REPLICATION IN MACHINE LEARNING A PREPRINT",
+        "authors": [
+            {
+                "first": "Irene",
+                "middle": [],
+                "last": "Unceta",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universitat de Barcelona",
+                    "location": {}
+                },
+                "email": "irene.unceta@bbvadata.com"
+            },
+            {
+                "first": "Jordi",
+                "middle": [],
+                "last": "Nin",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universitat de Barcelona",
+                    "location": {}
+                },
+                "email": "jordi.nin@esade.edu"
+            },
+            {
+                "first": "Oriol",
+                "middle": [],
+                "last": "Pujol",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Universitat de Barcelona",
+                    "location": {}
+                },
+                "email": "oriol_pujol@ub.edu"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "When deployed in the wild, machine learning models are usually confronted with data and requirements that constantly vary, either because of changes in the generating distribution or because external constraints change the environment where the model operates. To survive in such an ecosystem, machine learning models need to adapt to new conditions by evolving over time. The idea of model adaptability has been studied from different perspectives. In this paper, we propose a solution based on reusing the knowledge acquired by the already deployed machine learning models and leveraging it to train future generations. This is the idea behind differential replication of machine learning models.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "learning system's environment is prone to change in time. The Gartner Data Science Team Survey [2] found that over 60% of machine learning models developed in companies are never actually put into production, due mostly to a lack of alignment with environmental demands. To survive in such an ecosystem, machine learning models need to adapt to new conditions by learning to evolve over time.",
+            "cite_spans": [
+                {
+                    "start": 95,
+                    "end": 98,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "This notion of adaptability has been present in the literature since the early times of machine learning, as practitioners have had to devise ways in which to adapt theoretical proposals to their everyday life scenarios [3, 4, 5] . As the discipline has evolved, so have the available techniques to this end. Consider, for example, situations where the underlying data distribution changes resulting in a concept drift. Traditional batch learners were incapable of adapting to such drifts. Online learning algorithms were devised [6] to succeed in this task by iteratively updating their knowledge according to the data shifts. In other situations, it is not the data that change but the business needs themselves. For instance, fraud detection algorithms [7] are regularly retrained to incorporate new types of fraud. Commercial machine learning applications are designed to answer very specific business objectives that may evolve in time. Take, for example, the case where a company wants to focus on a new client portfolio. This may require evolving from a binary classification setting to a multi-class configuration [8] . Under such circumstances, the operational point of a trained classifier can be changed to adapt it to the new policy. Alternatively, it is also possible to add patches in the form of wrappers to already deployed models. These endow models with new traits or functionalities that help them adapt to the new data conditions, either globally [9] or locally [10] .",
+            "cite_spans": [
+                {
+                    "start": 220,
+                    "end": 223,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 224,
+                    "end": 226,
+                    "text": "4,",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 227,
+                    "end": 229,
+                    "text": "5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 530,
+                    "end": 533,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 756,
+                    "end": 759,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 1122,
+                    "end": 1125,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1467,
+                    "end": 1470,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 1482,
+                    "end": 1486,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "In contrast, when it is the very nature of the system that changes, alternatives are scarce. When change affects the entire ecosystem of a model, most existing solutions are not applicable. Say, for example, that one of the original input attributes is no longer available, that a devised black-box solution is required to be interpretable or that updated software licenses require moving to a new production environment. It is such drastic changes in the demands of a machine learning system that this article is concerned with.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "A straightforward solution in this context is to discard the existing model and re-train a new one. However, by discarding the given solution, we loose all the acquired knowledge and have to rebuild and validate the full machine learning stack. This is seldom the most efficient not the most effective way for tackling this challenge. In this paper, we explore this problem and advocate for imitating the way in which biological systems adapt to changes. In particular, we stress the importance of reusing the knowledge acquired by the already existing machine learning model in order to train a second generation that is better adapted to th enew conditions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": ""
+        },
+        {
+            "text": "Adaptation of machine learning models to new scenarios or domains is a well known problem in the machine learning literature. The most well known research branches are transfer learning and domain adaptation. Domain adaptation usually deals with changes in the data distributions as time evolves, or with learning knowledge representations for one domain such that they can be transferred to another related target domain. For example, due to the COVID-19 pandemic, several countries decided to accept card payments without introducing the pin up to 50 euros instead of the previous 20 euros limit, in order to minimize the interactions of card holders with the points of selling. This domain modification may affect to the fraud card detection algorithms, requiring modifications in their usage.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Modelling adaptation to new environments"
+        },
+        {
+            "text": "Conversely, transfer learning refers to the specific case where the knowledge acquired when solving one task is recycled to solve a different, yet related task [11] . In general, the problem of transfer learning can be mathematically framed as follows. Given source and target domains D s and D t and their corresponding tasks T s and T t , the goal of transfer learning is to build a target conditional distribution P (y t |x t ) in D t for task T t from the information obtained when learning D s and T s , where T s = T t and D s = D t . Advantages of this kind of learning when compared with traditional learning are that learning is performed much faster, requiring less data, and even achieving better accuracy results.",
+            "cite_spans": [
+                {
+                    "start": 160,
+                    "end": 164,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Modelling adaptation to new environments"
+        },
+        {
+            "text": "In this work we focus in a different adaptation problem. In our described scenario, the task remains the same but the existing solution is no longer fit because of changes in the environmental constraints. We can frame the problem at hand using the former notation as follows. Given a domain D s , its corresponding task T , and the set of original environmental constraints C s that make the solution of this problem feasible we assume an scenario were a hypothesis space H s has been defined. In this context, we want to learn a new solution for the same task and for a new target scenario defined by the set of feasibility constraints C t , where C t = C s . This may or may not require the definition of a new hypothesis space H t . In a concise form and considering an optimization framework this can be rewritten as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Modelling adaptation to new environments"
+        },
+        {
+            "text": "This problem corresponds to that of environmental adaptation. Under this notation, the original solution corresponds to a model h s that belongs to the hypothesis space H s defined for the first scenario. This is a model that fulfills the constraints C s and maximizes P (y|x; h) for a training dataset S = {(x, y)}, defined by task the T on the domain D s . Adaptation involves transitioning from this original scenario to Scenario II; a process which may be straightforward. Although, in general, this is not the case.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Modelling adaptation to new environments"
+        },
+        {
+            "text": "The solution obtained for the first scenario may be unfeasible in the second; thus, effectively ceasing the lifespan of the learned model. This happens when h s is outside of the feasible set defined by C t . In the most benevolent case, there may exist another solution from the original hypothesis space, H s , that fulfills the new constraints. However, there might be no overlapping between the set of constraints C t and the set of models defined by H s . This implies that no model of that hypothesis space can be considered a solution. In such cases, adaptation involves definition of a new hypothesis space H t altogether. Take, for example, the case of an application with a multivariate Gaussian kernel support vector machine. Assume that due to changes in the existing regulation, models are required to be fully interpretable in the considered application. The new set of constraints is not compatible with the original scenario and hence we would require a complete change of substrate.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Modelling adaptation to new environments"
+        },
+        {
+            "text": "In this scenario, we introduce the notion of differential replication of machine learning models as an efficient approach to ensure model survival in a new demanding environment, by building on knowledge acquired in previous generations. This is solving for scenario II considering the solution obtained for Scenario I. Differential replications ensures the environmental adaptation of machine learning models when they are subjected to constant changes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Modelling adaptation to new environments"
+        },
+        {
+            "text": "\"When copies are made with variation, and some variations are in some tiny way \"better\" (just better enough so that more copies of them get made in the next batch), this will lead inexorably to the ratcheting process of design Solving the former environmental adaptation problem can sometimes be straightforwardly done by discarding the existing model and re-training a new one. This is possible when the new model hypothesis space H t is required to provide feasible solutions for the constraint set C t . However, it is worth considering the costs of this approach. In general, rebuilding a model from scratch (i) implies obtaining the clearance from legal, business, ethical, and engineering departments, (ii) does not guarantee that a good or better solution of the objective function will be achieved 1 , (iii) requires a whole new iteration of the machine learning pipeline, which is costly and time-consuming, (iv) assumes full access to the training dataset, which may no longer be available or require a very complex version control process. Plus, in many companies machine learning solutions are kept up-to-date using automated systems that continuously evaluate and retrain models; a technique known as continuous learning. Note, however, that this may take huge storage space, due to the need to save all the new incoming information. Hence, in the best case scenario, re-training is an expensive and difficult approach that assumes a certain level of knowledge that is not always guaranteed. Nonetheless, this is the most commonly used technique for solving this environmental adaptation problem. In what follows we consider other techniques.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication"
+        },
+        {
+            "text": "Environmental adaptation is well known for living beings. Under the theory of Natural Selection, adaptation relies on changes in the phenotype of a species over several generations to guarantee its survival and evolution. This is sometimes referred to as differential reproduction. In the same lines, we define differential replication of a machine learning model as a cloning process in which traits are inherited from generation to generation while at the same time adding variations that make descendants more suitable/fit to the new environment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication"
+        },
+        {
+            "text": "More formally, differential replication refers to the process of finding a solution h t that fulfills the constraints C t , i.e. it is a feasible solution, while preserving/inheriting features from h s . Note that, in general, P (y|x; h t ) \u223c P (y|x; h s ). In the best case scenario, we would like to preserve or improve the performance of the source solution h s , also known as the parent. However, this is requirement that may not always be achieved. In a biological simile, requiring a guepard to be able to fly may imply loosing its ability to run fast. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication"
+        },
+        {
+            "text": "In this section, we consider existing approaches to implement differential replication in its attempt to solve the problem of environmental adaptation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "The notion of differential replication is built on top of two concepts. First, there is some inheritance mechanism that is able to transfer key aspects from the previous generation to the next. That would account for the name of replication.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "Second, the next generation should display new features or traits not present in their parents. This corresponds to the idea of differential. These new traits should make the new generation more fit to current environment to enable environmental adaptation of the offspring.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "Particularizing to machine learning models, implementing the concept of differential may involve a fundamental change in the substratum of the given model. This means we need a new hypothesis space that will ensure that part of the models in that space fulfill the constraints of the new environment C t . Consider, for example, the case of a large ensemble of classifiers. In highly time demanding tasks, this model may be too slow to provide real time prediction when deployed into production. Differential replication of this model enables moving from this architecture to a simpler, more efficient one, such as that of a shallow neural network [12] . This \"child\" network can inherit the decision behavior of its predecessor while at the same time being more fit to the new environment.",
+            "cite_spans": [
+                {
+                    "start": 648,
+                    "end": 652,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "Conversely, replication requires that some behavioral aspect be inherited by the next generation. Usually, it is the model's decision behavior that is inherited, so that the next generation will replicate the parent decision boundary. Replication can be attained in many different ways. As shown in Fig. 1 , depending on the amount of knowledge that is assumed about the initial data and model, mechanisms for inheritance can be categorized as follows:",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 299,
+                    "end": 305,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "\u2022 Inheritance by sharing the dataset: Two models trained on the same data are bound to learn similar decision boundaries. This is the weakest form of inheritance possible, were no actual information is transferred from source to target. Here the decision boundary is reproduced indirectly and mediated through the data themselves. Re-training falls under this category. This form of inheritance requires no access to the parent model, but assumes knowledge of its training data.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "\u2022 Inheritance using edited data: Editing is the methodology that allows data selection for training purposes [13, 14, 15] . Editing can be used to preserve those data that are relevant to the decision boundary learned by the original solution and use them to train the next generation. Take, for example, the case where the source hypothesis space corresponds to the family of support vector machines. In training a differential replica, one could retain only those data points that were identified as support vectors. This mechanism assumes full access to the model internals, as well as to the training data.",
+            "cite_spans": [
+                {
+                    "start": 109,
+                    "end": 113,
+                    "text": "[13,",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 114,
+                    "end": 117,
+                    "text": "14,",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 118,
+                    "end": 121,
+                    "text": "15]",
+                    "ref_id": "BIBREF14"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "\u2022 Inheritance using model driven enriched data: Data enrichment is a form of adding new information to the training dataset through either the features or the labels. In this scenario, each data sample in the original training set is augmented using information from the parent decision behavior. For example, a sample can be enriched by adding additional features using the prediction results of a set of classifiers. Alternatively, if instead of learning hard targets one considers using the output of the parent's class probability outputs or logits as soft-targets, this richer information can be exploited to build a new generation that is closer in behavior to the parent. Under this category fall methods like model distillation [12, 16, 17, 18] , as well as techniques such as label regularization [19, 20] and label refinery [21] . In general, this form of inheritance requires access to the source model and is performed under the assumption of full knowledge of the training data.",
+            "cite_spans": [
+                {
+                    "start": 736,
+                    "end": 740,
+                    "text": "[12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 741,
+                    "end": 744,
+                    "text": "16,",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 745,
+                    "end": 748,
+                    "text": "17,",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 749,
+                    "end": 752,
+                    "text": "18]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 806,
+                    "end": 810,
+                    "text": "[19,",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 811,
+                    "end": 814,
+                    "text": "20]",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 834,
+                    "end": 838,
+                    "text": "[21]",
+                    "ref_id": "BIBREF21"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "\u2022 Inheritance by enriched data synthesis A similar scenario is that where the original training data is not accessible, but the model internals are open for inspection. In this situation, the use of synthetic datasets has been explored [12, 22] . In some cases, intermediate information about the representations learned by the source model are also used as a training set for the next generation. This form of inheritance can be understood as a zero-shot distillation [23] .",
+            "cite_spans": [
+                {
+                    "start": 236,
+                    "end": 240,
+                    "text": "[12,",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 241,
+                    "end": 244,
+                    "text": "22]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 469,
+                    "end": 473,
+                    "text": "[23]",
+                    "ref_id": "BIBREF23"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "\u2022 Inheritance of internals model's knowledge: In some cases, it is possible to access the internal representations of the parent model, so that more explicit knowledge can be used to build the next generation [24, 25] . For example, if both parent and child are neural networks, one can force the mid-layer representations to be shared among them [26] . Alternatively, one could use the second level rules of a decision tree to guide the next generation of rule-based decision models.",
+            "cite_spans": [
+                {
+                    "start": 209,
+                    "end": 213,
+                    "text": "[24,",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 214,
+                    "end": 217,
+                    "text": "25]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 347,
+                    "end": 351,
+                    "text": "[26]",
+                    "ref_id": "BIBREF26"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "\u2022 Inheritance by copying In highly regulated environments, access to the original training samples or to the model internals is not possible. In this context, experience can also be transmitted from one model to its differential replica using synthetic data points labelled according to the hard predictions of the source model. This has been referred to as copying [27] .",
+            "cite_spans": [
+                {
+                    "start": 366,
+                    "end": 370,
+                    "text": "[27]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "Note that on top of a certain level of knowledge about either the data or the model, or both, some of the techniques listed above often impose also additional restrictions on the considered scenarios. Techniques such as distillation, for example, assume that the original model can be controlled by the data practitioner, i.e. internals of the model can be tuned to force specific representations of the given input throughout the adaptation process. In certain environments this may be possible, but generally it is not.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication mechanisms"
+        },
+        {
+            "text": "To illustrate the utility of differential replication, we describe six different scenarios where it can be exploited to ensure a devised machine learning solution adapts to different changes in its environment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Differential replication in practice"
+        },
+        {
+            "text": "A widely established technique to provide explanations is to use linear models, such as logistic regression. Model parameters, i.e. the linear coefficients associated to the different attributes, can be exploited to provide explanations to different audiences. Although this approach works in simple scenarios where the variables do not need to be modified nor pre-processed, this is never the case for real life applications, where variables are usually redesigned before training and new more complex features are often introduced. This is even worse when, in order to improve model performance, data scientists create a large set of new variables, such as bi-variate ratios or logarithm scaled variables, to capture non-linear relations between original attributes that linear models cannot handle during the training phase. This results in new variables being obfuscated and therefore often not intelligible for humans.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Intelligible explanations of non-linear phenomena"
+        },
+        {
+            "text": "A straightforward solution using differential replication is to replace the whole predictive system, composed by both the pre-processing/feature engineering step and the machine learning model by a copy that considers both steps as a single black box model [28] . Doing this, we are able to deobfuscate model variables by training copies to learn the decision outputs of trained models directly from the raw data attributes without any pre-process.",
+            "cite_spans": [
+                {
+                    "start": 257,
+                    "end": 261,
+                    "text": "[28]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Intelligible explanations of non-linear phenomena"
+        },
+        {
+            "text": "In-company infrastructure is subject to continuous updates due to the rapid pace with which new software versions are released to the market. Changes in the organizational structure of a company may drive the engineering department to change course. Say, for example, that a company whose products were originally based on Google's Tensorflow package [29] makes the strategic decision of moving to Pytorch [30] . In doing so, they might decide to re-train all models from scratch in the new environment. This is a long and costly process that can even result in a loss of performance. Specially if original data is not available or the in-house data scientist are new to this framework. Alternatively, using differential replication, the knowledge acquired by the existing solutions could be exploited in the form of hard or soft labels or as additional data attributes for the new generation.",
+            "cite_spans": [
+                {
+                    "start": 351,
+                    "end": 355,
+                    "text": "[29]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 406,
+                    "end": 410,
+                    "text": "[30]",
+                    "ref_id": "BIBREF30"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Moving to a different software environment"
+        },
+        {
+            "text": "As a model is tested against new data throughout its lifespan, some of its learned biases may be made apparent. Under such circumstances, one may wish to transit to a new model that inherits the original predictive performance but which ensures non-discriminatory outputs. A possible option is to edit the sensitive attributes to remove any bias, reducing in this way the disparate impact in the task T , and then training a new model on the edited dataset. Alternatively, in very specific scenarios where the sensitive information is not leaked through additional features, it is possible to build a copy by removing the protected data variables [31] . Or even, redesign the hypothesis space considering a loss function to account for the fairness dimension when training subsequent generations.",
+            "cite_spans": [
+                {
+                    "start": 647,
+                    "end": 651,
+                    "text": "[31]",
+                    "ref_id": "BIBREF31"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Mitigating bias in prediction"
+        },
+        {
+            "text": "Batch machine learning models are rendered obsolete by their inability to adapt to a change in the data distribution. When this happens the most straightforward solution is to wait until there are enough samples of the new distribution and re-train the model. However, this solution is timely and often expensive. A faster solution is to use the idea of differential replication to create a new enriched dataset able to detect the data drift. For example, including the soft targets and a timestamp attribute in the target domain, D t . Then, train a new model using this enriched dataset that replicates the decision behavior of the previously trained classifier. Finally, we also need to allow the new model to accept new incoming data samples to be learned. This second characteristic can be added by incorporating the online requirement in the C t constrains for the differential replication process [32] .",
+            "cite_spans": [
+                {
+                    "start": 904,
+                    "end": 908,
+                    "text": "[32]",
+                    "ref_id": "BIBREF32"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Concept drift in batch learning"
+        },
+        {
+            "text": "Developing good machine learning models requires abundant data. The more accessible the data, the more effective a model will be. In real applications, training machine learning models usually requires collecting a large volume of data from users, often including sensitive information. Directly releasing these models trained using user data could derive in privacy breaches, as the risk of leaking sensitive information encoded in the public model increases.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Privacy preserving models"
+        },
+        {
+            "text": "Differential replication can be used to avoid this issue by is training another model, usually a simpler one, that replicates the learned decision behavior but which preserves the privacy of the original training set by not being directly linked to these data. The use of distillation techniques in the context of teacher-student networks, for example, has been reported to be successful in this task [33, 34] .",
+            "cite_spans": [
+                {
+                    "start": 401,
+                    "end": 405,
+                    "text": "[33,",
+                    "ref_id": "BIBREF33"
+                },
+                {
+                    "start": 406,
+                    "end": 409,
+                    "text": "34]",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Privacy preserving models"
+        },
+        {
+            "text": "Auditing machine learning models is not an easy task. When an auditor wants to audit several models under the same constraints, it is required that all models audited fulfill an equivalent set of requirements. Those requirements may limit the use of certain software libraries, or of certain model architectures. Usually, even within the same company, each model is designed and trained on its own basis. As research in machine learning grows, new models are continuously devised. However, this fast growth in available techniques hinders the possibility of having a deep understanding of those models and makes the assessment of some auditing dimensions a nearly impossible task.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model standarization for auditing purposes"
+        },
+        {
+            "text": "In this scenario, differential replication can be used to establish a small set of canonical models into which all others can be translated. In this sense, deep knowledge of these set of canonical models would be enough to drive auditing tests. For example, let us consider that the canonical model is a deep learning architecture with a certain configuration. Any other model can be translated into this particular architecture using differential replication 2 . The auditing process need then only consider how to probe the canonical deep network to report impact assessment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model standarization for auditing purposes"
+        },
+        {
+            "text": "In this paper we have described a general framework based on knowledge reuse from generation to generation to extend the useful life of machine learning models by adapting them to their changing environment. To tackle this issue of environmental adaptation, we have proposed a mechanism inspired in how biological organisms evolve: differential replication. Differential replication allows machine learning models to modify their behavior to meet the new requirements defined by the environment. We envision this replication mechanism as a projection operator able to translate the decision behavior of a machine learning model into a new hypothesis space with different characteristics. This allows traits of a given classifier to be inherited by another, more suitable under the new premises. We have listed different inheritance mechanisms to achieve this goal, depending on specific knowledge availability scenarios. These range from the more permissive inheritance by sharing the dataset to the more restrictive inheritance by copying, which is the solution requiring less knowledge about the parent model and training data. Finally, we provide examples of how differential replication applies in practice for six different real-life scenarios.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "On The Origin of Species by Means of Natural Selection, or Preservation of Favoured Races in the Struggle for Life",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Darwin",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Magic quadrant for data science and machine learning platforms",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Idoine",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Krensky",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Linden",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Brethenoux",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Gartner Research",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Engaging the ethics of data science in practice",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Barocas",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Boyd",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Communications of the ACM",
+            "volume": "60",
+            "issn": "11",
+            "pages": "23--25",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Fairer machine learning in the real world: Mitigating discrimination without collecting sensitive data",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Veale",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Binns",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Bid Data & Society",
+            "volume": "4",
+            "issn": "2",
+            "pages": "1--17",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "The fallacy of inscrutability",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Kroll",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Philosophical Transactions of the Roya Society",
+            "volume": "376",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Large scale online learning",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Bottou",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Le Cun",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Proceedings of the 17th International Conference on Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "217--234",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "End-to-end neural network architecture for fraud scoring in card payments",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "G\u00f3mez",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Arevalo",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Paredes",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Nin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Pattern Recognition Letters",
+            "volume": "105",
+            "issn": "",
+            "pages": "175--181",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Online error-correcting output codes",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Escalera",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Masip",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Puertas",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Radeva",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Pujol",
+                    "suffix": ""
+                }
+            ],
+            "year": 2009,
+            "venue": "Pattern Recognition Letters",
+            "volume": "32",
+            "issn": "",
+            "pages": "458--467",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Uncertainty estimation for black-box classification models: a use case for sentiment analysis",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Mena",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Brando",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Pujol",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Vitri\u00e0",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Pattern Recognition and Image Analysis. IbPRIA",
+            "volume": "11867",
+            "issn": "",
+            "pages": "29--40",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Why should i trust you?: Explaining the predictions of any classifier",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Ribeiro",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Singh",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Guestrin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the 22th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "1135--1144",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "A survey on transfer learning",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Pan",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "IEEE Transactions on Knowledge and Data Engineering",
+            "volume": "22",
+            "issn": "10",
+            "pages": "1345--1359",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Model compression",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Bucilu\u0203",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Caruana",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Niculescu-Mizil",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Proceedings of the 12th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining",
+            "volume": "",
+            "issn": "",
+            "pages": "535--541",
+            "other_ids": {
+                "DOI": [
+                    "10.1145/1150402.1150464"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Application of proximity graphs to editing nearest neighbor decision rule",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Bhattacharya",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Poulsen",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Toussaint",
+                    "suffix": ""
+                }
+            ],
+            "year": 1981,
+            "venue": "International Symposium on Information Theory",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Geometric decision rules for instance-based learning algorithms",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Bhattacharya",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Mukherjee",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Toussaint",
+                    "suffix": ""
+                }
+            ],
+            "year": 2005,
+            "venue": "Proceedings of the First International Conference on Pattern Recognition and Machine Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "60--69",
+            "other_ids": {}
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Application of the gabriel graph to instance based learning",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Mukherjee",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Distilling the knowledge in a neural network",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Hinton",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Vinyals",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dean",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "NIPS Deep Learning and Representation Learning Workshop",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Rethinking the inception architecture for computer vision",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Szegedy",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Vanhoucke",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ioffe",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Shlens",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Wojna",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "Proceedings of the 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "Knowledge distillation in generations: More tolerant teachers educate better students",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Xie",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Qiao",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Yuille",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1805.05551"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "When does label smoothing help",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "M\u00fcller",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Kornblith",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Hinton",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the 33rd Conference on Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "Revisiting knowledge distillation via label smoothing regularization",
+            "authors": [
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Yuan",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Tay",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Li",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Feng",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Label refinery: Improving imagenet classification through label progression",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Bagherinezhad",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Horton",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Rastegari",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Farhadi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1805.02641"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Using a neural network to approximate an ensemble of classifiers",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zeng",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Martinez",
+                    "suffix": ""
+                }
+            ],
+            "year": 2000,
+            "venue": "Neural Processing Letters",
+            "volume": "12",
+            "issn": "3",
+            "pages": "225--237",
+            "other_ids": {
+                "DOI": [
+                    "10.1023/A:1026530200837"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Zero-shot knowledge distillation in deep networks",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Nayak",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Mopuri",
+                    "suffix": ""
+                },
+                {
+                    "first": "V",
+                    "middle": [],
+                    "last": "Shaj",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Babu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Chakraborty",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1905.08114"
+                ]
+            }
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "Knowledge distillation from internal representations",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Aguilar",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Ling",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Yao",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Xing",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Fan",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Guo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1910.03723"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "Explaining knowledge distillation by quantifying the knowledge",
+            "authors": [
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Cheng",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Rao",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Q",
+                    "middle": [],
+                    "last": "Zhang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:2003.03622"
+                ]
+            }
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Transactional compatible representations for high value client identification: A financial case study",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Unceta",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Nin",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Pujol",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Complex Networks XI: Proceedings of the 11th Conference on Complex Networks CompleNet 2020",
+            "volume": "",
+            "issn": "",
+            "pages": "334--345",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "Copying machine learning classifiers",
+            "authors": [],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1903.01879"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Towards global explanations for credit risk scoring",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Unceta",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Nin",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Pujol",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Workshop on Challenges and Opportunities for AI in Financial Services: the Impact of Fairness, Explainability, Accuracy, and Privacy (FEAP-AI4Fin)",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Tensorflow: A system for large-scale machine learning",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Abadi",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Barham",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Chen",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Davis",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Dean",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Devin",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Ghemawat",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Irving",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Isard",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "Proceedings of the 12th {USENIX} Symposium on Operating Systems Design and Implementation",
+            "volume": "",
+            "issn": "",
+            "pages": "265--283",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Automatic differentiation in pytorch",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Paszke",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Gross",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Chintala",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Chanan",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Yang",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Devito",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Desmaison",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Antiga",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Lerer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Proceedings of the 32th International Conference on Neural Information Processing Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "8024--8035",
+            "other_ids": {}
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Using copies to remove sensitive data: A case study on fair superhero alignment prediction",
+            "authors": [
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Unceta",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Nin",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "Pujol",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Pattern Recognition and Image Analysis. IbPRIA",
+            "volume": "11867",
+            "issn": "",
+            "pages": "182--193",
+            "other_ids": {}
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "From batch to online learning using copies",
+            "authors": [],
+            "year": 2019,
+            "venue": "Artificial Intelligence Research and Development",
+            "volume": "319",
+            "issn": "",
+            "pages": "125--134",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Patient-driven privacy control through generalized distillation",
+            "authors": [
+                {
+                    "first": "Z",
+                    "middle": [],
+                    "last": "Celik",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Lopez-Paz",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Mcdaniel",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "2017 IEEE Symposium on Privacy-Aware Computing",
+            "volume": "",
+            "issn": "",
+            "pages": "1--12",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Private model compression via knowledge distillation",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Wang",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Bao",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Sun",
+                    "suffix": ""
+                },
+                {
+                    "first": "X",
+                    "middle": [],
+                    "last": "Zhu",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Cao",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Yu",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Proceedings of the 33rd AAAI Conference on Artificial Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "1190--1198",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "improvement Darwin called evolution by natural selection.\" [Daniel Dennett, Breaking the Spell, p.78, 2006]",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Graphical representation of inheritance mechanisms in terms of their knowledge of the data and the model internals.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "This work has been partially funded by the Spanish project PID2019-105093GB-I00 (MINECO/FEDER, UE), and by AGAUR of the Generalitat de Catalunya through the Industrial PhD grant 2017-DI-25.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Acknowledgements"
+        }
+    ]
+}
