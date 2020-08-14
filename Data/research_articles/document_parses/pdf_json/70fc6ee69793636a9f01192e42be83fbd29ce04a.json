@@ -1,0 +1,1236 @@
+{
+    "paper_id": "70fc6ee69793636a9f01192e42be83fbd29ce04a",
+    "metadata": {
+        "title": "Robot dance: a city-wise automatic control of Covid-19 mitigation levels",
+        "authors": [
+            {
+                "first": "Paulo",
+                "middle": [
+                    "J S"
+                ],
+                "last": "Silva",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Tiago",
+                "middle": [],
+                "last": "Pereira",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Gustavo",
+                "middle": [],
+                "last": "Luis",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "",
+                "middle": [],
+                "last": "Nonato",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "We develop an automatic control system to help to design efficient mitigation measures for the Covid-19 epidemic in cities. Taking into account parameters associated to the population of each city and the mobility among them, the optimal control framework suggests the level and duration of protective measures that must be implemented to ensure that the number of infected individuals is within a range that avoids the collapse of the health care system. Compared against other mitigation measures that are implemented simultaneously and in equal strength across cities our method has three major particularities when:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Accounts for city commute and health infrastructure: It takes into account the daily commute among cities to estimate the dynamics of infected people while keeping the number of infected people within a desired level at each city avoiding the collapse of its health care system.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "City-specific control: It allows for orchestrating the control measures among cities so as to prevent all cities to face the same level control. The model tends to induce alternation between periods of stricter controls and periods of a more normal life in each city and among the cities.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Flexible scenarios: It is flexible enough to allow for simulating the impact of particular actions. For example, one can simulate the how the control all cities change when the number of care beds increases in specific places.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "Therefore, our method creates an automatic dance adjusting mitigation levels within cities and alternating among cities as suggested in [9] . This automatic dance may help the city economy and orchestration of resources.",
+            "cite_spans": [
+                {
+                    "start": 136,
+                    "end": 139,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Abstract"
+        },
+        {
+            "text": "We provide case studies using the major cities of the state of S\u00e3o Paulo given by using estimates on the daily mobility among the cities their health care system capacity. We use official data in our case studies. However, sub-notification of infected people in Brazil is notoriously high. Hence the case study should not be considered as a real world policy suggestion. It high sub-notification is taken into account, the optimal control algorithm will suggest stricter mitigation measures, as also shown in the case studies. Surprisingly, the total duration of the protocol for the state is barely affected by the subnotification, but the severity of such protocols is strengthened. This stresses a twofold implication, first, the protocol depends on high-quality data and, second, such optimal and orchestrated protocol is robust and can be adjusted to the demand.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "After the first cases of Covid-19 appeared in Brazil on February 25, the state of S\u00e3o Paulo was the first to adopt social distancing on March 26, after the first school closures on March 17. The social distancing protocol played a major role to control the rapidly increasing number of cases and thereby protecting the health care system [11] . While an early implementation of an aggressive protocol of social distancing is effective, it has three major drawbacks:",
+            "cite_spans": [
+                {
+                    "start": 338,
+                    "end": 342,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Long implementation: A social distancing protocol, or any other mitigation strategy, must be implemented over many months. Otherwise, it only causes a delay in the spreading of the virus while the peak of infected individuals remains virtually unchanged. This means that short social distancing only postpones the main issues.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Simultaneous implementation: Since the whole state follows the same protocol, cities in the countryside must start it early, while the disease is still in the first stages and they still can cope with the number of cases, ignoring that the peak of cases does not happen at the same time for all cities.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Homogeneous protocol across cities: The protocol ignores the distinct roles cities play economically as well as their structure such as hospital and critical care beds. Now, deep into a seven weeks long protocol, the control measures will be slowly relaxed starting on May 31st. This means that in the State of S\u00e3o Paulo, and in fact in the whole country, another social distancing protocol must be implemented again in the near future. Research shows that intermittent social distancing protocol will need to be implemented in the next two years [6] most likely in an intermittent way, dancing between periods of mitigation and normal life [9] . This is troublesome as the economies of developing countries cannot cope with such extended lockdowns [10] .",
+            "cite_spans": [
+                {
+                    "start": 547,
+                    "end": 550,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 641,
+                    "end": 644,
+                    "text": "[9]",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 749,
+                    "end": 753,
+                    "text": "[10]",
+                    "ref_id": "BIBREF9"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "There is an urgent need to develop tools that may help policy-makers to device intelligent lockdown systems that predict where, how long, and to what extent the social distancing protocol must be implemented. Probably such decisions must be taken at a city level, as each city will have its own economical, geographical, and infrastructural needs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Our project addresses this challenge by developing a tool that suggests the level of mitigation needed for different cities at different moments, thereby aiming to alleviate the disruption to the activities while protecting the city's health system. However, we must emphasize that such approach depends on the data quality to estimate the current status of the pandemic. In this sense, it is also a proof of concept of what can be achieved with high quality widespread testing and good estimates of population movement to better understand the disease dynamics. The three major benefits of the algorithm are:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "1. It takes into account the city health system capacity to predict the optimal measures.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "2. It is flexible to incorporate control policies such as preventing full country lockdown.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "3. It provides a city specific timing and extent of control implementation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "2 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. (which was not certified by peer review)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . https://doi.org/10.1101/2020.05.11.20098541 doi: medRxiv preprint night day Figure 1 : Daily dynamics of workers traveling to nearby cities. The boxes represent the city's total population. Workers travel to adjacent cities and change the effective population of the city during the day. These workers can get infected at their workplace and serve as a source of infection during the night. For better visualization, we show only susceptible (green) and infected (red).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 151,
+                    "end": 159,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "Individuals can be in one of the following states Susceptible (S), Exposed (E), Infected (I), and Recovered (R) [14] . We take into account the fact that during the control protocol most travels between cities are due to the workforce: the workers leave their city to work in another one and return during the evening. Thus, we divide the susceptible population of the city into the population that stays within it and the population that commutes to work.",
+            "cite_spans": [
+                {
+                    "start": 112,
+                    "end": 116,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model and optimization 2.1 An SEIR model that with workforce travels"
+        },
+        {
+            "text": "During the day: During working hours the available population of the ith city can be increased by the inflow of people workers (resp. outflow) giving an effective population which can be larger (resp. smaller) than the city's own population. We assume for now that susceptible individuals of the ith city going to the jth can only be infected there during the day.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model and optimization 2.1 An SEIR model that with workforce travels"
+        },
+        {
+            "text": "During the night: As workers come back to their city the model reduces to the standard SEIR model where cities do not interact and have their own population.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model and optimization 2.1 An SEIR model that with workforce travels"
+        },
+        {
+            "text": "Full day cycle: Because workers move in and out at well defined times we approximate the movement dynamics as a step function. So all workers move out and come back at the same time. Let \u03b1 be a square pulse modeling this cycle, so that \u03b1(t) = 1 when t is the range of working hours (here from 8am to 6pm) and zero otherwise. A representation of the daily cycle is exhibited in Figure 1 .",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 377,
+                    "end": 385,
+                    "text": "Figure 1",
+                    "ref_id": null
+                }
+            ],
+            "section": "Model and optimization 2.1 An SEIR model that with workforce travels"
+        },
+        {
+            "text": "Population splitting from data: The model needs a commuting matrix p i j (t) that contains daily accumulated percentage of inhabitants of i that travels to j. Here, p i j may be updated daily. We are assuming that there is no correlation between the states and travels. See further details in App. A.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model and optimization 2.1 An SEIR model that with workforce travels"
+        },
+        {
+            "text": "In the SEIR models above, the parameter r t , the reproduction number at time t is usually a constant r 0 that represents how many people a sick person infects if all other individuals are susceptible. The main objective of control measures is to decrease r t to a lower level, bringing the spread to a desired 3 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. (which was not certified by peer review)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . level. Therefore the problem of choosing such r t can be seen as an optimal control problem where the r t is the control variable that drives the disease trajectory to an acceptable, or even a desirable, state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "This control problem can then be approximated by an optimization model after we devise a discretization scheme for the ODE. Since the SEIR model is not stiff, it is possible to use simple explicit integration methods and still get good approximations of the trajectory. We used the modified Euler's algorithm, also known as Heun's method [4] , that computes explicit approximations of the trajectory S t , E t , I t , R t for each day given the initial values S 1 , E 1 , R 1 , I 1 and the reproduction values r t . Since the integration method is simple, it can be described as a constraint set of a regular optimization problem. This problem can then be enriched with extra constraints and an objective function arriving at a conceptual model that must be solved by an optimization algorithm. Since the SEIR model is nonlinear, the final optimization problem will also be nonlinear. Finally, in order to take into account the coupling between the dynamics of the epidemic among all cities, described in 2.1, a single problem has to solve the differential equations and choose the target reproduction level of all cities simultaneously.",
+            "cite_spans": [
+                {
+                    "start": 338,
+                    "end": 341,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "In our first implementation, we are adding a constraint to the variable I t for each city at each day. By doing this we try to control for the maximum level of infection that is allowed to avoid saturation of the health system. Another group of constraints tries to avoid abrupt changes of the control r t , either fixing it in a time window or adding a total variation regularization [2] .",
+            "cite_spans": [
+                {
+                    "start": 385,
+                    "end": 388,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "As objective we aim to balance between to main goals: trying to enforce the most relaxed control measures, by minimizing the mean deviation of r t and r 0 , and alternating stricter controls in different cities. Such objectives must be carefully balanced to take into account the economical importance of each city for example. At this first implementation we are using the square of the population as our main measure for the importance of each city. In a real world application such weights must be given by the decision-makers taking into account different economical and even political aspects.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "Finally the optimization problem was coded using the modeling language JuMP [3] . This is a Julia [1] package that allow us to easily describe the model and that efficiently interfaces with different solvers. It also takes care of efficiently computing the first and second derivatives needed by the solvers. Such flexibility is essential, as the model will evolve with time and should be easy to adapt. To actually solve the optimization problem we are using Ipopt [13] , a high performance large scale nonlinear optimization solver, with the MA97 linear equation solver [5] that is able to exploit multiple cores.",
+            "cite_spans": [
+                {
+                    "start": 76,
+                    "end": 79,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 98,
+                    "end": 101,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 466,
+                    "end": 470,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 572,
+                    "end": 575,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "For more details and specific formulas for the constraints and objective see Appendix B.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "The control model"
+        },
+        {
+            "text": "We discuss case studies involving possible scenarios of Covid-19 control in the major cities of the state of S\u00e3o Paulo. Our control depends on the data quality, ranging from the city health infrastructure to the evolution of the number of cases. The latter is notoriously compromised in Brazil [12] . Thus, for sake of comparison, we will show three scenarios: the current social distancing protocol, optimal control taking into account the office data, and finally, optimal control taking into account sub notification. In all cases we use mobility matrices estimated from anonymized mobile phone data [8] .",
+            "cite_spans": [
+                {
+                    "start": 294,
+                    "end": 298,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 603,
+                    "end": 606,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Case Studies -Optimizing the isolation protocol"
+        },
+        {
+            "text": "Current social distancing only. This scenario uses official government data, which is sub-notified [12] . Assuming that social distancing policy started in March 24 is kept until the end of June with the current effectiveness, we find that the peak of infected people in S\u00e3o Paulo is reached in early July, while for the other cities in the metropolitan region of S\u00e3o Paulo will face the peak of the epidemic 4 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [
+                {
+                    "start": 99,
+                    "end": 103,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Case Studies -Optimizing the isolation protocol"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . Figure 2 : Prediction of Covid-19 spread under the current social distancing level. We take into account commuting among cities and consider the official data. The prediction assumes that the social distancing protocol implemented in the state of S\u00e3o Paulo would continue until July and with the same effectiveness. The infected population in the city of S\u00e3o Paulo would be above 1.5% for over two months causing a full collapse of the health system. outbreak in August, as shown in Figure 2 . S\u00e3o Paulo city would have more than 2% of its population infected for about two full months, from early June to early August. An optimistic estimate (including campaign hospitals) shows that the S\u00e3o Paulo health system has a maximum capacity of 1.5% of the population infected.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 75,
+                    "end": 83,
+                    "text": "Figure 2",
+                    "ref_id": null
+                },
+                {
+                    "start": 558,
+                    "end": 566,
+                    "text": "Figure 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Optimal and flexible control. As we discussed in the introduction our approach has three major advantages that we illustrate bellow by adjusting them to following measures 1. We fixed the maximal percentage of infected to be 1.5% for the city of S\u00e3o Paulo and 0.7% for the countryside. This corresponds to an optimistic estimate of the health care capacity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "2. We implement a control protocol where cities aim for distinct control measures to prevent a full state lockdown and thus keep the local state economy running.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "3. For the official data, our protocol is allowed to seek for controls with a minimal reproduction number 1. When taking into account sub-notification we implement an initial control phase where the minimal reproduction number is 0.89. This is necessary because some cities already start above the threshold level for the infected, described above, while others we reach it in a few days due to the initial dynamics.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "As a consequence, each city follow the protocol according to their own need and will have their starting and stopping time of control which takes into account city to city commutes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Office government data: In the left inset of Figure 3 , we show the results of the above implementation using official data released by the Brazilian government. We provide control measures in six levels according to how strict they need to be ranging from no control (white) to severe (red). Each city will have its control target to protect its health system. The optimal control provides distinct protocols according to the city role in the State. For instance, Guarulhos has severe control which is gradually 5 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 45,
+                    "end": 53,
+                    "text": "Figure 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . Figure 3 : Impact of the optimal control protocol implemented in the State of S\u00e3o Paulo. The control protocol does not allow for the infected population in the city of S\u00e3o Paulo to surpass 1.5% and in the countryside 0.7% (this would roughly correspond to take campaign hospitals into consideration). In the left inset, we show the situation with social distancing only (blue) and with optimal control (beige) where the infected population never exceeds 1.5% as set in the control. In the right inset, our approach provides levels of control for the city of S\u00e3o Paulo. This prediction performed using the official government data.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 75,
+                    "end": 83,
+                    "text": "Figure 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "decreased until the city is back to open, whereas a nearby city Santo Andr\u00e9 swings between a period of severe control to open. The optimal control solutions have three remarkable aspects:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "-The control releases S\u00e3o Paulo earlier than other cities. As S\u00e3o Paulo health system can serve twice the number of infected people than other cities, the control to end much earlier there.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "-Countryside cities such as Ara\u00e7atuba, Ribeir\u00e3o Preto e Rio Preto, could start the control two weeks later than the cities in the Greater S\u00e3o Paulo. They follow the control until late September when they alternate between two weeks of lock-down and no control.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "-Most cities in the Metropolitan area of S\u00e3o Paulo can start the intermittent fortnightly distancing periods much earlier, by mid-August. During the period of intermittent control, the cities, mainly in the countryside, do not stop at the same time, an import aspect to keep the economy always running in part of the state during the epidemic outbreak.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Taking into account sub-notification: In the right inset of Figure 3 , we run the optimal control taking into account the strong sub-notification in the official data [12] . Clearly, there is no margin to manoeuvre and the severe control starts straight away. However, increasing the number of infected twelve-fold only changes slightly the duration of the optimal control protocol.",
+            "cite_spans": [
+                {
+                    "start": 167,
+                    "end": 171,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 60,
+                    "end": 68,
+                    "text": "Figure 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Notice that by taking into account sub-notification severe control is applied more often. In particular, severe control must be imposed during June, after that the level of control is progressively relaxed, starting the opening period from mid-August. Notice that if a proper level of control is imposed in specific time intervals the duration of control increases in only about two weeks, but at a much more moderate level in such extra weeks.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "6 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . Figure 4 : Prediction of optimal control for major cities in the state of S\u00e3o Paulo. The protocol changes every two weeks and optimizes the level control and the timing to apply the control measures. Thus each city can meet its own needs to curb the spreading. In the left inset, we show the optimal control taking into account the official data. In the right inset, we take into account a sub-notification.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 75,
+                    "end": 83,
+                    "text": "Figure 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We start the discussion emphasizing the importance of reliable data to convert the scenarios simulated by our approach in concrete actions. Using official data, the left inset of Figure 4 shows that after one month of social distancing in S\u00e3o Paulo state, the control could be avoided in May for most cities in the countryside of S\u00e3o Paulo state if the only objective is to preclude the collapse of the health care system. If the simulation takes into account sub-notification, such relief is not feasible. In fact, cities in the countryside of the state as well as in the metropolitan area of S\u00e3o Paulo must undergo a severe mitigation during the first two weeks of May. Cities in the countryside of the state can only relax the control in the second fortnight of May. Therefore, without reliable data it is complicated to simulate scenarios with low degree of uncertainty, making evident the need for testing the population in a broad scale in order to take secure actions. Figure 5 presents another scenario simulated by our methodology. In this example we take into account that the epidemic outbreak ends first in S\u00e3o Paulo than in other cities. Therefore, from September on, the simulation makes 50% of the hospital beds from S\u00e3o Paulo available to the other cities. The larger number of beds available for other cities allows an increase in the number of infected people in the other cities, shortening the period of rigid control, mainly for cities in interior of the state, in about 45 days, from early October to mid August. Notice how the black curves goes above halfway after September, showing a larger number of people is infected in each city, but still under the admissible limit. The intermittent period of severe control are also shortened in about one month.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 179,
+                    "end": 187,
+                    "text": "Figure 4",
+                    "ref_id": null
+                },
+                {
+                    "start": 976,
+                    "end": 984,
+                    "text": "Figure 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "Discussion"
+        },
+        {
+            "text": "The case studies discussed above shows the power of the proposed methodology in simulating different scenarios and henceforth enabling decision-making agents to analyze multiple alternatives so as to balance city-wise health system capacity and economic factors over S\u00e3o Paulo state.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": "Level of control and actions adapted to a city level. The outcome of the optimization is the reproduction number the city must attain during the implementation phase of the protocol.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Discussion"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "7"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . Figure 5 : Using the health care infrastructure of the city of S\u00e3o Paulo to assist others. The protocol changes every two weeks and optimizes the level control and the timing to apply the control measures. In late August, when S\u00e3o Paulo has already passed the peak of epidemic outbreak, half of its hospital beds are made available to assist other cities, in the interior and in metropolitan area, shortening the time interval of severe control policy in those cities. Left: Official data; Right: Assuming sub-notified data. It is mandatory that we translate these variables into actions that policy-makers can implement at a city level. The reproduction number is sensitive to the density of the population and services level.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 75,
+                    "end": 83,
+                    "text": "Figure 5",
+                    "ref_id": null
+                }
+            ],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We developed a city based flexible control protocol for Covid-19 mitigation and used cities in the state of S\u00e3o Paulo as a case study. The protocol takes into account infrastructure, care beds and mobility data from the cities to plan an optimal control strategy. Here, we focused on strategies that avoid total State lockdown and thus keep the economy running and open opportunity to use medical resources in an efficient way.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "The recommended mitigation taking into account the official government data is is clearly different to the recommendations when we take sub-notification into account. Surprisingly, the total duration of the control remains almost unaffected. As we showed, the quality of the recommendations depends strongly on the data. Our control can be updated dynamically and can integrate new data on the fly. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions"
+        },
+        {
+            "text": "We consider a set of K cities with fixed population",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "where N i is the total population. We divide the susceptible population of city i into classes a\u015d S i j = Population that leave city i to work in city j and similarly for the other states E,I, and R.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "During the day: The effective population",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "is assumed constant throughout the day but can present daily variations. Here U in n is neighbor inflow",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "Susceptibles of the ith city going to the jth can only be infected there. Thus,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "where \u03ba is the fraction of infected that can still commute and hence spread the disease elsewhere. For now, we consider \u03ba = 0 and then\u1e60",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "As we consider the absolute population the reproduction number is scaled according to the available population, which is assumed constant during the day. Next we do two steps:",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "(i) Normalize the population S i + E i + I i + R i = 1, and thus,",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "(ii) Write in an equation for S i = K j=1 S i j yieldin\u0121",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "9 . CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "A Model derivation"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . https://doi.org/10.1101/2020.05.11.20098541 doi: medRxiv preprint where P eff",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Population splitting from data: The fraction of the population S i j can be estimated using a matrix that describes the mobility between the cities made available in [8] . It has at each entry an estimate of p i j (t) = # daily accumulated percentage of inhabitants of i that travels to j.",
+            "cite_spans": [
+                {
+                    "start": 166,
+                    "end": 169,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Assuming that there is no correlation between the states and travels, we can assume that the population traveling population is uniform across states that is",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "During the night. As workers come back to their city the model reduces to the standard SEIR model where cities do not interact and have their own population.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Full day cycle. Because the work dynamics is mainly stereotyped and workers move in and out at well defined times we will approximate the dynamics movement as a step function. So all workers move out and come back at the same time. Let \u03b1 be a square pulse modeling this cycle, so that \u03b1(t) = 1 when t is the range of working hours (here from 8 am to 6 pm) and zero otherwise. Thus the model can be written as",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Here we use T inc = 5.2 and T inf = 2.9, following [14] .",
+            "cite_spans": [
+                {
+                    "start": 51,
+                    "end": 55,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "As described in Section 2.2, we approximate the solution of the control problem by solving an optimization model. This model has the decision variables S i,t , E i,t , R i,t , I i,t , r i,t for i = 1, . . . , K and t = 1, . . . , T . The S , E, I, R variables represent the normalized SEIR states for all cities i at each day t. As for r i,t , it represents the respective target reproduction number that acts as the control variable. The value K is the number of cities and T is the desired time horizon for the simulation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "B Optimization model"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "10"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . https://doi.org/10.1101/2020.05.11.20098541 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We then solve min f (S , E, I, R, r) s.t. (S , E, I, R) \u2208 DM(r) (S , E, I, R, r) \u2208 OC S i,t + E i,t + I i,r + R i,t = 1, i = 1, . . . , K, t = 1, . . . , T",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "where DM(r) is a discretized version of the the SEIR model for a given control r, as described in the last section, OC represents an abstract version of the operational constraints, that we detail below, and r 0 is the natural reproduction number of Covid-19, that we approximated by 2.5 from [7] .",
+            "cite_spans": [
+                {
+                    "start": 293,
+                    "end": 296,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "We used the modified Euler method, also known as Heun's method [4] , to define DM(r). This is an explicit second order Runge-Kutta scheme that showed precise enough for our simulations. We used daily time steps.",
+            "cite_spans": [
+                {
+                    "start": 63,
+                    "end": 66,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The operational constraints can be divided in two groups. First we add constraints ensuring that the controls have to remain constant in a time window. In the case studies the time window was 14 days. This is desirable, as it is impossible to rapidly change the behavior of large populations. Next we have constraints that limit the I variable at each day, using an estimate of number of intensive care units available for each city. Another possibility would be to add this constraint aggregating the capacity by regions or even for the whole State, simulating situations where there is a single queue for the intensive care units.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Finally, the objective function f is composed of two terms that try to balance between two conflicting goals. The first term minimizes c=1,...,n t=1,...,T w t (r 0 \u2212 r t ).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The goal here is to try to avoid the use of mitigation measures, allowing normal life and economic activity. The weight w t balances the importance associated with keeping normal life at each city. In our case studies we used the square root of the city population to define these weight as a way to give more importance to large cities, if possible.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The second term try to avoid employing the same controls for two different the cities at the same time \u2212 t=1,...,T i=1,...K j>i D(i, j, t)(r i,t \u2212 r j,t ) 2 .",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "The weights D(i, j, t) try to measure the importance keeping the cities i and j under different controls at each time t. We used a value proportional to the square root of the population of the smaller city and made it vanish by the end of the simulation, when the epidemic should be in natural decline. In both cases we used values proportional to the square of the population in avoid the large city of S\u00e3o Paulo to fully dominate the decisions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": "Finally one has to find weights that balance between those two (conflicting) constraints in order do define the single objective f . This framework is actually quite flexible. It allows for different terms to be added or deleted from the operational constraints OC or to the objective f . The only constraints that are essential are the ones in DM(r), since they approximate the SEIR dynamics.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "(which was not certified by peer review)"
+        },
+        {
+            "text": ". CC-BY 4.0 International license It is made available under a is the author/funder, who has granted medRxiv a license to display the preprint in perpetuity. (which was not certified by peer review)",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "11"
+        },
+        {
+            "text": "The copyright holder for this preprint this version posted May 18, 2020. . https://doi.org/10.1101/2020.05.11.20098541 doi: medRxiv preprint",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "11"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Julia: A fresh approach to numerical computing",
+            "authors": [
+                {
+                    "first": "Jeff",
+                    "middle": [],
+                    "last": "Bezanson",
+                    "suffix": ""
+                },
+                {
+                    "first": "Alan",
+                    "middle": [],
+                    "last": "Edelman",
+                    "suffix": ""
+                },
+                {
+                    "first": "Stefan",
+                    "middle": [],
+                    "last": "Karpinski",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Shah",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "SIAM review",
+            "volume": "59",
+            "issn": "1",
+            "pages": "65--98",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "An Algorithm for Total Variation Minimization and Applications",
+            "authors": [
+                {
+                    "first": "Antonin",
+                    "middle": [],
+                    "last": "Chambolle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2004,
+            "venue": "Journal of Mathematical Imaging and Vision",
+            "volume": "20",
+            "issn": "1",
+            "pages": "89--97",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "JuMP: A Modeling Language for Mathematical Optimization",
+            "authors": [
+                {
+                    "first": "Iain",
+                    "middle": [],
+                    "last": "Dunning",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joey",
+                    "middle": [],
+                    "last": "Huchette",
+                    "suffix": ""
+                },
+                {
+                    "first": "Miles",
+                    "middle": [],
+                    "last": "Lubin",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "SIAM Review",
+            "volume": "59",
+            "issn": "2",
+            "pages": "295--320",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "Numerical Methods: Design, Analysis, and Computer Implementation of Algorithms",
+            "authors": [
+                {
+                    "first": "Anne",
+                    "middle": [],
+                    "last": "Greenbaum",
+                    "suffix": ""
+                },
+                {
+                    "first": "Timothy",
+                    "middle": [
+                        "P"
+                    ],
+                    "last": "Chartier",
+                    "suffix": ""
+                }
+            ],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "A collection of Fortran codes for large scale scientifi computation",
+            "authors": [],
+            "year": 2013,
+            "venue": "Computational Mathematics Group. HSL",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Projecting the transmission dynamics of SARS-CoV-2 through the postpandemic period",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Stephen",
+                    "suffix": ""
+                },
+                {
+                    "first": "Christine",
+                    "middle": [],
+                    "last": "Kissler",
+                    "suffix": ""
+                },
+                {
+                    "first": "Edward",
+                    "middle": [],
+                    "last": "Tedijanto",
+                    "suffix": ""
+                },
+                {
+                    "first": "Yonatan",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Goldstein",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marc",
+                    "middle": [],
+                    "last": "Grad",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Lipsitch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Science",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "The reproductive number of covid-19 is higher compared to sars coronavirus",
+            "authors": [
+                {
+                    "first": "Ying",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Albert",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Gayle",
+                    "suffix": ""
+                },
+                {
+                    "first": "Annelies",
+                    "middle": [],
+                    "last": "Wilder-Smith",
+                    "suffix": ""
+                },
+                {
+                    "first": "Joacim",
+                    "middle": [],
+                    "last": "Rockl\u00f6v",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Journal of travel medicine",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Potential dissemination of epidemics based on Brazilian mobile geolocation data. Part I: Population dynamics and future spreading of infection in the states of Sao Paulo and Rio de Janeiro during the pandemic of COVID-19",
+            "authors": [
+                {
+                    "first": "Pedro",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Peixoto",
+                    "suffix": ""
+                },
+                {
+                    "first": "Diego",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Marcondes",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Cl\u00e1udia",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lucas",
+                    "middle": [],
+                    "last": "Peixoto",
+                    "suffix": ""
+                },
+                {
+                    "first": "Rafael",
+                    "middle": [],
+                    "last": "Queiroz",
+                    "suffix": ""
+                },
+                {
+                    "first": "Afonso",
+                    "middle": [],
+                    "last": "Gouveia",
+                    "suffix": ""
+                },
+                {
+                    "first": "S\u00e9rgio M",
+                    "middle": [],
+                    "last": "Delgado",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Oliva",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Coronavirus: The Hammer and the Dance",
+            "authors": [
+                {
+                    "first": "Tomas",
+                    "middle": [],
+                    "last": "Pueyo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Opinion -Some Countries Face an Awful Question: Death by Coronavirus or by Hunger? The New York Times",
+            "authors": [
+                {
+                    "first": "Ruchir",
+                    "middle": [],
+                    "last": "Scharma",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Vidas salvas pelo isolamento social",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Paulo",
+                    "suffix": ""
+                },
+                {
+                    "first": "Claudia",
+                    "middle": [],
+                    "last": "Silva",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Sagastiz\u00e1bal",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Repeated population-based surveys of antibodies against sars-cov-2 in southern brazil. medRxiv",
+            "authors": [
+                {
+                    "first": "Mariangela",
+                    "middle": [],
+                    "last": "Silveira",
+                    "suffix": ""
+                },
+                {
+                    "first": "Aluisio",
+                    "middle": [],
+                    "last": "Barros",
+                    "suffix": ""
+                },
+                {
+                    "first": "Bernardo",
+                    "middle": [],
+                    "last": "Horta",
+                    "suffix": ""
+                },
+                {
+                    "first": "Lucia",
+                    "middle": [],
+                    "last": "Pellanda",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gabriel",
+                    "middle": [],
+                    "last": "Victora",
+                    "suffix": ""
+                },
+                {
+                    "first": "Odir",
+                    "middle": [],
+                    "last": "Dellagostin",
+                    "suffix": ""
+                },
+                {
+                    "first": "Claudio",
+                    "middle": [],
+                    "last": "Struchiner",
+                    "suffix": ""
+                },
+                {
+                    "first": "Marcelo",
+                    "middle": [],
+                    "last": "Burattini",
+                    "suffix": ""
+                },
+                {
+                    "first": "Andreia",
+                    "middle": [],
+                    "last": "Valim",
+                    "suffix": ""
+                },
+                {
+                    "first": "Evelise",
+                    "middle": [],
+                    "last": "Berlezi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "On the implementation of an interior-point filter line-search algorithm for large-scale nonlinear programming",
+            "authors": [
+                {
+                    "first": "Andreas",
+                    "middle": [],
+                    "last": "W\u00e4chter",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Lorenz",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Biegler",
+                    "suffix": ""
+                }
+            ],
+            "year": 2006,
+            "venue": "Mathematical Programming",
+            "volume": "106",
+            "issn": "1",
+            "pages": "25--57",
+            "other_ids": {}
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Nowcasting and forecasting the potential domestic and international spread of the 2019-nCoV outbreak originating in Wuhan, China: A modelling study",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Joseph",
+                    "suffix": ""
+                },
+                {
+                    "first": "Kathy",
+                    "middle": [],
+                    "last": "Wu",
+                    "suffix": ""
+                },
+                {
+                    "first": "Gabriel M",
+                    "middle": [],
+                    "last": "Leung",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Leung",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "The Lancet",
+            "volume": "395",
+            "issn": "",
+            "pages": "689--697",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {},
+    "back_matter": []
+}

@@ -1,0 +1,675 @@
+{
+    "paper_id": "00a3c57169335c796e492c56854c637bd6e07986",
+    "metadata": {
+        "title": "Explainable Agents as Static Web Pages: UAV Simulation Example",
+        "authors": [
+            {
+                "first": "Yazan",
+                "middle": [],
+                "last": "Mualla",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "UTBM",
+                    "location": {
+                        "postCode": "90010",
+                        "settlement": "Belfort",
+                        "country": "France"
+                    }
+                },
+                "email": "yazan.mualla@utbm.fr"
+            },
+            {
+                "first": "Timotheus",
+                "middle": [],
+                "last": "Kampik",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "Ume\u00e5 University",
+                    "location": {
+                        "postCode": "90187",
+                        "settlement": "Ume\u00e5",
+                        "country": "Sweden"
+                    }
+                },
+                "email": "tkampik@cs.umu.se"
+            },
+            {
+                "first": "Igor",
+                "middle": [
+                    "H"
+                ],
+                "last": "Tchappi",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "UTBM",
+                    "location": {
+                        "postCode": "90010",
+                        "settlement": "Belfort",
+                        "country": "France"
+                    }
+                },
+                "email": "igor.tchappi@utbm.fr"
+            },
+            {
+                "first": "Amro",
+                "middle": [],
+                "last": "Najjar",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of Luxembourg",
+                    "location": {
+                        "postCode": "4365",
+                        "settlement": "Esch-sur-Alzette",
+                        "country": "Luxembourg"
+                    }
+                },
+                "email": "amro.najjar@uni.lu"
+            },
+            {
+                "first": "St\u00e9phane",
+                "middle": [],
+                "last": "Galland",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "UTBM",
+                    "location": {
+                        "postCode": "90010",
+                        "settlement": "Belfort",
+                        "country": "France"
+                    }
+                },
+                "email": "stephane.galland@utbm.fr"
+            },
+            {
+                "first": "Christophe",
+                "middle": [],
+                "last": "Nicolle",
+                "suffix": "",
+                "affiliation": {},
+                "email": "christophe.nicolle@u-bourgogne.fr"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Motivated by the apparent societal need to design complex autonomous systems whose decisions and actions are humanly intelligible, the study of explainable artificial intelligence, and with it, research on explainable autonomous agents has gained increased attention from the research community. One important objective of research on explainable agents is the evaluation of explanation approaches in humancomputer interaction studies. In this demonstration paper, we present a way to facilitate such studies by implementing explainable agents and multi-agent systems that i) can be deployed as static files, not requiring the execution of server-side code, which minimizes administration and operation overhead, and ii) can be embedded into web front ends and other JavaScript-enabled user interfaces, hence increasing the ability to reach a broad range of users. We then demonstrate the approach with the help of an application that was designed to assess the effect of different explainability approaches on the human intelligibility of an unmanned aerial vehicle simulation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Since the lack of interpretability of both black-box machine learning models and complex rule-based systems is a generally-acknowledged socio-technical problem, the research domain of eXplainable Artificial Intelligence (XAI) is gaining Y. Mualla and T. Kampik-These two authors have contributed equally. increased attention from researchers of various disciplines. A particularly motivating factor is that emerging laws and regulations, most notably the European Union's GDPR, require that certain decisions of information systems must be humanly interpretable [3] . Recent works in the literature highlighted explainability as one of the cornerstones for building trustworthy responsible AI systems [11, 12] . In this context, an obvious research frontier for the autonomous agents and Multi-Agent Systems (MAS) community is the design of explainable intelligent agents [8] . This frontier is explained by the fact that while intelligent agents have been established as a suitable technique for implementing autonomous highlevel control and decision-making in complex AI systems [13] , there is still a need for these systems to be understood and trusted by the human users.",
+            "cite_spans": [
+                {
+                    "start": 562,
+                    "end": 565,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 701,
+                    "end": 705,
+                    "text": "[11,",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 706,
+                    "end": 709,
+                    "text": "12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 872,
+                    "end": 875,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                },
+                {
+                    "start": 1081,
+                    "end": 1085,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Considering that the growth of research on explainable agents is accelerating, contributions that empirically evaluate the proposed explainability approaches are still scarce [2, 6] . In this regard, Agent-based Simulation (ABS) fits the requirements to implement such empirical evaluations. ABS is a set of interacting intelligent entities that models and executes, within an artificial environment, the real-world autonomous agents, their relationships, and interactions with the environment [13] . Consequently, ABS can be considered as a natural step forward towards better managing and evaluating the proposed explainability approaches in Human-Computer Interaction (HCI) empirical user studies.",
+            "cite_spans": [
+                {
+                    "start": 175,
+                    "end": 178,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 179,
+                    "end": 181,
+                    "text": "6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 494,
+                    "end": 498,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "To facilitate more research and bridge the gap between the theoretical proposed explainability approaches on the one hand, and the practical evaluation of such approaches on the other hand, this demonstration paper presents an ABS approach to engineer explainable agents and MAS prototypes for the specific purpose of empirical evaluation in HCI studies. The approach makes use of light-weight web technologies that facilitate rapid prototyping and allow for the deployment of agents and MAS as static web pages.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The proposed approach to explainable agent prototyping and simulation development is to implement ABS as static web front ends. These web pages can be easily deployed to any device that serve or render web pages, and shared with a broad audience, for example as web links. From a technology perspective, the approach makes use of the JS-son library [5] , which allows the creation of Belief-Desire-Intention (BDI) agents, as well as agents with other reasoning loops and MAS in a higher-level programming language with little learning and technology overhead. We argue that the proposed approach has the following advantages:",
+            "cite_spans": [
+                {
+                    "start": 349,
+                    "end": 352,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Motivation"
+        },
+        {
+            "text": "Ease of deployment. Because the program code consists only of static files that are to be provided by a web server, it can be deployed in a straightforward manner, without the need of a complicated installation routine or the requirement to have extensive permissions on the target server. In particular, the program files can be moved to traditional static file servers (e.g., via FTP upload or via the upload feature of a content management system), or integrated into light-weight developer operations-oriented tools and services (e.g., continuous deployment to GitHub pages on push to a git repository's master branch). Reach. The explainable ABS can be easily shared with any potential human user who can access the Internet with a recent web browser. While for running HCI studies, oftentimes video vignettes are created to allow for easier sharing [1] , using such vignettes i) severely limits interactive features and ii) does not allow for convenient updates (minor changes, for example to the user interface, require re-recording the video(s)). Scalability. Because all program code is executed by the client, in particular by the browser of the corresponding end-user, applications developed with the proposed approach scale well; the server merely needs to provide (by all practical means: small) static files, which means researchers can host the applications essentially free of costs.",
+            "cite_spans": [
+                {
+                    "start": 855,
+                    "end": 858,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Motivation"
+        },
+        {
+            "text": "The proposed approach is based on the following architecture design (depicted in Fig. 1 ). A MAS (or, in simple scenarios, a single agent) is engineered to run encapsulated in a web page. Note that single-user interactions/human-in-theloop approaches are possible, and even multi-user interactions can be realized with light-weight real-time communication technologies such as Web Real-Time Communications (webRTC) [4] , albeit with a minimally invasive integration of server-side technologies. The state of the environment and all agents it contains is exposed to a User Interface (UI) manager component that processes the state and makes it available to the following components:",
+            "cite_spans": [
+                {
+                    "start": 415,
+                    "end": 418,
+                    "text": "[4]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 81,
+                    "end": 87,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Architecture"
+        },
+        {
+            "text": "-A grid world displays the \"physical state\" of the environment, i.e. the position of agents and artifacts. -A state table or tree-like structure provides an overview of relevant information that is not obvious from the grid world representation, i.e., hidden properties like goals and internal states of agents. -A notification system informs users about important events, e.g., when agents diverge from their expected behavior. Notifications are displayed as visually invasive alerts that overly the rest of the user interface. -Interaction controls (only in non-study mode, to not distract study participants) allow users to switch between different simulation modes and adjust simulation parameters.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Architecture"
+        },
+        {
+            "text": "The use of ABS for Unmanned Aerial Vehicles (UAVs) is gaining more interest in complex civil application scenarios where coordination and cooperation are necessary [7] . To provide a running example, let us describe how the approach we introduce in this paper can be used in a UAVs simulation scenario 1 . The study evaluates how different explainability approaches affect human intelligibility of a UAV delivery simulation. The simulation is provided in three modes, which represent different paths through the explanation generation process.",
+            "cite_spans": [
+                {
+                    "start": 164,
+                    "end": 167,
+                    "text": "[7]",
+                    "ref_id": "BIBREF6"
+                }
+            ],
+            "ref_spans": [],
+            "section": "UAV Simulation Example"
+        },
+        {
+            "text": "Basic mode. It displays the current state of all agents, including their current goal (target destination and mission type) in a table-like overview that updates in real-time. Adaptive filter mode. It aggregates the most important information across agents; i.e., users do not need to scan the table for relevant information, but can see at a glance which agents perform missions according to their expectations, and which agents are in possibly problematic states (\"stranded\", uncoordinated). When an agent enters such a state, an alert with the agent's ID and goal information is generated. Contrastive mode. Alerts are constructed using an implicitly counterfactual explanation scheme, following the structure Agent A is doing P [instead of Q] because of C, where P is the current behavior, Q is the presumably expected behavior, and C is the execution condition. This means [instead of Q] is implied by the alert and hence dropped from the text. Figure 2 displays the simulation in an interactive test mode that allows for the manipulation of simulation parameters through the user interface 2 . (In the study application, UI controls where hidden and simulation parameters were set via the simulation's URL parameters to avoid end-user distraction and interference).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 950,
+                    "end": 958,
+                    "text": "Figure 2",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "UAV Simulation Example"
+        },
+        {
+            "text": "After all agents' states have been collected, explanations, i.e summaries that give an overview of the agents' beliefs, are generated. For this, the chosen modes (Basic, adaptive filter, or contrastive) will determine the processes to be executed. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "UAV Simulation Example"
+        },
+        {
+            "text": "In this demonstration paper, we have shown how explainable agent simulations can be deployed as static web pages. The presented approach serves as an example of how light-weight tools with a small development, deployment, and operations footprint can be utilized to: i) rapidly develop agent/ABS prototypes in a widely-used higher-level programming language and ii) roll-out these prototypes and simulations at scale to large and diverse user groups, in particular for the purpose of empirical validation. As future research, from an engineering perspective, it can be considered as valuable to extend the JS-son library, which forms the foundation of this demonstration, with additional, generically useful abstractions for implementing explainable reasoning-loop agents. For this, components that this work implement can be extracted and merged into JS-son. From HCI and XAI perspectives, it can be considered as interesting to extend the simulation to allow for human-in-the-loop feedback that helps improve the explanations over time.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusion"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "Best practice recommendations for designing and implementing experimental vignette methodology studies",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Aguinis",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Bradley",
+                    "suffix": ""
+                }
+            ],
+            "year": 2014,
+            "venue": "Organ. Res. Methods",
+            "volume": "17",
+            "issn": "4",
+            "pages": "351--371",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Explanations of black-box model predictions by contextual importance and utility",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Anjomshoae",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Fr\u00e4mling",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Najjar",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "EXTRAAMAS 2019",
+            "volume": "11763",
+            "issn": "",
+            "pages": "95--109",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-30391-4_6"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "European union regulations on algorithmic decisionmaking and a \"right to explanation",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Goodman",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Flaxman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "AI Mag",
+            "volume": "38",
+            "issn": "3",
+            "pages": "50--57",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "WebRTC: APIs and RTCWEB Protocols of the HTML5 Real-Time Web",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Johnston",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Burnett",
+                    "suffix": ""
+                }
+            ],
+            "year": 2012,
+            "venue": "Digital Codex LLC",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "JS-son-A minimal JavaScript BDI agent library",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kampik",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Nieves",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "7th International Workshop on Engineering Multi-Agent Systems",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "Explanation in artificial intelligence: insights from the social sciences",
+            "authors": [
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Miller",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Artif. Intell",
+            "volume": "267",
+            "issn": "",
+            "pages": "1--38",
+            "other_ids": {}
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Comparison of agent-based simulation frameworks for unmanned aerial transportation applications",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Mualla",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Bai",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Galland",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Nicolle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Procedia Comput. Sci",
+            "volume": "130",
+            "issn": "",
+            "pages": "791--796",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Agent-based simulation of unmanned aerial vehicles in civilian applications: a systematic literature review and research directions",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Mualla",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Future Gener. Comput. Syst",
+            "volume": "100",
+            "issn": "",
+            "pages": "344--364",
+            "other_ids": {}
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Towards explainability for a civilian UAV fleet management using an agent-based approach",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Mualla",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Najjar",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kampik",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Tchappi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Galland",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Nicolle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "arXiv": [
+                    "arXiv:1909.10090cs.AI"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Humanagent explainability: an experimental case study on the filtering of explanations",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Mualla",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Tchappi",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Najjar",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Kampik",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Galland",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Nicolle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "12th International Conference on Agents and Artificial Intelligence",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Asking 'Why' in AI: explainability of intelligent systems-perspectives and challenges",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Preece",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Intell. Syst. Account. Finance Manag",
+            "volume": "25",
+            "issn": "2",
+            "pages": "63--72",
+            "other_ids": {}
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Explainability in human-agent systems",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Rosenfeld",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Richardson",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Auton. Agents Multi-Agent Syst",
+            "volume": "33",
+            "issn": "",
+            "pages": "1--33",
+            "other_ids": {}
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Intelligent agents: theory and practice",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Wooldridge",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Jennings",
+                    "suffix": ""
+                }
+            ],
+            "year": 1995,
+            "venue": "Knowl. Eng. Rev",
+            "volume": "10",
+            "issn": "2",
+            "pages": "115--152",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Springer Nature Switzerland AG 2020 D. Calvaresi et al. (Eds.): EXTRAAMAS 2020, LNAI 12175, pp. 149-154, 2020. https://doi.org/10.1007/978-3-030-51924-7_9",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "Explainable Agent-based Simulation architecture",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Explainable UAV simulation with UI controls.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgments. This work was partially supported by the Regional Council of Bourgogne Franche-Comt\u00e9 (RBFC, France) within the project UrbanFly 20174-06234/06242. It was also partially supported by the Wallenberg AI, Autonomous Systems and Software Program (WASP) funded by the Knut and Alice Wallenberg Foundation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

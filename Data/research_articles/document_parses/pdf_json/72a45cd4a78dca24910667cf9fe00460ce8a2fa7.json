@@ -1,0 +1,573 @@
+{
+    "paper_id": "72a45cd4a78dca24910667cf9fe00460ce8a2fa7",
+    "metadata": {
+        "title": "Intelligent Orchestration of End-to-End Network Slices for the Allocation of Mission Critical Services over NFV Architectures",
+        "authors": [
+            {
+                "first": "Bego",
+                "middle": [],
+                "last": "Blanco",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of the Basque Country",
+                    "location": {
+                        "settlement": "Bilbao",
+                        "country": "Spain"
+                    }
+                },
+                "email": "begona.blanco@ehu.eus"
+            },
+            {
+                "first": "Rub\u00e9n",
+                "middle": [],
+                "last": "Solozabal",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of the Basque Country",
+                    "location": {
+                        "settlement": "Bilbao",
+                        "country": "Spain"
+                    }
+                },
+                "email": "ruben.solozabal@ehu.eus"
+            },
+            {
+                "first": "Aitor",
+                "middle": [],
+                "last": "Sanchoyerto",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of the Basque Country",
+                    "location": {
+                        "settlement": "Bilbao",
+                        "country": "Spain"
+                    }
+                },
+                "email": "aitor.sanchoyerto@ehu.eus"
+            },
+            {
+                "first": "Javier",
+                "middle": [],
+                "last": "L\u00f3pez-Cuadrado",
+                "suffix": "",
+                "affiliation": {
+                    "laboratory": "",
+                    "institution": "University of the Basque Country",
+                    "location": {
+                        "settlement": "Bilbao",
+                        "country": "Spain"
+                    }
+                },
+                "email": ""
+            },
+            {
+                "first": "Elisa",
+                "middle": [],
+                "last": "Jimeno",
+                "suffix": "",
+                "affiliation": {},
+                "email": "elisa.jimeno@atos.net"
+            },
+            {
+                "first": "Miguel",
+                "middle": [],
+                "last": "Catalan-Cid",
+                "suffix": "",
+                "affiliation": {},
+                "email": "miguel.catalan@i2cat.net"
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "The challenge of deploying mission critical services upon virtualised shared network models is the allocation of both radio and cloud resources to the critical actors who require prioritized and high-quality services. This paper describes the design and deployment of an intelligent orchestration cycle to manage end-to-end slices on a NFV architecture. This novel tool includes the monitoring of the network elements at different levels and the processing of the gathered data to produce the corresponding alert mitigation actions.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "5G networks are expected to bring a new disrupting ecosystem, prompting the creation of innovative next generation vertical applications. To that end, one of the most awaited features is the provisioning and management of network slices tailored to the needs of each particular vertical industry and specific deployment. In particular, Network Function Virtualization (NFV) is embraced as one of the key technologies that will allow the creation of customized network slices to meet different service requirements.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction and Related Work"
+        },
+        {
+            "text": "The public safety sector will be one of the major beneficiaries of this technological development. Traditional mission critical applications expose tight QoS requirements, which find difficulties to be fulfilled by traditional network models. In consequence, traditional public safety networks have demanded private and dedicated network models, which eventually lead to an inefficient use of resources and spectrum. But now, network slicing through proper resource orchestration is making the network sharing model a reality.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction and Related Work"
+        },
+        {
+            "text": "The concept of network slicing was introduced by the Next Generation Mobile Network (NGMN) alliance within its whitepaper [8] . Later, the 3GPP took the responsability of standardising this technology, defining the entities and the functionality required to manage network slicing [2] . Presently, network slicing is integrated in the ETSI-NFV architecture [4] . Current NFV standards [5] define the interaction between the network slice management functions defined by the 3GPP and the NFV Management and Orchestration (MANO) module, establishing the required connection between the network controllers and the NFV orchestration unit in order to perform the dynamic assignment of network resources.",
+            "cite_spans": [
+                {
+                    "start": 122,
+                    "end": 125,
+                    "text": "[8]",
+                    "ref_id": "BIBREF6"
+                },
+                {
+                    "start": 281,
+                    "end": 284,
+                    "text": "[2]",
+                    "ref_id": null
+                },
+                {
+                    "start": 357,
+                    "end": 360,
+                    "text": "[4]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 385,
+                    "end": 388,
+                    "text": "[5]",
+                    "ref_id": "BIBREF3"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction and Related Work"
+        },
+        {
+            "text": "However, the implementation of the concept of orchestrating a service slice within this standardized network architecture is still in a development phase. In this sense, there are some independent initiatives as [3, 6, 7, 9] that are contributing to the creation of modules that complement the current MANO capabilities in order to orchestrate E2E slices.",
+            "cite_spans": [
+                {
+                    "start": 212,
+                    "end": 215,
+                    "text": "[3,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 216,
+                    "end": 218,
+                    "text": "6,",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 219,
+                    "end": 221,
+                    "text": "7,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 222,
+                    "end": 224,
+                    "text": "9]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction and Related Work"
+        },
+        {
+            "text": "In this paper, we present an NFV-based intelligent orchestration cycle with the capability of providing a set of shared resources to deal with the dynamic reconfiguration challenge. This orchestration cycle has been developed in the scope of H2020 5G ESSENCE project [1] . The slice concept introduced in 5G, along with the highly virtualised and software-based deployments, enables the automatic on-the-fly adjustment of the resource assignment to the changeable environment. This feature is of utmost importance in mission critical applications where sudden events can instantly alter the network requirements and priorities. For this reason, this work provides a comprehensive approach to demonstrating dynamic End-to-End (E2E) slices reconfiguration and service adaptation in a mission critical deployment.",
+            "cite_spans": [
+                {
+                    "start": 267,
+                    "end": 270,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction and Related Work"
+        },
+        {
+            "text": "The paper is organised as follows: Sect. 2 describes the orchestration cycle defined to dynamically adjust the end-to-end network slices in a NFV-based deployment. Next, Sect. 3 describes the validation scenario to later discuss the obtained results. Finally, Sect. 4 summarizes the main contributions and poses new research challenges that will be addressed in the future.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction and Related Work"
+        },
+        {
+            "text": "NFV comes up driven by the telecommunications industry in order to enhance the deployment flexibility, foster the integration of new services within operators and also attain CAPEX/OPEX drawdowns.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "NFV-Based Intelligent Orchestration Cycle"
+        },
+        {
+            "text": "However, the dynamic allocation of resources to separated and customised network slices still remains a challenge. This section describes a novel orchestration cycle providing new tools for automated E2E network slicing. The proposed orchestration cycle involves the monitoring system, the alert mitigation module and the execution of the mitigation actions. ",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "NFV-Based Intelligent Orchestration Cycle"
+        },
+        {
+            "text": "The 5G ESSENCE approach, depicted in Fig. 1 , takes the existing 5G architectures as a reference point, combining the 3GPP framework for network management in Radio Access Network (RAN) sharing scenarios and the ETSI NFV framework for managing virtualised network functions. Our architecture allows multiple network operators (tenants) to provide services to their users through a set of Cloud-enabled Small Cells (CESCs) deployed, owned and managed by a third party (i.e., the CESC provider). The CESC offers virtualised environment with computing, storage and radio resources at the edge of the mobile network. This cloud can also be 'sliced' to enable multi-tenancy.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 37,
+                    "end": 43,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Network Architecture"
+        },
+        {
+            "text": "Besides, the two-tier architecture of 5G ESSENCE is well aligned with the 5G architecture described by 5G-PPP, where the infrastructure programmability is identified as one key design paradigm for 5G. First, 5G ESSENCE achieves infrastructure programmability by leveraging the virtualised computation resources available in an Edge Datacenter (Edge DC). These resources are used for hosting VNFs tailored according to the needs of each tenant, on a per-slice basis. Second, the Main Datacenter (Main DC) allows centralising and softwarising the control plane of small cell functions to enable a more efficient utilisation of the radio resources coordinated among multiple CESCs.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Network Architecture"
+        },
+        {
+            "text": "We propose to enhance the orchestration functionalities adding more intelligence into the CESC Manager (CESCM) together with the NFV Orchestrator (NFVO). In particular, 5G ESSENCE provides a network monitoring and alert mitigation mechanism that supports and improves both the NFVO and RAN controlling functions. The event flow for the management of end-to-end slicing for a Mission-critical Push-to-talk (MCPTT) service is depicted in Fig. 2 , and each component is further described in the following sections. ",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 436,
+                    "end": 442,
+                    "text": "Fig. 2",
+                    "ref_id": "FIGREF1"
+                }
+            ],
+            "section": "Network Architecture"
+        },
+        {
+            "text": "The main objective of the Monitoring and Alert Mitigation system shown in Fig. 3 is to access the available information about the network elements and process it in order to conclude if and when a network reconfiguration is needed. The orchestration cycle begins with the collection of the monitored data through the exporters in each monitoring-enabled building block. The monitored data is stored in Prometheus, which is on charge of triggering the alerts as defined according to the different services and their Service Level Agreement (SLA). These alerts are defined to notify about an unexpected behaviour in the system and SLA violations.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 74,
+                    "end": 80,
+                    "text": "Fig. 3",
+                    "ref_id": "FIGREF2"
+                }
+            ],
+            "section": "System and Service Monitoring and Alert Mitigation"
+        },
+        {
+            "text": "It must be also noted that the monitoring of the Wi-Fi RAN controller relies on the federation of the Prometheus server installed in the component. Federation allows Prometheus to have a heritage of some targets monitored from another Prometheus. The main idea for using Federation is to have a decentralised system in order to monitor the Wi-Fi RAN metrics through another Prometheus for other tasks. The alerts raised are picked by the Alert Mitigation Module (AMM), which is part of the Management Monitoring Gateway. The purpose of AMM is to manage the configuration of the architectural components responsible of the behavior of the E2E slice. To that aim, AMM contains the mitigation logic based on a ponderation of the rules defined in the Rulebook. When an alert is triggered, AMM differences between different severity levels. If the severity is critical, the mitigation module must mitigate the alert with higher priority without considering further alerts following the configuration defined in the Rulebook. For warning severities, the Mitigation module saves the alert in a time window, which is configured by the Rulebook (Fig. 4) . The window (or queue), groups the alerts by the specific mitigation required by it. Every warning alert has a ponderation in the Rulebook. The warning alert is added in the queue with its correspondent ponderation. If the sum of the ponderations in the mitigation queue exceeds the mitigation ponderation, configured in the Rulebook, a mitigation action composed with all the warning severity alerts is triggered, emptying the mitigation queue and silencing the alert.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1136,
+                    "end": 1144,
+                    "text": "(Fig. 4)",
+                    "ref_id": "FIGREF3"
+                }
+            ],
+            "section": "System and Service Monitoring and Alert Mitigation"
+        },
+        {
+            "text": "Finally, within the scope of this paper, we have defined two endpoints to forward the mitigation actions and close the monitoring and mitigation loop: the NFVO orchestrator to manage the scaling options of the Network Service, and Wi-Fi RAN controller to manage the resources used by the Wi-Fi slice. These two blocks are further described in the next sections.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "System and Service Monitoring and Alert Mitigation"
+        },
+        {
+            "text": "Mission Critical Push-To-Talk (MCPTT) is a mission critical communication standard that allows half duplex one-to-many and one-to-one voice services in order to coordinate emergency teams. Users request permission to transmit pressing a button. Additionally, the MCPTT service provides a means for a user with higher priority (e.g., MCPTT Emergency condition) to override (interrupt) the current speaker. As it appears, the management of this type of half-duplex communication is not trivial, since it requires an appropriate management of priorities and privileges to allow communication. The MCPTT Network Service is composed of one VNF that completes the mission critical push to talk service. This service is defined in multiple Virtual Deployment Units (VDU) to optimise the usage of the resources: a DNS server, an IMS (IP Multimedia Subsystem) service for session management, a CSC (Common Service Core) for service status information, and the MCPTT AS (Application Server) providing centralised support for MCPTT services and call control. Figure 5 depicts the deployment of the described MCPTT network architecture.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1048,
+                    "end": 1056,
+                    "text": "Figure 5",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "MCPTT Service Architecture"
+        },
+        {
+            "text": "In order to integrate the described MCPTT network service within the orchestration cycle detailed above, we must include a tailored exporter to extract the required metrics for the monitoring tasks. It appears as mcptt exporter in Fig. 5 . This component is responsible for collecting the metrics from the MCPTT service to later expose them for the analysis in the monitoring system. It is implemented as a REST API: when the mcptt exporter receives a status request from the Prometheus in the Monitoring module, it queries the involved components of the NS (mainly IMS and MCPTT AS ) to gather the metrics and format them properly. The Controller Manager is the core of RACOON. It is in charge of Open-DayLight SDN controller, Open vSwitch database server and the Netconf Manager by means of the different implemented clients (REST APIs) and controls the CESCs according to the deployed slices and services. It also gathers telemetry from the Wi-Fi RAN by means of its Prometheus server. Moreover, through its REST API, the RAN Controller exposes the management of the infrastructure and the slices to the CESCM.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 231,
+                    "end": 237,
+                    "text": "Fig. 5",
+                    "ref_id": "FIGREF4"
+                }
+            ],
+            "section": "MCPTT Service Architecture"
+        },
+        {
+            "text": "The Global Scheduler Controller manages the weights/quotas of the instantiated slices in the Wi-Fi RAN. It allows enabling, modifying and disabling the local schedulers of the different Wi-Fi CESCs, which locally manage the percentage of airtime or channel time assigned to each slice. It implements a REST API to allow its control via the CESCM.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RAN Controller Architecture"
+        },
+        {
+            "text": "Finally, the Wi-Fi CESC is composed by Single Board Computers (SBCs) with a Linux distribution. The main software used in order to deploy Wi-Fi connectivity is Hostapd, which has been modified in order to deploy, monitor and control multiple virtual Access Points (vAPs) on top of a single physical interface, according to the desired Wi-Fi slices. By means of these modifications, the Local Scheduler is able to manage the MAC-scheduler which controls the airtime or channel time assigned to each slice (which is then fairly distributed among all the user terminals of each slice). Also, it hosts a Prometheus Exporter (Hostapd Exporter 1 ) in order to gather RAN telemetry.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "RAN Controller Architecture"
+        },
+        {
+            "text": "This section shows the results of the integration of the described enhanced orchestration tools developed within the 5G ESSENCE project to deploy a MCPTT service slice. To that aim, we first declare the metrics collected from the network elements and the mitigation actions defined when an emergency event is detected. Then, we describe the validation scenario and show the results of the complete deployment.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Orchestration Cycle for MCPTT Deployments"
+        },
+        {
+            "text": "The monitoring system collects network status information from network elements at different levels: NFVI through node exporter, MCPTT service through a tailored exporter and RACOON cSD-RAN controller through Prometheus federation. The information collected from the NFVI that is involved in this experiment includes CPU, memory and disk usages, VM port throughput and availability of VMs (if they are up). The information collected from the MCPTT service includes the number of registered and active users, the number of private calls, group calls, private emergency calls, group emergency calls that have been started/ongoing/terminated and the number of users involved in each of the calls. Finally, the system collects information from RACOON about the number of users per slice per cell, transmitted bit rate and quality of the signal. For each identified metric, the measurement framework and the alarms it can trigger is included. Two alarm thresholds are defined. The first alarm threshold provides a warning, whereas the second threshold is considered a critical situation.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Monitoring Metrics and Mitigation Action Definition"
+        },
+        {
+            "text": "The demonstration of the dynamically orchestrated MCPTT deployment cannot be based on a static scenario, since one of its objectives to be proven is the elastic allocation of resources attending to different levels of emergency conditions detected by the monitoring system. We propose a deployment topology in three main stages. Under normal circumstances, the system instantiates the network slices that correspond to a default service agreement. Here, the first responder only needs a reduced amount of access capacity and communication features for its normal operations. Then, triggered by an emergency incident that is detected through a private emergency call, the first responder requires increased capacity in terms of edge computing resources, in order to serve a higher number of incoming communications and/or public safety users. This implies the scaling of the MCPTT VNF and it may involve a deterioration of the service for legacy users, since their network slice(s) must be reduced in order to appropriately allocate the higher priority MCPTT service. Finally, in the third stage triggered by a group emergency call, the system responds with an expansion of the MCPTT radio slice up to the 75% of the available bandwidth in the cell where the emergency events are happening (detected by the increasing number of users in the cell). Again, this situation may involve an impairment of the service provided to civilians in favor of the communications for first responders, which require higher priority. Figure 7 shows some screenshots that illustrate the operation of the orchestration process. The upper screen shows the monitoring of MCPTT calls during the experiment. It can be observed how the different events are detected over time.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 1516,
+                    "end": 1524,
+                    "text": "Figure 7",
+                    "ref_id": "FIGREF7"
+                }
+            ],
+            "section": "Scenario Definition and Deployment Results"
+        },
+        {
+            "text": "The screenshot in the middle shows the result of an alert mitigation action in the second stage that leads to the MCPTT VNF scale. Finally, the lower screenshot shows the reconfiguration of the radio slice as a result of the mitigation action in the third stage.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Scenario Definition and Deployment Results"
+        },
+        {
+            "text": "This paper has described the intelligent orchestration cycle that proves that the 5G ESSENCE context provides a solution for an efficient and elastic E2E network slicing and the efficient orchestration of the radio and cloud resources. The results highlight the value of the shared network model, demonstrating the capacity of the 5G ESSENCE architecture to autonomously allocate resources to first responders whenever they are required, but giving them up to the commercial services when the requirements are low. The elastic allocation of resources is performed automatically, leveraging the monitoring and alert mitigation functionalities that complement the orchestration processes in the CESCM.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions and Future Work"
+        },
+        {
+            "text": "Our research work will continue to further develop orchestration tools to enhance the E2E slicing capabilities of NFV environments. New research trends include the use of machine learning techniques in the decision-making process, the migration and placement of VNFs and the analysis of the possibilities of multi-RAT access.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Conclusions and Future Work"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "3GPP: Study on management and orchestration of network slicing for next generation network",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "H2020",
+                    "suffix": ""
+                },
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Project",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "",
+            "volume": "3",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "End-to-end slicing as a service with computing and communication resource allocation for multi-tenant 5G systems",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Chien",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Lin",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Lai",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "T"
+                    ],
+                    "last": "Wang",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "IEEE Wirel. Commun",
+            "volume": "26",
+            "issn": "5",
+            "pages": "104--112",
+            "other_ids": {}
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "ETSI: Network Function Virtualization (NFV)",
+            "authors": [],
+            "year": 2013,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "ETSI: Report on Network Slicing Support with ETSI NFV Architecture Framework. GR NFV-EVE 012",
+            "authors": [],
+            "year": 2017,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Network slicing-aware NFV orchestration for 5G service platforms",
+            "authors": [
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Khalili",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "2019 European Conference on Networks and Communications (EuCNC)",
+            "volume": "",
+            "issn": "",
+            "pages": "25--30",
+            "other_ids": {}
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "End-to-end network slicing in support of latency-sensitive 5G services",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Montero",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Agraz",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pag\u00e8s",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Spadaro",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "ONDM 2019",
+            "volume": "11616",
+            "issn": "",
+            "pages": "51--61",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/978-3-030-38085-4_5"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "NGMN: Description of network slicing concept",
+            "authors": [],
+            "year": 2016,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "An end-to-end demonstration for 5G network slicing",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Ni",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "2019 IEEE 89th Vehicular Technology Conference (VTC2019-Spring)",
+            "volume": "",
+            "issn": "",
+            "pages": "1--5",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "5G ESSENCE network architecture.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF1": {
+            "text": "End-to-end slicing event flow.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF2": {
+            "text": "Monitoring and alert mitigation architecture.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF3": {
+            "text": "Flow for mitigation warning alerts.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF4": {
+            "text": "MCPTT service architecture.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF5": {
+            "text": "depicts the components of the RACOON Wi-Fi RAN slicing solution.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF6": {
+            "text": "RACOON SD-RAN controller architecture.",
+            "latex": null,
+            "type": "figure"
+        },
+        "FIGREF7": {
+            "text": "Orchestration cycle screenshots.",
+            "latex": null,
+            "type": "figure"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgement. This work has been partly funded by the EU funded H2020 5G-PPP project 5G ESSENCE (Grant Agreement No 761592).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-
+import json
 import os
 import pandas as pd
 from simpletransformers.language_generation import LanguageGenerationModel
@@ -73,8 +73,22 @@ if not os.path.exists(models_folder):
 for epoch in range(EPOCHS):
 
     print(f"EPOCH {epoch} started" + '=' * 30)
+    rootdir = _data_absolute_path + 'research_articles/document_parses/pdf_json'
+    dataset = []
+    for subdir, dirs, files in os.walk(rootdir):
+        ix = 0
+        for f in files:
+            if ix == 300:
+                break
+            file = open(_data_absolute_path + 'research_articles/document_parses/pdf_json/' + f, 'r')
+            json_file = json.loads(str(file.read()))
+            research_article = ''
+            for paragraph in json_file['body_text']:
+                research_article = research_article + paragraph['text']
 
-    dataset = list(pd.read_csv(_data_absolute_path + 'news.csv')['text'])
+            file.close()
+            dataset.append(research_article)
+            ix = ix + 1
     adapt_loader = DataLoader(dataset, batch_size=1, shuffle=True)
     for idx, adapt in enumerate(adapt_loader):
 

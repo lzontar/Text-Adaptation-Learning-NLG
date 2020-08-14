@@ -1,0 +1,2397 @@
+{
+    "paper_id": "71b4fc38346170ccd17363d4e782a5dd57e0f3cb",
+    "metadata": {
+        "title": "COVID-19 scenario modelling for the mitigation of capacity-dependent deaths in intensive care",
+        "authors": [
+            {
+                "first": "Richard",
+                "middle": [
+                    "M"
+                ],
+                "last": "Wood",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Christopher",
+                "middle": [
+                    "J"
+                ],
+                "last": "Mcwilliams",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Matthew",
+                "middle": [
+                    "J"
+                ],
+                "last": "Thomas",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Christopher",
+                "middle": [
+                    "P"
+                ],
+                "last": "Bourdeaux",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            },
+            {
+                "first": "Christos",
+                "middle": [],
+                "last": "Vasilakis",
+                "suffix": "",
+                "affiliation": {},
+                "email": ""
+            }
+        ]
+    },
+    "abstract": [
+        {
+            "text": "Managing healthcare demand and capacity is especially difficult in the context of the COVID-19 pandemic, where limited intensive care resources can be overwhelmed by a large number of cases requiring admission in a short space of time. If patients are unable to access this specialist resource, then death is a likely outcome. In appreciating these 'capacity-dependent' deaths, this paper reports on the clinically-led development of a stochastic discrete event simulation model designed to capture the key dynamics of the intensive care admissions process for COVID-19 patients. With application to a large public hospital in England during an early stage of the pandemic, the purpose of this study was to estimate the extent to which such capacity-dependent deaths can be mitigated through demand-side initiatives involving non-pharmaceutical interventions and supply-side measures to increase surge capacity. Based on information available at the time, results suggest that total capacity-dependent deaths can be reduced by 75% through a combination of increasing capacity from 45 to 100 beds, reducing length of stay by 25%, and flattening the peak demand to 26 admissions per day. Accounting for the additional 'capacity-independent' deaths, which occur even when appropriate care is available within the intensive care setting, yields an aggregate reduction in total deaths of 30%. The modelling tool, which is freely available and open source, has since been used to support COVID-19 response planning at a number of healthcare systems within the UK National Health Service.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Abstract"
+        }
+    ],
+    "body_text": [
+        {
+            "text": "Coronavirus disease 2019 (COVID-19) is a highly contagious and virulent infectious disease caused by severe acute respiratory syndrome coronavirus 2, otherwise known as SARS-CoV-2 [1] . Given the speed at which the virus can infect populations and the severity of the resulting symptoms, it represents a significant and unprecedented challenge for many healthcare services; and one with which even the most developed countries have struggled to cope [2] .",
+            "cite_spans": [
+                {
+                    "start": 180,
+                    "end": 183,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                },
+                {
+                    "start": 450,
+                    "end": 453,
+                    "text": "[2]",
+                    "ref_id": "BIBREF1"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Managing a co-ordinated response to pandemics such as COVID-19 is critical. Unchecked, with a basic reproduction rate (R0) estimated at various magnitudes up to 6.5 [3, 4] and up to 14.7% of those infected requiring hospitalisation [5] , the virus can propagate rapidly through a population, leading to peaks in demand for hospital care which are simply not possible to match with existing capacity [2, 3] . If, at such times, patients are unable to access the bedded care required then otherwise-avoidable death is likely to result [6] . The likelihood of this is particularly heightened when intensive care beds are required, since the necessary invasive ventilation and organ support cannot readily or safely be delivered in other settings [7] . Early case fatality rates from Wuhan are not expected to appreciate these capacity-dependent deaths (i.e. deaths that can be attributed to a patient unable to access the care they need due to lack of available capacity), since drastic efforts were taken by authorities to avoid health services becoming overwhelmed, in enforcing restrictions on movement and rapidly upscaling capacity through the building of two new hospitals [8] . Without improved treatment options, there is little that can be done to reduce COVID-19 deaths occurring when the patient has otherwise been cared for in the most appropriate hospital setting (i.e. capacity-independent deathssee Fig. 1 ), and so national and local planners should focus on minimising the capacitydependent deaths that are within their influence. That is, efforts should be made to ensure the right level of care is available to patients at the right time.",
+            "cite_spans": [
+                {
+                    "start": 165,
+                    "end": 168,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 169,
+                    "end": 171,
+                    "text": "4]",
+                    "ref_id": "BIBREF3"
+                },
+                {
+                    "start": 232,
+                    "end": 235,
+                    "text": "[5]",
+                    "ref_id": "BIBREF4"
+                },
+                {
+                    "start": 399,
+                    "end": 402,
+                    "text": "[2,",
+                    "ref_id": "BIBREF1"
+                },
+                {
+                    "start": 403,
+                    "end": 405,
+                    "text": "3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 533,
+                    "end": 536,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 743,
+                    "end": 746,
+                    "text": "[7]",
+                    "ref_id": null
+                },
+                {
+                    "start": 1176,
+                    "end": 1179,
+                    "text": "[8]",
+                    "ref_id": "BIBREF7"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1411,
+                    "end": 1417,
+                    "text": "Fig. 1",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Introduction"
+        },
+        {
+            "text": "The principal levers to reduce capacity-dependent deaths relate to managing the demand for and supply of intensive care resources. On the demand side, in absence of the means to treat or prevent disease, the slowing down of cases requiring admission using measures such as school closures and social distancing can reduce peak excess demand for intensive care, the socalled 'flattening the curve' [1] . On the supply side, efforts to create new and expand existing intensive care units increases the capacity to care for critically ill COVID-19 patients, resulting in fewer patients rejected with either no care or care in a sub-optimal setting (which increases the risk of death).",
+            "cite_spans": [
+                {
+                    "start": 397,
+                    "end": 400,
+                    "text": "[1]",
+                    "ref_id": "BIBREF0"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The ability to use a mathematical or computer model to experiment with 'what if' scenarios involving these levers is crucial to planners on the ground, in ensuring deaths over the course of the pandemic can be kept at a minimum. Public health authorities need to know what effect their policies on social distancing, home isolation and school closures (i.e. policies to reduce the effective reproduction number R from the basic reproduction number in absence of intervention R0) can have on decreasing or changing the shape over time of demand and, in turn, capacity-dependent deaths. Healthcare service planners and managers need to be cognisant of the likely benefits of their options around the flexing of bedded capacity, especially regarding the allocation between acute and intensive care beds (where the substantial efforts involved in increasing the latter must be well justified). With an appropriate model, the effect of these scenarios can be projected and used to make better informed strategic decisions when planning the response to the COVID-19 pandemic.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "There has been much interest in the quantitative and mathematical modelling of COVID-19 for purposes of epidemiological forecasting [3, 9, 10] , risk prediction [11] , and health system vulnerability [12] . However, to the best of the authors' knowledge there has been no explicit modelling of capacity-dependent deaths based on predicted demand. While Ferguson et al. [3] provide a detailed model of demand and the resulting deaths under various mitigation strategies, their work assumes a fixed mortality rate that is not dependent on the available capacity of the healthcare system. Our study addresses this limitation by estimating the excess mortality resulting from demand exceeding intensive care capacity under several mitigation scenarios.",
+            "cite_spans": [
+                {
+                    "start": 132,
+                    "end": 135,
+                    "text": "[3,",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 136,
+                    "end": 138,
+                    "text": "9,",
+                    "ref_id": "BIBREF8"
+                },
+                {
+                    "start": 139,
+                    "end": 142,
+                    "text": "10]",
+                    "ref_id": "BIBREF9"
+                },
+                {
+                    "start": 161,
+                    "end": 165,
+                    "text": "[11]",
+                    "ref_id": "BIBREF10"
+                },
+                {
+                    "start": 200,
+                    "end": 204,
+                    "text": "[12]",
+                    "ref_id": "BIBREF11"
+                },
+                {
+                    "start": 369,
+                    "end": 372,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "Computer simulations of patient flow, demand and capacity have been used extensively to inform decision-making in healthcare [13] [14] [15] [16] . This is especially true for the stochastic, discrete-event approach to simulation, as it is particularly suited to situations where entities (e.g. patients) 'compete' for limited resources such as hospital beds and operating room time [17] . Many simulation studies that have tackled questions around demand and capacity in healthcare, both under typical health system conditions (for example [18, 19] ) and in periods of increased pressure such as mass casualty events [20] and winter bed crises [21, 22] . Specifically in the context of intensive care, simulation studies have addressed bed requirements by using the system dynamics simulation approach to evaluate different management policies [23] , and applying analytical queuing models and simulations to the management of patient flow [24, 25] . For a general guide of how simulation modelling may be used in responding to the challenges of COVID-19, refer to [26] . This paper reports on the development and early real-life application of a purpose-built computer simulation model, designed for evaluating scenarios to mitigate capacity-dependent deaths in intensive care resulting from the COVID-19 pandemic. The remainder of this paper is structured as follows. Development of the model is covered in Sect. 2 alongside data requirements for model parameterisation and the scenarios considered for the simulation experiments. Illustrative results, obtained from application to a large teaching hospital in England at an early stage of the outbreak, are presented in Sect. 3. Finally, Sect. 4 contains a discussion on practical application, limitations, and possible further development of the model and tool.",
+            "cite_spans": [
+                {
+                    "start": 125,
+                    "end": 129,
+                    "text": "[13]",
+                    "ref_id": "BIBREF12"
+                },
+                {
+                    "start": 130,
+                    "end": 134,
+                    "text": "[14]",
+                    "ref_id": "BIBREF13"
+                },
+                {
+                    "start": 135,
+                    "end": 139,
+                    "text": "[15]",
+                    "ref_id": "BIBREF14"
+                },
+                {
+                    "start": 140,
+                    "end": 144,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                },
+                {
+                    "start": 382,
+                    "end": 386,
+                    "text": "[17]",
+                    "ref_id": "BIBREF16"
+                },
+                {
+                    "start": 540,
+                    "end": 544,
+                    "text": "[18,",
+                    "ref_id": "BIBREF17"
+                },
+                {
+                    "start": 545,
+                    "end": 548,
+                    "text": "19]",
+                    "ref_id": "BIBREF18"
+                },
+                {
+                    "start": 617,
+                    "end": 621,
+                    "text": "[20]",
+                    "ref_id": "BIBREF19"
+                },
+                {
+                    "start": 644,
+                    "end": 648,
+                    "text": "[21,",
+                    "ref_id": "BIBREF20"
+                },
+                {
+                    "start": 649,
+                    "end": 652,
+                    "text": "22]",
+                    "ref_id": "BIBREF21"
+                },
+                {
+                    "start": 844,
+                    "end": 848,
+                    "text": "[23]",
+                    "ref_id": "BIBREF22"
+                },
+                {
+                    "start": 940,
+                    "end": 944,
+                    "text": "[24,",
+                    "ref_id": "BIBREF23"
+                },
+                {
+                    "start": 945,
+                    "end": 948,
+                    "text": "25]",
+                    "ref_id": "BIBREF24"
+                },
+                {
+                    "start": 1065,
+                    "end": 1069,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Introduction"
+        },
+        {
+            "text": "The COVID-19 intensive care admission process is modelled as a multi-channel queuing system operating with loss. That is, patients requiring intensive care are rejected if there is no available service channel (bed). In Kendall's notation [27] this is an M(t)/G/C/C queuing system: that is, in turn, a timeinhomogeneous Poisson arrivals process representing the epidemic curve for cases requiring intensive care admission; a general service distribution approximating patient length of stay in intensive care; C service channels; and a total system capacity of C patients, i.e. no space for waiting. For rejected intensive care presentations (lost arrivals), death occurs with probability P rej d and survival with probability 1\u2212P rej d . For admitted intensive care presentations, death occurs with probability P adm d and survival with probability 1\u2212P adm d . Implementation of this model is through the iterative threephased method of discrete event simulation [28] . In the case of this study, the types of simulation event consist of: (a) Arrival of patient requiring intensive care admission (unconditional event) (b) Patient admitted to intensive care (conditional event) (c) Patient died within intensive care (unconditional event) (d) Patient discharged alive from intensive care (unconditional event) (e) Patient admission rejected and patient died (conditional event) (f) Patient admission rejected and patient survived (conditional event)",
+            "cite_spans": [
+                {
+                    "start": 239,
+                    "end": 243,
+                    "text": "[27]",
+                    "ref_id": "BIBREF26"
+                },
+                {
+                    "start": 964,
+                    "end": 968,
+                    "text": "[28]",
+                    "ref_id": "BIBREF27"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "The basis of the three-phased approach is in maintaining a calendar of unconditional events. The first phase is to step to the next chronological event in the calendar. This could be arrival or intensive care discharge or death (i.e. event type a, c or d as above). In the second phase the selected event is executed. In the third phase, any associated conditional event is also executed. So, for example, if a patient arrives (event type a) and there is an available service channel (e.g. a free intensive care bed) then the conditional event is that the patient is admitted (event type b) and the associated bed is flagged as unavailable. If, instead, there is no available service channel (bed) then the admission is rejected and the simulated patient either dies (event type e) or ultimately survives (event type f).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "As the simulated events progress with each iteration, it is necessary to capture the state of the system over time. This keeps the event calendar up-to-date. For instance, if one of the events within an iteration involves a patient entering service (event type b), then the time at which they are discharged (sampled from the given length of stay distribution) is recorded in the calendar, as a future unconditional event of type d. Capturing the state of the system is also necessary in the generation of performance measures of interest, such as occupancy levels and patient outcomes.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "During the simulation, events are iterated in line with the three-phased method until some terminating criterion is met. Here, this is given by the time at which some outcome has been reached for all simulated admissions for the given epidemic curve (for cases requiring intensive care admission), i.e. each sought admission has been either rejected or admitted and discharged or died (event types c-f). In other words, and given the time-inhomogeneous nature of the epidemic curve, this is a transient simulation model. As such, and in contrast to simulation models exploring steady-state behaviour, an otherwise necessary warm-up period is not required [29] .",
+            "cite_spans": [
+                {
+                    "start": 655,
+                    "end": 659,
+                    "text": "[29]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "Running this simulation from start to finish offers just one possible explanation of how the pathway dynamics can play out and so, in order to capture the inherent stochasticity, it is necessary to perform an ensemble of replications. Each replication repeats the simulation with a different stream of random numbers from which the simulated arrivals, lengths of stay, and rejection probabilities of death and survival are generated. Outputs are then aggregated across these replications, with central estimates (based on the mean) and confidence intervals (at the 95% level) calculated for all simulation measures.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "Note that the Strengthening the Reporting of Empirical Simulation Studies (STRESS) research checklist for discreteevent simulation studies (STRESS-DES) is provided within the supplementary material.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Model"
+        },
+        {
+            "text": "The model was applied to intensive care services at a major public hospital in England during the early stage of the outbreak in the UK (late March and early April 2020). Demand for intensive care admission at the hospital was estimated through local interpretation of nationwide projections contained in [3] , which were made publicly available on 16 March 2020. This involved adjusting for local population size, demographics and hospital catchment area (Table 1) in our effort to interpret the national demand profiles. As similarly performed in [30] , such data preprocessing was necessary given the absence of more granular projections during the early stages of the outbreak. The modelling reported in this study made use of two hypothetical strategies contained in [3]a 'do nothing' and one involving 'case isolation, home quarantine, and social distancing of those over 70'. The modelling also considers a 'flattened' version of this latter strategy, in order to appreciate the possibility that measures would have a greater effect than envisaged in slowing transmission of the disease, with the same level of demand but over a 50% longer period of time (Fig. 2) .",
+            "cite_spans": [
+                {
+                    "start": 305,
+                    "end": 308,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 549,
+                    "end": 553,
+                    "text": "[30]",
+                    "ref_id": "BIBREF28"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 456,
+                    "end": 465,
+                    "text": "(Table 1)",
+                    "ref_id": "TABREF0"
+                },
+                {
+                    "start": 1162,
+                    "end": 1170,
+                    "text": "(Fig. 2)",
+                    "ref_id": null
+                }
+            ],
+            "section": "Application, data, and calibration"
+        },
+        {
+            "text": "At the collaborating hospital there are typically 45 beds available for patients requiring intensive care (21 general and 24 cardiac). In the first instance, plans were in place for capacity to be increased to a maximum of 76 beds, through making use of operating theatres and other specialist bays (which have become available due to the cancellation of routine surgery). There remained some potential to increase this number further, should additional surge capacity be required (this is considered within the scenario analysis of Sect. 3).",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Application, data, and calibration"
+        },
+        {
+            "text": "At the time this study was conducted, there was an insufficient number of COVID-19 patients that had been admitted to intensive care at the hospital, and so information regarding intensive care length of stay is taken from the literature. A gamma distribution (used also in fitting to COVID-19 intensive care length of stay in [30] ) was parameterised based on fitting to length of stay data for 4078 COVID-19 intensive care admissions in England, Wales and Northern Ireland [31] . The shape and rate parameters were estimated at \u03b1 = 1.66 and \u03b2 = 0.206 respectively, giving rise to a median of 6.52 days and mean of 8.07 days (note the mean is similar to the 8 day mean used in [30] ). The probability of death resulting from rejected admission to intensive care (P rej d ) was also informed by the literature. Given the pivotal dependence of survival on mechanical ventilation [6] and already substantial mortality rates for cases actually receiving such intervention [31] , it was assumed that all but a very small minority of rejected admissions would result in death. For the simulation study conducted here, a figure of P rej d \u00bc 0:99 is used based on the clinical advice received from practicing intensive care consultants (noting the assumption that transfer to another hospital with available intensive care capacity could not take place). Finally, the probability that a COVID-19 patient admitted to intensive care dies within intensive care (P adm d ) is estimated at P adm d \u00bc 0:507, based on such a proportion of intensive care admissions having died as sourced from the afore-mentioned observational report representing 4078 intensive care admissions [31] .",
+            "cite_spans": [
+                {
+                    "start": 327,
+                    "end": 331,
+                    "text": "[30]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 475,
+                    "end": 479,
+                    "text": "[31]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 678,
+                    "end": 682,
+                    "text": "[30]",
+                    "ref_id": "BIBREF28"
+                },
+                {
+                    "start": 878,
+                    "end": 881,
+                    "text": "[6]",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 969,
+                    "end": 973,
+                    "text": "[31]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 1664,
+                    "end": 1668,
+                    "text": "[31]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Application, data, and calibration"
+        },
+        {
+            "text": "A number of scenarios relating to possible COVID-19 mitigations were modelled in order to inform planning of intensive care services at the hospital during the early stage of the outbreak. These relate to changes in the epidemic curve for cases requiring intensive care (informed by government-led strategy regarding isolation, quarantine and social distancing), capacity at the hospital in terms of number of intensive care beds, and patient length of stay in intensive care. The No isolation strategy involving no government-led effort with respect to isolation, quarantine and social distancing is considered within Scenario 1, alongside the current available capacity of 45 beds and the literature-informed gamma-distributed length of stay with mean 8.07 days [31] . Given the UK Government's Scenarios 3 and 4 model the hospital's actual planned increases in intensive care bed numbers to surge capacities of 76 and 100 respectively. Scenario 5 models the potential benefits of reducing COVID-19 length of stay by 25% through use of weaning protocols for patients receiving mechanical ventilation, as estimated in a previous study [32] . In exploring sensitivity of model outputs to length of stay, an increase of 25% was also considered (Scenario 6) in order to appreciate the effect of possible delays to discharge that reasonably may exist [33] . In appreciating the possibility that nonpharmaceutical interventions would have a greater effect than envisaged in slowing transmission of the disease under the Isolation strategy, the remainder of considered scenarios are based upon the 'flattened' version as introduced in Sect. 2.2 ( Fig. 2 ). Scenarios 7 through 9 account for this in respect of the various surge capacities (45, 76, 100 beds), with Scenario 10 presenting the 'best case' option in bringing together this flattened demand accompanied by increased capacity to 100 beds and 25% reduced length of stay.",
+            "cite_spans": [
+                {
+                    "start": 764,
+                    "end": 768,
+                    "text": "[31]",
+                    "ref_id": "BIBREF29"
+                },
+                {
+                    "start": 1136,
+                    "end": 1140,
+                    "text": "[32]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 1348,
+                    "end": 1352,
+                    "text": "[33]",
+                    "ref_id": "BIBREF31"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 1642,
+                    "end": 1648,
+                    "text": "Fig. 2",
+                    "ref_id": null
+                }
+            ],
+            "section": "Scenario analysis"
+        },
+        {
+            "text": "In order to gauge the 'ideal world' capacity required to readily accommodate all demand for intensive care admission, additional scenarios are considered for which no constraint on the number of beds is assumed. This is with respect to the 8.07 day mean length of stay and demand profiles equivalent to the No isolation, Isolation, and Isolation (flattened) strategies.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Scenario analysis"
+        },
+        {
+            "text": "Key simulation output measures of interest consist of the duration of time at maximum capacity (to inform workforce requirements), peak capacity-dependent and capacityindependent deaths per day (for mortuary planning), and total deaths over the course of the pandemic (as an ultimate marker of intervention efficacy, in balancing demand and capacity). Confidence intervals, at 95% level, were calculated based on the variation in output measure observed across the 1000 replications performed for each scenario, with each replication using a different stream of random numbers. This number of replications was selected based on the resulting reduction of simulation error to magnitudes deemed sufficiently negligible (<0.25%) when assessed against the output measures of interest (this was performed using different seeds for which the random number streams were drawn for each replication within the simulations considered). The model was implemented as a package within 64-bit R version 3.6.0. For each scenario, computational time was approximately 5 min when performed on a Windows 10 desktop computer.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Simulation"
+        },
+        {
+            "text": "Estimates for the key output measures of interest are presented alongside each of the considered scenarios in Table 2 . Transient outputs corresponding to each of these key areas of interest are presented in Fig. 3 across all scenarios, highlighting the key dynamical relationships between these variables. For instance, when full capacity is reached (left plots) then capacity-dependent deaths start to occur (middleleft plots) based on the extent to which demand continues to exceed supply; with the magnitude of this determining the rate at which deaths accumulate (middle-right plots).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 110,
+                    "end": 117,
+                    "text": "Table 2",
+                    "ref_id": "TABREF1"
+                },
+                {
+                    "start": 208,
+                    "end": 214,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "In the absence of any intervention to reduce the effective reproduction number (R) from the basic reproduction number (R0) through case isolation, home quarantine and social distancing (i.e. the No isolation strategy of Scenario 1), the estimated total death toll is significantly higher than in other scenarios. Employing these measures reduces capacitydependent deaths by an estimated three-fifths and cuts the peak daily capacity-dependent deaths by 69% ceteris paribus (Scenario 2). Incorporating capacity-independent deaths (occurring within intensive care following admission), total deaths over the pandemic are reduced by 2182 (54%). Increasing capacity from 45 to 76 intensive care beds (Scenario 3) further reduces capacity-dependent deaths by 307 (20%), with total deaths reducing by a lesser 150 (8%) given the additional capacity-independent deaths that consequently occur (recalling P adm d \u00bc 0:507 ). This also starts to reduce the number of subsequent days at maximum capacity, from 76 to 64 (16%). This is brought down further (to 56 days) should capacity increases to 100 beds be possible (Scenario 4), which also brings down capacity-dependent deaths to under 1000 and reduces total deaths by approximately 100. Curtailing mean length of stay by one-quarter appears to have a relatively small improvement to the total number of deaths (Scenario 5 c.f. Scenario 2), which is in part due to the rightskewed nature of the length of stay distribution (i.e. the number of longer-staying patients in the tail is unchanged since the shape of the distribution is presumed unaltered). When intensive care length of stay is increased by one-quarter (Scenario 6 c.f. Scenario 2), the additional 98 (6.5%) capacity-dependent deaths are offset by fewer capacity-independent deaths given the reduced intensive care throughput, resulting in a lesser 47 (2.5%) total deaths. Should any additional government-led isolation strategies be effective in further flattening the epidemic curve for cases requiring intensive care, then a substantial reduction in peak capacity-dependent deaths from 33 to 20 would be expected (i.e. Scenario 7 c.f. Scenario 2). However, without increases to capacity this simply spreads the deaths over a longer period of time, rather than reducing the total by a significant amount (1750 c.f. 1849). To achieve a significant reduction in total deaths then any further 'flattening' of demand must be accompanied by increases in capacity. If first and second surge capacity levels can be met then total deaths reduce by 198 (11%) and 322 (18%) respectively (i.e. Scenarios 8 and 9 c.f. Scenario 7). Finally, if second surge bed numbers can be accompanied by the afore-mentioned one-quarter reduction in length of stay then total deaths can be reduced by 454 (26%), peak capacity-dependent deaths reduced to ten per day, and the duration of time operating at full capacity shortened by one half (Scenario 10 c.f. Scenario 7) . Note that while further 'flattening' of demand and accompanying capacity increases lead to greater capacity-independent deaths (due to higher numbers admitted) this is more than offset by the reduction in capacity-dependent deaths, meaning total deaths are reduced.",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 2921,
+                    "end": 2950,
+                    "text": "(Scenario 10 c.f. Scenario 7)",
+                    "ref_id": "FIGREF0"
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "These mortality projections can be contextualised against those theoretically achievable were intensive care bed capacity not a constraint. With an 8.07 day mean length of stay, total deaths are estimated at 2191 (95% CI 1822 to 2564) for No isolation and 1111 (920 to 1311) for both Isolation and Isolation (flattened), noting of course that these figures are composed solely of capacity-independent deaths. Thus under an Isolation (flattened) strategy with 25% reduced length of stay and 100 beds (Scenario 10), the total number of deaths is within 185 (15%) of the theoretical lower bound (at least in the absence of vaccine or treatment). The peak bed requirement corresponding to these lower bound mortality estimates under the three strategies are 853 (704 to 1012), 303 (243 to 363) and 206 (163 to 250) respectively (Fig. 4 ).",
+            "cite_spans": [],
+            "ref_spans": [
+                {
+                    "start": 824,
+                    "end": 831,
+                    "text": "(Fig. 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Results"
+        },
+        {
+            "text": "This paper details the approach taken to evaluate the effect of various potential mitigations on COVID-19 deaths resulting from a lack of intensive care capacity at a hospital in England. Performed at an early stage of the outbreak, the analysis presented here has allowed intensivists and planners insight into the number and cause of deaths that could result under various scenarios informed through clinical opinion and early findings within the literature. In implementing the model as an open source tool, the approach has been used across a number of healthcare systems within the UK National Health Service. This has been facilitated through making the model code publicly available as an R package [34] and promoting the tool through social media and national webinar series [35] .",
+            "cite_spans": [
+                {
+                    "start": 706,
+                    "end": 710,
+                    "text": "[34]",
+                    "ref_id": "BIBREF32"
+                },
+                {
+                    "start": 783,
+                    "end": 787,
+                    "text": "[35]",
+                    "ref_id": "BIBREF33"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Application"
+        },
+        {
+            "text": "Modelling insights have proved valuable to decisionmaking in a number of ways. First, it has enabled a more objective assessment of the potential gain from efforts required to convert existing clinical areas to intensive care specification. This has allowed consideration of the opportunity cost of such actions, e.g. if theatre space is used then this may limit the ability to perform emergency surgery. Second, it has facilitated consideration of the gain from investing in efforts to reduce length of stay through potentially-effective weaning protocols [32] . Third, it has enabled consideration of the effect of delays to discharge that may reasonably exist from intensive care to downstream services [33] , particularly in the COVID-19 setting where other acute and community services may be overwhelmed. Fourth, it has informed an understanding of workforce requirements, through measuring the duration of time at maximum occupancy (and thus Fig. 3 Simulation output results for intensive care bed occupancy and projected capacity-dependent and capacity-independent deaths (per day and cumulative) across the ten scenarios considered. Black solid lines represent the mean and grey bands the 95% confidence intervals from 1000 replications per scenario. Dashed lines represent inputted capacity associated with the respective scenarios estimating staff burnout [36] ). Fifth, through sharing the modelling results with public health colleagues at various stages of the modelling, it has informed the capacity requirements of temporary mortuaries within the region. And sixth, through estimating the reduction of COVID-19 related occupancy, it has facilitated consideration of the timing and scale of when certain elective surgeries may resume.",
+            "cite_spans": [
+                {
+                    "start": 557,
+                    "end": 561,
+                    "text": "[32]",
+                    "ref_id": "BIBREF30"
+                },
+                {
+                    "start": 706,
+                    "end": 710,
+                    "text": "[33]",
+                    "ref_id": "BIBREF31"
+                },
+                {
+                    "start": 1367,
+                    "end": 1371,
+                    "text": "[36]",
+                    "ref_id": "BIBREF34"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 949,
+                    "end": 955,
+                    "text": "Fig. 3",
+                    "ref_id": null
+                }
+            ],
+            "section": "Application"
+        },
+        {
+            "text": "Turning to limitations, any modelling study performed during the early stages of outbreak of a novel disease must address the lack of available data and information [26] . The modelling of this study was based upon the same projections which prompted the UK Government's movement towards 'lockdown' [3] . These estimates appear to have forecasted demand for intensive care at many multiples of available supply (even at surge levels), yet it has become clear in the weeks that have followed that these projections were over-estimates [31] . The model can, however, be readily updated in response to the latest projections. Doing so has ensured modelled results have continued to reflect the best-known information at the time.",
+            "cite_spans": [
+                {
+                    "start": 165,
+                    "end": 169,
+                    "text": "[26]",
+                    "ref_id": "BIBREF25"
+                },
+                {
+                    "start": 299,
+                    "end": 302,
+                    "text": "[3]",
+                    "ref_id": "BIBREF2"
+                },
+                {
+                    "start": 534,
+                    "end": 538,
+                    "text": "[31]",
+                    "ref_id": "BIBREF29"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Limitations"
+        },
+        {
+            "text": "Another limitation relates to the assumption that all intensive care beds are available for newly-arriving COVID-19 patients. While elective procedures requiring post-operative intensive care have been postponed [37] , there remains other sources of non-elective non-COVID-19 demand. Estimations of this, once the effect of societal isolation becomes appreciable (e.g. any reduced road traffic accidents, alcohol-related injuries), can be incorporated within the capacity parameter simply by deducting the average beds occupied by such patients.",
+            "cite_spans": [
+                {
+                    "start": 212,
+                    "end": 216,
+                    "text": "[37]",
+                    "ref_id": "BIBREF35"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Limitations"
+        },
+        {
+            "text": "An additional possible limitation relates to the assumption that death occurs immediately if a bed in the required setting is not available. Realistically, death is unlikely to be immediate [38] , yet at an early stage of the pandemic no reliable data exists to meaningfully capture this parameter in the model. This has no effect on the ultimate number of deaths estimated, but will affect their specific timing and the thus, the peak daily number.",
+            "cite_spans": [
+                {
+                    "start": 190,
+                    "end": 194,
+                    "text": "[38]",
+                    "ref_id": null
+                }
+            ],
+            "ref_spans": [],
+            "section": "Limitations"
+        },
+        {
+            "text": "It is important to acknowledge that capacity has been considered only with regard to the number of beds within intensive care, and not the size or quality of clinical workforce. If the higher volumes of patients being looked after, as produced here through scenarios in which more beds are converted to intensive care specification, are not met with proportionate increases in the numbers of suitably-qualified doctors and nurses, then poorer patient outcomes (i.e. greater P adm d ) and longer lengths of stay may result [39] . Further research is thus required to investigate and incorporate the effect of workforce size and skill-mix on these model parameters. On the demand side, these parameters may also be affected by the possible implementation of an intensive care triage policy, which would result in a different case-mix admitted to intensive care. Additional modelling may thus be needed to understand the effects of rejecting intensive care admissions from patient cohorts known to have negligible survival likelihood, in the interests of maintaining available beds for those known to have more favourable chances. If those patients less likely to benefit from admission are triaged-out (as considered in [6, 40] ), then modelling would need to capture the different outcome and length of stay distributions for the new patient cohort. Ultimately, such a policy could potentially reduce further the total deaths over and above those considered in this study.",
+            "cite_spans": [
+                {
+                    "start": 522,
+                    "end": 526,
+                    "text": "[39]",
+                    "ref_id": "BIBREF36"
+                },
+                {
+                    "start": 1218,
+                    "end": 1221,
+                    "text": "[6,",
+                    "ref_id": "BIBREF5"
+                },
+                {
+                    "start": 1222,
+                    "end": 1225,
+                    "text": "40]",
+                    "ref_id": "BIBREF37"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Further research"
+        },
+        {
+            "text": "Further work may also investigate how the effect of discharge delays from intensive care to the acute wards can be better captured in the modelling. Firstly, any confounding in the empirically-calibrated length of stay distribution should be assessed, in examining the extent to which discharge delays are already accounted for within the length of stay data. This would require patient-level data including admission date and date ready for discharge alongside ultimate discharge date. While a 25% (2-day) addition to length of stay has been considered here (Scenario 6), further research could consider modelling the downstream acute bed base in order to assess the capacity required to reduce delays to discharge to a given length of time (with greater fidelity achievable through modelling the conjoint admission and discharge process between Fig. 4 Simulation output results for no constraint to bed number availability. This shows the number of intensive care beds that would be required to satisfy all demand intensive care and the acute wards, within a pathway model similar to that of [16] ).",
+            "cite_spans": [
+                {
+                    "start": 1094,
+                    "end": 1098,
+                    "text": "[16]",
+                    "ref_id": "BIBREF15"
+                }
+            ],
+            "ref_spans": [
+                {
+                    "start": 847,
+                    "end": 853,
+                    "text": "Fig. 4",
+                    "ref_id": null
+                }
+            ],
+            "section": "Further research"
+        },
+        {
+            "text": "A greater understanding of the dynamics between intensive care and the acute bed bases could also permit further work regarding the timing and magnitude of intensive care surge capacities. Converting existing specialist beds to intensive care specification for periods of time when there are relatively few COVID-19 presentations could reduce the availability or quality of service for other elective and emergency procedures. Through simulating the performance of elective pathways [41] , modelling is now being performed at the authors' organisation in order to more optimally balance the capacity allocated to these various competing demands.",
+            "cite_spans": [
+                {
+                    "start": 483,
+                    "end": 487,
+                    "text": "[41]",
+                    "ref_id": "BIBREF38"
+                }
+            ],
+            "ref_spans": [],
+            "section": "Further research"
+        }
+    ],
+    "bib_entries": {
+        "BIBREF0": {
+            "ref_id": "b0",
+            "title": "How will country-based mitigation measures influence the course of the COVID-19 epidemic?",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Anderson",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Heesterbeek",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Klinkenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Hollingsworth",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet",
+            "volume": "395",
+            "issn": "",
+            "pages": "931--934",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S0140-6736(20)30567-5"
+                ]
+            }
+        },
+        "BIBREF1": {
+            "ref_id": "b1",
+            "title": "Critical care utilization for the COVID-19 outbreak in Lombardy, Italy: early experience and forecast during an emergency response",
+            "authors": [
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Grasselli",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Pesenti",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Cecconi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "JAMA",
+            "volume": "323",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1001/jama.2020.4031"
+                ]
+            }
+        },
+        "BIBREF2": {
+            "ref_id": "b2",
+            "title": "Impact of nonpharmaceutical interventions (NPIs) to reduce COVID19 mortality and healthcare demand",
+            "authors": [
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Ferguson",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Laydon",
+                    "suffix": ""
+                },
+                {
+                    "first": "Nedjati",
+                    "middle": [],
+                    "last": "Gilani",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Imai",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": "Ainslie",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Baguelin",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                },
+                {
+                    "first": ".",
+                    "middle": [
+                        "."
+                    ],
+                    "last": "Dighe",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "9",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.25561/77482"
+                ]
+            }
+        },
+        "BIBREF3": {
+            "ref_id": "b3",
+            "title": "The reproductive number of COVID-19 is higher compared to SARS coronavirus",
+            "authors": [
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Gayle",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Wilder-Smith",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Rockl\u00f6v",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J Travel Med",
+            "volume": "27",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1093/jtm/taaa021"
+                ]
+            }
+        },
+        "BIBREF4": {
+            "ref_id": "b4",
+            "title": "Features of 16,749 hospitalised UK patients with COVID-19 using the ISARIC WHO Clinical Characterisation Protocol",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Docherty",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Harrison",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Green",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Hardwick",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Pius",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Norman",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1101/2020.04.23.20076042"
+                ]
+            }
+        },
+        "BIBREF5": {
+            "ref_id": "b5",
+            "title": "A framework for rationing ventilators and critical care beds during the COVID-19 pandemic",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "White",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Lo",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "JAMA",
+            "volume": "323",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1001/jama.2020.5046"
+                ]
+            }
+        },
+        "BIBREF6": {
+            "ref_id": "b6",
+            "title": "Respiratory support for patients with COVID-19 infection",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Silva",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet Respir Med",
+            "volume": "8",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S2213-2600(20)30110-7"
+                ]
+            }
+        },
+        "BIBREF7": {
+            "ref_id": "b7",
+            "title": "Novel coronavirus: how things are in Wuhan",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Khan",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Nabi",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Han",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Siddique",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Lian",
+                    "suffix": ""
+                },
+                {
+                    "first": "H",
+                    "middle": [],
+                    "last": "Shi",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Bashir",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ali",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Shereen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Clin Microbiol Infect",
+            "volume": "26",
+            "issn": "4",
+            "pages": "399--400",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.cmi.2020.02.005"
+                ]
+            }
+        },
+        "BIBREF8": {
+            "ref_id": "b8",
+            "title": "Early dynamics of transmission and control of COVID-19: a mathematical modelling study",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Kucharski",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Russell",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Diamond",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Liu",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Edmunds",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Funk",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet Infect Dis",
+            "volume": "20",
+            "issn": "",
+            "pages": "553--558",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S1473-3099(20)30144-4"
+                ]
+            }
+        },
+        "BIBREF9": {
+            "ref_id": "b9",
+            "title": "Real-time forecasts of the COVID-19 epidemic in China from",
+            "authors": [
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Roosa",
+                    "suffix": ""
+                },
+                {
+                    "first": "Y",
+                    "middle": [],
+                    "last": "Lee",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Luo",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Kirpich",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Rothenberg",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Hyman",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Yan",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Chowell",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Infect Dis Model",
+            "volume": "5",
+            "issn": "",
+            "pages": "256--263",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.idm.2020.02.002"
+                ]
+            }
+        },
+        "BIBREF10": {
+            "ref_id": "b10",
+            "title": "Strategy for disease diagnosis, progression prediction, risk group stratification and treatment-case of COVID-19",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Vihinen",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.20944/preprints202003.0361.v1"
+                ]
+            }
+        },
+        "BIBREF11": {
+            "ref_id": "b11",
+            "title": "Preparedness and vulnerability of African countries against importations of COVID-19: a modelling study",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Gilbert",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Pullano",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Pinotti",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Valdano",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Poletto",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [
+                        "Y"
+                    ],
+                    "last": "Bo\u00eblle",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet",
+            "volume": "395",
+            "issn": "",
+            "pages": "30411--30417",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S0140-6736(20)30411-6"
+                ]
+            }
+        },
+        "BIBREF12": {
+            "ref_id": "b12",
+            "title": "Systematic review of the use and value of computer simulation modelling in population health and health care delivery",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Fone",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Hollinghurst",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Temple",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Round",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [],
+                    "last": "Lester",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Weightman",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Roberts",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Coyle",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Bevan",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Palmer",
+                    "suffix": ""
+                }
+            ],
+            "year": 2003,
+            "venue": "J Public Health Dent",
+            "volume": "25",
+            "issn": "4",
+            "pages": "325--335",
+            "other_ids": {
+                "DOI": [
+                    "10.1093/pubmed/fdg075"
+                ]
+            }
+        },
+        "BIBREF13": {
+            "ref_id": "b13",
+            "title": "Modelling activities at a neurological rehabilitation unit",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Griffiths",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Williams",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wood",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Eur J Oper Res",
+            "volume": "226",
+            "issn": "2",
+            "pages": "301--312",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ejor.2012.10.037"
+                ]
+            }
+        },
+        "BIBREF14": {
+            "ref_id": "b14",
+            "title": "Patient flow within UK emergency departments: a systematic review of the use of computer simulation modelling methods",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Mohiuddin",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Busby",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Savovi\u0107",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Richards",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Northstone",
+                    "suffix": ""
+                },
+                {
+                    "first": "W",
+                    "middle": [],
+                    "last": "Hollingworth",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Donovan",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Vasilakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "BMJ Open",
+            "volume": "7",
+            "issn": "5",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1136/bmjopen-2016-015007"
+                ]
+            }
+        },
+        "BIBREF15": {
+            "ref_id": "b15",
+            "title": "Modelling capacity along a patient pathway with delays to transfer and discharge",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wood",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Murch",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "J Oper Res Soc",
+            "volume": "",
+            "issn": "",
+            "pages": "1--15",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/01605682.2019.1609885"
+                ]
+            }
+        },
+        "BIBREF16": {
+            "ref_id": "b16",
+            "title": "Systems modelling and simulation in health service design, delivery and decision making",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Pitt",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Monks",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Crowe",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Vasilakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2016,
+            "venue": "BMJ Qual Saf",
+            "volume": "25",
+            "issn": "1",
+            "pages": "38--45",
+            "other_ids": {
+                "DOI": [
+                    "10.1136/bmjqs-2015-004430"
+                ]
+            }
+        },
+        "BIBREF17": {
+            "ref_id": "b17",
+            "title": "Dynamics of bed use in accommodating emergency admissions: stochastic simulation model",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Bagust",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Place",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Posnett",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "BMJ",
+            "volume": "319",
+            "issn": "7203",
+            "pages": "155--158",
+            "other_ids": {
+                "DOI": [
+                    "10.1136/bmj.319.7203.155"
+                ]
+            }
+        },
+        "BIBREF18": {
+            "ref_id": "b18",
+            "title": "A simulationbased decision support tool for informing the management of patients with Parkinson's disease",
+            "authors": [
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Demir",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Vasilakis",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Lebcir",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [],
+                    "last": "Southern",
+                    "suffix": ""
+                }
+            ],
+            "year": 2015,
+            "venue": "Int J Prod Res",
+            "volume": "53",
+            "issn": "24",
+            "pages": "7238--7251",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/00207543.2015.1029647"
+                ]
+            }
+        },
+        "BIBREF19": {
+            "ref_id": "b19",
+            "title": "Development of a discrete event simulation model for evaluating strategies of red blood cell provision following mass casualty events",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Glasgow",
+                    "suffix": ""
+                },
+                {
+                    "first": "Z",
+                    "middle": [
+                        "B"
+                    ],
+                    "last": "Perkins",
+                    "suffix": ""
+                },
+                {
+                    "first": "N",
+                    "middle": [
+                        "R"
+                    ],
+                    "last": "Tai",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Brohi",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Vasilakis",
+                    "suffix": ""
+                }
+            ],
+            "year": 2018,
+            "venue": "Eur J Oper Res",
+            "volume": "270",
+            "issn": "1",
+            "pages": "362--374",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/j.ejor.2018.03.008"
+                ]
+            }
+        },
+        "BIBREF20": {
+            "ref_id": "b20",
+            "title": "A simulation study of the winter bed crisis",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Vasilakis",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "El-Darzi",
+                    "suffix": ""
+                }
+            ],
+            "year": 2001,
+            "venue": "Health Care Manag Sci",
+            "volume": "4",
+            "issn": "1",
+            "pages": "31--36",
+            "other_ids": {
+                "DOI": [
+                    "10.1023/A:1009649615548"
+                ]
+            }
+        },
+        "BIBREF21": {
+            "ref_id": "b21",
+            "title": "Unravelling the dynamics of referral-totreatment in the NHS",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wood",
+                    "suffix": ""
+                }
+            ],
+            "year": 2019,
+            "venue": "Health Syst",
+            "volume": "",
+            "issn": "",
+            "pages": "1--7",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/20476965.2019.1700764"
+                ]
+            }
+        },
+        "BIBREF22": {
+            "ref_id": "b22",
+            "title": "Sustaining critical care: using evidence-based simulation to evaluate ICU management COVID-19 scenario modelling for the mitigation of capacity-dependent deaths in intensive care policies",
+            "authors": [
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Mahmoudian-Dehkordi",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [],
+                    "last": "Sadat",
+                    "suffix": ""
+                }
+            ],
+            "year": 2017,
+            "venue": "Health Care Manag Sci",
+            "volume": "20",
+            "issn": "4",
+            "pages": "532--547",
+            "other_ids": {
+                "DOI": [
+                    "10.1007/s10729-016-9369-z"
+                ]
+            }
+        },
+        "BIBREF23": {
+            "ref_id": "b23",
+            "title": "Analysis of capacity management of the intensive care unit in a hospital",
+            "authors": [
+                {
+                    "first": "S",
+                    "middle": [
+                        "C"
+                    ],
+                    "last": "Kim",
+                    "suffix": ""
+                },
+                {
+                    "first": "I",
+                    "middle": [],
+                    "last": "Horowitz",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [
+                        "K"
+                    ],
+                    "last": "Young",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Buckley",
+                    "suffix": ""
+                }
+            ],
+            "year": 1999,
+            "venue": "Eur J Oper Res",
+            "volume": "115",
+            "issn": "1",
+            "pages": "135--135",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S0377-2217(98)00135-0"
+                ]
+            }
+        },
+        "BIBREF24": {
+            "ref_id": "b24",
+            "title": "A simulation model of bed-occupancy in a critical care unit",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [
+                        "D"
+                    ],
+                    "last": "Griffiths",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Jones",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Read",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "E"
+                    ],
+                    "last": "Williams",
+                    "suffix": ""
+                }
+            ],
+            "year": 2010,
+            "venue": "J Simul",
+            "volume": "4",
+            "issn": "1",
+            "pages": "52--59",
+            "other_ids": {
+                "DOI": [
+                    "10.1057/jos.2009.22"
+                ]
+            }
+        },
+        "BIBREF25": {
+            "ref_id": "b25",
+            "title": "How simulation modelling can help reduce the impact of COVID-19",
+            "authors": [
+                {
+                    "first": "C",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Currie",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Fowler",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kotiadis",
+                    "suffix": ""
+                },
+                {
+                    "first": "T",
+                    "middle": [],
+                    "last": "Monks",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Onggo",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Robertson",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Tako",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J Simul",
+            "volume": "",
+            "issn": "",
+            "pages": "1--15",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/17477778.2020.1751570"
+                ]
+            }
+        },
+        "BIBREF26": {
+            "ref_id": "b26",
+            "title": "Stochastic processes occurring in the theory of queues and their analysis by the method of the imbedded Markov chain",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "G"
+                    ],
+                    "last": "Kendall",
+                    "suffix": ""
+                }
+            ],
+            "year": 1953,
+            "venue": "Ann Math Stat",
+            "volume": "24",
+            "issn": "",
+            "pages": "338--354",
+            "other_ids": {}
+        },
+        "BIBREF27": {
+            "ref_id": "b27",
+            "title": "USA 29. Law AM (2003) How to conduct a successful simulation study",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Pidd",
+                    "suffix": ""
+                }
+            ],
+            "year": 1988,
+            "venue": "Proceedings of the 35th conference on winter simulation: driving innovation",
+            "volume": "",
+            "issn": "",
+            "pages": "66--70",
+            "other_ids": {
+                "DOI": [
+                    "10.1109/WSC.2003.1261409"
+                ]
+            }
+        },
+        "BIBREF28": {
+            "ref_id": "b28",
+            "title": "Forecasting ultra-early intensive care strain from COVID-19 in England",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Deasy",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [],
+                    "last": "Rocheteau",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Kohler",
+                    "suffix": ""
+                },
+                {
+                    "first": "D",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Stubbs",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Barbiero",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Li\u00f2",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Ercole",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1101/2020.03.19.20039057"
+                ]
+            }
+        },
+        "BIBREF29": {
+            "ref_id": "b29",
+            "title": "Intensive Care and National Audit & Research Centre (2020) ICNARC report on COVID-19 in critical care 24",
+            "authors": [],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF30": {
+            "ref_id": "b30",
+            "title": "Use of weaning protocols for reducing duration of mechanical ventilation in critically ill adult patients: Cochrane systematic review and meta-analysis",
+            "authors": [
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Blackwood",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Alderdice",
+                    "suffix": ""
+                },
+                {
+                    "first": "K",
+                    "middle": [],
+                    "last": "Burns",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Cardwell",
+                    "suffix": ""
+                },
+                {
+                    "first": "G",
+                    "middle": [],
+                    "last": "Lavery",
+                    "suffix": ""
+                },
+                {
+                    "first": "O",
+                    "middle": [],
+                    "last": "&apos;halloran",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "BMJ",
+            "volume": "342",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1136/bmj.c7237"
+                ]
+            }
+        },
+        "BIBREF31": {
+            "ref_id": "b31",
+            "title": "Delay of transfer from the intensive care unit: a prospective observational study of incidence, causes, and financial impact",
+            "authors": [
+                {
+                    "first": "D",
+                    "middle": [
+                        "W"
+                    ],
+                    "last": "Johnson",
+                    "suffix": ""
+                },
+                {
+                    "first": "U",
+                    "middle": [
+                        "H"
+                    ],
+                    "last": "Schmidt",
+                    "suffix": ""
+                },
+                {
+                    "first": "E",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Bittner",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [],
+                    "last": "Christensen",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [],
+                    "last": "Levi",
+                    "suffix": ""
+                },
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Pino",
+                    "suffix": ""
+                }
+            ],
+            "year": 2013,
+            "venue": "Crit Care",
+            "volume": "17",
+            "issn": "4",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1186/cc12807"
+                ]
+            }
+        },
+        "BIBREF32": {
+            "ref_id": "b32",
+            "title": "Easy-to-use function for modelling the effect of different mitigating scenarios on projected capacitydependent covid19 deaths",
+            "authors": [
+                {
+                    "first": "Analytics",
+                    "middle": [],
+                    "last": "Nhs Bnssg",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF33": {
+            "ref_id": "b33",
+            "title": "Covid-19 Modelling Webinar: Covid-19 intensive care capacity modelling",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Nhs-R Community",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF34": {
+            "ref_id": "b34",
+            "title": "Provider burnout and fatigue during the COVID-19 pandemic: lessons learned from a high-volume intensive Care unit",
+            "authors": [
+                {
+                    "first": "F",
+                    "middle": [],
+                    "last": "Sasangohar",
+                    "suffix": ""
+                },
+                {
+                    "first": "S",
+                    "middle": [
+                        "L"
+                    ],
+                    "last": "Jones",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "N"
+                    ],
+                    "last": "Masud",
+                    "suffix": ""
+                },
+                {
+                    "first": "F",
+                    "middle": [
+                        "S"
+                    ],
+                    "last": "Vahidy",
+                    "suffix": ""
+                },
+                {
+                    "first": "B",
+                    "middle": [
+                        "A"
+                    ],
+                    "last": "Kash",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Anesth Analg",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {
+                "DOI": [
+                    "10.1213/ANE.0000000000004866"
+                ]
+            }
+        },
+        "BIBREF35": {
+            "ref_id": "b35",
+            "title": "Next steps on NHS response to COVID-19: letter from sir Simon Stevens and Amanda Pritchard",
+            "authors": [
+                {
+                    "first": "",
+                    "middle": [],
+                    "last": "Nhs England",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        },
+        "BIBREF36": {
+            "ref_id": "b36",
+            "title": "Intensive care management of coronavirus disease 2019 (COVID-19): challenges and recommendations",
+            "authors": [
+                {
+                    "first": "J",
+                    "middle": [],
+                    "last": "Phua",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Weng",
+                    "suffix": ""
+                },
+                {
+                    "first": "L",
+                    "middle": [],
+                    "last": "Ling",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Egi",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Lim",
+                    "suffix": ""
+                },
+                {
+                    "first": "J",
+                    "middle": [
+                        "V"
+                    ],
+                    "last": "Divatia",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "Lancet Respir Med",
+            "volume": "8",
+            "issn": "",
+            "pages": "506--517",
+            "other_ids": {
+                "DOI": [
+                    "10.1016/S2213-2600(20)30161-2"
+                ]
+            }
+        },
+        "BIBREF37": {
+            "ref_id": "b37",
+            "title": "Does triage to critical care during a pandemic necessarily result in more survivors?",
+            "authors": [
+                {
+                    "first": "M",
+                    "middle": [],
+                    "last": "Utley",
+                    "suffix": ""
+                },
+                {
+                    "first": "C",
+                    "middle": [],
+                    "last": "Pagel",
+                    "suffix": ""
+                },
+                {
+                    "first": "M",
+                    "middle": [
+                        "J"
+                    ],
+                    "last": "Peters",
+                    "suffix": ""
+                },
+                {
+                    "first": "A",
+                    "middle": [],
+                    "last": "Petros",
+                    "suffix": ""
+                },
+                {
+                    "first": "P",
+                    "middle": [],
+                    "last": "Lister",
+                    "suffix": ""
+                }
+            ],
+            "year": 2011,
+            "venue": "Crit Care Med",
+            "volume": "39",
+            "issn": "1",
+            "pages": "179--183",
+            "other_ids": {
+                "DOI": [
+                    "10.1097/CCM.0b013e3181fa3c3b"
+                ]
+            }
+        },
+        "BIBREF38": {
+            "ref_id": "b38",
+            "title": "Modelling the impact of COVID-19 on elective waiting times",
+            "authors": [
+                {
+                    "first": "R",
+                    "middle": [
+                        "M"
+                    ],
+                    "last": "Wood",
+                    "suffix": ""
+                }
+            ],
+            "year": 2020,
+            "venue": "J Simul",
+            "volume": "",
+            "issn": "",
+            "pages": "1--9",
+            "other_ids": {
+                "DOI": [
+                    "10.1080/17477778.2020.1764876"
+                ]
+            }
+        },
+        "BIBREF39": {
+            "ref_id": "b39",
+            "title": "Publisher's note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional affiliations",
+            "authors": [],
+            "year": null,
+            "venue": "",
+            "volume": "",
+            "issn": "",
+            "pages": "",
+            "other_ids": {}
+        }
+    },
+    "ref_entries": {
+        "FIGREF0": {
+            "text": "Illustrated difference between capacity-dependent and capacity-independent deaths (see Sect. 2 for further description of the probabilities P rej d and P adm d )",
+            "latex": null,
+            "type": "figure"
+        },
+        "TABREF0": {
+            "text": "Distribution of age within estimated hospital catchment area",
+            "latex": null,
+            "type": "table"
+        },
+        "TABREF1": {
+            "text": "Simulation key output measures of interest obtained over 1000 simulation replications. Strategies relate to the epidemic curves for cases requiring intensive care equivalent to those contained in",
+            "latex": null,
+            "type": "table"
+        }
+    },
+    "back_matter": [
+        {
+            "text": "Acknowledgements The authors are grateful to Nick Howlett for developing the R package for the model code used in this study. The authors are also grateful to the anonymous referees for their most helpful suggestions that have improved the quality and legibility of this article.Contributions RW designed the study, performed the analysis, and produced the outputs. RW, CM, CV wrote the manuscript. RW, CM, MT, CB, and CV reviewed the literature and reviewed the manuscript.Funding No external funding has been received for this study.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "acknowledgement"
+        },
+        {
+            "text": "Conflict of interest The authors report no conflicts of interest or competing interests.Data/material Model code and data used for this study is available at https://github.com/nhs-bnssg-analytics/covid-simr-hospital-application. The packaged tool for more general use is available at https://github.com/ nhs-bnssg-analytics/covid-simr.",
+            "cite_spans": [],
+            "ref_spans": [],
+            "section": "Compliance with ethical standards"
+        }
+    ]
+}
