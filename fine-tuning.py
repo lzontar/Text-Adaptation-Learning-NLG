@@ -52,7 +52,7 @@ def generate_some_text(input_str, text_len = 250):
         print(output_text)
 
 BATCH_SIZE = 16
-EPOCHS = 10
+EPOCHS = 5
 LEARNING_RATE = 3e-5
 WARMUP_STEPS = 5000
 MAX_SEQ_LEN = 400
@@ -73,23 +73,8 @@ if not os.path.exists(models_folder):
 for epoch in range(EPOCHS):
 
     print(f"EPOCH {epoch} started" + '=' * 30)
-    rootdir = _data_absolute_path + 'research_articles/document_parses/pdf_json'
-    dataset = []
-    for subdir, dirs, files in os.walk(rootdir):
-        ix = 0
-        for f in files:
-            if ix == 0:
-                break
-            file = open(_data_absolute_path + 'research_articles/document_parses/pdf_json/' + f, 'r')
-            json_file = json.loads(str(file.read()))
-            research_article = ''
-            for paragraph in json_file['body_text']:
-                research_article = research_article + paragraph['text']
+    dataset =pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text']
 
-            file.close()
-            dataset.append(research_article)
-            ix = ix + 1
-    dataset = ["I am the beast!"]
     adapt_loader = DataLoader(dataset, batch_size=1, shuffle=True)
     for idx, adapt in enumerate(adapt_loader):
 
@@ -136,5 +121,5 @@ for epoch in range(EPOCHS):
 
     # Store the model after each epoch to compare the performance of them
     torch.save(model.state_dict(), os.path.join(models_folder, f"gpt2_medium_adaptr_{epoch}.pt"))
-    google.colab.files.download(models_folder + "gpt2_medium_adaptr_" + epoch +".pt")
+    google.colab.files.download(models_folder + "gpt2_medium_adaptr_" + str(epoch) +".pt")
 
