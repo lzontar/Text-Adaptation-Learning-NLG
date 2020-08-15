@@ -50,7 +50,7 @@ def generate_some_text(input_str, text_len = 250):
         output_text = tokenizer.decode(output_list)
         print(output_text)
 
-MODEL_EPOCH = 2
+MODEL_EPOCH = 4
 
 models_folder = "Model/"
 

@@ -14,8 +14,8 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel, AdamW, WarmUp
 _data_absolute_path = 'Data/'
 
 device = 'cpu'
-# if torch.cuda.is_available():
-#     device = 'cuda'
+if torch.cuda.is_available():
+    device = 'cuda'
 
 
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
@@ -66,7 +66,7 @@ sum_loss = 0.0
 batch_count = 0
 
 tmp_adapts_tens = None
-models_folder = "Model/"
+models_folder = "/content/drive/My Drive/Model/"
 if not os.path.exists(models_folder):
     os.mkdir(models_folder)
 
